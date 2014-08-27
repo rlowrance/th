@@ -32,10 +32,12 @@ parcels-zip8 = $(parcels-volume)/CAC06037F8.zip
 
 parcels-sfr.RData = $(working)/parcels-sfr.RData
 
+parcels-sfr-sample.RData = $(working)/parcels-sfr-sample.RData
+
 census.csv = $(raw)/neighborhood-data/census.csv
 census.RData = $(working)/census.RData
 
-targets = $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
+targets = $(parcels-sfr-sample.RData) $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
 $(warning targets is $(targets))
 
 .PHONY: all
@@ -54,3 +56,8 @@ $(parcels-sfr.RData): parcels-sfr.R Directory.R LUSEI.R \
   $(parcels-zip1) $(parcels-zip2) $(parcels-zip3) $(parcels-zip4) \
   $(parcels-zip5) $(parcels-zip6) $(parcels-zip7) $(parcels-zip8)
 	Rscript parcels-sfr.R
+
+$(parcels-sfr-sample.RData): parcels-sfr-sample.R Directory.R ReadParcelsSfr.R \
+	$(parcels-sfr.RData)
+	Rscript parcels-sfr-sample.R
+
