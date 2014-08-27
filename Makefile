@@ -32,11 +32,18 @@ parcels-zip8 = $(parcels-volume)/CAC06037F8.zip
 
 parcels-sfr.RData = $(working)/parcels-sfr.RData
 
-targets = $(deeds-al.RData) $(parcels-sfr.RData)
+census.csv = $(raw)/neighborhood-data/census.csv
+census.RData = $(working)/census.RData
+
+targets = $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
 $(warning targets is $(targets))
 
 .PHONY: all
 all: $(targets)
+
+$(census.RData): census.R Directory.R \
+	$(census.csv)
+	Rscript census.R
 
 $(deeds-al.RData): deeds-al.R Directory.R PRICATCODE.R \
   $(deeds-zip1) $(deeds-zip2) $(deeds-zip3) $(deeds-zip4) \
