@@ -9,6 +9,7 @@ Directory <- function(description) {
     switch(
         description
         ,source  = './'
+        ,log = paste0(data.dir, 'log/')
         ,output  = paste0(data.dir, 'output/')
         ,raw     = paste0(data.dir, 'raw/')
         ,working = paste0(data.dir, 'working/')
