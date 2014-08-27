@@ -7,3 +7,6 @@
 # R data files from past sessions
 *.Rdata
 *.Rproj.user
+
+# OS X cruft
+.DS_Store
