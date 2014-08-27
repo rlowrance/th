@@ -16,6 +16,7 @@ Control <- function() {
     # return list of control variables
     me <-'parcels-sfr'
     
+    log <- Directory('log')
     raw <- Directory('raw')
     working <- Directory('working')
     
@@ -41,7 +42,7 @@ Control <- function() {
                                 ,Parcels(7)
                                 ,Parcels(8)
                                 )
-        ,path.out.log = paste0(working, me, '.log')
+        ,path.out.log = paste0(log, me, '.log')
         ,path.out.deeds = paste0(working, 'parcels-sfr.RData')
         ,testing = FALSE
         )
@@ -91,7 +92,7 @@ Main <- function(control) {
     
     # write control variables
     InitializeR(duplex.output.to = control$path.out.log)
-    print(str(control))
+    str(control)
 
     # read all the parcels
     all <- ReadAll(control)
@@ -100,22 +101,22 @@ Main <- function(control) {
 
     # Retain only observations coded as single-family residential
     is.sfr <- LUSEI(all$UNIVERSAL.LAND.USE.CODE, 'sfr')
-    sfr <- all[is.sfr,]
+    parcels.sfr <- all[is.sfr,]
 
     # count records
     nrow.all <- nrow(all)
-    nrow.sfr <- nrow(sfr)
+    nrow.sfr <- nrow(parcels.sfr)
     
     Printf('Read %d deeds\n', nrow.all)
     Printf('Retained %d as single-family residential\n', nrow.sfr)
-    print(str(sfr))
+    print(str(parcels.sfr))
     
     # Write RData
-    save(sfr, nrow.all, nrow.sfr, file = control$path.out.deeds)
+    save(parcels.sfr, nrow.all, nrow.sfr, file = control$path.out.deeds)
 
 
     # write control variables
-    print(str(control))
+    str(control)
     if (control$testing)
         cat('DISCARD OUTPUT: TESTING\n')
     
