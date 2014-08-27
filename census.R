@@ -11,12 +11,13 @@ load_all(Directory('realestate'))
 Control <- function() {
     me <-'census'
     
+    log <- Directory('log')
     raw <- Directory('raw')
     working <- Directory('working')
     
     control <- list(
          path.in.census = paste0(raw, 'neighborhood-data/census.csv')
-        ,path.out.log = paste0(working, me, '.log')
+        ,path.out.log = paste0(log, me, '.log')
         ,path.out.census = paste0(working, 'census.RData')
         ,testing = FALSE
         )
@@ -125,7 +126,7 @@ Main <- function(control) {
 
     # write control variables
     InitializeR(duplex.output.to = control$path.out.log)
-    print(str(control))
+    str(control)
 
     # read the raw data
     df <- ReadRawCensus(control)
@@ -135,7 +136,7 @@ Main <- function(control) {
                     avg.commute = AvgCommute(df),
                     median.household.income = MedianHouseholdIncome(df),
                     fraction.owner.occupied = FractionOwnerOccupied(df))
-    print(str(r))
+    str(r)
 
     # drop records with NaN values in the newly-created variables
     missing.commute <- is.na(r$avg.commute)
@@ -153,6 +154,7 @@ Main <- function(control) {
     cat("# obs retained", nrow(census), '\n')
     
     save(census, file = control$path.out.census)
+    str(control)
 }
 
 
