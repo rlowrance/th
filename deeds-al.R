@@ -14,6 +14,7 @@ Control <- function() {
     #cat('start Control\n'); browser()
     me <-'deeds-al'
     
+    log <- Directory('log')
     raw <- Directory('raw')
     working <- Directory('working')
     
@@ -31,7 +32,7 @@ Control <- function() {
     
     control <- list(
          path.in.deeds = list(Deeds(1), Deeds(2), Deeds(3), Deeds(4), Deeds(5), Deeds(6), Deeds(7), Deeds(8))
-        ,path.out.log = paste0(working, me, '.log')
+        ,path.out.log = paste0(log, me, '.log')
         ,path.out.deeds = paste0(working, 'deeds-al.RData')
         ,testing = FALSE
         )
@@ -88,7 +89,7 @@ Main <- function(control) {
     
     # write control variables
     InitializeR(duplex.output.to = control$path.out.log)
-    print(str(control))
+    str(control)
     
     # Read all the deeds
     all <- ReadAll(control)
@@ -110,7 +111,7 @@ Main <- function(control) {
 
 
     # write control variables
-    print(str(control))
+    str(control)
     if (control$testing)
         cat('DISCARD OUTPUT: TESTING\n')
 }
