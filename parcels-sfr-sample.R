@@ -1,6 +1,6 @@
 # parcels-sfr-sample.Rmd
 # main program to create file OUTPUT/parcels-sfr-sample.RData, holding 
-# a 10% random sample of OUTPUT/parcesl-sfr.RData
+# a 1% random sample of OUTPUT/parcels-sfr.RData
 
 source('Directory.R')
 source('ReadParcelsSfr.R')
@@ -12,7 +12,7 @@ load_all(Directory('realestate'))
 # set the control variables
 Control <- function() {
     # return list of control variables
-    me <-'parcels-sfr'
+    me <-'parcels-sfr-sample'
     working <- Directory('working')
     
     control <- list(
@@ -20,7 +20,7 @@ Control <- function() {
         ,path.out.parcels = paste0(working, 'parcels-sfr-sample.RData')
         ,random.seed = 123
         ,fraction.retained = .10
-        ,path.out.log = paste0(working, me, '.log')
+        ,path.out.log = paste0(log, me, '.log')
         ,testing = FALSE
         )
     control
