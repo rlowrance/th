@@ -52,7 +52,7 @@ $(deeds-al.RData): deeds-al.R Directory.R PRICATCODE.R \
   $(deeds-zip5) $(deeds-zip6) $(deeds-zip7) $(deeds-zip8)
 	Rscript deeds-al.R
 
-$(parcels-sfr.RData): parcels-sfr.R Directory.R LUSEI.R \
+$(parcels-sfr.RData): parcels-sfr.R Directory.R LUSEI.R ReadRawParcels.Rt  \
   $(parcels-zip1) $(parcels-zip2) $(parcels-zip3) $(parcels-zip4) \
   $(parcels-zip5) $(parcels-zip6) $(parcels-zip7) $(parcels-zip8)
 	Rscript parcels-sfr.R
