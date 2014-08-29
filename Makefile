@@ -33,31 +33,61 @@ parcels-zip8 = $(parcels-volume)/CAC06037F8.zip
 parcels-sfr.RData = $(working)/parcels-sfr.RData
 
 parcels-sfr-sample.RData = $(working)/parcels-sfr-sample.RData
+parcels-sample.RData = $(working)/parcels-sample.RData
+#parcels-derived-features.RData = $(working)/parcels-derived-features.RData
+parcels-coded.RData = $(working)/parcels-coded.RData
 
 census.csv = $(raw)/neighborhood-data/census.csv
 census.RData = $(working)/census.RData
 
-targets = $(parcels-sfr-sample.RData) $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
+targets = $(parcels-derived-features.RData) $(parcels-sample.RData) \
+		  $(parcels-sfr-sample.RData) $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
 $(warning targets is $(targets))
 
 .PHONY: all
 all: $(targets)
 
-$(census.RData): census.R Directory.R \
+# dependencies in R source files
+DirectoryLog.R:        DirectoryData.R
+DirectoryOutput.R:     DirectoryData.R
+DirectoryRaw.R:        DirectoryData.R
+DirectoryWorking.R:    DirectoryData.R
+
+
+$(census.RData): census.R \
+	DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R \
 	$(census.csv)
 	Rscript census.R
 
-$(deeds-al.RData): deeds-al.R Directory.R PRICATCODE.R \
-  $(deeds-zip1) $(deeds-zip2) $(deeds-zip3) $(deeds-zip4) \
-  $(deeds-zip5) $(deeds-zip6) $(deeds-zip7) $(deeds-zip8)
+$(deeds-al.RData): deeds-al.R \
+	DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R PRICATCODE.R \
+	$(deeds-zip1) $(deeds-zip2) $(deeds-zip3) $(deeds-zip4) \
+	$(deeds-zip5) $(deeds-zip6) $(deeds-zip7) $(deeds-zip8)
 	Rscript deeds-al.R
 
-$(parcels-sfr.RData): parcels-sfr.R Directory.R LUSEI.R ReadRawParcels.Rt  \
-  $(parcels-zip1) $(parcels-zip2) $(parcels-zip3) $(parcels-zip4) \
-  $(parcels-zip5) $(parcels-zip6) $(parcels-zip7) $(parcels-zip8)
+$(parcels-coded.RData): parcels-coded.R \
+	DirectoryLog.R DirectoryWorking.R Libraries.R LUSEI.R PROPN.R ReadRawParcels.R 
+	RScript parcels-coded.R
+
+#$(parcels-derived-features.RData): parcels-derived-features.R \
+#	DirectoryLog.R DirectoryWorking.R \
+#	EvaluateWithoutWarnings.R Libraries.R LUSEI.R PROPN.R ReadParcelsCoded.R \
+#	$(census.RData) $(parcels-sample.RData)
+#	Rscript parcels-derived-features.R
+
+
+$(parcels-sample.RData): parcels-sample.R \
+	DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R ReadRawParcels.R
+	Rscript parcels-sample.R
+
+$(parcels-sfr.RData): parcels-sfr.R \
+	DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R LUSEI.R ReadRawParcels.R  \
+	$(parcels-zip1) $(parcels-zip2) $(parcels-zip3) $(parcels-zip4) \
+	$(parcels-zip5) $(parcels-zip6) $(parcels-zip7) $(parcels-zip8)
 	Rscript parcels-sfr.R
 
-$(parcels-sfr-sample.RData): parcels-sfr-sample.R Directory.R ReadParcelsSfr.R \
+$(parcels-sfr-sample.RData): parcels-sfr-sample.R \
+	DirectoryLog.R DirectoryWorking.R Libraries.R ReadParcelsSfr.R \
 	$(parcels-sfr.RData)
 	Rscript parcels-sfr-sample.R
 
