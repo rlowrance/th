@@ -10,3 +10,4 @@
 
 # OS X cruft
 .DS_Store
+.Rproj.user

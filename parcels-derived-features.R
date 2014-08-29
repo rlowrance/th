@@ -1,126 +1,104 @@
-# features-zip.R
-# Create files OUTPUT/feature-zip-5.R and features-zip-9.R containing zipcode features
-# 
-# Files read and the deeds files the Laufer directory. This directory contains
-# the file Steve Laufer used in his experiments.
+# parcels-derived-features.R
+# Create files OUTPUT/parcels-derived-features.RData
 
-
-# set the control variables
-control <- list()
-control$me <- 'parcels-derived-features'
-control$laufer.dir <-'../data/raw/from-laufer-2010-05-11'
-control$dir.output <- "../data/v6/output/"
-
-control$path.zip5 <- paste0(control$dir.output, control$me, '-', "zip5.csv")
-control$path.census.tract <- paste0(control$dir.output, control$me, '-', "census-tract.csv")
-
-control$path.log <- paste0(control$dir, control$me, '.txt')
-control$return.all.fields <- TRUE
-control$testing <- TRUE
-control$testing <- FALSE
-
-
-# Initialize R.
-source('InitializeR.R')
-InitializeR(start.JIT = FALSE,
-            duplex.output.to = control$path.log)
-
-# source other files now that JIT is running
+source('DirectoryLog.R')
+source('DirectoryWorking.R')
+source('EvaluateWithoutWarnings.R')
+source('Libraries.R')
 source('LUSEI.R')
 source('PROPN.R')
-source('Printf.R')
+source('ReadParcelsCoded.R')
 
-## Define function to read a taxroll file
-
-ReadParcelsFile <- function(num, control) {
-    # read  features in a taxroll file
-    # ARGS:
-    # num              : number of the file
-    # return.all.field : logical
-    # RETURNS a data.frame
-    path <- paste(control$laufer.dir,
-                  "/tax/CAC06037F",
-                  num,
-                  ".txt.gz",
-                  sep="")
-    cat("reading tax file", path, "\n")
-    df <- read.table(path,
-                     header=TRUE,
-                     sep="\t",
-                     quote="",
-                     comment="",
-                     stringsAsFactors=FALSE,
-                     na.strings="",
-                     nrows=ifelse(control$testing,1000,-1))
-
-    # analyze raw data
-    cat("records in", path, nrow(df), "\n")
-    for (name in names(df)) {
-        Printf('%30s', name)
-        str(df[[name]])
-    }
-
-    if (TRUE) print(summary(df))
+Control <- function() {
+    me <-'parcels-derived-features'
     
-
-
-    # select the fields we want
-    df <- data.frame(UNIVERSAL.LAND.USE.CODE = df$UNIVERSAL.LAND.USE.CODE,
-                     PROPERTY.INDICATOR.CODE = df$PROPERTY.INDICATOR.CODE,
-                     PROPERTY.ZIPCODE = df$PROPERTY.ZIPCODE,
-                     CENSUS.TRACT = df$CENSUS.TRACT,
-                     stringsAsFactors=FALSE)
-    df
+    log <- DirectoryLog()
+    working <- DirectoryWorking()
+    
+    control <- list(
+         path.in.parcels.coded = paste0(working, 'parcels-coded.RData')
+        ,path.out.features = paste0(working, me, '.RData')
+        ,path.out.log = paste0(log, me, '.log')
+        ,testing = FALSE
+        ,do.analysis = TRUE
+        )
+    control
 }
-
-ReadAll <- function(control) {
-    # Read all the parcels into one huge data.frame
-    # ARGS: none
-    # RETURNS: list
-    # $df : data.frame with lots of rows
-    df <- NULL
-    for (file.number in 1:8) {
-        a.list <- ReadParcelsFile(file.number, control)
-        df <- rbind(df, a.list)
-    }
-    df
-}
-
-###############################################################################
-## Misc function
-###############################################################################
-
-
-
-ParcelIndicators <- function(df) {
-    data.frame(is.industry = PROPN(df$PROPERTY.INDICATOR.CODE, 'any.industrial'),
-               is.park = LUSEI(df$UNIVERSAL.LAND.USE.CODE, 'park'),
-               is.retail = PROPN(df$PROPERTY.INDICATOR.CODE, 'retail'),
-               is.school = LUSEI(df$UNIVERSAL.LAND.USE.CODE, 'any.school'))
-}
-
 Has <- function(location, indicator.column.name, parcels.coded) {
+    # return TRUE iff for one of the locations in parcels.coded, the
+    # value in parcels.coded$indicator.column.name is TRUE
     right.location <- location == parcels.coded$location
     sum(parcels.coded[right.location, indicator.column.name]) > 0
 }
-
-CreateLocationFeatures <- function(control, parcels.coded) {
-    cat('starting CreateLocationFeatures\n')
-    #browser()
-    str(parcels.coded)
-    print(summary(parcels.coded))
+CreateLocationFeatures <- function(control, location.field.name, parcels.coded) {
+    # return data.frame with these columns:
+    # $location    : num, a zip5, zip9, or census tract
+    # $has.industry: logi, true if any observation in $location[[i]] has $is.industry == TRUE
+    #                TRUE iff exists at least one observation i in parcels.coded with
+    #                parcels.coded$location[[i]] == result.location and
+    #                parcels.coded$is.industry[[i]] =- TRUE
+    #cat('starting CreateLocationFeatures\n'); browser()
 
     unique.locations <- unique(parcels.coded$location)
-    location.df <- data.frame(location = unique.locations,
-                              has.industry = vapply(unique.locations, Has, FALSE, 'is.industry', parcels.coded),
-                              has.park = vapply(unique.locations, Has, FALSE, 'is.park', parcels.coded),
-                              has.retail = vapply(unique.locations, Has, FALSE, 'is.retail', parcels.coded),
-                              has.school = vapply(unique.locations, Has, FALSE, 'is.school', parcels.coded))
+    features <- 
+        data.frame( location = unique.locations
+                   ,has.industry = vapply(unique.locations, Has, FALSE, 'is.industry', parcels.coded)
+                   ,has.park = vapply(unique.locations, Has, FALSE, 'is.park', parcels.coded)
+                   ,has.retail = vapply(unique.locations, Has, FALSE, 'is.retail', parcels.coded)
+                   ,has.school = vapply(unique.locations, Has, FALSE, 'is.school', parcels.coded)
+                   )
+    features[[location.field.name]] <- features$location
+    features$location <- NULL
+    features
 }
-
-AnalyzeZip9 <- function(control, parcels.coded) {
-    cat('starting AnalyzeZip9\n')
+LocationDataframe <- function(IsValid, location.field.name, parcels.coded) {
+    # return data frame containing valid locations and with a location field
+    result <- data.frame( stringsAsFactors = FALSE
+                         ,is.industry = parcels.coded$is.industry
+                         ,is.park = parcels.coded$is.park
+                         ,is.retail = parcels.coded$is.retail
+                         ,is.school = parcels.coded$is.school
+                         ,location = parcels.coded[[location.field.name]]
+    )[IsValid(parcels.coded), ]
+    result
+}
+FeaturesCensusTract <- function(control, parcels.coded) {
+    cat('start FeaturesCensusTract\n')
     #browser()
+    IsValid <- function(parcels.coded) {
+        #cat('start FeaturesCensusTract::IsValid\n'); browser()
+        # its not clear which census tracts are in Los Angeles Country
+        # for now, accept all as valid
+        rep(TRUE, nrow(parcels.coded))
+    }
+    locations <- LocationDataframe(IsValid, 'census.tract', parcels.coded)
+    features <- CreateLocationFeatures(control, 'census.tract', locations)
+}
+FeaturesZip5 <- function(control, parcels.coded) {
+    cat('start CreateZip5Features\n')
+    #browser()
+    IsValid <- function(parcels.coded) {
+        #cat('start FeatureZip5::IsValid\n'); browser()
+        zip <- parcels.coded$zip5
+        result <- zip >= 90000 & zip <= 99999
+        result
+    }
+    locations <- LocationDataframe(IsValid, 'zip5', parcels.coded)
+    features <- CreateLocationFeatures(control, 'zip5', locations)
+}
+FeaturesZip9 <- function(control, parcels.coded) {
+    cat('start FeaturesZip9\n');
+    IsValid <- function(parcels.coded) {
+        #cat('start FeaturesZip9::IsValid\n'); browser()
+        zip <- parcels.coded$zip9
+        result <- zip >= 900000000 & zip <= 999999999
+        result
+    }
+    locations <- LocationDataframe(IsValid, 'zip9', parcels.coded)
+    features <- CreateLocationFeatures(control, 'zip9', locations)
+}
+AnalyzeZip9OLD <- function(control, parcels.coded) {
+    #cat('start AnalyzeZip9\n'); browser()
     # We don't create features for the 9-digit zipcode, as there are only about 5
     # parcels per 9-digit zip code
     parcels.coded <- na.omit(parcels.coded)
@@ -134,154 +112,98 @@ AnalyzeZip9 <- function(control, parcels.coded) {
         stopifnot(parcels.coded.per.zip9 < 5)
     }  
 }
-
-AnalyzeParcelIndicators <- function(control, parcels.coded) {
-    #cat('starting AnalyzeParcelIndicators\n'); browser()
-    debug <- FALSE
-
-    # does any park have a zip code?
-    if (debug) print(summary(parcels.coded))
+AnalyzeParcelCoded <- function(control, parcels.coded) {
+    # print report to stdout showing frequncy of possible indicators
+    #cat('starting AnalyzeParcelIndicators\n'); str(parcels.coded); browser()
+    Printf('There are %d parcels, of which:\n', nrow(parcels.coded))
+    lapply( c('is.industry', 'is.park', 'is.retail', 'is.school')
+           ,function(is) Printf(' %7d %s\n', sum(parcels.coded[[is]]), is)
+    )
+    lapply( c('census.tract', 'zip5', 'zip9')
+           ,function(location) Printf(' %7d have a %s\n', sum(!is.na(parcels.coded[[location]])), location)
+    )
     
-    is.na.zip5 <- is.na(parcels.coded$zip5)
-    is.na.census.tract <- is.na(parcels.coded$census.tract)
-
-    CountPresent <- function(column.name) {
-        sum(parcels.coded[[column.name]])
+    NumPer <- function(field.name) {
+        num.unique <- length(unique(parcels.coded[[field.name]]))
+        avg.per.unique <- nrow(parcels.coded) / num.unique
+        Printf('\n')
+        Printf('There are %d unique %s values\n', num.unique, field.name)
+        Printf('There are %f parcels on average per unique %s\n', avg.per.unique, field.name)
     }
-
-    CountMissing <- function(column.name, is.na.location) {
-        present.in.all <- sum(parcels.coded[[column.name]])
-        present.in.some <- sum(parcels.coded[!is.na.location, column.name])
-        present.in.all - present.in.some
-    }
-
-    AnalyzeMissing <- function(column.name, is.na.location, location.feature.name) {
-        #cat('starting AnalyzeMissing\n'); browser()
-        Printf('number of %s\n', column.name)
-        Printf(' with a %s     %7d\n', location.feature.name, CountPresent(column.name))
-        Printf(' without a %s  %7d\n', location.feature.name, CountMissing(column.name, is.na.location))
-    }
-
-    AnalyzeMissingZip5 <- function(column.name) {
-        AnalyzeMissing(column.name, is.na.zip5, 'zip5')
-    }
-
-    AnalyzeMissingCensusTract <- function(column.name) {
-        AnalyzeMissing(column.name, is.na.census.tract, 'census tract')
-    }
-
-
-    features <- c('is.industry', 'is.park', 'is.retail', 'is.school')
-
-    lapply(features, AnalyzeMissingZip5)
-    lapply(features, AnalyzeMissingCensusTract)
-
+    
+    lapply(c('census.tract', 'zip5', 'zip9'), NumPer)
+    
+    NULL
 }
-
-ValidZip5 <- function(df) {
-    # return data.frame with valid zip5 fields (which are in the location feature)
-    # some 9-digit zip codes are coded 9, so we need to observations with these bad zip codes
-    is.valid <- df$location >= 90000  # eliminate value 9
-    df[is.valid,]
+IsValidZip5OLD <- function(x) {
+    # return indicator vector TRUE iff x[[i]] is a valid zip5 zipcode
+    is.valid <- !is.na(x) & x >= 90000 & x <= 999999
 }
-
-ValidCensusTract <- function(df) {
-    # return data.frame containing only observations with a valid census.tract feature
-    #cat('starting ValidCensusTract\n'); browser()
-    # all census tract features are valid
-    df
+IsValidCensusTractOLD <- function(x) {
+    # return indicator vector TRUE iff xx[[i]] is a valid census tract number
+    is.valid <- !is.na(x)
 }
+ParcelsCodedSubset <- function (parcels.coded) {
+    #cat('start ParcelsCodedSubset\n'); browser()
+    
+    # ZIPCODE is a character field that is sometimes missing (NA) and sometimes not a number
+    parcels.coded.zip9 <- EvaluateWithoutWarnings(as.numeric(parcels.coded$ZIPCODE))
+    parcels.coded.zip5 <- round(parcels.coded.zip9 / 10000)
+    has.zipcode <- ifelse( is.na(parcels.coded.zip9) | is.na(parcels.coded.zip5)
+                           ,FALSE
+                           ,parcels.coded.zip5 >= 90000 & parcels.coded.zip5 <= 99999
+    )
+    has.census.tract <- !is.na(parcels.coded$CENSUS.TRACT)
+    
 
-###############################################################################
-## Main program
-###############################################################################
+    
+    # construct subset where we know zip5, zip9, and census.tract
+    parcels.coded.subset <- data.frame( stringsAsFactors = FALSE
+                                        ,is.industry = parcels.coded$is.industry
+                                        ,is.park = parcels.coded$is.park
+                                        ,is.retail = parcels.coded$is.retail
+                                        ,is.school = parcels.coded$is.school
+                                        ,census.tract = parcels.coded$CENSUS.TRACT
+                                        ,zip5 = parcels.coded.zip5
+                                        ,zip9 = parcels.coded.zip9
+    )[has.zipcode & has.census.tract,]
+    
+    str(parcels.coded.subset)
+    print(summary(parcels.coded.subset))
+    
+    parcels.coded.subset
+}
+Main <- function(control, parcels.coded.subset) {
+    #cat('starting Main\n'); browser()
 
-Main <- function(control, parcels) {
-    cat('starting Main\n')
-    #browser()
     # write control variables
-    for (name in names(control)) {
-        cat('control ', name, ' = ', control[[name]], '\n')
+    InitializeR(duplex.output.to = control$path.out.log)
+    str(control)
+
+    if (control$do.analysis) {
+        AnalyzeParcelCoded(control, parcels.coded.subset)
     }
 
-    parcels.coded <- cbind(ParcelIndicators(parcels),
-                           zip9 = parcels$PROPERTY.ZIPCODE,
-                           zip5 = round(parcels$PROPERTY.ZIPCODE / 10000),
-                           census.tract = parcels$CENSUS.TRACT)
+    # NOTE: if(TRUE/FALSE) used while debugging, as FeatureX is slow
+    features.census.tract <- if (FALSE) FeaturesCensusTract(control, parcels.coded.subset)
+    features.zip5 <- if (TRUE) FeaturesZip5(control, parcels.coded.subset)
+    features.zip9 <- if (TRUE) FeaturesZip9(control, parcels.coded.subset)
+    
+    print(summary(features.zip5))
+    print(summary(features.census.tract))
 
-    if (TRUE) {
-        cat('analyze parcel indicators\n')
-        AnalyzeParcelIndicators(control, parcels.coded)
-    }
-
-    if (control$testing)
-        parcels.coded <- parcels.coded[1:10000,]
-
-
-    str(parcels.coded)
-    print(summary(parcels.coded))
-
-    if (TRUE) {
-        cat('justify not determining features for zip9\n')
-        AnalyzeZip9(control, parcels.coded)
-    }
-
-    if (TRUE) {
-        cat('determine by zip5\n')
-        #browser()
-        zip.df <- ValidZip5(na.omit(data.frame(is.industry = parcels.coded$is.industry,
-                                               is.park = parcels.coded$is.park,
-                                               is.retail = parcels.coded$is.retail,
-                                               is.school = parcels.coded$is.school,
-                                               location = parcels.coded$zip5)))
-        #AnalyzeZip9(control, no.census.tract)
-        location.df <- CreateLocationFeatures(control, zip.df)
-
-        # rename feature location to zip5
-        location.df$zip5 <- location.df$location
-        location.df$location <- NULL
-
-        cat('zip5  output\n')
-        str(location.df)
-        print(summary(location.df))
-
-        write.csv(location.df, file=control$path.zip5, row.names=FALSE)
-    }
-
-    if (TRUE) {
-        cat('determine by census tract\n')
-        #browser()
-
-        census.tract.df <- ValidCensusTract(na.omit(data.frame(is.industry = parcels.coded$is.industry,
-                                                               is.park = parcels.coded$is.park,
-                                                               is.retail = parcels.coded$is.retail,
-                                                               is.school = parcels.coded$is.school,
-                                                               location = parcels.coded$census.tract)))
-        location.df <- CreateLocationFeatures(control, census.tract.df)
-        
-        # rename
-        location.df$census.tract <- location.df$location
-        location.df$location <- NULL
-
-        cat('census tract output\n')
-        str(location.df)
-        print(summary(location.df))
-
-        write.csv(location.df, file=control$path.census.tract, row.names=FALSE)
-    }
-}
-
-# read data if its not in the workspace
-force.read <- FALSE
-#force.read <- TRUE
-if (force.read | !exists('parcels.selected.fields')) {
-    parcels.selected.fields <- ReadAll(control)
+    save(control, features.census.tract, features.zip5, features.zip9, file = control$path.out.features)
+    
+    str(control)
+    if (control$testing) cat('TESTING: DISCARD OUTPUT\n')
 }
 
 # process the data
-Main(control, parcels.selected.fields)
-
-if (control$testing)
-    cat('TESTING: DISCARD RESULTS\n')
+control <- Control()
+parcels.coded <- 
+    if (exists('parcels.coded')) parcels.coded else ReadParcelsCoded(control$path.in.parcels.coded)
+parcels.coded.subset <-
+    if (exists('parcels.coded.subset')) parcels.coded.subset else ParcelsCodedSubset(parcels.coded)
+Main(control, parcels.coded.subset)
 cat('done\n')
 
