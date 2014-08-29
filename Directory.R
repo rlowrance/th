@@ -6,6 +6,7 @@ Directory <- function(description) {
     # ARGS
     # directory: chr
     data.dir = '../../los-angeles/'
+    stopifnot(is.character(description))
     switch(
         description
         ,source  = './'
