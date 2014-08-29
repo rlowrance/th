@@ -2,18 +2,18 @@
 # main program to create file OUTPUT/parcels-sfr-sample.RData, holding 
 # a 1% random sample of OUTPUT/parcels-sfr.RData
 
-source('Directory.R')
+source('DirectoryLog.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 source('ReadParcelsSfr.R')
-
-library(devtools)
-load_all(Directory('utilities'))
-load_all(Directory('realestate'))
 
 # set the control variables
 Control <- function() {
     # return list of control variables
     me <-'parcels-sfr-sample'
-    working <- Directory('working')
+    
+    log <- DirectoryLog()
+    working <- DirectoryWorking()
     
     control <- list(
          path.in.parcels = paste0(working, 'parcels-sfr.RData')

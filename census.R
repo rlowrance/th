@@ -1,19 +1,20 @@
 # census.R
 # Create file WORKING/census.RData
 
-source('Directory.R')
+source('DirectoryLog.R')
+source('DirectoryRaw.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 
-library(devtools)
-load_all(Directory('utilities'))
-load_all(Directory('realestate'))
 
 # set variables that control the script
 Control <- function() {
+    cat('start Control\n'); browser()
     me <-'census'
     
-    log <- Directory('log')
-    raw <- Directory('raw')
-    working <- Directory('working')
+    log <- DirectoryLog()
+    raw <- DirectoryRaw()
+    working <- DirectoryWorking()
     
     control <- list(
          path.in.census = paste0(raw, 'neighborhood-data/census.csv')

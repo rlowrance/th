@@ -2,21 +2,20 @@
 # main program to create file OUTPUT/deeds-al.RData, hold all features of arms-length deeds.
 # Record layout for the input is in 1080_Record_layout.csv
 
-source('Directory.R')
+source('DirectoryLog.R')
+source('DirectoryRaw.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 source('PRICATCODE.R')
-
-library(devtools)
-load_all(Directory('utilities'))
-load_all(Directory('realestate'))
 
 Control <- function() {
     # return list of values that control the script
     #cat('start Control\n'); browser()
     me <-'deeds-al'
     
-    log <- Directory('log')
-    raw <- Directory('raw')
-    working <- Directory('working')
+    log <- DirectoryLog()
+    raw <- DirectoryRaw()
+    working <- DirectoryWorking()
     
     volume1 <- 'corelogic-deeds-090402_07/'
     volume2 <- 'corelogic-deeds-090402_09/'

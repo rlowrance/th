@@ -4,22 +4,21 @@
 # File layout is in 2580...
 # NOTE: the features of parcels are in the taxroll files
 
-source('Directory.R')
+source('DirectoryLog.R')
+source('DirectoryRaw.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 source('LUSEI.R')
 source('ReadRawParcels.R')
-
-library(devtools)
-load_all(Directory('utilities'))
-load_all(Directory('realestate'))
 
 # set the control variables
 Control <- function() {
     # return list of control variables
     me <-'parcels-sfr'
     
-    log <- Directory('log')
-    raw <- Directory('raw')
-    working <- Directory('working')
+    log <- DirectoryLog()
+    raw <- DirectoryRaw()
+    working <- DirectoryWorking()
     
     control <- list(
          path.out.log = paste0(log, me, '.log')
