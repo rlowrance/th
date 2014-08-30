@@ -39,14 +39,73 @@ CreateLocationFeatures <- function(control, location.field.name, parcels.coded) 
     #                parcels.coded$is.industry[[i]] =- TRUE
     #cat('starting CreateLocationFeatures\n'); browser()
 
-    unique.locations <- unique(parcels.coded$location)
-    features <- 
-        data.frame( location = unique.locations
-                   ,has.industry = vapply(unique.locations, Has, FALSE, 'is.industry', parcels.coded)
-                   ,has.park = vapply(unique.locations, Has, FALSE, 'is.park', parcels.coded)
-                   ,has.retail = vapply(unique.locations, Has, FALSE, 'is.retail', parcels.coded)
-                   ,has.school = vapply(unique.locations, Has, FALSE, 'is.school', parcels.coded)
-                   )
+    parcels.locations <- parcels.coded$location
+    unique.locations <- unique(parcels.locations)
+    num.unique.locations <- length(unique.locations)
+    cat('number of unique locations', num.unique.locations, '\n')
+    start.time <- Sys.time()
+    # this approach takes 1.8 CPU seconds per unique.location
+    #  841 unique zip5 will take 25 minutes
+    #  3119 unique census tract will take 94 minutes
+    # 474,530 unique zip9 will take 238 hours
+    has.industry <- NULL
+    has.park <- NULL
+    has.retail <- NULL
+    has.school <- NULL
+    lapply( unique.locations
+           ,function(unique.location) {
+               relevant     <-  parcels.locations == unique.location
+               has.industry <<- any(parcels.coded$is.industry[relevant])
+               has.park     <<- any(parcels.coded$is.park[relevant])
+               has.retail   <<- any(parcels.coded$is.retail[relevant])
+               has.school   <<- any(parcels.coded$is.school[relevant])
+           }
+           )
+    features <- data.frame( location = unique.locations
+                           ,has.industry = has.industry
+                           ,has.park = has.park
+                           ,has.retail = has.retail
+                           ,has.school = has.school
+                           )
+
+#    features <-  # take 3.65 CPU seconds per unique location
+#        data.frame( location = unique.locations
+#                   ,has.industry = sapply( unique.locations
+#                                          ,function(unique.location) {
+#                                              relevant <- parcels.locations == unique.location
+#                                              any(parcels.coded$is.industry[relevant])
+#                                          }
+#                                          )
+#                   ,has.park = sapply( unique.locations
+#                                      ,function(unique.location) {
+#                                          relevant <- parcels.locations == unique.location
+#                                          any(parcels.coded$is.park[relevant])
+#                                      }
+#                                      )
+#                   ,has.retail = sapply( unique.locations
+#                                        ,function(unique.location) {
+#                                            relevant <- parcels.locations == unique.location
+#                                            any(parcels.coded$is.retail[relevant])
+#                                        }
+#                                        )
+#                   ,has.school = sapply( unique.locations
+#                                        ,function(unique.location) {
+#                                            relevant <- parcels.locations == unique.location
+#                                            any(parcels.coded$is.school[relevant])
+#                                        }
+#                                        )
+#                   )
+#
+#    features <- 
+#        data.frame( location = unique.locations
+#                   ,has.industry = vapply(unique.locations, Has, FALSE, 'is.industry', parcels.coded)
+#                   ,has.park = vapply(unique.locations, Has, FALSE, 'is.park', parcels.coded)
+#                   ,has.retail = vapply(unique.locations, Has, FALSE, 'is.retail', parcels.coded)
+#                   ,has.school = vapply(unique.locations, Has, FALSE, 'is.school', parcels.coded)
+#                  )
+    time.taken <- Sys.time() - start.time
+    cat('time taken', time.taken, 'per unique location', time.taken / num.unique.locations, '\n')
+
     features[[location.field.name]] <- features$location
     features$location <- NULL
     features
@@ -75,7 +134,7 @@ FeaturesCensusTract <- function(control, parcels.coded) {
     features <- CreateLocationFeatures(control, 'census.tract', locations)
 }
 FeaturesZip5 <- function(control, parcels.coded) {
-    cat('start CreateZip5Features\n')
+    cat('start FeaturesZip5\n')
     #browser()
     IsValid <- function(parcels.coded) {
         #cat('start FeatureZip5::IsValid\n'); browser()
@@ -96,21 +155,6 @@ FeaturesZip9 <- function(control, parcels.coded) {
     }
     locations <- LocationDataframe(IsValid, 'zip9', parcels.coded)
     features <- CreateLocationFeatures(control, 'zip9', locations)
-}
-AnalyzeZip9OLD <- function(control, parcels.coded) {
-    #cat('start AnalyzeZip9\n'); browser()
-    # We don't create features for the 9-digit zipcode, as there are only about 5
-    # parcels per 9-digit zip code
-    parcels.coded <- na.omit(parcels.coded)
-    n.unique.zip9 <- length(unique(parcels.coded$zip9))
-    parcels.coded.per.zip9 <- nrow(parcels.coded) / n.unique.zip9
-    cat('number of unique zip9 values', n.unique.zip9, '\n')
-    cat('average parcels per zip9', parcels.coded.per.zip9, '\n')
-    if (!control$testing) {
-        # a testing subset may not satisfy this condition
-        # but a production subset must satisfy this condition
-        stopifnot(parcels.coded.per.zip9 < 5)
-    }  
 }
 AnalyzeParcelCoded <- function(control, parcels.coded) {
     # print report to stdout showing frequncy of possible indicators
@@ -134,14 +178,6 @@ AnalyzeParcelCoded <- function(control, parcels.coded) {
     lapply(c('census.tract', 'zip5', 'zip9'), NumPer)
     
     NULL
-}
-IsValidZip5OLD <- function(x) {
-    # return indicator vector TRUE iff x[[i]] is a valid zip5 zipcode
-    is.valid <- !is.na(x) & x >= 90000 & x <= 999999
-}
-IsValidCensusTractOLD <- function(x) {
-    # return indicator vector TRUE iff xx[[i]] is a valid census tract number
-    is.valid <- !is.na(x)
 }
 ParcelsCodedSubset <- function (parcels.coded) {
     #cat('start ParcelsCodedSubset\n'); browser()
@@ -185,9 +221,10 @@ Main <- function(control, parcels.coded.subset) {
     }
 
     # NOTE: if(TRUE/FALSE) used while debugging, as FeatureX is slow
-    features.census.tract <- if (FALSE) FeaturesCensusTract(control, parcels.coded.subset)
+    # calculating the zip 9 features would take many days
+    features.census.tract <- if (TRUE) FeaturesCensusTract(control, parcels.coded.subset)
     features.zip5 <- if (TRUE) FeaturesZip5(control, parcels.coded.subset)
-    features.zip9 <- if (TRUE) FeaturesZip9(control, parcels.coded.subset)
+    features.zip9 <- if (FALSE) FeaturesZip9(control, parcels.coded.subset) else NULL
     
     print(summary(features.zip5))
     print(summary(features.census.tract))
