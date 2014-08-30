@@ -18,6 +18,7 @@ deeds-zip7 = $(deeds-volume-2)/CAC06037F7.zip
 deeds-zip8 = $(deeds-volume-2)/CAC06037F8.zip
 
 deeds-al.RData = $(working)/deeds-al.RData
+deeds-al-sample.RData = $(working)/deeds-al-sample.RData
 
 parcels-volume = $(raw)/corelogic-taxrolls-090402_05
 
@@ -34,13 +35,13 @@ parcels-sfr.RData = $(working)/parcels-sfr.RData
 
 parcels-sfr-sample.RData = $(working)/parcels-sfr-sample.RData
 parcels-sample.RData = $(working)/parcels-sample.RData
-#parcels-derived-features.RData = $(working)/parcels-derived-features.RData
+parcels-derived-features.RData = $(working)/parcels-derived-features.RData
 parcels-coded.RData = $(working)/parcels-coded.RData
 
 census.csv = $(raw)/neighborhood-data/census.csv
 census.RData = $(working)/census.RData
 
-targets = $(parcels-derived-features.RData) $(parcels-sample.RData) \
+targets = $(deeds-al-sample.RData) $(parcels-derived-features.RData) $(parcels-sample.RData) \
 		  $(parcels-sfr-sample.RData) $(deeds-al.RData) $(parcels-sfr.RData) $(census.RData)
 $(warning targets is $(targets))
 
@@ -65,15 +66,21 @@ $(deeds-al.RData): deeds-al.R \
 	$(deeds-zip5) $(deeds-zip6) $(deeds-zip7) $(deeds-zip8)
 	Rscript deeds-al.R
 
+$(deeds-al-sample.RData): deeds-al-sample.R \
+	DirectoryLog.R DirectoryWorking.R Libraries.R ReadDeedsAl.R \
+	$(deeds-al.RData)
+	Rscript deeds-al-sample.R
+
+
 $(parcels-coded.RData): parcels-coded.R \
 	DirectoryLog.R DirectoryWorking.R Libraries.R LUSEI.R PROPN.R ReadRawParcels.R 
 	RScript parcels-coded.R
 
-#$(parcels-derived-features.RData): parcels-derived-features.R \
-#	DirectoryLog.R DirectoryWorking.R \
-#	EvaluateWithoutWarnings.R Libraries.R LUSEI.R PROPN.R ReadParcelsCoded.R \
-#	$(census.RData) $(parcels-sample.RData)
-#	Rscript parcels-derived-features.R
+$(parcels-derived-features.RData): parcels-derived-features.R \
+	DirectoryLog.R DirectoryWorking.R \
+	EvaluateWithoutWarnings.R Libraries.R LUSEI.R PROPN.R ReadParcelsCoded.R \
+	$(census.RData) $(parcels-sample.RData)
+	Rscript parcels-derived-features.R
 
 
 $(parcels-sample.RData): parcels-sample.R \
