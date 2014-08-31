@@ -6,15 +6,8 @@ ReadRawParcels <- function(nrows, path.to.raw.directory, verbose = FALSE) {
         # return dataframe containing all features in a taxroll file
         #cat('start ReadParcelsFile', num, '\n'); browser()
 
-        Volume <- function(num) {
-            paste0( 'corelogic-deeds-090402_'
-                   ,if (num <= 4) '07' else '09'
-                   ,'/'
-                   )
-        }
-
         path <- paste0( path.to.raw.directory
-                       ,Volume(num)
+                       ,'corelogic-taxrolls-090402_05/'
                        ,sprintf('CAC06037F%d.zip', num)
                        )
 
