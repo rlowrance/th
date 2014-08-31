@@ -92,8 +92,6 @@ ReadDeedsFile <- function(control, num) {
                ,'X2ND.MORTGAGE.AMOUNT'
                ,'X2ND.MORTGAGE.LOAN.TYPE.CODE'
                ,'X2ND.MORTGAGE.DEED.TYPE.CODE'
-               ,'ABSENTEE.INDICATOR.CODE'
-               ,'PROPERTY.INDICATOR.CODE'
                ,'PARTIAL.INTEREST.INDICATOR.FLAG'
                ,'OWNERSHIP.TRANSFER.PERCENTAGE'
                ,'PRI.CAT.CODE'
