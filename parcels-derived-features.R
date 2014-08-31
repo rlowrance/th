@@ -5,10 +5,10 @@ source('DirectoryLog.R')
 source('DirectoryWorking.R')
 source('Libraries.R')
 
-source('EvaluateWithoutWarnings.R')
 source('LUSEI.R')
 source('PROPN.R')
 source('ReadParcelsCoded.R')
+source('ZipN.R')
 
 Control <- function() {
     me <-'parcels-derived-features'
@@ -184,12 +184,13 @@ ParcelsCodedSubset <- function (parcels.coded) {
     #cat('start ParcelsCodedSubset\n'); browser()
     
     # ZIPCODE is a character field that is sometimes missing (NA) and sometimes not a number
-    parcels.coded.zip9 <- EvaluateWithoutWarnings(as.numeric(parcels.coded$ZIPCODE))
-    parcels.coded.zip5 <- round(parcels.coded.zip9 / 10000)
+    zips <- ZipN(parcels.coded$ZIPCODE)
+    parcels.coded.zip5 <- zips$zip5
+    parcels.coded.zip9 <- zips$zip9
     has.zipcode <- ifelse( is.na(parcels.coded.zip9) | is.na(parcels.coded.zip5)
-                           ,FALSE
-                           ,parcels.coded.zip5 >= 90000 & parcels.coded.zip5 <= 99999
-    )
+                          ,FALSE
+                          ,parcels.coded.zip5 >= 90000 & parcels.coded.zip5 <= 99999
+                          )
     has.census.tract <- !is.na(parcels.coded$CENSUS.TRACT)
     
 
