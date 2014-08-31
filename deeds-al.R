@@ -1,6 +1,7 @@
-# deeds-al.Rmd
+# deeds-al.R
 # main program to create file OUTPUT/deeds-al.RData, hold all features of arms-length deeds.
 # Record layout for the input is in 1080_Record_layout.csv
+# Save just the deeds info, not the info that is also in the payroll file (except for the APN)
 
 source('DirectoryLog.R')
 source('DirectoryRaw.R')
@@ -64,12 +65,65 @@ ReadDeedsFile <- function(control, num) {
         )
     
     Printf('Read %d observations\n from file %s\n in zip %s\n', nrow(df), filename, path)
+    
+    # keep just APN and info unique to current sale
+    # (so don't keep info that is in the taxroll file)
+    keeps <- c( 'APN.FORMATTED'
+               ,'APN.UNFORMATTED'
+               ,'APN.SEQUENCE.NUMBER'
+               ,'DOCUMENT.YEAR'
+               ,'SALE.AMOUNT'
+               ,'MORTGAGE.AMOUNT'
+               ,'SALE.DATE'
+               ,'RECORDING.DATE'
+               ,'DOCUMENT.TYPE.CODE'
+               ,'TRANSACTION.TYPE.CODE'
+               ,'SALE.CODE'
+               ,'MULTI.APN.FLAG.CODE'
+               ,'MULTI.APN.COUNT'
+               ,'TITLE.COMPANY.CODE'
+               ,'MORTGAGE.DATE'
+               ,'MORTGAGE.LOAN.TYPE.CODE'
+               ,'MORTGAGE.DEED.TYPE.CODE'
+               ,'MORTGAGE.TERM.CODE'
+               ,'MORTGAGE.TERM'
+               ,'MORTGAGE.DUE.DATE'
+               ,'MORTGAGE.ASSUMPTION.AMOUNT'
+               ,'X2ND.MORTGAGE.AMOUNT'
+               ,'X2ND.MORTGAGE.LOAN.TYPE.CODE'
+               ,'X2ND.MORTGAGE.DEED.TYPE.CODE'
+               ,'ABSENTEE.INDICATOR.CODE'
+               ,'PROPERTY.INDICATOR.CODE'
+               ,'PARTIAL.INTEREST.INDICATOR.FLAG'
+               ,'OWNERSHIP.TRANSFER.PERCENTAGE'
+               ,'PRI.CAT.CODE'
+               ,'MORTGAGE.INTEREST.RATE.TYPE.CODE'
+               ,'SELLER.CARRY.BACK.FLAG'
+               ,'PRIVATE.PARTY.LENDER.FLAG'
+               ,'CONSTRUCTION.LOAN.FLAG'
+               ,'RESALE.NEW.CONSTRUCTION.CODE'
+               ,'INTER.FAMILY.FLAG'
+               ,'CASH.MORTGAGE.PURCHASE.CODE'
+               ,'FORCLOSURE.CODE'
+               ,'REFI.FLAG.CODE'
+               ,'EQUITY.FLAG.CODE'
+               )
+
+    if (FALSE) {
+        # test that we spelled field names correctly
+        lapply(keeps, function(one.keep) {
+               cat(one.keep, '\n')
+               df[one.keep]  # this will fail if one keep is not a column
+               }
+        )
+    }
+    kept <- df[keeps]
 
     # track original source
-    df$deed.file.number=rep(num, nrow(df))
-    df$deed.record.number=1:nrow(df)
+    kept$deed.file.number=rep(num, nrow(df))
+    kept$deed.record.number=1:nrow(df)
     
-    df
+    kept
 }
 ReadAll <- function(control) {
     # Return all the arms-length deeds files into one big data.frame
