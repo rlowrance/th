@@ -1,4 +1,4 @@
-# deeds-al-sample.Rmd
+# deeds-al-sample.R
 # main program to create file OUTPUT/deeds-al-sample.RData, holding 
 # a 1% random sample of OUTPUT/deeds-al.RData
 
