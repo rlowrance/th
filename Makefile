@@ -54,20 +54,19 @@ ZipN.R            : EvaluateWithoutWarnings.R
 
 # dependencies in R source files for main programs
 lrwl = DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R
-lrl  = DirectoryLog.R                DirectoryWorking.R Libraries.R
+lwl  = DirectoryLog.R                DirectoryWorking.R Libraries.R
 census.R                  : $(lrwl)
-deeds-al-sample.R         : $(lrl)  ReadDeedsAl.R
+deeds-al-sample.R         : $(lwl)  ReadDeedsAl.R
 deeds-al.R                : $(lrwl) BestApns.R PRICATCODE.R
-parcels-coded.R           : $(lrl)  LUSEI.R PROPN.R ReadRawParcels.R
-parcels-derived-features.R: $(lrl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
+parcels-coded.R           : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
+parcels-derived-features.R: $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
 parcels-sample.R          : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr.R             : $(lrwl) LUSEI.R ReadRawParcels.R
-parcels-sfr-sample.R      : $(lrl)  ReadParcelsSfr.R
+parcels-sfr-sample.R      : $(lwl)  ReadParcelsSfr.R
 transactions-al-sfr.R     : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
 	                                ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
-transactions-al-sfr-subset1.R:      \
-	                        $(lwl)  ReadTransactionsAlSfr.R \
-	                                DEEDC.R LUSEI.R PRICATCODE.R PROPN.R SCODE.R SLMLT.R TRNTP.R
+transactions-al-sfr-subset1.R       \
+	                      : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
 
 
 $(working)/census.RData: census.R \
@@ -112,6 +111,6 @@ $(working)/transactions-al-sfr.RData: transactions-al-sfr.R \
 	$(working)/parcels-derived-features.RData
 	Rscript transactions-al-sfr.R
 
-$(working)/transactions-al-sfr-subset1.R: transactions-al-sfr-subset1.R \
+$(working)/transactions-al-sfr-subset1.RData: transactions-al-sfr-subset1.R \
 	$(working)/transactions-al-sfr.RData
 	Rscript transactions-al-sfr-subset1.R
