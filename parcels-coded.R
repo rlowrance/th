@@ -1,9 +1,11 @@
 # parcels-coded.R
-# Create files OUTPUT/parcels-coded.RData
+# Create file OUTPUT/parcels-coded.RData
 
 source('DirectoryLog.R')
+source('DirectoryRaw.R')
 source('DirectoryWorking.R')
 source('Libraries.R')
+
 source('LUSEI.R')
 source('PROPN.R')
 source('ReadRawParcels.R')
@@ -30,7 +32,7 @@ Main <- function(control) {
 
     cat('Starting to read raw parcels (slow)\n')
     parcels.raw <- ReadRawParcels( nrows = if (control$testing) 1000 else 0
-                                  ,path.to.raw.directory = Directory('raw')
+                                  ,path.to.raw.directory = DirectoryRaw()
                                   ,verbose = TRUE
                                   )
     
