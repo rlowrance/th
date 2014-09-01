@@ -15,11 +15,7 @@ source('Libraries.R')
 source('ReadTransactionsAlSfr.R')
 
 source('DEEDC.R')
-source('LUSEI.R')
-source('PRICATCODE.R')
-source('PROPN.R')
 source('SCODE.R')
-source('SLMLT.R')
 source('TRNTP.R')
 
 Control <- function() {
@@ -150,12 +146,18 @@ PositiveNotHuge <- function(v, max.percentile) {
     stopifnot(max.percentile == 99)  # this value is hard-coded into the program
     q <- quantile(v, probs=seq(.95, 1, .01))
     max <- q[5]
-    (v > 0) & (v <= max)
+    selector <- (v > 0) & (v <= max)
+    result <- list( selector = selector
+                   ,max = max
+                   )
 }
 SelectNotHuge <- function(column.name, control, df) {
-    selector <- PositiveNotHuge(df[[column.name]], control$max.percentile)
+    pnh <- PositiveNotHuge(df[[column.name]], control$max.percentile)
+    selector <- pnh$selector
     result <- list( selector = selector
-                   ,info = sum(selector)
+                   ,info = list( num.selected = sum(selector)
+                                ,max.value = pnh$max
+                                )
                    )
 }
 
