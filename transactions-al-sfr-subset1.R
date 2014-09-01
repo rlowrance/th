@@ -1,5 +1,5 @@
-# transaction-subset1.R
-# Create output file transactions-subset1.csv.
+# transaction-al-sfr-subset1.R
+# Create output file WORKING/transactions-al-sfr-subset1.RData
 
 # Also create two output analysis files:
 # * transactions-subset1-ranges.tex : ranges of features used to create the subset
@@ -7,30 +7,12 @@
 # 
 # The input file is transactions-al-sfr.csv. 
 
-## Initialize
 
-# Set control variables.
-control <- list()
-control$me <- 'transactions-subset1'
-control$output.dir <- "../data/v6/output/"
-control$path.input <- paste(control$output.dir, "transactions-al-sfr.csv.gz", sep="")
-control$path.output <- paste(control$output.dir, "transactions-subset1.csv", sep="")
-control$path.log <- paste0(control$output.dir, control$me, '.txt')
-control$path.ranges <- paste(control$output.dir, "transactions-subset1-ranges.tex", sep="")
-control$path.excluded <- paste(control$output.dir, "transactions-subset1-excluded.tex", sep="")
-control$compress <- 'only' # choices: 'also', 'no', 'only'
-control$testing.nrow <- 1000
-control$testing <- TRUE
-control$testing <- FALSE
-control$debugging <- FALSE
+source('DirectoryLog.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 
-source('InitializeR.R')
-InitializeR(start.JIT = FALSE,
-            duplex.output.to = control$path.log)
-
-# Source other files here, now that the JIT level is set.
-source('CompressFile.R')
-source('Printf.R')
+source('ReadTransactionsAlSfr.R')
 
 source('DEEDC.R')
 source('LUSEI.R')
@@ -40,8 +22,42 @@ source('SCODE.R')
 source('SLMLT.R')
 source('TRNTP.R')
 
+Control <- function() {
+    # set control variables
+    me <- 'transactions-al-sfr-subset1'
 
-ReadAllTransactions <- function(control) {
+    log <- DirectoryLog()
+    working <- DirectoryWorking()
+
+    control <- list( path.out.log = paste0(log, me, '.log')
+                    ,path.out.transactions.al.sfr.subset1 = paste0(working, 'transactions-al-sfr-subset1.RData')
+                    ,path.in.transactions.al.sfr = paste0(working, 'transactions-al-sfr.RData')
+                    ,testing = FALSE
+                    # used in selection of OK transactions
+                    ,max.sale.amount = 85e6  # source: Wall Street Journal
+                    ,max.percentile = 99  
+                    ,min.total.rooms = 1
+                    ,required.num.buildings = 1
+                    ,required.num.units = 1
+                    )
+#control <- list()
+#control$me <- 'transactions-subset1'
+#control$output.dir <- "../data/v6/output/"
+#control$path.input <- paste(control$output.dir, "transactions-al-sfr.csv.gz", sep="")
+#control$path.output <- paste(control$output.dir, "transactions-subset1.csv", sep="")
+#control$path.log <- paste0(control$output.dir, control$me, '.txt')
+#control$path.ranges <- paste(control$output.dir, "transactions-subset1-ranges.tex", sep="")
+#control$path.excluded <- paste(control$output.dir, "transactions-subset1-excluded.tex", sep="")
+#control$compress <- 'only' # choices: 'also', 'no', 'only'
+#control$testing.nrow <- 1000
+#control$testing <- TRUE
+#control$testing <- FALSE
+#control$debugging <- FALSE
+    control
+}
+
+
+ReadAllTransactionsOLD <- function(control) {
     # return everything in the input file
     # ARGS:
     # control : list of control values
@@ -68,6 +84,7 @@ TransactionDate <- function(df) {
     # If SALE.DATE is present and valid, use it for the transaction date.
     # Otherwise use the RECORDING.DATE less then average difference between
     # sale dates and recording dates
+    #browser()
 
     ToDate <- function(v) {
         # Value: vector of adjusted sales dates
@@ -79,7 +96,7 @@ TransactionDate <- function(df) {
     
     # convert dates encoded as character strings to date class objects
     adjusted.sale.date <- ToDate(df$SALE.DATE)
-    adjusted.recording.date <- ToDate(df$RECORDING.DATE)
+    adjusted.recording.date <- ToDate(df$recording.date.recoded)
     
     # mean days between known sales dates and their corresponding recording dates
     # NOTE: the recording date is always present
@@ -91,10 +108,171 @@ TransactionDate <- function(df) {
                                          adjusted.recording.date - mean.diff,
                                          adjusted.sale.date),
                                   origin="1970-01-01")
-    transaction.date
+    result <- list( transaction.date = transaction.date
+                   ,mean.diff = mean.diff
+                   )
+    result
 }
 
-OkSaleAmount <- function(df) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+# SUPPORT FUNCTIONS FOR SELECTOR FUNCTIONS
+
+AccumulateCounts <- function(v, Classifier, field.name) {
+    counts <- list()
+    lapply( unique(v)
+           ,function(one.v) {
+               code.name <- Classifier(code = one.v)
+               count <- sum(v[!is.na(v)] == one.v)  # some elements of v may be missing
+               Printf('%s code %s (%s) occurs %d times\n'
+                      ,field.name
+                      ,one.v
+                      ,code.name
+                      ,count)
+               counts[[code.name]] <<- count
+           }
+           )
+    counts
+}
+PositiveNotHuge <- function(v, max.percentile) {
+    # return selector vector for entries in v > 0 and <= 99th percentile of values in v
+    stopifnot(max.percentile == 99)  # this value is hard-coded into the program
+    q <- quantile(v, probs=seq(.95, 1, .01))
+    max <- q[5]
+    (v > 0) & (v <= max)
+}
+SelectNotHuge <- function(column.name, control, df) {
+    selector <- PositiveNotHuge(df[[column.name]], control$max.percentile)
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
+}
+
+# SELECTOR FUNCTIONS
+# Each returns a list
+# $selector: logical vector, TRUE iff the corresponding observations should be retained
+# $info    : object, saved for reporting purposes
+
+IsOneBuilding <- function(control, df) {
+    is.selected <- df$NUMBER.OF.BUILDINGS == control$required.num.buildings
+    result <- list( selector = is.selected
+                   ,info = sum(is.selected)
+                   )
+}
+IsOneParcel <- function(control, df) {
+    # determine whether sale is for all of one parcel
+    # return list $selector $info.name $info.value
+    # ARGS
+    # df : data.frame with features MULTI.APN.FLAG.CODE and MULTI.APN.COUNT
+    # RETURNS logical vector TRUE when observation is OK
+
+    # NA means not coded as having multiple APNs
+    is.not.multiple.apn <- is.na(df$MULTI.APN.FLAG.CODE)
+
+    has.one.apn <- df$MULTI.APN.COUNT <= 1  # most values are zero
+
+    is.selected <- is.not.multiple.apn & has.one.apn
+    result <- list( selector = is.selected
+                   ,info = list( num.multi.apn.flag.code = sum(is.not.multiple.apn)
+                                ,num.one.apn = sum(has.one.apn)
+                                )
+                   )
+}
+OkAssessedValue <- function(control, df) {
+    #The value of the property is estimated by the tax assessor. It's broken down into the land 
+    #value and the improvement value. 
+
+    # accept zero values and values not exceeding the $85 million max sales price
+    not.zero <- 
+        (df$TOTAL.VALUE.CALCULATED > 0) & 
+        (df$LAND.VALUE.CALCULATED > 0) & 
+        (df$IMPROVEMENT.VALUE.CALCULATED > 0)
+
+    max.value <- control$max.sale.amount
+    not.too.large <- 
+        df$TOTAL.VALUE.CALCULATED < max.value & 
+        df$LAND.VALUE.CALCULATED < max.value & 
+        df$IMPROVEMENT.VALUE.CALCULATED < max.value
+            
+    is.selected <- not.zero & not.too.large
+    result <- list( selector = is.selected
+                   ,info = list( num.not.zero = sum(not.zero)
+                                ,num.not.too.large = sum(not.too.large)
+                                )
+                   )
+}
+OkDocumentTypeCode <- function(control, df) {
+    # determine which deed types are valid
+    # ARGS:
+    # df : data.frame with DOCUMENT.TYPE.CODE field
+    # RETURNS: logical vector of observations considered valid
+
+    # Valid codes are for grant deed and trust deeds
+
+    dtc <- df$DOCUMENT.TYPE.CODE
+
+    info <- AccumulateCounts( v = dtc
+                             ,Classifier = DEEDC
+                             ,field.name = 'document.type.code'
+                             )
+
+    is.grant.deed <- DEEDC(dtc, 'grant.deed')        # sale or transfer
+    is.deed.of.trust <- DEEDC(dtc, 'deed.of.trust')  # gives mortgage lender a lien on the property
+    is.sale <- is.grant.deed | is.deed.of.trust
+    result <- list( selector = is.sale
+                   ,info = info
+                   )
+}
+OkEffectiveYearBuilt <- function(control, df) {
+    # accept any positive value
+    # NOTE; could make sure effective year built is not before year built
+    selector <- df$EFFECTIVE.YEAR.BUILT > 0  # is the year known?
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
+}
+OkGeocoding <- function(control, df) {
+    # require both latitude and longitude
+    # missing values have a zero
+    selector <- (df$G.LATITUDE != 0) & (df$G.LONGITUDE != 0)  # 0 ==> not available
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
+}
+OkLandSquareFootage <- function(control, df) {
+    # accept land size with up to 99th percentile
+    # some land sizes are huge and some are zero
+    SelectNotHuge( column.name = 'LAND.SQUARE.FOOTAGE'
+                  ,control = control
+                  ,df = df
+                  )
+}
+OkLivingSquareFeet <- function(control, df) {
+    # accept positive and up to 99th percentile
+    SelectNotHuge( column.name = 'LIVING.SQUARE.FEET'
+                  ,control = control
+                  ,df = df
+                  )
+}
+OkRecordingDate <- function(control, df) {
+    # there is a recorded date
+    is.missing.recording.date <- is.na(df$recording.date.recoded)
+    result <- list( selector = !is.missing.recording.date
+                   ,info = sum(is.missing.recording.date)
+                   )
+}
+OkSaleAmount <- function(control, df) {
     # determine which sale amounts are valid
     # ARGS
     # df : data.fram with feature SALE.AMOUNT
@@ -103,42 +281,35 @@ OkSaleAmount <- function(df) {
     # A valid sale amount is positive and less than $85 million
     # $85 million is believed to be the highest price every recorded in Los Angeles
     # for a residential real estate transaction
-
-    (df$SALE.AMOUNT > 0) & (df$SALE.AMOUNT <= 85e6)
+    is.valid.sale.amount <- (df$SALE.AMOUNT > 0) & (df$SALE.AMOUNT <= control$max.sale.amount)
+    result <- list( selector = is.valid.sale.amount
+                   ,info = sum(is.valid.sale.amount)
+                   )
 }
+OkSaleCode <- function(control, df) {
+    # determine valid sales code (financial consideration)
+    # ARG
+    # df : data.frame with feature SALE.CODE
+    # RETURNS logical vector, TRUE, if sales code is valid
 
-OkDocumentTypeCode <- function(df) {
-    # determine which deed types are valid
-    # ARGS:
-    # df : data.frame with DOCUMENT.TYPE.CODE field
-    # RETURNS: logical vector of observations considered valid
-
-    # Valid codes are for grant deed and trust deeds
-
-    # All codes:
-    # Code|Meaning
-    # ----|-------
-    # C|CONSTRUCTION LOAN
-    # CD|CORRECTION DEED
-    # F|FINAL JUDGEMENT
-    # G|GRANT DEED
-    # L|LIS PENDENS - NON CALIFORNIA
-    # L|LIENS (STATEWIDE CA)
-    # N|NOTICE OF DEFAULT
-    # Q|QUIT CLAIM
-    # R|RELEASE
-    # S|LOAN ASSIGNMENT 
-    # T|DEED OF TRUST
-    # U|FORECLOSURE
-    # X|MULTI CNTY/ST OR OPEN-END MORTGAGE
-    # Z|NOMINAL
-
-    dtc <- df$DOCUMENT.TYPE.CODE
-    DEEDC(dtc, 'grant.deed') |   # sale or transfer
-    DEEDC(dtc, 'deed.of.trust')  # gives mortgage lend a lien on the property
+    sc <- df$SALE.CODE
+    info<- AccumulateCounts( v = sc
+                            ,Classifier = SCODE
+                            ,field.name = 'SALE.CODE'
+                            )
+    is.sale.price.full <- SCODE(sc, 'sale.price.full')
+    result <- list( selector = is.sale.price.full
+                   ,info = info
+                   )
 }
-
-OkTransactionTypeCode <- function(df) {
+OkTotalRooms <- function(control, df) {
+    # allow 0 bedrooms, 0 bathrooms (could be an outhouse), but require at least one room
+    selector <- df$TOTAL.ROOMS > control$min.total.rooms
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
+}
+OkTransactionTypeCode <- function(control, df) {
     # determine valid transaction types
     # ARG:
     # df: data.frame containing TRANSACTION.TYPE.CODE field
@@ -146,172 +317,138 @@ OkTransactionTypeCode <- function(df) {
 
     # A valid transaction type is a resale or new construction
 
-    ttc <- df$TRANSACTION.TYPE.CODE
+    ttc <- as.numeric(df$TRANSACTION.TYPE.CODE)
 
-    TRNTP(ttc, 'resale') |
-    TRNTP(ttc, 'new.construction')
+    info<- AccumulateCounts( v = ttc
+                            ,Classifier = TRNTP
+                            ,field.name = 'transaction.type.code'
+                            )
+
+    is.resale <- TRNTP(ttc, 'resale') 
+    is.new.construction <- TRNTP(ttc, 'new.construction')
+    is.resale.or.new.construction <- is.resale | is.new.construction
+    result <- list( selector = is.resale.or.new.construction
+                   ,info.name = 'transaction.type.code'
+                   ,info= info
+                   )
 }
-
-OkSaleCode <- function(df) {
-    # determine valid sales code (financial consideration)
-    # ARG
-    # df : data.frame with feature SALE.CODE
-    # RETURNS logical vector, TRUE, if sales code is valid
-
-    SCODE(df$SALE.CODE, 'sale.price.full')
-}
-
-IsOneParcel <- function(df) {
-    # determine whether sale is for all of one parcel
-    # ARGS
-    # df : data.frame with features MULTI.APN.FLAG.CODE and MULTI.APN.COUNT
-    # RETURNS logical vector TRUE when observation is OK
-
-    is.na(df$MULTI.APN.FLAG.CODE) & df$MULTI.APN.COUNT <= 1
-}
-
-IsOneBuilding <- function(df) {
-    df$NUMBER.OF.BUILDINGS == 1
-}
-
-OkAssessedValue <- function(df) {
-    #The value of the property is estimated by the tax assessor. It's broken down into the land 
-    #value and the improvement value. 
-
-    # accept zero values and values not exceeding the $85 million max sales price
-    not.zero <- (df$TOTAL.VALUE.CALCULATED > 0) & 
-        (df$LAND.VALUE.CALCULATED > 0) & 
-        (df$IMPROVEMENT.VALUE.CALCULATED > 0)
-
-    max.value <- 85e6
-    not.too.large <- df$TOTAL.VALUE.CALCULATED < max.value & 
-            df$LAND.VALUE.CALCULATED < max.value & 
-            df$IMPROVEMENT.VALUE.CALCULATED < max.value
-            
-    not.zero & not.too.large
-}
-
-PositiveNotHuge <- function(v) {
-    # return selector vector for entries in v > 0 and <= 99th percentile of values in v
-    q <- quantile(v, probs=seq(.95, 1, .01))
-    max <- q[5]
-    (v > 0) & (v <= max)
-}
-
-OkLandSquareFootage <- function(df) {
-    # accept land size with up to 99th percentile
-    # some land sizes are huge and some are zero
-    PositiveNotHuge(df$LAND.SQUARE.FOOTAGE)
-}
-
-OkUniversalBuildingSquareFeet <- function(df) {
-    # Some buildings are huge
-    # Accept building size up to the 99th percentile
-    PositiveNotHuge(df$UNIVERSAL.BUILDING.SQUARE.FEET)
-}
-
-OkLivingSquareFeet <- function(df) {
-    # accept positive and up to 99th percentile
-    PositiveNotHuge(df$LIVING.SQUARE.FEET)
-}
-
-OkYearBuilt <- function(df) {
-    # accept any positive value
-    df$YEAR.BUILT > 0
-}
-
-OkEffectiveYearBuilt <- function(df) {
-    # accept any positive value
-    # NOTE; could make sure effective year built is not before year built
-    df$EFFECTIVE.YEAR.BUILT > 0
-}
-
-OkTotalRooms <- function(df) {
-    # allow 0 bedrooms, 0 bathrooms (could be an outhouse), but require at least one room
-    df$TOTAL.ROOMS > 0
-}
-
-OkUnitsNumber <- function(df) {
+OkUnitsNumber <- function(control, df) {
     # require exactly one unit (otherwise, don't know what the features are for)
-    df$UNITS.NUMBER == 1
+    selector <- df$UNITS.NUMBER == control$required.num.units
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
+}
+OkUniversalBuildingSquareFeet <- function(control, df) {
+    # Some buildings are huge
+    SelectNotHuge( column.name = 'UNIVERSAL.BUILDING.SQUARE.FEET'
+                  ,control = control
+                  ,df = df
+                  )
+}
+OkYearBuilt <- function(control, df) {
+    # accept any positive value
+    selector <- df$YEAR.BUILT > 0  # is the year known?
+    result <- list( selector = selector
+                   ,info = sum(selector)
+                   )
 }
 
-OkGeocoding <- function(df) {
-    # require both latitude and longitude
-    # missing values have a zero
-    (df$G.LATITUDE != 0) & (df$G.LONGITUDE != 0)
-}
-
-OkRecordingDate <- function(df) {
-    # there is a recorded date
-    !is.na(df$RECORDING.DATE)
-}
-
-FormSubset <- function(df) {
+FormSubset <- function(control, df) {
     # form the subset we are interested in
+    # Return list $subset1.df $info
     # ARGS
     # df : data.frame with all rows
-    # RETURNS df with additional features and fewer rows
 
-    df$transaction.date <- TransactionDate(df)
+    info <- list()  # accumulate info useful for reporting in this list
+
+    # determine transaction date
+    td <- TransactionDate(df)
+    df$transaction.date <- td$transaction.date
+    info$mean.days.between.sale.and.recording.dates <- td$mean.diff
 
     # determine observations to exclude based on values of certain features
 
     nrow.df <- nrow(df)
+    info$num.transactions.al.sfr = nrow.df
 
     cat('number of observations before checking values', nrow.df, '\n')
 
-    c <- function(name, selector.vector) {
-        cat(' field', name, 'excluded', nrow.df - sum(selector.vector), '\n')
+    Do <- function(test.name, f) {
+        # create a selection vector and accumulate reporting info
+        # f(control, df) --> list $selector $info
+        f.result <- f(control = control, df = df)
+
+        selector.vector <- f.result$selector
+        num.excluded <- nrow.df - sum(selector.vector)
+        Printf(' test %20s by itself would exclude %d observations\n', test.name, num.excluded)
+        print(f.result$info)
+
+        info[[test.name]] <<- f.result$info
+
         selector.vector
     }
+    
+    is.one.building <- Do('one.building', IsOneBuilding)
+    is.one.parcel <- Do('one.parcel', IsOneParcel)
 
-    ok.recording.date <- c('recorded date', OkRecordingDate(df))
-    ok.sale.amount <- c('sale amount', OkSaleAmount(df))
-    ok.document.type.code <- c('doc type', OkDocumentTypeCode(df))
-    ok.transaction.type.code <- c('tran type', OkTransactionTypeCode(df))
-    ok.sale.code <- c('sale code', OkSaleCode(df))
-    is.one.parcel <- c('one parcel', IsOneParcel(df))
-    is.one.building <- c('one building', IsOneBuilding(df))
-    ok.assessed.value <- c('assessed value', OkAssessedValue(df))
-    ok.land.square.footage <- c('land', OkLandSquareFootage(df))
-    ok.universal.building.square.feet <- c('building', OkUniversalBuildingSquareFeet(df))
-    ok.living.square.feet <- c('living', OkLivingSquareFeet(df))
-    ok.year.built <- c('built', OkYearBuilt(df))
-    ok.effective.year.built <- c('effective year', OkEffectiveYearBuilt(df))
-    ok.total.rooms <- c('rooms', OkTotalRooms(df))
-    ok.units.number <- c('units', OkUnitsNumber(df))
-    ok.geocoding <- c('geocoding', OkGeocoding(df))
+    ok.assessed.value <- Do('assessed.value', OkAssessedValue)
+    ok.document.type.code <- Do('DOCUMENT.TYPE.CODE', OkDocumentTypeCode)
+
+    ok.effective.year.built <- Do('effective.year.built', OkEffectiveYearBuilt)
+    ok.geocoding <- Do('geocoding', OkGeocoding)
+
+    ok.land.square.footage <- Do('land.square.footage', OkLandSquareFootage)
+    ok.living.square.feet <- Do('living.square.feet', OkLivingSquareFeet)
+
+    ok.recording.date <- Do('recorded.date', OkRecordingDate)
+    ok.sale.amount <- Do('sale.amount', OkSaleAmount)
+
+    ok.sale.code <- Do('sale.code', OkSaleCode)
+    ok.total.rooms <- Do('total.rooms', OkTotalRooms)
+
+    ok.transaction.type.code <- Do('TRANSACTION.TYPE.CODE', OkTransactionTypeCode)
+    ok.units.number <- Do('units.number', OkUnitsNumber)
+
+    ok.universal.building.square.feet <- Do('building.square.feet', OkUniversalBuildingSquareFeet)
+    ok.year.built <- Do('year.built', OkYearBuilt)
+
+
 
     # determine all observations excluded
     all.good <- 
+        is.one.building &
+        is.one.parcel &
+
+        ok.assessed.value &
+        ok.document.type.code &
+
+        ok.effective.year.built &
+        ok.geocoding &
+
+        ok.land.square.footage &
+        ok.living.square.feet &
+
         ok.recording.date &
         ok.sale.amount & 
-        ok.document.type.code &
-        ok.transaction.type.code &
+        
         ok.sale.code &
-        is.one.parcel &
-        is.one.building &
-        ok.assessed.value &
-        ok.land.square.footage &
-        ok.universal.building.square.feet &
-        ok.living.square.feet &
-        ok.year.built &
-        ok.effective.year.built &
         ok.total.rooms &
+
+        ok.transaction.type.code &
         ok.units.number &
-        ok.geocoding
 
-    cat(' ALL FIELDS EXCLUDED', nrow.df - sum(all.good), '\n')
+        ok.universal.building.square.feet &
+        ok.year.built 
 
-    df[all.good, ]
-}
+    total.num.excluded <- nrow.df - sum(all.good)
+    Printf(' all fields combined excluded %d transactions\n', total.num.excluded)
+    info$total.num.excluded = total.num.excluded
 
-WriteControl <- function(control) {
-    # write control values
-    for (name in names(control)) {
-        cat('control ', name, ' = ' , control[[name]], '\n')
-    }
+    result <- list( subset1 = df[all.good, ]
+                   ,info = info
+                   )
+    result
 }
 
 RecodeRecordingDate <- function(recordingDate) {
@@ -321,55 +458,61 @@ RecodeRecordingDate <- function(recordingDate) {
     result
 }
 
-Main <- function(control) {
+Main <- function(control, transactions.al.sfr) {
     #cat('starting Main\n') ; browser()
-    WriteControl(control)
-
-    # read all transactions
-    df <- ReadAllTransactions(control)
-    cat('all transactions\n')
-    str(df)
-    print(summary(df))
-    cat('read all transactions', nrow(df), '\n')
 
     # recoded RECORDING.DATE
-    df$RECORDING.DATE <- RecodeRecordingDate(df$RECORDING.DATE)
+    transactions.al.sfr$recording.date.recoded <- RecodeRecordingDate(transactions.al.sfr$RECORDING.DATE)
 
     # form the subset we are interested in
-    df <- FormSubset(df)
-    cat('subset transactions\n')
-    str(df)
-    print(summary(df))
+    form.subset <- FormSubset(control, transactions.al.sfr)
+    subset1 <- form.subset$subset1
+    info <- form.subset$info
+    #str(subset1)
+    print(summary(subset1))
 
     # eliminate duplicate transactions
-    num.with.dups = nrow(df)
-    df <- unique(df)
+    num.with.dups = nrow(subset1)
+    subset1.unique <- unique(subset1)
     num.dropped = num.with.dups - nrow(df)
+    info$num.with.possible.duplicates <- num.with.dups
+    info$num.duplicates.dropped <- num.dropped
 
 
     cat('number of duplicate observations eliminated', num.dropped, '\n')
+    Printf('about to write %d subset1 transactions\n', nrow(subset1.unique))
     stopifnot(num.dropped == 0)
 
-    # write the uncompressed result
-    write.table(df, 
-                file=control$path.output, 
-                sep='\t',
-                quote=FALSE,
-                row.names=FALSE)
+    str(info)
 
-    # maybe compress the output
-    #cat('maybe compress output', nrow(all$df), '\n'); browser()
-    if (control$compress == 'only') {
-        CompressFile(old.name = control$path.out,
-                     new.name = control$path.out)
-    } else if (control$compress == 'also') {
-        CompressFile(old.name = control$path.out,
-                     new.name = paste0(control$path.out, '.gz'))
-    }
+    # write output file
+    save( info = info
+         ,transactions.al.sfr.subset1 = subset1.unique
+         ,control = control
+         ,file = control$path.out.transactions.al.sfr.subset1
+         )
 
-    Printf('wrote %d observations\n', nrow(df))
-    WriteControl(control)
+    str(control)
+    if (control$testing)
+        cat('DISCARD OUTPUT; TESTING\n')
 }
 
-Main(control)
+# EXECUTION STARTS HERE
+control <- Control()
+InitializeR(duplex.output.to = control$path.out.log)
+str(control)
+transactions.al.sfr <-
+    if (exists('transactions.al.sfr')) {
+        transactions.al.sfr
+    } else {
+        cat('reading transactions.al.sfr\n')
+        #debug(ReadDeedsAl)
+        if (control$testing)
+            ReadTransactionsAlSfrSample(path = control$path.in.transactions.al.sfr.sample)
+        else
+            ReadTransactionsAlSfr(path = control$path.in.transactions.al.sfr)
+    }
+
+
+Main(control, transactions.al.sfr)
 cat('done\n')
