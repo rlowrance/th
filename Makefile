@@ -30,8 +30,8 @@ raw-parcels += $(raw-parcels-volume)/CAC06037F8.zip
 
 raw-census.csv = $(raw)/neighborhood-data/census.csv
 
-
-targets = $(working)/transactions-al-sfr.RData \
+targets = $(working)/transactions-al-sfr-subset1.RData \
+          $(working)/transactions-al-sfr.RData \
 		  $(working)/deeds-al-sample.RData \
 		  $(working)/parcels-derived-features.RData \
 		  $(working)/parcels-sample.RData \
@@ -65,6 +65,9 @@ parcels-sfr.R             : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr-sample.R      : $(lrl)  ReadParcelsSfr.R
 transactions-al-sfr.R     : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
 	                                ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
+transactions-al-sfr-subset1.R:      \
+	                        $(lwl)  ReadTransactionsAlSfr.R \
+	                                DEEDC.R LUSEI.R PRICATCODE.R PROPN.R SCODE.R SLMLT.R TRNTP.R
 
 
 $(working)/census.RData: census.R \
@@ -108,3 +111,7 @@ $(working)/transactions-al-sfr.RData: transactions-al-sfr.R \
 	$(working)/parcels-sfr-sample.RData \
 	$(working)/parcels-derived-features.RData
 	Rscript transactions-al-sfr.R
+
+$(working)/transactions-al-sfr-subset1.R: transactions-al-sfr-subset1.R \
+	$(working)/transactions-al-sfr.RData
+	Rscript transactions-al-sfr-subset1.R
