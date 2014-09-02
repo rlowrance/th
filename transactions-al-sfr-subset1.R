@@ -110,19 +110,6 @@ TransactionDate <- function(df) {
     result
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # SUPPORT FUNCTIONS FOR SELECTOR FUNCTIONS
 
 AccumulateCounts <- function(v, Classifier, field.name) {
