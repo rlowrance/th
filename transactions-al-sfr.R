@@ -246,14 +246,30 @@ MergeGeocoding <- function(control, census.deeds.parcels, geocoding) {
 MergeDerivedFeatures <- function(control, derived.features, transactions) {
     # add in census.tract and zip5 features
     cat('starting MergeDerivedFeatures\n')
+    c <- derived.features$features.census.tract
+    census.tract <- data.frame( census.tract.has.industry = c$has.industry
+                               ,census.tract.has.park     = c$has.park
+                               ,census.tract.has.retail   = c$has.retail
+                               ,census.tract.has.school   = c$has.school
+                               ,census.tract              = c$census.tract
+                               )
     merged1 <- merge( x    = transactions
                      ,by.x = 'CENSUS.TRACT'
-                     ,y    = derived.features$features.census.tract
+                     ,y    = census.tract
                      ,by.y = 'census.tract'
                      )
+
+    z <- derived.features$features.zip5
+    zip <- data.frame( zip5.has.industry = z$has.industry
+                      ,zip5.has.park     = z$has.park
+                      ,zip5.has.retail   = z$has.retail
+                      ,zip5.has.school   = z$has.school
+                      ,zip5              = z$zip5
+                      )
+
     merged2 <- merge( x    = merged1
                      ,by.x = 'zip5'
-                     ,y    = derived.features$features.zip5
+                     ,y    = zip
                      ,by.y = 'zip5'
                      )
     cat(' number of transactions, after considering features derived from parcels'
