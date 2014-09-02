@@ -18,6 +18,8 @@ source('DEEDC.R')
 source('SCODE.R')
 source('TRNTP.R')
 
+require(methods)  # avoid error 'could not find function "hasArg" when running via Rscript
+
 Control <- function() {
     # set control variables
     me <- 'transactions-al-sfr-subset1'
@@ -26,7 +28,7 @@ Control <- function() {
     working <- DirectoryWorking()
 
     control <- list( path.out.log = paste0(log, me, '.log')
-                    ,path.out.transactions.al.sfr.subset1 = paste0(working, 'transactions-al-sfr-subset1.RData')
+                    ,path.out.rdata = paste0(working, 'transactions-al-sfr-subset1.RData')
                     ,path.in.transactions.al.sfr = paste0(working, 'transactions-al-sfr.RData')
                     ,testing = FALSE
                     # used in selection of OK transactions
@@ -36,23 +38,8 @@ Control <- function() {
                     ,required.num.buildings = 1
                     ,required.num.units = 1
                     )
-#control <- list()
-#control$me <- 'transactions-subset1'
-#control$output.dir <- "../data/v6/output/"
-#control$path.input <- paste(control$output.dir, "transactions-al-sfr.csv.gz", sep="")
-#control$path.output <- paste(control$output.dir, "transactions-subset1.csv", sep="")
-#control$path.log <- paste0(control$output.dir, control$me, '.txt')
-#control$path.ranges <- paste(control$output.dir, "transactions-subset1-ranges.tex", sep="")
-#control$path.excluded <- paste(control$output.dir, "transactions-subset1-excluded.tex", sep="")
-#control$compress <- 'only' # choices: 'also', 'no', 'only'
-#control$testing.nrow <- 1000
-#control$testing <- TRUE
-#control$testing <- FALSE
-#control$debugging <- FALSE
     control
 }
-
-
 ReadAllTransactionsOLD <- function(control) {
     # return everything in the input file
     # ARGS:
@@ -491,7 +478,7 @@ Main <- function(control, transactions.al.sfr) {
     save( info = info
          ,transactions.al.sfr.subset1 = subset1.unique
          ,control = control
-         ,file = control$path.out.transactions.al.sfr.subset1
+         ,file = control$path.out.rdata
          )
 
     str(control)
