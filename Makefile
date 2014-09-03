@@ -1,9 +1,11 @@
 # Makefile
 data = ../../los-angeles
 
-output = $(data)/output
-raw = $(data)/raw
+output  = $(data)/output
+raw     = $(data)/raw
 working = $(data)/working
+
+splits = $(working)/transactions-al-sfr-subset1-splits
 
 raw-deeds-volume-1 = $(raw)/corelogic-deeds-090402_07
 raw-deeds-volume-2 = $(raw)/corelogic-deeds-090402_09
@@ -30,18 +32,20 @@ raw-parcels += $(raw-parcels-volume)/CAC06037F8.zip
 
 raw-census.csv = $(raw)/neighborhood-data/census.csv
 
-targets = $(working)/transactions-al-sfr-subset1.RData \
-          $(working)/transactions-al-sfr.RData \
-		  $(working)/deeds-al-sample.RData \
-		  $(working)/parcels-derived-features.RData \
-		  $(working)/parcels-sample.RData \
-		  $(working)/parcels-sfr-sample.RData \
-		  $(working)/deeds-al.RData \
-		  $(working)/parcels-sfr.RData \
-		  $(working)/census.RData
+targets += $(splits)/apn.RData
+targets += $(working)/census.RData
+targets += $(working)/deeds-al.RData
+targets += $(working)/deeds-al-sample.RData 
+targets += $(working)/parcels-derived-features.RData 
+targets += $(working)/parcels-sample.RData 
+targets += $(working)/parcels-sfr.RData 
+targets += $(working)/parcels-sfr-sample.RData 
+targets += $(working)/transactions-al-sfr.RData 
+targets += $(working)/transactions-al-sfr-subset1.RData
 
 $(warning targets is $(targets))
 
+# default rule
 .PHONY: all
 all: $(targets)
 
@@ -53,21 +57,29 @@ DirectoryWorking.R: DirectoryData.R
 ZipN.R            : EvaluateWithoutWarnings.R
 
 # dependencies in R source files for main programs
-lrwl = DirectoryLog.R DirectoryRaw.R DirectoryWorking.R Libraries.R
-lwl  = DirectoryLog.R                DirectoryWorking.R Libraries.R
-census.R                  : $(lrwl)
-deeds-al-sample.R         : $(lwl)  ReadDeedsAl.R
-deeds-al.R                : $(lrwl) BestApns.R PRICATCODE.R
-parcels-coded.R           : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
-parcels-derived-features.R: $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
-parcels-sample.R          : $(lrwl) LUSEI.R ReadRawParcels.R
-parcels-sfr.R             : $(lrwl) LUSEI.R ReadRawParcels.R
-parcels-sfr-sample.R      : $(lwl)  ReadParcelsSfr.R
-transactions-al-sfr.R     : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
-	                                ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
-transactions-al-sfr-subset1.R       \
-	                      : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
+lrwl = DirectoryLog.R DirectoryRaw.R                    DirectoryWorking.R Libraries.R
+lwl  = DirectoryLog.R                                   DirectoryWorking.R Libraries.R
+lwsl = DirectoryLog.R                DirectorySplits.R  DirectoryWorking.R Libraries.R
 
+census.R                            : $(lrwl)
+deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
+deeds-al.R                          : $(lrwl) BestApns.R PRICATCODE.R
+parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
+parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
+parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
+parcels-sfr.R                       : $(lrwl) LUSEI.R ReadRawParcels.R
+parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
+transactions-al-sfr.R               : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
+                                              ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
+transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
+transactions-al-sfr-subset1-splits.R: $(lwsl) ReadTransactionsAlSfrSubset1.R
+
+
+# the apn.RData target represents all the files in the splits directory
+# this recipe creates all of them
+$(splits)/apn.RData: transactions-al-sfr-subset1-splits.R \
+	$(working)/transactions-al-sfr-subset1.RData
+	Rscript transactions-al-sfr-subset1-splits.R
 
 $(working)/census.RData: census.R \
 	$(raw-census.csv)
