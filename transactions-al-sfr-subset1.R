@@ -475,9 +475,10 @@ Main <- function(control, transactions.al.sfr) {
     str(info)
 
     # write output file
-    save( info = info
-         ,transactions.al.sfr.subset1 = subset1.unique
-         ,control = control
+    transactions.al.sfr.subset1 = subset1.unique
+    save( info
+         ,transactions.al.sfr.subset1
+         ,control
          ,file = control$path.out.rdata
          )
 
