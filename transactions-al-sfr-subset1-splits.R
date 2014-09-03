@@ -1,25 +1,75 @@
-# main program to create a split from transactions-subset1
+# main program to create directory WORKING/transactions-al-sfr-subset1-splits
 
-control <- list( testing      = FALSE
-                ,path.out.log = '../data/v6/output/transactions-subset1-SPLIT-log.txt'
-                )
+source('DirectoryLog.R')
+source('DirectorySplits.R')
+source('DirectoryWorking.R')
+source('Libraries.R')
 
-source('Center.R')
-LibraryCenter <- Center   # later we reuse the name "Center"
-source('FileInput.R')
-source('InitializeR.R')
-source('Require.R')
-source('SplitDate.R')
+source('ReadTransactionsAlSfrSubset1.R')
 
-InitializeR(duplex.output.to = control$path.out.log)
-print(control)
+Control <- function() {
+    me <- 'transactions-al-sfr-subset1-splits'
+
+    log <- DirectoryLog()
+    splits <- DirectorySplits()
+    working <- DirectoryWorking()
+
+    control <- 
+        list( path.out.log = paste0(log, me, '.log')
+             ,path.out.splits.dir = DirectorySplits()
+             ,path.in.transactions.al.sfr.subset1 = paste0(working, 'transactions-al-sfr-subset1.RData')
+             ,testing = FALSE
+             )
+}
 
 # transformers
+
+CenterLog <- function(current.value) {
+    #cat('starting CenterLog', length(current.value), '\n'); browser()
+    result <- Center(log(current.value))
+    result
+}
+
+CenterLog1p <- function(current.value) {
+    #cat('starting CenterLog1p', length(current.value), '\n'); browser()
+    result <- Center(log1p(current.value))
+    result
+}
+
+HasPool <- function(POOL.FLAG) {
+    #cat('starting HasPool\n'); browser()
+    result <- as.factor(ifelse(is.na(POOL.FLAG), FALSE, POOL.FLAG == 'Y'))
+    result
+}
 
 Identity <- function(current.value) {
     current.value
 }
 
+Int2Date <- function(current.value) {
+    # convert integer YYYYYMMDD to a Date
+    #cat('starting Int2Date', length(current.value), '\n'); browser()
+    result <- as.Date(as.character(current.value), format = '%Y%m%d')
+    result
+}
+
+IsNewConstruction <- function(current.value) {
+    #cat('starting IsNewConstruction', length(current.value), '\n'); browser()
+    result <- factor(current.value == 'N')
+    result
+}
+
+Log <- function(current.value) {
+    #cat('starting Log', length(current.value), '\n'); browser()
+    result <- log(current.value)
+    result
+}
+
+Log1p <- function(current.value) {
+    #cat('starting Log1p', length(current.value), '\n'); browser()
+    result <- log1p(current.value)
+    result
+}
 
 SplitDateDay <- function(current.value) {
     #cat('starting SplitDateDay', length(current.value), '\n'); browser()
@@ -39,71 +89,22 @@ SplitDateYear <- function(current.value) {
     result
 }
 
-Log <- function(current.value) {
-    #cat('starting Log', length(current.value), '\n'); browser()
-    result <- log(current.value)
-    result
-}
-
-Log1p <- function(current.value) {
-    #cat('starting Log1p', length(current.value), '\n'); browser()
-    result <- log1p(current.value)
-    result
-}
-
-CenterLog <- function(current.value) {
-    #cat('starting CenterLog', length(current.value), '\n'); browser()
-    result <- LibraryCenter(log(current.value))
-    result
-}
-
-CenterLog1p <- function(current.value) {
-    #cat('starting CenterLog', length(current.value), '\n'); browser()
-    result <- LibraryCenter(log1p(current.value))
-    result
-}
-
-Center <- function(current.value) {
-    #cat('starting Center', length(current.value), '\n'); browser()
-    result <- LibraryCenter(current.value)
-    result
-}
-
-HasPool <- function(POOL.FLAG) {
-    #cat('starting HasPool\n'); browser()
-    result <- as.factor(ifelse(is.na(POOL.FLAG), FALSE, POOL.FLAG == 'Y'))
-    result
-}
-
-IsNewConstruction <- function(current.value) {
-    #cat('starting IsNewConstruction', length(current.value), '\n'); browser()
-    result <- factor(current.value == 'N')
-    result
-}
-
-Int2Date <- function(current.value) {
-    # convert integer YYYYYMMDD to a Date
-    #cat('starting YYYYMMDD2Date', length(current.value), '\n'); browser()
-    result <- as.Date(as.character(current.value), format = '%Y%m%d')
-    result
-}
 
 # Main program
 
-Main <- function(control) {
-    #cat('starting Main'); browser()
+Main <- function(control, raw) {
+    #cat('start Main\n'); browser()
 
-    path.input.base <- FileInput('../data/v6/output/transactions-subset1')
-    raw <- read.table( file = sprintf('%s.csv.gz', path.input.base)
-                      ,header = TRUE
-                      ,sep = "\t"
-                      ,quote = ""
-                      ,comment = ""
-                      ,stringsAsFactors = TRUE
-                      ,na.strings = "NA"
-                      ,nrows = ifelse(control$testing, 1000, -1)
-                      )
-
+    # delete and create the splits directory
+    rm.command <- paste('rm -rf', control$path.out.splits.dir)
+    system.result <- system(rm.command)
+    if (system.result != 0) {
+        stop(sprintf('system command to remove directory resulted in %d', system.result))
+    }
+    directory.created <- dir.create(control$path.out.splits.dir)
+    if (!directory.created) {
+        stop(sprintf('directory %s not created\n', control$path.out.splits.dir))
+    }
 
     # add derived features
 
@@ -112,15 +113,22 @@ Main <- function(control) {
          (raw$IMPROVEMENT.VALUE.CALCULATED + raw$LAND.VALUE.CALCULATED))
 
     Split <- function(new.name, Transform, current.name) {
-        #cat('starting Split', new.name, current.name, '\n')
+        # create file new.name.RData with data.frame with one column new.name
+        cat('starting Split', new.name, current.name, '\n')
         #browser()
+
+        # build vector new.value with the transformed current value
         current.value <- raw[[current.name]]
         stopifnot(!is.null(current.value))
         new.value <- Transform(current.value)
         stopifnot(length(current.value) == length(new.value))
+        
+        # create a data frame
         data <- data.frame(new.value)
         colnames(data) <- new.name
-        file <- sprintf('%s-%s.rsave', path.input.base, new.name)
+
+        # write the data frame to the split file
+        file <- sprintf('%s%s.RData', control$path.out.splits.dir, new.name)
         save( data  # other code expects the name to be "data"
              ,file = file
              )
@@ -214,7 +222,21 @@ Main <- function(control) {
     Split('zip5.has.school', Identity, 'zip5.has.school')
 }
 
-Main(control)
+# EXECUTION STARTS HERE
+control <- Control()
+InitializeR(duplex.output.to = control$path.out.log)
+str(control)
+transactions.al.sfr.subset1 <-
+    if (exists('transactions.al.sfr.subset1')) {
+        transactions.al.sfr.subset1
+    } else {
+        cat('reading transactions.al.sfr.subset1\n')
+        #debug(ReadTransactionsAlSfrSubset1)
+        ReadTransactionsAlSfrSubset1(path = control$path.in.transactions.al.sfr.subset1)
+    }
 
-print(control)
+
+Main(control, transactions.al.sfr.subset1)
+
+str(control)
 cat('done\n')
