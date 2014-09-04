@@ -1,12 +1,164 @@
-% chapter-input-processing-v6.tex
 % vim: textwidth=72
 
 % STYLE GUIDE
 % not dataset, but data set
+%\input{thesis-prologue}
+
+\documentclass[10pt]{amsbook}
+%\setlength{\textwidth}{5in}
+
+\usepackage{amssymb,latexsym,amsmath}
+\usepackage{listings}
+%\usepackage[all]{xy}   %xy-pic
+
+% graphics
+\usepackage{graphicx}    % needed for \includegraphics
+% Tell \includegraphics where to search for files
+% see Gratzer p 317
+% The trailing / is required
+\graphicspath{%
+{/home/roy/Dropbox/nyu-real-estate/repp-repo.git/src/local-weighted-regression-2/src/}
+}
+\usepackage{epstopdf}   % allow eps files as graphics input
+\usepackage{caption}    % allow line breaks \\ in captions
+
+% don't indent first list of a paragraph
+%\setlength{\parindent}{0pt}   
+% increase spacing between paragraphs
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
+% don't align right margin
+\raggedright
+
+% proclamations
+%\newtheorem{corollary}{Corollary}
+%\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+%\newtheorem{notation}{Notation}
+%\newtheorem{proposition}{Proposition}
+%\newtheorem{theorem]{Theorem}
+
+%%%%%% commands local to this document
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\blanks}{\_\_\_}
+\newcommand{\blank}{\textunderscore\textunderscore\textunderscore}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\begin{document}
 
 \chapter{Input Processing}
 
-\section{Introductin}
+We start with real estate data for Los Angeles Country: the taxroll for
+2008 and 25 years of deeds ending late in 2009. These data came from
+CoreLogic. We supplemented them with data from the U.S. Census Bureau
+from the year 2000 and, from a geocoding service, the latitude and
+longitude of many of the parcels. We join these file to create a
+transactions file: a parcel and the price of the parcel on a date that
+it traded. We create a subset of the transactions file containing only
+parcels for single-family residences, only arms-length transactions, and
+only transactions for which every field has a ``reasonable'' value.
+
+This chapter provides the details on how this was done. It contains these
+sections:
+\begin{itemize}
+\item A description of the input files
+\item How the input files were joined into the transactions file.
+\item Summary statistics about the transactions file.
+\end{itemize}
+
+\section{Input Files}
+
+The taxroll file is actually 8 files containing the taxroll as of
+November 1, 2008. There is a record (of type 2580) for every parcel. The
+fields in each record are:
+
+\begin{itemize}
+
+\item The parcel identifier, called the Assessor Parcel Number (APN).
+This value is presented twice, once formatted with hyphens and once as a
+plain number field.  The number field is not always numeric and does not
+always have the correct number of digits, so the two fields are analyzed
+to infer the ``best'' APN.
+
+\item Information on the parcel itself: it's census tract, its latitude
+and longitude (though these fields are not populated in our data, so
+that we have used a separate geocoding file), location on maps, the
+universal land use code (LUSEI), and so forth. The LUSEI field is used
+to identify whether the parcel is for a single-family residence.
+
+\item Information on the subdivision, primarily its location in refence books.
+
+\item The address of the property including its 9-digit zipcode.
+
+\item Information on the owner, which is not populated.
+
+\item A series of fields describing the assessment for the parcel. California
+Propositions 7 and 13 force the assessment to not be an unbiased estimate of
+the market value of the property. Proposition 13 constrains the assessment
+to next exceed a specified rate of growth since the last property sale, thus
+biasing assessments to be on average lower than property values. Proposition 7
+reduces the assessment to an estimated market value upon successful petition
+of the property owner, thus biasing the assessment to be higher than property
+values, because not all owners will petition to have their assessments reduced
+when the market is falling.
+
+\item Information on the most recent sale of the property. We don't use this
+information and rely instead on the information in the deeds. The two
+sources do not always agree.
+
+\item Information on the mortgage. We don't use any mortgage information in
+this work.
+
+\item Information on the prior sale. We again rely on the deeds for this type
+of information.
+
+\item A description of the lot including its size in acres and square feet.
+
+\item A description of the primary building, including the year built, number 
+of rooms, number of bedrooms, number of bathrooms, whether it has a swimming
+pool. Many of the values are missing, so we use a subset of the values that
+are often present.
+
+\item The legal description of the property. We don't use this.
+
+\end{itemize}
+
+The deeds file is actually 8 files containing every deed created over about
+25 years. A deed transfers ownership or legal rights to a property. When a 
+property is sold, a deed is supposed to be created. In California (but not all
+states) the deed states the selling price for the property. There is a deeds
+record (of type 1080) for every deed. The fields in a deeds record are:
+
+\begin{itemize}
+
+\item The parcel identifier, the APN. This is coded as in the taxroll file and
+has similar issues.
+
+\item A description of the owner. We don't use this.
+
+\item The owner's mailing address. We don't use this.
+
+\item Property information. We rely on the taxroll for this type of information
+and hence do not use these fields.
+
+\item Information on the sale, including the sale date, the price, how many
+APNs were in the transaction, the type of deed, and the PRICATCODE reporting whether the 
+transaction was at arms-length. We use only arms-length transactions in this
+work. We use only grant deeds (these are deeds of sale) and trust deeds (sales
+supported by a mortgage) in this work.
+
+\end{itemize}
+
+The census file was downloaded from the U.S. Census. It is for the year 2000 and
+contains records for census tracts in Los Angeles Country.
+
+The geocoding file was produced by GeoLytics, Inc. It contains latitudes and
+longitudes for many of the parcels in Los Angeles.
+
+
+
+\section{Introduction}
 This project starts with data sets from several providers, each with
 its own layouts. To build and test models, one needs to join the data
 sets into cohesive sets of observations. This chapter describes how
@@ -870,6 +1022,8 @@ always coded or often coded. When a value was missing, one needs to
 decide whether to drop the entire transaction, to treat the missing
 value as if it were coded as some other value, or to impute the
 missing.
+
+\input{thesis-epilogue}
 
 
  
