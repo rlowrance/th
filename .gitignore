@@ -11,3 +11,8 @@
 # OS X cruft
 .DS_Store
 .Rproj.user
+
+# pdflatex by-products
+*.aux
+*.log
+*.pdf
