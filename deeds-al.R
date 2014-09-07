@@ -158,10 +158,12 @@ Main <- function(control) {
     print(str(arms.length))
     
     # Write RData
-    save(arms.length, nrow.all, nrow.arms.length, file = control$path.out.deeds)
-
-
-    # write control variables
+    info = list( nrow.all = nrow.all
+                ,nrow.arms.length = nrow.arms.length
+    )
+    save(arms.length, info, control, file = control$path.out.deeds)#
+    
+    #write control variables
     str(control)
     if (control$testing)
         cat('DISCARD OUTPUT: TESTING\n')
