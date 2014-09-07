@@ -295,7 +295,7 @@ ReadDerivedFeatures <- function(control) {
     result
 }
 
-WriteTransactionsAlSfr <- function(control, transactions.al.sfr) {
+WriteTransactionsAlSfr <- function(control, transactions.al.sfr, info) {
     cat('starting WriteTransactionsAlSfr', nrow(transactions.al.sfr), '\n')
 
     # Drop extraneous features
@@ -305,7 +305,7 @@ WriteTransactionsAlSfr <- function(control, transactions.al.sfr) {
     transactions.al.sfr$APN.UNFORMATTED.parcels <- NULL
     transactions.al.sfr$APN.FORMATTED.parcels <- NULL
 
-    save(control, transactions.al.sfr, file = control$path.out.transactions.al.sfr)
+    save(control, transactions.al.sfr, info, file = control$path.out.transactions.al.sfr)
 }
 
 
@@ -388,7 +388,19 @@ transactions.al.sfr <-
         MergeDerivedFeatures(control, derived.features, census.deeds.parcels.geocoding)
     }
 #debug(WriteTransactionsAlSfr)
-WriteTransactionsAlSfr(control, transactions.al.sfr)
+info <- list( nrow.deeds.al = nrow(deeds.al)
+             ,nrow.parcels.sfr = nrow(parcels.sfr)
+             ,nrow.deeds.parcels = nrow(deeds.parcels)
+             ,nrow.census = nrow(census)
+             ,nrow.census.deeds.parcels = nrow(census.deeds.parcels)
+             ,nrow.geocoding = nrow(geocoding)
+             ,nrow.census.deeds.parcels.geocoding = nrow(census.deeds.parcels.geocoding)
+             ,nrow.derived.census.tract = nrow(derived.features$features.census.tract)
+             ,nrow.derived.zip5 = nrow(derived.features$features.zip5)
+             ,nrow.derived.features = nrow(derived.features)
+             ,nrow.transactions.al.sfr = nrow(transactions.al.sfr)
+)
+WriteTransactionsAlSfr(control, transactions.al.sfr, info)
 str(control)
 if (control$testing)
     cat('DISCARD OUTPUT: TESTING\n')
