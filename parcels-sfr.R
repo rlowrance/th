@@ -244,7 +244,10 @@ Main <- function(control) {
     
     # Write RData
     cat('writing output\n')
-    save(parcels.sfr, nrow.all, nrow.sfr, file = control$path.out.deeds)
+    info <- list( nrow.all = nrow.all
+                 ,nrow.sfr = nrow.sfr
+    )
+    save(parcels.sfr, info, control, file = control$path.out.deeds)
 
 
     # write control variables
