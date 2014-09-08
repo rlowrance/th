@@ -119,10 +119,12 @@ PositiveNotHuge <- function(v, max.percentile) {
     # return selector vector for entries in v > 0 and <= 99th percentile of values in v
     stopifnot(max.percentile == 99)  # this value is hard-coded into the program
     q <- quantile(v, probs=seq(.95, 1, .01))
-    max <- q[5]
-    selector <- (v > 0) & (v <= max)
+    quintile.99 <- q[5]
+    selector <- (v > 0) & (v <= quintile.99)
     result <- list( selector = selector
-                   ,max = max
+                   ,max.before.selection = max(v)
+                   ,max.after.selection = max(v[selector])
+                   ,quintile.99 = quintile.99
                    )
 }
 SelectNotHuge <- function(column.name, control, df) {
@@ -130,7 +132,17 @@ SelectNotHuge <- function(column.name, control, df) {
     selector <- pnh$selector
     result <- list( selector = selector
                    ,info = list( num.selected = sum(selector)
-                                ,max.value = pnh$max
+                                ,quintile.99 = pnh$quintile.99
+                                ,max.before.selection = pnh$max.before.selection
+                                ,max.after.selection = pnh$max.after.selection
+                                )
+                   )
+}
+SelectAll<- function(column.name, control, df) {
+    selector <- rep(TRUE, nrow(df))
+    result <- list( selector = selector
+                   ,info = list( num.selected = sum(selector)
+                                ,max.value = max(df[[column.name]])
                                 )
                    )
 }
@@ -316,6 +328,7 @@ OkUnitsNumber <- function(control, df) {
                    )
 }
 OkUniversalBuildingSquareFeet <- function(control, df) {
+    # REVISED: accept all
     # Some buildings are huge
     SelectNotHuge( column.name = 'UNIVERSAL.BUILDING.SQUARE.FEET'
                   ,control = control
@@ -468,6 +481,8 @@ Main <- function(control, transactions.al.sfr) {
          ,control
          ,file = control$path.out.rdata
          )
+
+    str(info)
 
     str(control)
     if (control$testing)
