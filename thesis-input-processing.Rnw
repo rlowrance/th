@@ -431,7 +431,8 @@ the subset of transactions actually used in the analysis.
   \item Sale date. None of the deeds are missing recording dates. Some are missig
   sale dates. When a
     sales date is missing, it is imputed from the recording date. This
-    imputation uses the average delay between sales and recording (XXX
+    imputation uses the average delay between sales and recording (
+    \Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
     days) as the best estimate for the missing sales date.
   \item Total rooms. We rejected transactions for houses reported to
     have less than \Sexpr{Commas(subset$control$min.total.rooms)} rooms. 
