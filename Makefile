@@ -32,6 +32,9 @@ raw-parcels += $(raw-parcels-volume)/CAC06037F8.zip
 
 raw-census.csv = $(raw)/neighborhood-data/census.csv
 
+thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
+
+targets += $(working)/thesis-input-processing.pdf
 targets += $(splits)/apn.RData
 targets += $(working)/census.RData
 targets += $(working)/deeds-al.RData
@@ -60,6 +63,7 @@ ZipN.R            : EvaluateWithoutWarnings.R
 lrwl = DirectoryLog.R DirectoryRaw.R                    DirectoryWorking.R Libraries.R
 lwl  = DirectoryLog.R                                   DirectoryWorking.R Libraries.R
 lwsl = DirectoryLog.R                DirectorySplits.R  DirectoryWorking.R Libraries.R
+w    =                                                  DirectoryWorking.R
 
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
@@ -73,6 +77,21 @@ transactions-al-sfr.R               : $(lrwl) BestApns.R ReadCensus.R ReadDeedsA
                                               ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
 transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
 transactions-al-sfr-subset1-splits.R: $(lwsl) ReadTransactionsAlSfrSubset1.R
+thesis-input-processing.Rnw         : $(w)    
+
+
+
+# PDF files (and accompanying tex files)
+thesis-input-processing.tex: thesis-input-processing.Rnw \
+	$(working)/transactions-al-sfr.RData \
+	$(working)/transactions-al-sfr-subset1.RData \
+	$(working)/deeds-al.RData \
+	$(working)/parcels-sfr.RData
+	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
+
+$(working)/thesis-input-processing.pdf: thesis-input-processing.tex
+	pdflatex thesis-input-processing.tex
+	mv thesis-input-processing.pdf $(working)/
 
 
 # the apn.RData target represents all the files in the splits directory
