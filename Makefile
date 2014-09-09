@@ -35,6 +35,13 @@ raw-census.csv = $(raw)/neighborhood-data/census.csv
 thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
 thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
+e-median-price-ALL.RData += $(working)/e-median-price_by_year_from_1984_to_2009.RData
+e-median-price-ALL.RData += $(working)/e-median-price_by_month_from_2006_to_2009.RData
+#$(warning e-median-price-ALL.RData is $(e-median-price-ALL.RData))
+
+# experiment targets (all produce .RData files)
+targets += $(e-median-price-ALL.RData)
+
 # RData targets
 targets += $(splits)/apn.RData
 targets += $(working)/census.RData
@@ -72,6 +79,7 @@ w    =                                                  DirectoryWorking.R
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al.R                          : $(lrwl) BestApns.R PRICATCODE.R
+e-median-price.R                    : $(lswl)
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
 parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
@@ -84,6 +92,18 @@ transactions-al-sfr-subset1-splits.R: $(lwsl) ReadTransactionsAlSfrSubset1.R
 thesis-input-processing.Rnw         : $(w)    
 
 
+# experiment-driven RData files
+
+e-median-price-dependencies += e-median-price.R
+e-median-price-dependencies += $(splits)/price.RData
+e-median-price-dependencies += $(splits)/sale.month.RData
+e-median-price-dependencies += $(splits)/sale.year.RData
+
+$(working)/e-median-price_by_year_from_1984_to_2009.RData: $(e-median-price-dependencies)
+	RScript e-median-price.R --by year --from 1984 --to 2009
+
+$(working)/e-median-price_by_month_from_2006_to_2009.RData: $(e-median-price-dependencies)
+	RScript e-median-price.R --by month --from 2006 --to 2009
 
 # PDF files (and accompanying tex files)
 thesis-input-processing.tex: thesis-input-processing.Rnw \
