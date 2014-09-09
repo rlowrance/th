@@ -33,8 +33,9 @@ raw-parcels += $(raw-parcels-volume)/CAC06037F8.zip
 raw-census.csv = $(raw)/neighborhood-data/census.csv
 
 thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
+thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
-targets += $(working)/thesis-input-processing.pdf
+# RData targets
 targets += $(splits)/apn.RData
 targets += $(working)/census.RData
 targets += $(working)/deeds-al.RData
@@ -45,6 +46,9 @@ targets += $(working)/parcels-sfr.RData
 targets += $(working)/parcels-sfr-sample.RData 
 targets += $(working)/transactions-al-sfr.RData 
 targets += $(working)/transactions-al-sfr-subset1.RData
+# thesis targets
+targets += $(working)/thesis-linear-models.pdf
+targets += $(working)/thesis-input-processing.pdf
 
 $(warning targets is $(targets))
 
@@ -92,6 +96,13 @@ thesis-input-processing.tex: thesis-input-processing.Rnw \
 $(working)/thesis-input-processing.pdf: thesis-input-processing.tex
 	pdflatex thesis-input-processing.tex
 	mv thesis-input-processing.pdf $(working)/
+
+thesis-linear-models.tex: thesis-linear-models.Rnw
+	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
+
+$(working)/thesis-linear-models.pdf: thesis-linear-models.tex
+	pdflatex thesis-linear-models.tex
+	mv thesis-linear-models.pdf $(working)/
 
 
 # the apn.RData target represents all the files in the splits directory
