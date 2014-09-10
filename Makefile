@@ -1,4 +1,5 @@
 # Makefile
+# debug with --debug=b  (basic debugging)
 data = ../../los-angeles
 
 output  = $(data)/output
@@ -35,8 +36,8 @@ raw-census.csv = $(raw)/neighborhood-data/census.csv
 thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
 thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
-e-median-price-ALL.RData += $(working)/e-median-price_by_year_from_1984_to_2009.RData
-e-median-price-ALL.RData += $(working)/e-median-price_by_month_from_2006_to_2009.RData
+e-median-price-ALL.RData += $(working)/e-median-price-by-year-from-1984-to-2009.RData
+e-median-price-ALL.RData += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 #$(warning e-median-price-ALL.RData is $(e-median-price-ALL.RData))
 
 # experiment targets (all produce .RData files)
@@ -91,6 +92,10 @@ transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SC
 transactions-al-sfr-subset1-splits.R: $(lswl) ReadTransactionsAlSfrSubset1.R
 thesis-input-processing.Rnw         : $(w)    
 
+# dependencies for data files
+#$(splits)/price.RData     : $(working)/transactions-al-sfr-subset.RData
+#$(splits)/sale.month.RData: $(working)/transactions-al-sfr-subset.RData
+#$(splits)/sale.year.RData : $(working)/transactions-al-sfr-subset.RData
 
 # experiment-driven RData files
 
@@ -98,24 +103,35 @@ e-median-price-dependencies += e-median-price.R
 e-median-price-dependencies += $(splits)/price.RData
 e-median-price-dependencies += $(splits)/sale.month.RData
 e-median-price-dependencies += $(splits)/sale.year.RData
+#$(warning e-median-price-dependencies is $(e-median-price-dependencies))
 
-$(working)/e-median-price_by_year_from_1984_to_2009.RData: $(e-median-price-dependencies)
+$(working)/e-median-price_by-year-from-1984-to-2009.RData: $(e-median-price-dependencies)
 	RScript e-median-price.R --by year --from 1984 --to 2009
 
-$(working)/e-median-price_by_month_from_2006_to_2009.RData: $(e-median-price-dependencies)
+$(working)/e-median-price-by-month-from-2006-to-2009.RData: $(e-median-price-dependencies)
 	RScript e-median-price.R --by month --from 2006 --to 2009
 
 # PDF files (and accompanying tex files)
-thesis-input-processing.tex: thesis-input-processing.Rnw \
+thesis-input-processing.pdf: thesis-input-processing.Rnw \
 	$(working)/transactions-al-sfr.RData \
 	$(working)/transactions-al-sfr-subset1.RData \
 	$(working)/deeds-al.RData \
 	$(working)/parcels-sfr.RData
 	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
-
-$(working)/thesis-input-processing.pdf: thesis-input-processing.tex
 	pdflatex thesis-input-processing.tex
 	mv thesis-input-processing.pdf $(working)/
+	rm thesis-input-processing.tex
+
+#thesis-input-processing.tex: thesis-input-processing.Rnw \
+#	$(working)/transactions-al-sfr.RData \
+#	$(working)/transactions-al-sfr-subset1.RData \
+#	$(working)/deeds-al.RData \
+#	$(working)/parcels-sfr.RData
+#	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
+#
+#$(working)/thesis-input-processing.pdf: thesis-input-processing.tex
+#	pdflatex thesis-input-processing.tex
+#	mv thesis-input-processing.pdf $(working)/
 
 thesis-linear-models.tex: thesis-linear-models.Rnw
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
@@ -127,7 +143,15 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.tex
 
 # the apn.RData target represents all the files in the splits directory
 # this recipe creates all of them
-$(splits)/apn.RData: transactions-al-sfr-subset1-splits.R \
+#$(splits)/apn.RData: transactions-al-sfr-subset1-splits.R \
+#	$(working)/transactions-al-sfr-subset1.RData
+#	Rscript transactions-al-sfr-subset1-splits.R
+
+# make all the named splits simultaeously
+# requires a pattern rule
+# here the stem is the RData file name suffix
+$(splits)/price.% $(splits)/sale.year.% $(splits)/sale.month.%: \
+	transactions-al-sfr-subset1-splits.R \
 	$(working)/transactions-al-sfr-subset1.RData
 	Rscript transactions-al-sfr-subset1-splits.R
 
