@@ -67,6 +67,14 @@ Control <- function() {
              ,path.in.subset = paste0(working, 'transactions-al-sfr-subset1.RData')
              ,path.in.deeds = paste0(working, 'deeds-al.RData')
              ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
+             ,path.in.median.price.by.month = 
+                paste0( working
+                       ,'e-median-price_by_month_from_2006_to_2009.RData'
+                       )
+             ,path.in.median.price.by.year =
+                paste0( working
+                       ,'e-median-price_by_year_from_1984_to_2009.RData'
+                       )
              ,cache = FALSE
              ,include = TRUE
         )
