@@ -24,7 +24,7 @@ Control <- function(parsed.command.args) {
 
     # output file name depends on parsed.command.args
     me <- 'e-median-price'
-    log.file.base <- sprintf( '%s_by_%s_from_%d_to_%d'
+    log.file.base <- sprintf( '%s-by-%s-from-%d-to-%d'
                              ,me
                              ,parsed.command.args$by
                              ,from
@@ -43,7 +43,7 @@ Control <- function(parsed.command.args) {
                     ,path.out.rdata = paste0(working, log.file.base, '.RData')
                     ,path.out.pdf = paste0(working, log.file.base, '.pdf')
                     ,splits.to.read = c('price', 'sale.year', 'sale.month')
-                    ,show.chart = TRUE
+                    ,show.chart = FALSE
                     ,chart.width = 14  # inches
                     ,chart.heigh = 10  # inches
                     ,write.pdf = TRUE
@@ -92,7 +92,8 @@ MedianPricesByMonth <- function(from.year, to.year, data) {
         }
         analysis <- NULL
         for (sale.year in from.year:to.year) {
-            last.sale.month <- if (sale.year == 2009) 11 else 12
+            # we have data only through March 2009
+            last.sale.month <- if (sale.year == 2009) 3 else 12
             for (sale.month in 1:last.sale.month) {
                 median.price <- MedianPrice(sale.year, sale.month)
                 next.row <- data.frame( stringsAsFactors = FALSE
@@ -204,7 +205,7 @@ Main <- function(control, data) {
 
 default.args <- NULL
 #default.args <- list('--by', 'year', '--from', '2000', '--to', '2001')
-#default.args <- list('--by', 'month', '--from', '2000', '--to', '2001')
+#default.args <- list('--by', 'month', '--from', '2006', '--to', '2009')
 
 command.args <- if (is.null(default.args)) CommandArgs() else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
