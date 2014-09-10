@@ -73,7 +73,7 @@ ZipN.R            : EvaluateWithoutWarnings.R
 # dependencies in R source files for main programs
 lrwl = DirectoryLog.R DirectoryRaw.R                    DirectoryWorking.R Libraries.R
 lwl  = DirectoryLog.R                                   DirectoryWorking.R Libraries.R
-lwsl = DirectoryLog.R                DirectorySplits.R  DirectoryWorking.R Libraries.R
+lswl = DirectoryLog.R                DirectorySplits.R  DirectoryWorking.R Libraries.R
 w    =                                                  DirectoryWorking.R
 
 census.R                            : $(lrwl)
@@ -88,7 +88,7 @@ parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
 transactions-al-sfr.R               : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
                                               ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
 transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
-transactions-al-sfr-subset1-splits.R: $(lwsl) ReadTransactionsAlSfrSubset1.R
+transactions-al-sfr-subset1-splits.R: $(lswl) ReadTransactionsAlSfrSubset1.R
 thesis-input-processing.Rnw         : $(w)    
 
 
