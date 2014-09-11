@@ -1,47 +1,77 @@
 # e-avm-variants.R
-# main program to produce file OUTPUT/e-avm-variants.rsave
+# main program to produce file WORKING/e-avm-variants.rsave
 # issue resolved: The AVM model performs better than the assessor model. How much
 # of the better performance is caused by using the assessment?
 # Approach: Use k-fold cross validation to compare estimated generalization errors for
 # model variants
 
+source('DirectoryLog.R')
+source('DirectorySplits.R')
+source('DirectoryWorking.R')
 
-# specify input files, which are splits of OUTPUT/transactions-subset
-# The splits are makefile dependencies
-split.names <- list( predictor.names = c(# continuous size positive
-                                         'land.square.footage'
-                                         ,'living.area'
-                                         # continuous size nonnegative
-                                         ,'bedrooms'
-                                         ,'bathrooms'
-                                         ,'parking.spaces'
-                                         # continuous non size
-                                         ,'median.household.income'
-                                         ,'year.built'
-                                         ,'fraction.owner.occupied'
-                                         ,'avg.commute.time'
-                                         # discrete
-                                         ,'factor.is.new.construction'
-                                         ,'factor.has.pool'
-                                         )
-                    ,assessment.names = c( 'improvement.value'
-                                          ,'land.value'
-                                          ,'fraction.improvement.value'
-                                          )
-                    ,other = c(# dates
-                               'saleDate'
-                               ,'recordingDate'
-                               # prices
-                               ,'price'
-                               ,'log.price'
-                               # apn
-                               ,'apn'
-                               )
+source('Libraries.R')
+
+Control <- function(parsed.command.args) {
+    # for now, now parsed.command.args
+    # see e-median-price.R for how to capture such
+    me <- 'e-avm-variants' 
+
+    log <- DirectoryLog()
+    splits <- DirectorySplits()
+    working <- DirectoryWorking()
+
+    # defines the splits that we use
+    predictor.names = c(# continuous size positive
+                        'land.square.footage'
+                        ,'living.area'
+                        # continuous size nonnegative
+                        ,'bedrooms'
+                        ,'bathrooms'
+                        ,'parking.spaces'
+                        # continuous non size
+                        ,'median.household.income'
+                        ,'year.built'
+                        ,'fraction.owner.occupied'
+                        ,'avg.commute.time'
+                        # discrete
+                        ,'factor.is.new.construction'
+                        ,'factor.has.pool'
+                        )
+    assessment.names = c( 'improvement.value'
+                         ,'land.value'
+                         ,'fraction.improvement.value'
+                         )
+    other.names = c(# dates
+                    'saleDate'
+                    ,'recordingDate'
+                    # prices
+                    ,'price'
+                    ,'log.price'
+                    # apn
+                    ,'apn'
                     )
-
-library(devtools)
-load_all('/Users/roy/Dropbox/lowranceutilitiesr')
-load_all('/Users/roy/Dropbox/lowrancerealestater')
+    control <- list( response = 'log.price'
+                    ,path.in.splits = splits
+                    ,path.out.log = paste0(log, me, '.log')
+                    ,path.out.rdata = paste0(working, me, '.RData')
+                    ,predictors.without.assessment = c(predictor.names)
+                    ,predictors.with.assessment = c( predictor.names
+                                                    ,assessment.names)
+                    ,response = 'log.price'
+                    ,split.names = c( predictor.names
+                                     ,assessment.names
+                                     ,other.names)
+                    ,nfolds = 10
+                    ,testing.period = list( first.date = as.Date('2008-11-01')
+                                           ,last.date = as.Date('2009-03-31')
+                                           )
+                    ,num.training.days = 60
+                    ,rich = 2.0
+                    ,poor = 0.5
+                    ,testing = FALSE
+                    )
+    control
+}
 
 DefineModelsNames <- function(control, data) {
     # build parallel arrays
@@ -161,45 +191,20 @@ CvExperiment <- function(control, data, models.names) {
     experiment.result
 }
 
-Main <- function(split.names) {
+Main <- function(control, transaction.data) {
     #cat('start Main'); browser()
 
-    path.output = '../data/v6/output/'
-    me <- 'e-avm-variants' # WAS: response/predictors.form/nfolds
-    control <- list( response = 'log.price'
-                    ,path.in.base = paste0(path.output, 'transactions-subset1')
-                    ,path.out.log = paste0(path.output, me, '.log')
-                    ,path.out.save = paste0(path.output, me, '.rsave')
-                    ,predictors.without.assessment = c(split.names$predictor.names)
-                    ,predictors.with.assessment = c( split.names$predictor.names
-                                                    ,split.names$assessment.names)
-                    ,response = 'log.price'
-                    ,split.names = c( split.names$predictor.names
-                                     ,split.names$assessment.names
-                                     ,split.names$other)
-                    ,nfolds = 10
-                    ,testing.period = list( first.date = as.Date('2008-01-01')
-                                           ,last.date = as.Date('2008-01-31')
-                                           )
-                    ,num.training.days = 60
-                    ,rich = 2.0
-                    ,poor = 0.5
-                    ,testing = FALSE
-                    )
 
     InitializeR(duplex.output.to = control$path.out.log)
-    print(control)
+    str(control)
 
-    data <- ReadTransactionSplits( path.in.base = control$path.in.base
-                                  ,split.names = control$split.names
-                                  ,verbose = TRUE
-                                  )
-    
+    debug(DefineModelsNames)
     models.names <- DefineModelsNames( control = control
-                                      ,data = data)
+                                      ,data = transaction.data)
 
+    # for now, turn off strata analysis (make this a command line option?)
     # determine results for stratified versions of the data
-    stratify <- Stratify(control, data)
+    #stratify <- Stratify(control, data)
 
     StrataResult <- function(strata.index) {
         #cat('start StrataResult', strata.index, '\n'); browser()
@@ -218,8 +223,10 @@ Main <- function(split.names) {
         result
     }
 
+    
     #strata.result <- Map(StrataResult, c(2))
-    strata.results <- Map( StrataResult, 1:length(stratify$name))
+    #strata.results <- Map( StrataResult, 1:length(stratify$name))
+    debug(CvExperiment)
     all.result <- CvExperiment( control = control
                                ,data = data
                                ,models.names = models.names
@@ -242,7 +249,7 @@ Main <- function(split.names) {
         cat(' ')
     }
 
-    Map(PrintStrataResult, strata.results)
+    #Map(PrintStrataResult, strata.results)
 
     cat('all.result\n')
     print(all.result)
@@ -255,7 +262,32 @@ Main <- function(split.names) {
     if (control$testing) cat('DISCARD RESULTS: TESTING\n')
 }
 
+#debug(Control)
+if (FALSE) {
+    # just in case we need a command line
+    default.args <- NULL  # synthesize the command line that will be used in the Makefile
 
+    debug(CommandArgs)
+    command.args <- if (is.null(default.args)) CommandArgs() else default.args
+    parsed.command.args <- ParseCommandLine( cl = command.args
+                                            ,keywords = c()
+                                            ,ignoreUnexpected = TRUE
+                                            )
+    control <- Control(parsed.command.args)
+} else {
+    control <- Control()
+}
 
-Main(split.names)
+browser()
+
+# cache transaction.data
+if (!exists('transaction.data')) {
+    debug(ReadTransactionSplits)
+    transaction.data <- ReadTransactionSplits( base.in.path = control$path.in.splits
+                                              ,split.names = control$split.names
+                                              )
+}
+
+debug(Main)
+Main(control, transaction.data)
 cat('done\n')
