@@ -67,13 +67,13 @@ Control <- function() {
              ,path.in.subset = paste0(working, 'transactions-al-sfr-subset1.RData')
              ,path.in.deeds = paste0(working, 'deeds-al.RData')
              ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
-             ,path.in.median.price.by.month = 
+             ,path.in.median.price.by.month.pdf = 
                 paste0( working
-                       ,'e-median-price_by_month_from_2006_to_2009.RData'
+                       ,'e-median-price-by-month-from-2006-to-2009.pdf'
                        )
-             ,path.in.median.price.by.year =
+             ,path.in.median.price.by.year.pdf=
                 paste0( working
-                       ,'e-median-price_by_year_from_1984_to_2009.RData'
+                       ,'e-median-price-by-year-from-1984-to-2009.pdf'
                        )
              ,cache = FALSE
              ,include = TRUE
@@ -115,7 +115,9 @@ decisions.
 \item Model form
 \item Characteristics of the training and testing periods
 \item Selecting test data sets: randomly and for 2009
+\item Choosing the training period
 \item Feature choice
+\item Training set choice
 \item avm variants experiment
 \item regularization
 \end{itemize}
@@ -243,23 +245,59 @@ We consider 4 forms of models and ask which provides the most accurate
 predictions. The form and their interpretations are:
 
 \begin{itemize}
-\item linear-linear: $price = \ldots + \beta x_i + \ldots.$ A doubling
+\item level-level: $price = \ldots + \beta x_i + \ldots.$ A doubling
 of x leads to $\beta$ factor increase in the price.
-\item linear-log: CHECK THE TEXT
-\item log-linear:
+\item level-log: CHECK THE TEXT
+\item log-level:
 \item log-log
 \end{itemize}
 
-\section{Characteristics of the training and testing periods}
+\section{Choosing the training period}
 
-In Los Angeles Country, real estate prices mostly increased month to
-month. The exception was in 2008 (?) which saw a rapid decrease in
-median prices.
+The linear model uses the average value of each feature to estimate the
+total value of the house. When prices are moving rapidly, feature values
+may also be moving rapidly. It's important to think through the training
+data set for a given estimation task.
 
-PUT IN 2 CHARTS (median price by month for 25 years), median price by
-month for 2007- 2009.
+\begin{figure}[h]
+\caption{Median Prices By Year}
+\label{figure:medianPricesByYear}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.year}}
+\end{figure}
 
-Two sets of testing data were developed.
+In Figure \ref{figure:medianPricesByYear}, we see the median prices of
+arms-length transactions for single-family residences in our subset1.
+You can see that prices have not been steady and that there have been
+periods of steady price increases followed by periods of price declines.
+The decline in prices after 2007 was not the only price decrease: there
+was another decline starting in 1990 that was sustained for about six
+years. 
+
+The impliciation for linear models is that the model builder faces a
+dilema: train on too long a period, and the features-level prices
+found by the fitting process for the model are likely to be out-of-date;
+train on too short a period, and the volume of training data may be too
+low to accuralate fit to feature prices.
+
+One possible way around this dilema is to successfully forecast median
+prices for the test period: will they be lower, about the same, or
+higher than in the training period. The trained feature prices could
+then be adjusted. However, such a forecast is beyond the scope of this work.
+
+\begin{figure}[h]
+\caption{Median Prices By Month}
+\label{figure:medianPricesByMonth}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.month}}
+\end{figure}
+
+Figure \ref{figure:medianPricesByMonth} depicts median prices by month
+starting in January 2006. We see approximately level prices starting
+early in 2006, a spike in mid July 2007, and then the well-known
+decline. The difficulty of forecasting future median prices can been
+seen: What is the clue that July 2007 would be the peak? Median prices
+increased in February 2008 but declined to a new low in March 2008.
+
+
 \section{Feature choice}
 
 Features used in the literature.
