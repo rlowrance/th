@@ -62,12 +62,13 @@ source('DirectoryWorking.R')
 Control <- function() {
     working <- DirectoryWorking()
     control <-
-        list( path.in.transactions = paste0(working, 'transactions-al-sfr.RData')
-             ,path.in.subset = paste0(working, 'transactions-al-sfr-subset1.RData')
-             ,path.in.deeds = paste0(working, 'deeds-al.RData')
+        list( path.in.transactions = paste0(working, 'transactions.RData')
+             ,path.in.subset = paste0(working, 'transactions-subset1.RData')
+             ,path.in.deeds = paste0(working, 'deeds-al-g.RData')
              ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
              ,cache = FALSE
-             ,include = FALSE
+             #,include = FALSE
+             ,include = TRUE
         )
     control
 }
@@ -91,8 +92,8 @@ Commas(123456)
 Deeds <- function(control) {
     deeds.loaded <- load(control$path.in.deeds)
     str(deeds.loaded)
-    list( info = info
-          ,df = arms.length
+    list( info = count
+          ,df = deeds.al.grant
           ,control = control
     )
 }
@@ -281,7 +282,7 @@ describes the steps.
 
 The major steps are these:
 \begin{itemize}
-  \item Select just the arms-length deeds.
+  \item Select just the arms-length sale deeds.
   \item Select just the parcels containing single-family-residences.
   \item Create additional features for the zip codes and census tracts.
   \item Create additional features for the census tracts.
@@ -292,18 +293,30 @@ The major steps are these:
 
 Details of each of these steps are in the subsections and sections that follow.
 
-\subsection{Select arms-length deeds}
+\subsection{Select arms-length sale deeds}
 
 The deeds file classifies every record as to whether it was an
-arms-length sale or not.  How this is done is not known for sure, but
+arms-length sale or not.  How a deed is classified as arms-length is not known for sure, but
 presumedly relies on the type of deed and the relationship if any
 between the seller and buyer.
 
-Our work uses on deeds classified as arms-length sales as recorded
-in the PRICATCODE field. The deeds files from CoreLogic contain
-\Sexpr{Commas(deeds$info$nrow.all)}
+Our work uses only deeds classified as arms-length sales as recorded
+in the PRICATCODE (primary category code) field. The deeds files from CoreLogic contain
+\Sexpr{Commas(deeds$info$num.all.deeds)}
 deeds of which  
-\Sexpr{Commas(deeds$info$nrow.arms.length)} are classified as arms-length.
+\Sexpr{Commas(deeds$info$num.is.arms.length)} 
+are classified as arms-length.
+
+The document type code field records the type of the deed. The deeds of
+interest are those that transfer ownership of a property. There are the
+grant deeds. There are 
+\Sexpr{Commas(deeds$info$num.is.grant.deed)} 
+grant deeds in the deeds files.
+
+We are interested in deeds that are both arms-length and grant deeds.
+There are 
+\Sexpr{Commas(deeds$info$num.is.arms.length.and.grant.deed)} 
+such deeds.
 
 \subsection{Select single-family residences}
 
@@ -312,7 +325,9 @@ One of the uses is as a single-family residence.
 
 Our work uses only parcels classified as single-family residences as
 recorded in the LUSEI field. The taxroll files from CoreLogic contain
-\Sexpr{Commas(parcels$info$nrow.all)} taxroll records of which \Sexpr{Commas(parcels$info$nrow.sfr)}
+\Sexpr{Commas(parcels$info$nrow.all)} 
+taxroll records of which 
+\Sexpr{Commas(parcels$info$nrow.sfr)}
 are classified as single-family
 residences.
 
@@ -343,7 +358,7 @@ owner-occupied (perhaps higher ownership is associated with higher
 property values).
 
 None of these features is provided directly in the Census Bureau files,
-but is straight-foward to compute form the information provided.
+but all are straight-foward to compute from the information provided.
 
 \subsection{Join all the files together}
 
@@ -367,7 +382,9 @@ The transactions file is created by joining each of the input files.
 \end{itemize}
 
 
-The resulting transactions file contains \Sexpr{Commas(transactions$info$nrow.transactions.al.sfr)} records.
+The resulting transactions file contains 
+\Sexpr{Commas(transactions$info$nrow.transactions)} 
+records.
 
 \section{Pick a subset with reasonable values}
 
@@ -383,7 +400,7 @@ values.
 
 <<Remaining>>=
 Remaining <- function(used) {
-    Commas(transactions$info$nrow.transactions.al.sfr - used)
+    Commas(transactions$info$nrow.transactions - used)
 }
 @
 
