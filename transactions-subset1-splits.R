@@ -1,14 +1,14 @@
-# main program to create directory WORKING/transactions-al-sfr-subset1-splits
+# main program to create directory WORKING/transactions-subset1-splits
 
 source('DirectoryLog.R')
 source('DirectorySplits.R')
 source('DirectoryWorking.R')
 source('Libraries.R')
 
-source('ReadTransactionsAlSfrSubset1.R')
+source('ReadTransactionsSubset1.R')
 
 Control <- function() {
-    me <- 'transactions-al-sfr-subset1-splits'
+    me <- 'transactions-subset1-splits'
 
     log <- DirectoryLog()
     splits <- DirectorySplits()
@@ -17,7 +17,7 @@ Control <- function() {
     control <- 
         list( path.out.log = paste0(log, me, '.log')
              ,path.out.splits.dir = DirectorySplits()
-             ,path.in.transactions.al.sfr.subset1 = paste0(working, 'transactions-al-sfr-subset1.RData')
+             ,path.in.transactions.subset1 = paste0(working, 'transactions-subset1.RData')
              ,testing = FALSE
              )
 }
@@ -226,17 +226,17 @@ Main <- function(control, raw) {
 control <- Control()
 InitializeR(duplex.output.to = control$path.out.log)
 str(control)
-transactions.al.sfr.subset1 <-
-    if (exists('transactions.al.sfr.subset1')) {
-        transactions.al.sfr.subset1
+transactions.subset1 <-
+    if (exists('transactions.subset1')) {
+        transactions.subset1
     } else {
-        cat('reading transactions.al.sfr.subset1\n')
+        cat('reading transactions.subset1\n')
         #debug(ReadTransactionsAlSfrSubset1)
-        ReadTransactionsAlSfrSubset1(path = control$path.in.transactions.al.sfr.subset1)
+        ReadTransactionsSubset1(path = control$path.in.transactions.subset1)
     }
 
 
-Main(control, transactions.al.sfr.subset1)
+Main(control, transactions.subset1)
 
 str(control)
 cat('done\n')
