@@ -1,6 +1,6 @@
-# transactions-al-sfr.R
-# Create OUTPUT/transactions-al-sfr.Rdata file containing all transactions for
-# arms-length deeds for single-family-residential parcels.
+# transactions.R
+# Create OUTPUT/transactions.Rdata file containing all transactions for
+# arms-length grant deeds for single-family-residential parcels.
 
 # Join these dataframes and files
 # census                in WORKING/census.RData
@@ -29,28 +29,24 @@ source('Libraries.R')
 
 source('BestApns.R')
 source('ReadCensus.R')
-source('ReadDeedsAl.R')
-source('ReadDeedsAlSample.R')
+source('ReadDeedsAlG.R')
 source('ReadParcelsSfr.R')
-source('ReadParcelsSfrSample.R')
 source('ZipN.R')
 
 Control <- function() {
 # set control variables
-    me <- 'transactions-al-sfr'
+    me <- 'transactions'
 
     log <- DirectoryLog()
     raw <- DirectoryRaw()
     working <- DirectoryWorking()
 
     control <- list( path.out.log = paste0(log, me, '.log')
-                    ,path.out.transactions.al.sfr = paste0(working, 'transactions-al-sfr.RData')
+                    ,path.out.transactions = paste0(working, 'transactions.RData')
                     ,path.in.census = paste0(working, 'census.RData')
-                    ,path.in.deeds.al = paste0(working, 'deeds-al.RData')
-                    ,path.in.deeds.al.sample = paste0(working, 'deeds-al-sample.RData')
+                    ,path.in.deeds.al.g = paste0(working, 'deeds-al-g.RData')
                     ,path.in.geocoding = paste0(raw, 'geocoding.tsv')
                     ,path.in.parcels.sfr = paste0(working, 'parcels-sfr.RData')
-                    ,path.in.parcels.sfr.sample = paste0(working, 'parcels-sfr-sample.RData')
                     ,path.in.parcels.derived.features = paste0(working, 'parcels-derived-features.RData')
                     ,testing = FALSE
                     )
@@ -295,17 +291,17 @@ ReadDerivedFeatures <- function(control) {
     result
 }
 
-WriteTransactionsAlSfr <- function(control, transactions.al.sfr, info) {
-    cat('starting WriteTransactionsAlSfr', nrow(transactions.al.sfr), '\n')
+WriteTransactions <- function(control, transactions, info) {
+    cat('starting WriteTransactions', nrow(transactions), '\n')
 
     # Drop extraneous features
-    print(names(transactions.al.sfr))
-    transactions.al.sfr$APN.UNFORMATTED.deeds <- NULL
-    transactions.al.sfr$APN.FORMATTED.deeds <- NULL
-    transactions.al.sfr$APN.UNFORMATTED.parcels <- NULL
-    transactions.al.sfr$APN.FORMATTED.parcels <- NULL
+    print(names(transactions))
+    transactions$APN.UNFORMATTED.deeds <- NULL
+    transactions$APN.FORMATTED.deeds <- NULL
+    transactions$APN.UNFORMATTED.parcels <- NULL
+    transactions$APN.FORMATTED.parcels <- NULL
 
-    save(control, transactions.al.sfr, info, file = control$path.out.transactions.al.sfr)
+    save(control, transactions, info, file = control$path.out.transactions)
 }
 
 
@@ -316,39 +312,34 @@ WriteTransactionsAlSfr <- function(control, transactions.al.sfr, info) {
 control <- Control()
 InitializeR(duplex.output.to = control$path.out.log)
 str(control)
-deeds.al <-
-    if (exists('deeds.al')) {
-        deeds.al
+deeds.al.g <-
+    if (exists('deeds.al.g')) {
+        deeds.al.g
     } else {
         cat('reading deeds\n')
         #debug(ReadDeedsAl)
-        if (control$testing)
-            ReadDeedsAlSample(path = control$path.in.deeds.al.sample)
-        else
-            ReadDeedsAl(path = control$path.in.deeds.al)
+        ReadDeedsAlG(path = control$path.in.deeds.al.g)
     }
 parcels.sfr <- 
     if (exists('parcels.sfr')) {
         parcels.sfr
     } else {
         cat('reading parcels\n')
-        #debug(ReadParcelsSfr)
-        if (control$testing)
-            ReadParcelsSfrSample(path = control$path.in.parcels.sfr.sample)
-        else
-            ReadParcelsSfr(path = control$path.in.parcels.sfr)
+        ReadParcelsSfr(path = control$path.in.parcels.sfr)
     }
 deeds.parcels <- 
     if (exists('deeds.parcels')) {
         deeds.parcels
     } else {
+        cat('merging deeds and parcels\n')
         #debug(MergeDeedsParcels)
-        MergeDeedsParcels(control, deeds.al, parcels.sfr)
+        MergeDeedsParcels(control, deeds.al.g, parcels.sfr)
     }
 census <- 
     if (exists('census'))  {
         census
     } else {
+        cat('reading census\n')
         #debug(ReadCensus)
         ReadCensus(control$path.in.census)
     }
@@ -356,6 +347,7 @@ census.deeds.parcels <-
     if (exists('census.deeds.parcels')) {
         census.deeds.parcels
     } else {
+        cat('merging census\n')
         #debug(MergeCensus)
         MergeCensus(control, census, deeds.parcels)
     }
@@ -363,6 +355,7 @@ geocoding <-
     if (exists('geocoding')) {
         geocoding
     } else {
+        cat('reading geocoding\n')
         #debug(ReadGeocoding)
         ReadGeocoding(control)
     }
@@ -370,6 +363,7 @@ census.deeds.parcels.geocoding <-
     if (exists('census.deeds.parcels.geocoding')) {
         census.deeds.parcels.geocoding
     } else {
+        cat('merging geocoding\n')
         #debug(MergeGeocoding)
         MergeGeocoding(control, census.deeds.parcels, geocoding)
     }
@@ -377,18 +371,20 @@ derived.features <-
     if (exists('derived.features')) {
         derived.features
     } else {
+        cat('reading derived features\n')
         #debug(ReadDerivedFeatures)
         ReadDerivedFeatures(control)
     }
-transactions.al.sfr <-
-    if (exists('transactions.al.sfr')) {
-        transactions.al.sfr
+transactions <-
+    if (exists('transactions')) {
+        transactions
     } else {
+        cat('merging derived features\n')
         #debug(MergeDerivedFeatures)
         MergeDerivedFeatures(control, derived.features, census.deeds.parcels.geocoding)
     }
 #debug(WriteTransactionsAlSfr)
-info <- list( nrow.deeds.al = nrow(deeds.al)
+info <- list( nrow.deeds.al.g = nrow(deeds.al.g)
              ,nrow.parcels.sfr = nrow(parcels.sfr)
              ,nrow.deeds.parcels = nrow(deeds.parcels)
              ,nrow.census = nrow(census)
@@ -398,9 +394,10 @@ info <- list( nrow.deeds.al = nrow(deeds.al)
              ,nrow.derived.census.tract = nrow(derived.features$features.census.tract)
              ,nrow.derived.zip5 = nrow(derived.features$features.zip5)
              ,nrow.derived.features = nrow(derived.features)
-             ,nrow.transactions.al.sfr = nrow(transactions.al.sfr)
+             ,nrow.transactions = nrow(transactions)
 )
-WriteTransactionsAlSfr(control, transactions.al.sfr, info)
+cat('writing transactions')
+WriteTransactions(control, transactions, info)
 str(control)
 if (control$testing)
     cat('DISCARD OUTPUT: TESTING\n')
