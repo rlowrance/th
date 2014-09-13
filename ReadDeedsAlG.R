@@ -1,8 +1,7 @@
-ReadDeedsAl <- function(path) {
-    #cat('start ReadDeedsAl', path, '\n'); browser()
-    arms.length <- NULL
+ReadDeedsAlG <- function(path) {
+    #cat('start ReadDeedsAlG', path, '\n'); browser()
+    deeds.al.g <- NULL
     loaded <- load(path)  # may load more than parcels.sfr
-    stopifnot(!is.null(arms.length))
-    deeds.al <- arms.length
-    deeds.al
+    stopifnot(!is.null(deeds.al.grant))
+    deeds.al.grant
 }
