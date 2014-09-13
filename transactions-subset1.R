@@ -1,18 +1,12 @@
-# transaction-al-sfr-subset1.R
-# Create output file WORKING/transactions-al-sfr-subset1.RData
-
-# Also create two output analysis files:
-# * transactions-subset1-ranges.tex : ranges of features used to create the subset
-# * transactions-subset1-excluded.tex: number of observations excluded by each criterion in isolation
-# 
-# The input file is transactions-al-sfr.csv. 
+# transactions-subset1.R
+# Create output file WORKING/transactions-subset1.RData
 
 
 source('DirectoryLog.R')
 source('DirectoryWorking.R')
 source('Libraries.R')
 
-source('ReadTransactionsAlSfr.R')
+source('ReadTransactions.R')
 
 source('DEEDC.R')
 source('SCODE.R')
@@ -22,14 +16,14 @@ require(methods)  # avoid error 'could not find function "hasArg" when running v
 
 Control <- function() {
     # set control variables
-    me <- 'transactions-al-sfr-subset1'
+    me <- 'transactions-subset1'
 
     log <- DirectoryLog()
     working <- DirectoryWorking()
 
     control <- list( path.out.log = paste0(log, me, '.log')
-                    ,path.out.rdata = paste0(working, 'transactions-al-sfr-subset1.RData')
-                    ,path.in.transactions.al.sfr = paste0(working, 'transactions-al-sfr.RData')
+                    ,path.out.rdata = paste0(working, 'transactions-subset1.RData')
+                    ,path.in.transactions = paste0(working, 'transactions.RData')
                     ,testing = FALSE
                     # used in selection of OK transactions
                     ,max.sale.amount = 85e6  # source: Wall Street Journal
@@ -39,23 +33,6 @@ Control <- function() {
                     ,required.num.units = 1
                     )
     control
-}
-ReadAllTransactionsOLD <- function(control) {
-    # return everything in the input file
-    # ARGS:
-    # control : list of control values
-    # RETURNS data.frame
-    #cat('starting ReadAllTransactions\n'); browser()
-    all <- read.csv(control$path.input,
-                    check.name=FALSE,
-                    header=TRUE,
-                    quote='',
-                    comment='',
-                    stringsAsFactors=FALSE,
-                    sep='\t',
-                    nrows=ifelse(control$testing, control$testing.nrow, -1)) 
-    cat('ending ReadAllTransactions', nrow(all), '\n')# browser()
-    all
 }
 
 TransactionDate <- function(df) {
@@ -216,8 +193,12 @@ OkDocumentTypeCode <- function(control, df) {
                              )
 
     is.grant.deed <- DEEDC(dtc, 'grant.deed')        # sale or transfer
-    is.deed.of.trust <- DEEDC(dtc, 'deed.of.trust')  # gives mortgage lender a lien on the property
-    is.sale <- is.grant.deed | is.deed.of.trust
+
+    # earlier a deed of trust was considered to be a sale
+    #is.deed.of.trust <- DEEDC(dtc, 'deed.of.trust')  # gives mortgage lender a lien on the property
+    #is.sale <- is.grant.deed | is.deed.of.trust
+
+    is.sale <- is.grant.deed 
     result <- list( selector = is.sale
                    ,info = info
                    )
@@ -447,14 +428,14 @@ RecodeRecordingDate <- function(recordingDate) {
     result
 }
 
-Main <- function(control, transactions.al.sfr) {
+Main <- function(control, transactions) {
     #cat('starting Main\n') ; browser()
 
     # recoded RECORDING.DATE
-    transactions.al.sfr$recording.date.recoded <- RecodeRecordingDate(transactions.al.sfr$RECORDING.DATE)
+    transactions$recording.date.recoded <- RecodeRecordingDate(transactions$RECORDING.DATE)
 
     # form the subset we are interested in
-    form.subset <- FormSubset(control, transactions.al.sfr)
+    form.subset <- FormSubset(control, transactions)
     subset1 <- form.subset$subset1
     info <- form.subset$info
     #str(subset1)
@@ -475,9 +456,9 @@ Main <- function(control, transactions.al.sfr) {
     str(info)
 
     # write output file
-    transactions.al.sfr.subset1 = subset1.unique
+    transactions.subset1 = subset1.unique
     save( info
-         ,transactions.al.sfr.subset1
+         ,transactions.subset1
          ,control
          ,file = control$path.out.rdata
          )
@@ -493,18 +474,15 @@ Main <- function(control, transactions.al.sfr) {
 control <- Control()
 InitializeR(duplex.output.to = control$path.out.log)
 str(control)
-transactions.al.sfr <-
-    if (exists('transactions.al.sfr')) {
-        transactions.al.sfr
+transactions <-
+    if (exists('transactions')) {
+        transactions
     } else {
-        cat('reading transactions.al.sfr\n')
+        cat('reading transactions\n')
         #debug(ReadDeedsAl)
-        if (control$testing)
-            ReadTransactionsAlSfrSample(path = control$path.in.transactions.al.sfr.sample)
-        else
-            ReadTransactionsAlSfr(path = control$path.in.transactions.al.sfr)
+        ReadTransactions(path = control$path.in.transactions)
     }
 
 
-Main(control, transactions.al.sfr)
+Main(control, transactions)
 cat('done\n')
