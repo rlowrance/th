@@ -75,7 +75,8 @@ Control <- function() {
                 paste0( working
                        ,'e-median-price-by-year-from-1984-to-2009.pdf'
                        )
-             ,cache = FALSE
+             #,cache = FALSE
+             ,cache = TRUE
              ,include = TRUE
         )
     control
@@ -399,6 +400,130 @@ acres), large (up to .75 acres), tract (more than 1 acre)
 \item garage type: none, carport, detached, attached, garage in
 basement, or built-in garage
 \end{itemize}
+
+\subsection{chopra-09}
+
+\subsubsection{chopra model 1}
+
+These features were used by Sumit Chopra \cite{chopra-09} page 87 in
+developing a  ``relational regression model.'' Chopra predicted
+log(price). Features used:
+\begin{itemize}
+\item living area
+\item year buit
+\item number of bedrooms
+\item number of bathrooms
+\item pool or no pool
+\item prior sale price
+\item parking spaces
+\item parking types
+\item lot acerage
+\item land value
+\item improvement value
+\item percent improvement value
+\item new construction
+\item foundation
+\item roof type
+\item head type
+\item site influence
+\item latitude
+\item longitude
+\item census tract median household income
+\item census tract proportion of units that are owner occupied
+\item census tract average commute time to work
+\item academic performance index for the school district
+\end{itemize}
+
+Transformation performed
+\begin{itemize}
+\item Drop all records with one or more missing fields, leaving 42,025
+transactions
+\item Map all fields for price, area, and income into the log space
+\item Code all non-numeric discrete variables (such as pool, parking
+type) using 1-of-K coding
+\item Normalize all variables to have mean 0 and a standard deviation
+between -1 and 1
+\end{itemize}
+
+Use only deeds and taxroll info for the year 2004. Treat data in the
+first 90 percent of the year as training data. Use data in the last 10
+percent of the year as testing samples. As a validation set to calibrate
+models, take 10 percent of the 90 percent.
+
+Model form was a relational factor graph. This model assumes the house
+price has two components: a ``intrinsic price'' based on the features of
+the house and an ``desirability price'' based on the desirability of the
+neighborhood. Since the desirability is not observed, it is modeled as a
+latent variable. The intrinsic price was modeled with a neural network
+having 250 units in the first hidden layer, 80 units in the second
+hidden layer, and 1 unit (the log price) in the output
+layers.
+
+Predict log(price) not price ``in order to avoid a bias towards
+expensive houses.''
+
+\subsubsection{chopra model 2}
+
+This data set is similar to what I have.
+
+Used deeds from January 1984 to April 2008.
+
+Variables used from the deeds tape:
+\begin{itemize}
+\item sale price
+\item recording date
+\item sale date
+\item transaction category code
+\item transaction type coe
+\item document type code
+\end{itemize}
+
+Variables used from the tax-roll tape:
+\begin{itemize}
+\item APN number
+\item land square footage
+\item living square feet
+\item mailing address, used to determine GPS coordates
+\end{itemize}
+
+Data cleaning process (designed to correspond the the Case-Shiller
+index)
+\begin{itemize}
+\item Keep just these deeds
+  \begin{itemize}
+  \item Transaction category code was arms-length transaction
+  \item Transaction type code was either resale or new construction
+  \item Document type code was either grant deed or foreclosure
+  \end{itemize}
+\item Remove any record with one or more missing deeds or taxroll fields
+or GPS fields
+\item Remove all transactions on same house on same date with different
+sales prices.
+\item Remove all but one transaction on same house on same date with the
+same sales price.
+\item Remove repeat transactions for houses that happen within 7 months
+(on the assumption that the house had undergone structural change and
+hence is not a valid repeat sales transaction). In addition, decouple
+(treat as not repeat sales) transactions ``before and after this dirty
+transaction.''
+\item Remove transactions that are part of repeat sales pairs in whic
+the effective year built changed.
+\item Remove repeat sales transaction pairs with sales prices less than
+5,000 or more than 100,000,000 dollars.
+\item Remove repeat sales transaction pairs with annualized returns les than
+-50 or greater than 100 percent.
+\item Remove repeat sales transaction pairs that ``[out] perform or
+under perform that median house price index by more or less than 25
+percent on an annualized basis.''
+\item Remove any single sale transaction with a price higher than the
+maximimum transaction price in any repeat sales. Also remove single sale
+transactions with a price lower than the minimimum in any repeat sale.
+\end{itemize}
+
+The cleaning process left 591,239 repeat sales transactions and 367,973
+single sales transactions, for a total of 1,550,451 transactions over 24
+years in Los Angeles Country.
+
 
 \section{first experiment}
 
