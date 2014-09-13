@@ -6,7 +6,7 @@ output  = $(data)/output
 raw     = $(data)/raw
 working = $(data)/working
 
-splits = $(working)/transactions-al-sfr-subset1-splits
+splits = $(working)/transactions-subset1-splits
 
 raw-deeds-volume-1 = $(raw)/corelogic-deeds-090402_07
 raw-deeds-volume-2 = $(raw)/corelogic-deeds-090402_09
@@ -47,16 +47,14 @@ targets += $(e-median-price-ALL.RData)
 targets += $(splits)/apn.RData
 targets += $(working)/census.RData
 targets += $(working)/deeds-al-g.RData
-targets += $(working)/deeds-al-sample.RData 
 targets += $(working)/parcels-derived-features.RData 
 targets += $(working)/parcels-sample.RData 
 targets += $(working)/parcels-sfr.RData 
-targets += $(working)/parcels-sfr-sample.RData 
-targets += $(working)/transactions-al-sfr.RData 
-targets += $(working)/transactions-al-sfr-subset1.RData
+targets += $(working)/transactions.RData 
+targets += $(working)/transactions-subset1.RData
 # thesis targets
-targets += $(working)/thesis-linear-models.pdf
 targets += $(working)/thesis-input-processing.pdf
+targets += $(working)/thesis-linear-models.pdf
 
 $(warning targets is $(targets))
 
@@ -88,8 +86,8 @@ parcels-sfr.R                       : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
 transactions.R                      : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAlG.R \
                                               ReadParcelsSfr.R ZipN.R
-transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
-transactions-al-sfr-subset1-splits.R: $(lswl) ReadTransactionsAlSfrSubset1.R
+transactions-subset1.R              : $(lwl)  ReadTransactions.R DEEDC.R SCODE.R TRNTP.R
+transactions-subset1-splits.R       : $(lswl) ReadTransactionsSubset1.R
 thesis-input-processing.Rnw         : $(w)    
 
 # dependencies for data files
@@ -112,33 +110,23 @@ $(working)/e-median-price-by-month-from-2006-to-2009.RData: $(e-median-price-dep
 	RScript e-median-price.R --by month --from 2006 --to 2009
 
 # PDF files (and accompanying tex files)
-thesis-input-processing.pdf: thesis-input-processing.Rnw \
-	$(working)/transactions-al-sfr.RData \
-	$(working)/transactions-al-sfr-subset1.RData \
-	$(working)/deeds-al.RData \
+$(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
+	$(working)/transactions.RData \
+	$(working)/transactions-subset1.RData \
+	$(working)/deeds-al-g.RData \
 	$(working)/parcels-sfr.RData
 	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
 	pdflatex thesis-input-processing.tex
 	mv thesis-input-processing.pdf $(working)/
 	rm thesis-input-processing.tex
 
-#thesis-input-processing.tex: thesis-input-processing.Rnw \
-#	$(working)/transactions-al-sfr.RData \
-#	$(working)/transactions-al-sfr-subset1.RData \
-#	$(working)/deeds-al.RData \
-#	$(working)/parcels-sfr.RData
-#	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
-#
-#$(working)/thesis-input-processing.pdf: thesis-input-processing.tex
-#	pdflatex thesis-input-processing.tex
-#	mv thesis-input-processing.pdf $(working)/
 
-thesis-linear-models.tex: thesis-linear-models.Rnw
+$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
+	$(working)/transactions-subset1.RData 
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
-
-$(working)/thesis-linear-models.pdf: thesis-linear-models.tex
 	pdflatex thesis-linear-models.tex
 	mv thesis-linear-models.pdf $(working)/
+	rm thesis-linear-models.tex
 
 
 # the apn.RData target represents all the files in the splits directory
@@ -151,9 +139,9 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.tex
 # requires a pattern rule
 # here the stem is the RData file name suffix
 $(splits)/price.% $(splits)/sale.year.% $(splits)/sale.month.%: \
-	transactions-al-sfr-subset1-splits.R \
-	$(working)/transactions-al-sfr-subset1.RData
-	Rscript transactions-al-sfr-subset1-splits.R
+	transactions-subset1-splits.R \
+	$(working)/transactions-subset1.RData
+	Rscript transactions-subset1-splits.R
 
 $(working)/census.RData: census.R \
 	$(raw-census.csv)
@@ -187,6 +175,6 @@ $(working)/transactions.RData: transactions.R \
 	$(working)/parcels-derived-features.RData
 	Rscript transactions-al-sfr.R
 
-$(working)/transactions-al-sfr-subset1.RData: transactions-al-sfr-subset1.R \
-	$(working)/transactions-al-sfr.RData
-	Rscript transactions-al-sfr-subset1.R
+$(working)/transactions-subset1.RData: transactions-subset1.R \
+	$(working)/transactions.RData
+	Rscript transactions-subset1.R
