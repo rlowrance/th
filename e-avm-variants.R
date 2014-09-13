@@ -1,5 +1,5 @@
 # e-avm-variants.R
-# main program to produce file WORKING/e-avm-variants.rsave
+# main program to produce file WORKING/e-avm-variants.RData and *.txt
 # issue resolved: The AVM model performs better than the assessor model. How much
 # of the better performance is caused by using the assessment?
 # Approach: Use k-fold cross validation to compare estimated generalization errors for
@@ -54,6 +54,7 @@ Control <- function(parsed.command.args) {
                     ,path.in.splits = splits
                     ,path.out.log = paste0(log, me, '.log')
                     ,path.out.rdata = paste0(working, me, '.RData')
+                    ,path.out.chart1 = paste0(working, me, '.txt')
                     ,predictors.without.assessment = c(predictor.names)
                     ,predictors.with.assessment = c( predictor.names
                                                     ,assessment.names)
@@ -66,11 +67,44 @@ Control <- function(parsed.command.args) {
                                            ,last.date = as.Date('2009-03-31')
                                            )
                     ,num.training.days = 60
+                    ,chart1.format.header = '%27s | %20s %20s'
+                    ,chart1.format.data =   '%27s | %20.0f %20.0f'
                     ,rich = 2.0
                     ,poor = 0.5
                     ,testing = FALSE
+                    ,also.strata = FALSE
                     )
     control
+}
+
+CreateChart1Body <- function(control, all.result) {
+    # return a vector lines, the body of chart 1
+    #cat('start CreateChart1Body\n'); browser()
+    result <- sprintf(control$chart1.format.header, 'scenario', 'mean RMSE', 'median RMedianSE')
+
+    for (row.index in 1:nrow(all.result)) {
+        result <- c( result
+                    ,sprintf( control$chart1.format.data
+                             ,all.result$experiment.name[[row.index]]
+                             ,all.result$mean.RMSE[[row.index]]
+                             ,all.result$median.RMedianSE[[row.index]]
+                             )
+                    )
+    }
+
+    result
+}
+
+CreateChart1 <- function(control, description, all.result) {
+    # return a vector of lines, the txt for chart 1
+    #cat('start CreateChart1\n'); browser()
+
+    result <- c( description
+                ,' '
+                ,CreateChart1Body(control, all.result)
+                )
+
+    result
 }
 
 DefineModelsNames <- function(control, data) {
@@ -198,65 +232,66 @@ Main <- function(control, transaction.data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    debug(DefineModelsNames)
     models.names <- DefineModelsNames( control = control
                                       ,data = transaction.data)
 
-    # for now, turn off strata analysis (make this a command line option?)
-    # determine results for stratified versions of the data
-    #stratify <- Stratify(control, data)
-
-    StrataResult <- function(strata.index) {
-        #cat('start StrataResult', strata.index, '\n'); browser()
-        strata.name <- stratify$name[[strata.index]]
-        strata.data <- stratify$data[[strata.index]]
-        options(warn = 1)  # expect warning: no samples were selected for training
-        experiment.result <- CvExperiment( control = control
-                                          ,data = strata.data
-                                          ,models.names = models.names
-                                          )
-        options(warn = 2)  # convert warnings into errors
-        result <- list( strata.name = stratify$name[[strata.index]]
-                       ,experiment.result = experiment.result
-                       )
-
-        result
-    }
-
-    
-    #strata.result <- Map(StrataResult, c(2))
-    #strata.results <- Map( StrataResult, 1:length(stratify$name))
-    debug(CvExperiment)
     all.result <- CvExperiment( control = control
-                               ,data = data
+                               ,data = transaction.data
                                ,models.names = models.names
                                )
-
-    # print both sets of results
-
-    cat('strata.results\n')
-    print(str(strata.results))
 
     cat('all.result\n')
     print(str(all.result))
 
-    #cat('examine\n'); browser()
-
-    PrintStrataResult <- function(strata.result) {
-        cat('strata.name', strata.result$strata.name, '\n')
-        cat('experiment results\n')
-        print(strata.result$experiment.result)
-        cat(' ')
-    }
-
-    #Map(PrintStrataResult, strata.results)
-
-    cat('all.result\n')
-    print(all.result)
+    # produce charts
+    description <- 'Cross Validation Result\nLog-Level model\nPredict Jan 2008 transactions using 60 days of training data'
+    chart1 <- CreateChart1( control = control
+                           ,description = description
+                           ,all.result = all.result
+                           )
+    writeLines( text = chart1
+               ,con = control$path.out.chart1
+               )
+    print(chart1)
 
     # save results
-    description <- 'Cross Validation Result\nLog-Level model\nPredict Jan 2008 transactions using 60 days of training data'
-    save(description, control, all.result, strata.results, file = control$path.out.save)
+    save(description, control, all.result, chart1, file = control$path.out.rdata)
+
+    if (control$also.strata) {
+        # see if we get better results stratifying the samples (clustering the data)
+        stratify <- Stratify(control, data)
+
+        StrataResult <- function(strata.index) {
+            #cat('start StrataResult', strata.index, '\n'); browser()
+            strata.name <- stratify$name[[strata.index]]
+            strata.data <- stratify$data[[strata.index]]
+            options(warn = 1)  # expect warning: no samples were selected for training
+            experiment.result <- CvExperiment( control = control
+                                              ,data = strata.data
+                                              ,models.names = models.names
+                                              )
+            options(warn = 2)  # convert warnings into errors
+            result <- list( strata.name = stratify$name[[strata.index]]
+                           ,experiment.result = experiment.result
+                           )
+
+            result
+        }
+
+
+        strata.result <- Map(StrataResult, c(2))
+        strata.results <- Map( StrataResult, 1:length(stratify$name))
+        cat('strata.results\n')
+        print(str(strata.results))
+        PrintStrataResult <- function(strata.result) {
+            cat('strata.name', strata.result$strata.name, '\n')
+            cat('experiment results\n')
+            print(strata.result$experiment.result)
+            cat(' ')
+        }
+
+        Map(PrintStrataResult, strata.results)
+    }
 
     print(control)
     if (control$testing) cat('DISCARD RESULTS: TESTING\n')
@@ -278,16 +313,14 @@ if (FALSE) {
     control <- Control()
 }
 
-browser()
 
 # cache transaction.data
 if (!exists('transaction.data')) {
-    debug(ReadTransactionSplits)
-    transaction.data <- ReadTransactionSplits( base.in.path = control$path.in.splits
+    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
                                               ,split.names = control$split.names
                                               )
 }
 
-debug(Main)
+#debug(Main)
 Main(control, transaction.data)
 cat('done\n')
