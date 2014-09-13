@@ -86,8 +86,8 @@ parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R
 parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr.R                       : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
-transactions-al-sfr.R               : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAl.R ReadDeedsAlSample.R \
-                                              ReadParcelsSfr.R ReadParcelsSfrSample.R ZipN.R
+transactions.R                      : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAlG.R \
+                                              ReadParcelsSfr.R ZipN.R
 transactions-al-sfr-subset1.R       : $(lwl)  ReadTransactionsAlSfr.R DEEDC.R SCODE.R TRNTP.R
 transactions-al-sfr-subset1-splits.R: $(lswl) ReadTransactionsAlSfrSubset1.R
 thesis-input-processing.Rnw         : $(w)    
@@ -163,10 +163,6 @@ $(working)/deeds-al-g.RData: deeds-al-g.R \
 	$(raw-deeds)
 	Rscript deeds-al-g.R
 
-$(working)/deeds-al-sample.RData: deeds-al-sample.R \
-	$(working)/deeds-al.RData
-	Rscript deeds-al-sample.R
-
 $(working)/parcels-coded.RData: parcels-coded.R \
 	$(raw-parcels)
 	RScript parcels-coded.R
@@ -183,17 +179,11 @@ $(working)/parcels-sfr.RData: parcels-sfr.R \
 	$(raw-parcels)
 	Rscript parcels-sfr.R
 
-$(working)/parcels-sfr-sample.RData: parcels-sfr-sample.R \
-	$(working)/parcels-sfr.RData
-	Rscript parcels-sfr-sample.R
-
-$(working)/transactions-al-sfr.RData: transactions-al-sfr.R \
+$(working)/transactions.RData: transactions.R \
 	$(working)/census.RData \
-	$(working)/deeds-al.RData \
-	$(working)/deeds-al-sample.RData \
+	$(working)/deeds-al-g.RData \
 	$(raw)/geocoding.tsv \
 	$(working)/parcels-sfr.RData \
-	$(working)/parcels-sfr-sample.RData \
 	$(working)/parcels-derived-features.RData
 	Rscript transactions-al-sfr.R
 
