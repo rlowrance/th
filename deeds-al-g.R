@@ -11,6 +11,8 @@ source('Libraries.R')
 source('DEEDC.R')
 source('PRICATCODE.R')
 
+require(methods)  # make hasArg() function available
+
 Control <- function() {
     # return list of values that control the script
     #cat('start Control\n'); browser()
@@ -148,7 +150,6 @@ Main <- function(control) {
     all <- ReadAll(control)
     
     # Retain only observations coded as arms-length and as grant deeds
-    cat('read all deeds\n'); browser()
     is.arms.length <- PRICATCODE(all$PRI.CAT.CODE, 'arms.length.transaction')
     is.grant.deed <- DEEDC(all$DOCUMENT.TYPE.CODE, 'grant.deed')
     is.keeper <- is.arms.length & is.grant.deed
