@@ -46,7 +46,7 @@ targets += $(e-median-price-ALL.RData)
 # RData targets
 targets += $(splits)/apn.RData
 targets += $(working)/census.RData
-targets += $(working)/deeds-al.RData
+targets += $(working)/deeds-al-g.RData
 targets += $(working)/deeds-al-sample.RData 
 targets += $(working)/parcels-derived-features.RData 
 targets += $(working)/parcels-sample.RData 
@@ -79,7 +79,7 @@ w    =                                                  DirectoryWorking.R
 
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
-deeds-al.R                          : $(lrwl) BestApns.R PRICATCODE.R
+deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-median-price.R                    : $(lswl)
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -159,9 +159,9 @@ $(working)/census.RData: census.R \
 	$(raw-census.csv)
 	Rscript census.R
 
-$(working)/deeds-al.RData: deeds-al.R \
+$(working)/deeds-al-g.RData: deeds-al-g.R \
 	$(raw-deeds)
-	Rscript deeds-al.R
+	Rscript deeds-al-g.R
 
 $(working)/deeds-al-sample.RData: deeds-al-sample.R \
 	$(working)/deeds-al.RData
