@@ -1,5 +1,5 @@
-# deeds-al.R
-# main program to create file OUTPUT/deeds-al.RData, hold all features of arms-length deeds.
+# deeds-al-g.R
+# main program to create file OUTPUT/deeds-al-g.RData, hold many features of arms-length grant deeds.
 # Record layout for the input is in 1080_Record_layout.csv
 # Save just the deeds info, not the info that is also in the payroll file (except for the APN)
 
@@ -7,6 +7,8 @@ source('DirectoryLog.R')
 source('DirectoryRaw.R')
 source('DirectoryWorking.R')
 source('Libraries.R')
+
+source('DEEDC.R')
 source('PRICATCODE.R')
 
 Control <- function() {
@@ -33,7 +35,7 @@ Control <- function() {
     control <- list(
          path.in.deeds = list(Deeds(1), Deeds(2), Deeds(3), Deeds(4), Deeds(5), Deeds(6), Deeds(7), Deeds(8))
         ,path.out.log = paste0(log, me, '.log')
-        ,path.out.deeds = paste0(working, 'deeds-al.RData')
+        ,path.out.deeds = paste0(working, 'deeds-al-g.RData')
         ,testing = FALSE
         )
     control
@@ -145,23 +147,25 @@ Main <- function(control) {
     # Read all the deeds
     all <- ReadAll(control)
     
-    # Retain only observations coded as arms-length
+    # Retain only observations coded as arms-length and as grant deeds
+    cat('read all deeds\n'); browser()
     is.arms.length <- PRICATCODE(all$PRI.CAT.CODE, 'arms.length.transaction')
-    arms.length <- all[is.arms.length,]
-    
-    # count records
-    nrow.all <- nrow(all)
-    nrow.arms.length <- nrow(arms.length)
-    
-    Printf('Read %d deeds\n', nrow.all)
-    Printf('Retained %d as arms-length\n', nrow.arms.length)
-    print(str(arms.length))
-    
+    is.grant.deed <- DEEDC(all$DOCUMENT.TYPE.CODE, 'grant.deed')
+    is.keeper <- is.arms.length & is.grant.deed
+    deeds.al.grant <- all[is.keeper,]
+    str(deeds.al.grant)
+
+    # print record counts
+    count <- list( num.all.deeds = nrow(all)
+                  ,num.is.arms.length = sum(is.arms.length)
+                  ,num.is.grant.deed  = sum(is.grant.deed)
+                  ,num.is.arms.length.and.grant.deed = sum(is.keeper)
+                  )
+    str(count)
+
     # Write RData
-    info = list( nrow.all = nrow.all
-                ,nrow.arms.length = nrow.arms.length
-    )
-    save(arms.length, info, control, file = control$path.out.deeds)#
+    save(deeds.al.grant, count, control, file = control$path.out.deeds)#
+
     
     #write control variables
     str(control)
