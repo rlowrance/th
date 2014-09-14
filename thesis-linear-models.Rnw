@@ -13,6 +13,7 @@
 
 \usepackage{amssymb,latexsym,amsmath}
 \usepackage{listings}
+\usepackage{verbatim}
 %\usepackage[all]{xy}   %xy-pic
 
 % graphics
@@ -57,26 +58,25 @@
 \email{roy.lowrance@gmail.com}
 \maketitle
 
-<<control>>=
+<<Control>>=
 options(warn = 2)  # turn warnings into errors
 source('DirectoryWorking.R')
 Control <- function() {
     working <- DirectoryWorking()
     control <-
-        list( path.in.transactions = paste0(working, 'transactions-al-sfr.RData')
-             ,path.in.subset = paste0(working, 'transactions-al-sfr-subset1.RData')
-             ,path.in.deeds = paste0(working, 'deeds-al.RData')
-             ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
+        list(#path.in.e.avm.variants = paste0(working, 'e-avm-variants.RData')
+              path.in.e.avm.variants.chart1 =
+                paste0(working, 'e-avm-variants.txt')
              ,path.in.median.price.by.month.pdf = 
                 paste0( working
                        ,'e-median-price-by-month-from-2006-to-2009.pdf'
                        )
-             ,path.in.median.price.by.year.pdf=
+             ,path.in.median.price.by.year.pdf =
                 paste0( working
                        ,'e-median-price-by-year-from-1984-to-2009.pdf'
                        )
-             #,cache = FALSE
-             ,cache = TRUE
+             ,cache = FALSE
+             #,cache = TRUE
              ,include = TRUE
         )
     control
@@ -124,6 +124,9 @@ decisions.
 \end{itemize}
 
 \section{Kinds of models: Scenarios}
+
+<<KindsOfModels>>=
+@
 
 Real estate price prediction takes place in three scenarios (business
 use cases). These differ largely in the business purpose of the estimate
@@ -215,6 +218,9 @@ tax assessor's assessment.
 
 \section{Model form}
 
+<<ModelForm>>=
+@
+
 Our linear model
 
 \[ y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n .\]
@@ -255,6 +261,9 @@ of x leads to $\beta$ factor increase in the price.
 
 \section{Choosing the training period}
 
+<<ChoosingTrainingPeriod>>=
+@
+
 The linear model uses the average value of each feature to estimate the
 total value of the house. When prices are moving rapidly, feature values
 may also be moving rapidly. It's important to think through the training
@@ -263,8 +272,11 @@ data set for a given estimation task.
 \begin{figure}[h]
 \caption{Median Prices By Year}
 \label{figure:medianPricesByYear}
-\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.year}}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.year.pdf}}
 \end{figure}
+
+<<MedianPricesByYear>>=
+@
 
 In Figure \ref{figure:medianPricesByYear}, we see the median prices of
 arms-length transactions for single-family residences in our subset1.
@@ -273,6 +285,19 @@ periods of steady price increases followed by periods of price declines.
 The decline in prices after 2007 was not the only price decrease: there
 was another decline starting in 1990 that was sustained for about six
 years. 
+
+\begin{figure}[h]
+\caption{Median Prices By Month}
+\label{figure:medianPricesByMonth}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.month.pdf}}
+\end{figure}
+
+Figure \ref{figure:medianPricesByMonth} depicts median prices by month
+starting in January 2006. We see approximately level prices starting
+early in 2006, a spike in mid July 2007, and then the well-known
+decline. The difficulty of forecasting future median prices can been
+seen: What is the clue that July 2007 would be the peak? Median prices
+increased in February 2008 but declined to a new low in March 2008.
 
 The impliciation for linear models is that the model builder faces a
 dilema: train on too long a period, and the features-level prices
@@ -285,21 +310,26 @@ prices for the test period: will they be lower, about the same, or
 higher than in the training period. The trained feature prices could
 then be adjusted. However, such a forecast is beyond the scope of this work.
 
-\begin{figure}[h]
-\caption{Median Prices By Month}
-\label{figure:medianPricesByMonth}
-\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.month}}
-\end{figure}
+Another possible way around this dilema is to incorporate time periods
+explicitly in the model. For example Bourassa in \cite{bourassa-02}
+builds a model for real estate prices that includes as dummy features the
+quarter of the transaction: the features are \code{is-quarter-1},
+\code{is-quarter-2}, and \code{is-quarter-3}. These features capture
+average price movement and can be used in our mortgage scenarios,
+because training data about the future related to the query transaction
+are needed.
 
-Figure \ref{figure:medianPricesByMonth} depicts median prices by month
-starting in January 2006. We see approximately level prices starting
-early in 2006, a spike in mid July 2007, and then the well-known
-decline. The difficulty of forecasting future median prices can been
-seen: What is the clue that July 2007 would be the peak? Median prices
-increased in February 2008 but declined to a new low in March 2008.
+A third possibility is to limit the training period to a short enough
+period to capture just recent prices instead of historic for the
+training. This approach doesn't try to anticipate market movement after
+the training period to the query period. It's the approach followed in
+this work.
 
 
 \section{Feature choice}
+
+<<FeatureChoice>>=
+@
 
 Features used in the literature.
 
@@ -525,7 +555,100 @@ single sales transactions, for a total of 1,550,451 transactions over 24
 years in Los Angeles Country.
 
 
-\section{first experiment}
+\section{Is the assessment a valuable feature?}
+
+The assessment might have value as a feature in the predictive model,
+especially if it was for a recent time period and the assessment was a
+statement of the market value. For Los Angeles Country, the assessment
+is for a vague date in November 1, 2007 through October 31, 2008 and is
+for the market value only if the house sold during that time period.
+Hence that the assessment is of value as a feature in predictive models
+is not certain.
+
+We ran two experiments to attempt to understand the value of the
+assessment as a feature. In the first, we use the actual data from Los
+Angeles. The key feature of this experiment is that the assessment is
+not an estimate of the market value.  In the second, we generate
+synthetic data that is drawn from the Los Angeles data set but replaces
+the assessment with a noisy estimate of the market value. 
+
+
+\subsection{Experiment: Actual Los Angeles Data}
+
+<<ActualLosAngelesData>>=
+#loaded <- load(control$path.in.e.avm.variants)
+#str(loaded)
+#length(loaded)
+#for (i in 1:8) str(chart1[[i]])
+#avm.variants.chart1 <- chart1
+#str(avm.variants.chart1)
+#
+#Cat <- function(chart) {
+#  all <- NULL
+#  for (line in chart) {
+#    all <- c(all, '\n', line)
+#  }
+#  all
+#}
+#
+#Cat(chart1)
+#all.lines <- c('\\begin{verbatim}', Cat(chart1), '\\end{verbatim}')
+#str(all.lines)
+#control$path.in.e.avm.variants.chart1
+@
+
+
+Recall that monthly median prices were falling rapidly starting in July
+2007, with an uptick in February 2008 and a decline in March 2008. The
+training period is 30, 60, or 90 days before November 1, 2007. We expect
+that longer training periods will pick up increased out-of-test-period
+feature prices and hence lead to worse overall performance.
+
+\subsubsection{Training on 30 days of data}
+
+\subsubsection{Training on 60 days of data}
+
+In this section we train on 60 days of data before November 1, 2008.
+
+
+
+\begin{figure}[h]
+\caption{Los Angeles Data}
+\label{figure:LosAngelesData60}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.avm.variants.chart1}}
+\end{figure}
+
+In Figure \ref{figure:LosAngelesData60} we see the averaged test errors
+from 10-fold cross validation for the scenarios of interest with and
+without the assessment using a training period of 60 days. We see that
+estimating the generalization error using the mean of the test errors
+from the folds (this is the column ``mean RMSE''), that adding the
+assessment as a feature greatly increases the estimated generalization
+error. This is because the models badly mis-estimate test transactions
+and the mean RMSE retains the effect of these bad estimates. 
+
+If instead we estimate the generalization error by taking the median of
+the median test errors (this is the column ``median RMedianSE'') we find
+that using the assessment as a feature improves estimation accuracy for
+the assessor scenario and degrades estimation accuracy for the avm
+scenario.
+
+\subsubsection{Training on 90 days of data}
+
+\subsubsection{Comparing 30, 60, and 90 training-day accuracy}
+
+\subsection{Experiment: Synthetic Data}
+
+\section{Do log-level models outperform other model forms?}
+
+Explain testing on the 25,000 random samples, 1000 from each year.
+
+Q: How to estimate the generalization error?
+
+\section{Which training period is best?}
 
 \end{document}
  
