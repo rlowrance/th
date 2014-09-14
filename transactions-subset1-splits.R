@@ -112,6 +112,8 @@ Main <- function(control, raw) {
         (raw$IMPROVEMENT.VALUE.CALCULATED / 
          (raw$IMPROVEMENT.VALUE.CALCULATED + raw$LAND.VALUE.CALCULATED))
 
+    raw$total.assessment <- raw$IMPROVEMENT.VALUE.CALCULATED + raw$LAND.VALUE.CALCULATED
+
     Split <- function(new.name, Transform, current.name) {
         # create file new.name.RData with data.frame with one column new.name
         cat('starting Split', new.name, current.name, '\n')
@@ -133,6 +135,18 @@ Main <- function(control, raw) {
              ,file = file
              )
     }
+    SplitSizeLog <- function(new.base.name, current.name) {
+        Split(new.base.name, Identity, current.name)
+        Split(paste0(new.base.name, '.centered'), Center, current.name)
+        Split(paste0(new.base.name, '.centered.log'), CenterLog, current.name)
+        Split(paste0(new.base.name, '.log'), Log, current.name)
+    }
+    SplitSizeLog1p <- function(new.base.name, current.name) {
+        Split(new.base.name, Identity, current.name)
+        Split(paste0(new.base.name, '.centered'), Center, current.name)
+        Split(paste0(new.base.name, '.centered.log1p'), CenterLog1p, current.name)
+        Split(paste0(new.base.name, '.log1p'), Log1p, current.name)
+    }
 
     Split('apn', Identity, 'apn.recoded')
 
@@ -144,42 +158,16 @@ Main <- function(control, raw) {
     Split('recordingDate', Int2Date, 'RECORDING.DATE')
 
     Split('price', Identity, 'SALE.AMOUNT')
-    Split('log.price', Log, 'SALE.AMOUNT')
+    Split('price.log', Log, 'SALE.AMOUNT')
 
-    Split('land.square.footage', Identity, 'LAND.SQUARE.FOOTAGE')
-    Split('log.land.square.footage', Log, 'LAND.SQUARE.FOOTAGE')
-    Split('centered.log.land.square.footage', CenterLog, 'LAND.SQUARE.FOOTAGE')
-    Split('centered.land.square.footage', Center, 'LAND.SQUARE.FOOTAGE')
-
-    Split('living.area', Identity, 'LIVING.SQUARE.FEET')
-    Split('log.living.area', Log, 'LIVING.SQUARE.FEET')
-    Split('centered.log.living.area', CenterLog, 'LIVING.SQUARE.FEET')
-    Split('centered.living.area', Center, 'LIVING.SQUARE.FEET')
-
-    Split('bedrooms', Identity, 'BEDROOMS')
-    Split('log1p.bedrooms', Log1p, 'BEDROOMS')
-    Split('centered.log1p.bedrooms', CenterLog1p, 'BEDROOMS')
-    Split('centered.bedrooms', Center, 'BEDROOMS')
-
-    Split('bathrooms', Identity, 'TOTAL.BATHS.CALCULATED')
-    Split('log1p.bathrooms', Log1p, 'TOTAL.BATHS.CALCULATED')
-    Split('centered.log1p.bathrooms', CenterLog1p, 'TOTAL.BATHS.CALCULATED')
-    Split('centered.bathrooms', Center, 'TOTAL.BATHS.CALCULATED')
-
-    Split('parking.spaces', Identity, 'PARKING.SPACES')
-    Split('log1p.parking.spaces', Log1p, 'PARKING.SPACES')
-    Split('centered.log1p.parking.spaces', CenterLog1p, 'PARKING.SPACES')
-    Split('centered.parking.spaces', Center, 'PARKING.SPACES')
-
-    Split('land.value', Identity, 'LAND.VALUE.CALCULATED')
-    Split('log.land.value', Log, 'LAND.VALUE.CALCULATED')
-    Split('centered.log.land.value', CenterLog, 'LAND.VALUE.CALCULATED')
-    Split('centered.land.value', Center, 'LAND.VALUE.CALCULATED')
-
-    Split('improvement.value', Identity, 'IMPROVEMENT.VALUE.CALCULATED')
-    Split('log.improvement.value', Log, 'IMPROVEMENT.VALUE.CALCULATED')
-    Split('centered.log.improvement.value', CenterLog, 'IMPROVEMENT.VALUE.CALCULATED')
-    Split('centered.improvement.value', Center, 'IMPROVEMENT.VALUE.CALCULATED')
+    SplitSizeLog('total.assessment', 'total.assessment')
+    SplitSizeLog('land.square.footage', 'LAND.SQUARE.FOOTAGE')
+    SplitSizeLog('living.area', 'LIVING.SQUARE.FEET')
+    SplitSizeLog1p('bedrooms', 'BEDROOMS')
+    SplitSizeLog1p('bathrooms', 'TOTAL.BATHS.CALCULATED')
+    SplitSizeLog1p('parking.spaces', 'PARKING.SPACES')
+    SplitSizeLog('land.value', 'LAND.VALUE.CALCULATED')
+    SplitSizeLog('improvement.value', 'IMPROVEMENT.VALUE.CALCULATED')
 
     Split('factor.parking.type', Identity, 'PARKING.TYPE.CODE')
     Split('factor.has.pool', HasPool, 'POOL.FLAG')
@@ -189,27 +177,27 @@ Main <- function(control, raw) {
     Split('factor.is.new.construction', IsNewConstruction, 'RESALE.NEW.CONSTRUCTION.CODE')
 
     Split('avg.commute.time', Identity, 'avg.commute')
-    Split('centered.avg.commute.time', Center, 'avg.commute')
+    Split('avg.commute.time.centered', Center, 'avg.commute')
 
     Split('fraction.owner.occupied', Identity, 'fraction.owner.occupied')
-    Split('centered.log.fraction.owner.occupied', CenterLog, 'fraction.owner.occupied')
-    Split('centered.fraction.owner.occupied', Center, 'fraction.owner.occupied')
+    Split('fraction.owner.occupied.centered.log', CenterLog, 'fraction.owner.occupied')
+    Split('fraction.owner.occupied.centered', Center, 'fraction.owner.occupied')
     
     Split('median.household.income', Identity, 'median.household.income')
-    Split('centered.log.median.household.income', CenterLog, 'median.household.income')
-    Split('centered.median.household.income', Center, 'median.household.income')
+    Split('median.household.income.centered.log', CenterLog, 'median.household.income')
+    Split('median.household.income.centered', Center, 'median.household.income')
     
     Split('year.built', Identity, 'YEAR.BUILT')
-    Split('centered.year.built', Center, 'YEAR.BUILT')
+    Split('year.built.centered', Center, 'YEAR.BUILT')
 
     Split('latitude', Identity, 'G.LATITUDE')
-    Split('centered.latitude', Center, 'G.LATITUDE')
+    Split('latitude.centered', Center, 'G.LATITUDE')
 
     Split('longitude', Identity, 'G.LONGITUDE')
-    Split('centered.longitude', Center, 'G.LONGITUDE')
+    Split('longitude.centered', Center, 'G.LONGITUDE')
 
     Split('fraction.improvement.value', Identity, 'fraction.improvement.value')
-    Split('centered.fraction.improvement.value', Center, 'fraction.improvement.value')
+    Split('fraction.improvement.value.centered', Center, 'fraction.improvement.value')
     
     Split('census.tract.has.industry', Identity, 'census.tract.has.industry')
     Split('census.tract.has.park', Identity, 'census.tract.has.park')
