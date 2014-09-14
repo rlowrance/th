@@ -12,9 +12,14 @@ source('DirectoryWorking.R')
 source('Libraries.R')
 
 Control <- function(parsed.command.args) {
-    # for now, now parsed.command.args
-    # see e-median-price.R for how to capture such
+    # capture values from the command line
+    num.training.days <- as.integer(parsed.command.args$training)
+
     me <- 'e-avm-variants' 
+    out.base <- sprintf( ' %s-training-%d'
+                        ,me
+                        ,num.training.days
+                        )
 
     log <- DirectoryLog()
     splits <- DirectorySplits()
@@ -37,41 +42,44 @@ Control <- function(parsed.command.args) {
                         ,'factor.is.new.construction'
                         ,'factor.has.pool'
                         )
-    assessment.names = c( 'improvement.value'
-                         ,'land.value'
-                         ,'fraction.improvement.value'
-                         )
+#    assessment.names = c( 'improvement.value'
+#                         ,'land.value'
+#                         ,'fraction.improvement.value'
+#                         )
+    assessment.names = c('total.assessment')
     other.names = c(# dates
                     'saleDate'
                     ,'recordingDate'
                     # prices
                     ,'price'
-                    ,'log.price'
+                    ,'price.log'
                     # apn
                     ,'apn'
                     )
-    control <- list( response = 'log.price'
+    testing <- FALSE
+    #testing <- TRUE
+    control <- list( response = 'price.log'
                     ,path.in.splits = splits
-                    ,path.out.log = paste0(log, me, '.log')
-                    ,path.out.rdata = paste0(working, me, '.RData')
-                    ,path.out.chart1 = paste0(working, me, '.txt')
+                    ,path.out.log = paste0(log, out.base, '.log')
+                    ,path.out.rdata = paste0(working, out.base, '.RData')
+                    ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,predictors.without.assessment = c(predictor.names)
                     ,predictors.with.assessment = c( predictor.names
                                                     ,assessment.names)
-                    ,response = 'log.price'
+                    ,response = 'price.log'
                     ,split.names = c( predictor.names
                                      ,assessment.names
                                      ,other.names)
-                    ,nfolds = 10
+                    ,nfolds = if (testing) 2 else 10
                     ,testing.period = list( first.date = as.Date('2008-11-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
-                    ,num.training.days = 60
+                    ,num.training.days = num.training.days
                     ,chart1.format.header = '%27s | %20s %20s'
                     ,chart1.format.data =   '%27s | %20.0f %20.0f'
                     ,rich = 2.0
                     ,poor = 0.5
-                    ,testing = FALSE
+                    ,testing = testing
                     ,also.strata = FALSE
                     )
     control
@@ -115,7 +123,7 @@ DefineModelsNames <- function(control, data) {
         Model <- MakeModelLinear( scenario = scenario
                                  ,predictors = predictors
                                  # other args are common
-                                 ,response = 'log.price'
+                                 ,response = 'price.log'
                                  ,testing.period = control$testing.period
                                  ,data = data
                                  ,num.training.days = control$num.training.days
@@ -212,7 +220,7 @@ CvExperiment <- function(control, data, models.names) {
 
     cv.result <-  # 
         CrossValidate( data = data
-                      ,nfolds = if (control$testing) 2 else control$nfolds
+                      ,nfolds = control$nfolds
                       ,Models = models.names$Models
                       ,Assess = Assess
                       ,experiment = models.names$experiment.names
@@ -244,7 +252,16 @@ Main <- function(control, transaction.data) {
     print(str(all.result))
 
     # produce charts
-    description <- 'Cross Validation Result\nLog-Level model\nPredict Jan 2008 transactions using 60 days of training data'
+    description <- c( 'Estimated Generalization Error'
+                     ,sprintf('From %d-fold Cross Validation', control$nfolds)
+                     ,'Model form: log-linear'
+                     ,sprintf('Training period: %d days before 2008-11-01', control$num.training.days)
+                     ,sprintf( 'Testing period: %s through %s'
+                              ,control$testing.period$first.date
+                              ,control$testing.period$last.date
+                              )
+                     )
+                            
     chart1 <- CreateChart1( control = control
                            ,description = description
                            ,all.result = all.result
@@ -298,20 +315,15 @@ Main <- function(control, transaction.data) {
 }
 
 #debug(Control)
-if (FALSE) {
-    # just in case we need a command line
-    default.args <- NULL  # synthesize the command line that will be used in the Makefile
+default.args <- NULL  # synthesize the command line that will be used in the Makefile
+default.args <- list('--training', '30')
 
-    debug(CommandArgs)
-    command.args <- if (is.null(default.args)) CommandArgs() else default.args
-    parsed.command.args <- ParseCommandLine( cl = command.args
-                                            ,keywords = c()
-                                            ,ignoreUnexpected = TRUE
-                                            )
-    control <- Control(parsed.command.args)
-} else {
-    control <- Control()
-}
+command.args <- if (is.null(default.args)) CommandArgs() else default.args
+parsed.command.args <- ParseCommandLine( cl = command.args
+                                        ,keywords = c('training')
+                                        ,ignoreUnexpected = TRUE
+                                        )
+control <- Control(parsed.command.args)
 
 
 # cache transaction.data
