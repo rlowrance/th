@@ -7,6 +7,7 @@ raw     = $(data)/raw
 working = $(data)/working
 
 splits = $(working)/transactions-subset1-splits
+tex    = $(data)/tex-generated-from-Rnw
 
 raw-deeds-volume-1 = $(raw)/corelogic-deeds-090402_07
 raw-deeds-volume-2 = $(raw)/corelogic-deeds-090402_09
@@ -36,12 +37,26 @@ raw-census.csv = $(raw)/neighborhood-data/census.csv
 thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
 thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
+# EXPERIMENT TARGETS
 e-median-price-ALL.RData += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 e-median-price-ALL.RData += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 #$(warning e-median-price-ALL.RData is $(e-median-price-ALL.RData))
 
+
 # experiment targets (all produce .RData files)
-targets += $(e-median-price-ALL.RData)
+targets += $(working)/e-avm-variants-training-30.RData
+targets += $(working)/e-avm-variants-training-30.txt
+targets += $(working)/e-avm-variants-training-60.RData
+targets += $(working)/e-avm-variants-training-60.txt
+targets += $(working)/e-avm-variants-training-90.RData
+targets += $(working)/e-avm-variants-training-90.txt
+$(warning e-avm-variants targets is $(targets))
+
+
+targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
+targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
+targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
+targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 
 # SPLITS actually used
 
@@ -123,33 +138,49 @@ thesis-input-processing.Rnw         : $(w)
 
 # E-AVM-VARIANTS
 
-e-avm-variants-dependences += e-avm-variants.R
-e-avm-variants-dependences += $(splits)/land.square.footage.RData
-e-avm-variants-dependences += $(splits)/living.area.RData
-e-avm-variants-dependences += $(splits)/bedrooms.RData
-e-avm-variants-dependences += $(splits)/bathrooms.RData
-e-avm-variants-dependences += $(splits)/parking.spaces.RData
-e-avm-variants-dependences += $(splits)/median.household.income.RData
-e-avm-variants-dependences += $(splits)/year.built.RData
-e-avm-variants-dependences += $(splits)/fraction.owner.occupied.RData
-e-avm-variants-dependences += $(splits)/avg.commute.time.RData
-e-avm-variants-dependences += $(splits)/factor.is.new.construction.RData
-e-avm-variants-dependences += $(splits)/factor.has.pool.RData
-e-avm-variants-dependences += $(splits)/total.assessment.RData
-e-avm-variants-dependences += $(splits)/saleDate.RData
-e-avm-variants-dependences += $(splits)/recordingDate.RData
-e-avm-variants-dependences += $(splits)/price.RData
-e-avm-variants-dependences += $(splits)/price.log.RData
-e-avm-variants-dependences += $(splits)/apn.RData
+e-avm-variants-dependencies += e-avm-variants.R
+e-avm-variants-dependencies += $(splits)/land.square.footage.RData
+e-avm-variants-dependencies += $(splits)/living.area.RData
+e-avm-variants-dependencies += $(splits)/bedrooms.RData
+e-avm-variants-dependencies += $(splits)/bathrooms.RData
+e-avm-variants-dependencies += $(splits)/parking.spaces.RData
+e-avm-variants-dependencies += $(splits)/median.household.income.RData
+e-avm-variants-dependencies += $(splits)/year.built.RData
+e-avm-variants-dependencies += $(splits)/fraction.owner.occupied.RData
+e-avm-variants-dependencies += $(splits)/avg.commute.time.RData
+e-avm-variants-dependencies += $(splits)/factor.is.new.construction.RData
+e-avm-variants-dependencies += $(splits)/factor.has.pool.RData
+e-avm-variants-dependencies += $(splits)/total.assessment.RData
+e-avm-variants-dependencies += $(splits)/saleDate.RData
+e-avm-variants-dependencies += $(splits)/recordingDate.RData
+e-avm-variants-dependencies += $(splits)/price.RData
+e-avm-variants-dependencies += $(splits)/price.log.RData
+e-avm-variants-dependencies += $(splits)/apn.RData
+$(warning e-avm-variants-dependencies is $(e-avm-variants-dependencies))
+$(warning working is $(working))
 
-$(working)/e-avm-variants-training-30.%  : $(e-avm-variants-dependencies)
-	Rscript e-avm-variants.R --training 30
+#$(working)/e-avm-variants-training-30.RData : $(e-avm-variants-dependencies)
+#	Rscript e-avm-variants.R --training 30
 
-$(working)/e-avm-variants-training-60.%  : $(e-avm-variants-dependencies)
-	Rscript e-avm-variants.R --training 60
+#$(working)/e-avm-variants-training-30.% \
+#$(working)/e-avm-variants-training-60.% \
+#$(working)/e-avm-variants-training-90.% \
+#: $(e-avm-variants-dependencies)
+#	Rscript e-avm-variants.R --training 30
+#	Rscript e-avm-variants.R --training 60
+#	Rscript e-avm-variants.R --training 90
 
-$(working)/e-avm-variants-training-90.%  : $(e-avm-variants-dependencies)
-	Rscript e-avm-variants.R --training 90
+
+$(working)/e-avm-variants-training-%.RData \
+$(working)/e-avm-variants-training-%.txt \
+: $(e-avm-variants-dependencies)
+	Rscript e-avm-variants.R --training $*
+
+#$(working)/e-avm-variants-training-60.%  : $(e-avm-variants-dependencies)
+#	Rscript e-avm-variants.R --training 60
+#
+#$(working)/e-avm-variants-training-90.%  : $(e-avm-variants-dependencies)
+#	Rscript e-avm-variants.R --training 90
 
 # E-MEDIAN-PRICE
 
@@ -159,10 +190,10 @@ e-median-price-dependencies += $(splits)/sale.month.RData
 e-median-price-dependencies += $(splits)/sale.year.RData
 #$(warning e-median-price-dependencies is $(e-median-price-dependencies))
 
-$(working)/e-median-price-by-year-from-1984-to-2009.RData: $(e-median-price-dependencies)
+$(working)/e-median-price-by-year-from-1984-to-2009.%: $(e-median-price-dependencies)
 	RScript e-median-price.R --by year --from 1984 --to 2009
 
-$(working)/e-median-price-by-month-from-2006-to-2009.RData: $(e-median-price-dependencies)
+$(working)/e-median-price-by-month-from-2006-to-2009.%: $(e-median-price-dependencies)
 	RScript e-median-price.R --by month --from 2006 --to 2009
 
 # PDF files (and accompanying tex files)
@@ -177,7 +208,7 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
 	pdflatex thesis-input-processing.tex
 	mv thesis-input-processing.pdf $(working)/
-	rm thesis-input-processing.tex
+	mv thesis-input-processing.tex $(tex)/
 
 # THESIS-LINEAR-MODELS
 
@@ -190,8 +221,7 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
 	pdflatex thesis-linear-models.tex
 	mv thesis-linear-models.pdf $(working)/
-	rm thesis-linear-models.tex
-
+	mv thesis-linear-models.tex $(tex)/
 
 # the apn.RData target represents all the files in the splits directory
 # this recipe creates all of them
