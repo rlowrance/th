@@ -16,7 +16,7 @@ Control <- function(parsed.command.args) {
     num.training.days <- as.integer(parsed.command.args$training)
 
     me <- 'e-avm-variants' 
-    out.base <- sprintf( ' %s-training-%d'
+    out.base <- sprintf( '%s-training-%d'
                         ,me
                         ,num.training.days
                         )
@@ -255,7 +255,7 @@ Main <- function(control, transaction.data) {
     description <- c( 'Estimated Generalization Error'
                      ,sprintf('From %d-fold Cross Validation', control$nfolds)
                      ,'Model form: log-linear'
-                     ,sprintf('Training period: %d days before 2008-11-01', control$num.training.days)
+                     ,sprintf('Training period: %d days', control$num.training.days)
                      ,sprintf( 'Testing period: %s through %s'
                               ,control$testing.period$first.date
                               ,control$testing.period$last.date
@@ -316,7 +316,7 @@ Main <- function(control, transaction.data) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--training', '30')
+#default.args <- list('--training', '30')
 
 command.args <- if (is.null(default.args)) CommandArgs() else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
