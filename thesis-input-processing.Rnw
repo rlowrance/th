@@ -49,7 +49,7 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \begin{document}
-\title{Input Procesing}
+\title{Input Processing}
 \author{Roy E. Lowrance}
 \date{\today}
 \email{roy.lowrance@gmail.com}
@@ -147,14 +147,14 @@ str(transactions$control)
 @
 
 
-We start with real estate data for Los Angeles Country: the taxroll for
+We start with real estate data for Los Angeles Country: the tax roll for
 2008 and 25 years of deeds ending late in 2009. These data came from
 CoreLogic. We supplemented them with data from the U.S. Census Bureau
 from the year 2000 and, from a geocoding service, the latitude and
 longitude of many of the parcels. We join a subset of these files to create a
 transactions file for single-family residences that were sold at arms-length. Here
 a transaction is a parcel and the price of the parcel on a date that
-it traded. The transactions file contains observations with unusualy values which
+it traded. The transactions file contains observations with unusual values which
 we presume to be erroneous. For example, there are houses with zero rooms.
 So we create a subset (``subset1'') containing only
 transaction observations with values we define to be reasonable. Most of the analysis
@@ -172,12 +172,12 @@ subset.
 
 \section{Input Files}
 
-The taxroll is used by the tax assessor to prepare and send property tax
+The tax roll is used by the tax assessor to prepare and send property tax
 bills. In Los Angeles Country, the initial real estate bills are send
-starting November 1. The taxroll used in this work is as of November 1,
+starting November 1. The tax roll used in this work is as of November 1,
 2008, representing tax dues in late 2008 and in 2009.
 
-The eight taxroll files we use are assembled by CoreLogic, which obtains the
+The eight tax roll files we use are assembled by CoreLogic, which obtains the
 original files for Los Angeles County, cleans them up, augments them with other data, and sells
 them. There is one record (CoreLogic type 2580) for every parcel.
 
@@ -197,9 +197,9 @@ that we have used a separate geocoding file), location on maps, the
 universal land use code (LUSEI), and so forth. The LUSEI field is used
 to identify whether the parcel is for a single-family residence.
 
-\item Information on the subdivision, primarily its location in refence books.
+\item Information on the subdivision, primarily its location in reference books.
 
-\item The address of the property including its 9-digit zipcode.
+\item The address of the property including its 9-digit zip code.
 
 \item Information on the owner, which is not populated.
 
@@ -249,14 +249,14 @@ The fields in each record are in these groups:
 
 \begin{itemize}
 
-\item The parcel identifier, the APN. This is coded as in the taxroll file and
+\item The parcel identifier, the APN. This is coded as in the tax roll file and
 has similar issues.
 
 \item A description of the owner. We don't use this.
 
 \item The owner's mailing address. We don't use this.
 
-\item Property information. We rely on the taxroll for this type of information
+\item Property information. We rely on the tax roll for this type of information
 and hence do not use these fields.
 
 \item Information on the sale, including the sale date, the price, how
@@ -324,9 +324,9 @@ The tax assessor classifies each parcel according to its primary use.
 One of the uses is as a single-family residence.
 
 Our work uses only parcels classified as single-family residences as
-recorded in the LUSEI field. The taxroll files from CoreLogic contain
+recorded in the LUSEI field. The tax roll files from CoreLogic contain
 \Sexpr{Commas(parcels$info$nrow.all)} 
-taxroll records of which 
+tax roll records of which 
 \Sexpr{Commas(parcels$info$nrow.sfr)}
 are classified as single-family
 residences.
@@ -338,7 +338,7 @@ industry, a park, shopping, or a school. Perhaps the first of these
 characteristics detracts from attractiveness and the others increase
 attractiveness.
 
-These features are not directly reflected in the taxroll file and hence
+These features are not directly reflected in the tax roll file and hence
 must be deduced. We have latitudes and longitudes only for residences,
 not for parcels containing industry, parks, retailers, or schools. Hence
 we resort to determining whether 5-digit zip codes and census tracts
@@ -358,7 +358,7 @@ owner-occupied (perhaps higher ownership is associated with higher
 property values).
 
 None of these features is provided directly in the Census Bureau files,
-but all are straight-foward to compute from the information provided.
+but all are straight-forward to compute from the information provided.
 
 \subsection{Join all the files together}
 
@@ -389,7 +389,7 @@ records.
 \section{Pick a subset with reasonable values}
 
 We would be finished with the data munging except that the transactions
-file contains observations with very unusuable values. For example,
+file contains observations with very unusable values. For example,
 there are single-family residences with no rooms and with sales prices in
 the hundreds of millions of dollars.
 
@@ -445,7 +445,7 @@ the subset of transactions actually used in the analysis.
     value of the parcel. We rejected transactions that did not say the
     sales price was for the full amount. There were 
     \Sexpr{Remaining(subset$info$sale.code$sale.price.full)} such.
-  \item Sale date. None of the deeds are missing recording dates. Some are missig
+  \item Sale date. None of the deeds are missing recording dates. Some are missing
   sale dates. When a
     sales date is missing, it is imputed from the recording date. This
     imputation uses the average delay between sales and recording (
