@@ -67,8 +67,8 @@ Control <- function() {
              ,path.in.deeds = paste0(working, 'deeds-al-g.RData')
              ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
              ,cache = FALSE
-             #,include = FALSE
-             ,include = TRUE
+             ,include = FALSE
+             #,include = TRUE
         )
     control
 }
