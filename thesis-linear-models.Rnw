@@ -63,23 +63,115 @@ options(warn = 2)  # turn warnings into errors
 source('DirectoryWorking.R')
 Control <- function() {
     working <- DirectoryWorking()
-    control <-
-        list(#path.in.e.avm.variants = paste0(working, 'e-avm-variants.RData')
-              path.in.e.avm.variants.chart1 =
-                paste0(working, 'e-avm-variants.txt')
-             ,path.in.median.price.by.month.pdf = 
-                paste0( working
-                       ,'e-median-price-by-month-from-2006-to-2009.pdf'
-                       )
-             ,path.in.median.price.by.year.pdf =
-                paste0( working
-                       ,'e-median-price-by-year-from-1984-to-2009.pdf'
-                       )
-             ,cache = FALSE
-             #,cache = TRUE
-             ,include = TRUE
-        )
-    control
+    Append <- function(name, value, lst) {
+      lst[[name]] <- value
+      lst
+    }
+    AppendAvmPath <- function(ndays, suffix, lst) {
+      Append(name = sprintf('path.in.e.avm.variants.training.%d.%s'
+                            ,ndays
+                            ,suffix
+                            )
+             ,value = sprintf('%se-avm-variants-training-%d.%s'
+                              ,working
+                              ,ndays
+                              ,suffix
+                              )
+             ,lst = lst
+             )
+    }
+    AppendAvmPaths <- function(ndays, lst) {
+      a <- AppendAvmPath(ndays, 'txt', lst)
+      b <- AppendAvmPath(ndays, 'RData', a)
+      b
+    }
+    AppendMedianPricePath <- function(by, from, to, suffix, lst) {
+      Append(name = sprintf('path.in.e.median.price.by.%s.%s'
+                            ,by
+                            ,suffix
+                            )
+            ,value = sprintf('%se-median-price-by-%s-from-%d-to-%d.%s'
+                             ,working
+                             ,by
+                             ,from
+                             ,to
+                             ,suffix
+                             )
+            ,lst = lst
+            )
+    }
+    AppendMedianPricePaths <- function(by, from, to, lst) {
+      a <- AppendMedianPricePath(by, from, to, 'pdf', lst)
+      b <- AppendMedianPricePath(by, from, to, 'RData', a)
+      b
+    }
+
+    control <- list( cache = FALSE
+                    #,cache = TRUE
+                    ,include = TRUE
+                    )
+    control2 <- AppendAvmPaths(30, control)
+    control3 <- AppendAvmPaths(60, control2)
+    control4 <- AppendAvmPaths(90, control3)
+    control5 <- AppendMedianPricePaths('month', 2006, 2009, control4)
+    control6 <- AppendMedianPricePaths('year', 1984, 2009, control5)
+    control6
+#
+#    SetAvmPaths <- function(lst) {
+#      # add the e.avm.variants paths to the control list lst
+#      SetAvmPath <- function(ndays, lst) {
+#        Name <- function(ndays, suffix) {
+#          sprintf( 'path.in.e.avm.variants.training.%d.%s'
+#                  ,ndays
+#                  ,suffix
+#                  )
+#        }
+#        Path <- function(ndays, suffix) {
+#          sprintf( '%se-avm-variants-training-%d.%s'
+#                  ,working
+#                  ,ndays
+#                  ,suffix
+#                  )
+#        }
+#        lst[[Name(ndays, 'txt')]] <- Path(ndays, 'txt')
+#        lst[[Name(ndays, 'rdata')]] <- Path(ndays, 'rdata')
+#        lst
+#      }
+#      SetAvmPath(30, SetAvmPath(60, SetAvmPath(90, lst)))
+#    }
+#    SetMedianPricePaths <- function(lst) {
+#      SetMedianPricePath <- function(by, from, to, lst) {
+#        Name <- function() {
+#          sprintf('path.in.median.price.by.%s.pdf'
+#                  ,by
+#                  )
+#        }
+#        Path <- function() {
+#          sprintf('%se-median-price-by-%s-from-%d-to-%d.pdf'
+#                  ,working
+#                  ,by
+#                  ,from
+#                  ,to
+#                  )
+#        }
+#        lst[[Name()]] <- Path()
+#        lst
+#      } 
+#      SetMedianPricePath('month'
+#                         ,2006
+#                         ,2009
+#                         ,SetMedianPricePath('year'
+#                                             ,1984
+#                                             ,2009
+#                                             ,lst
+#                                             )
+#                         )
+#    }
+#
+#    control2 <- SetAvmPaths(control)
+#    control3 <- SetMedianPricePaths(control2)
+#
+#    control3
 }
 
 control <- Control()
@@ -262,6 +354,26 @@ of x leads to $\beta$ factor increase in the price.
 \section{Choosing the training period}
 
 <<ChoosingTrainingPeriod>>=
+control
+path <- control$path.in.e.median.price.by.month.RData
+loaded <- load(path)
+loaded
+str(median.prices)
+MedianPrice <- function(year, month) {
+  is.year <- median.prices$sale.year == year
+  is.month <- median.prices$sale.month == month
+  median.prices[is.year & is.month, 'median.price']
+}
+MedianPrice(2009, 3) #test
+median.test.price <- c( MedianPrice(2008, 11)
+                       ,MedianPrice(2008, 12)
+                       ,MedianPrice(2009, 01)
+                       ,MedianPrice(2009, 02)
+                       ,MedianPrice(2009, 03)
+                       )
+median.test.price
+median.median.test.price <- median(median.test.price)
+median.median.test.price
 @
 
 The linear model uses the average value of each feature to estimate the
@@ -272,7 +384,7 @@ data set for a given estimation task.
 \begin{figure}[h]
 \caption{Median Prices By Year}
 \label{figure:medianPricesByYear}
-\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.year.pdf}}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.e.median.price.by.year.pdf}}
 \end{figure}
 
 <<MedianPricesByYear>>=
@@ -289,7 +401,7 @@ years.
 \begin{figure}[h]
 \caption{Median Prices By Month}
 \label{figure:medianPricesByMonth}
-\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.median.price.by.month.pdf}}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.e.median.price.by.month.pdf}}
 \end{figure}
 
 Figure \ref{figure:medianPricesByMonth} depicts median prices by month
@@ -325,8 +437,13 @@ training. This approach doesn't try to anticipate market movement after
 the training period to the query period. It's the approach followed in
 this work.
 
+A fourth possibility is to determine the best training period for the
+date before the query transaction, the use that training period for the
+query transaction. Determine the best through cross validation.
+
 
 \section{Feature choice}
+\label{Section:FeatureChoice}
 
 <<FeatureChoice>>=
 @
@@ -379,7 +496,7 @@ estimators.'' Example of a statistical consideration that may or may not
 improve model accuracy.
 
 Evaluation criteria: fraction of out-of-sample predictions that are
-within 10 and 20 percent of the trueprices.
+within 10 and 20 percent of the true prices.
 
 Predicted prices were adjusted ``for the average residual for the
 neighborhood in which the property is located.'' A neighborhood was
@@ -567,8 +684,8 @@ is not certain.
 
 We ran two experiments to attempt to understand the value of the
 assessment as a feature. In the first, we use the actual data from Los
-Angeles. The key feature of this experiment is that the assessment is
-not an estimate of the market value.  In the second, we generate
+Angeles. The key feature of the first experiment is that the assessment
+is not an estimate of the market value.  In the second, we generate
 synthetic data that is drawn from the Los Angeles data set but replaces
 the assessment with a noisy estimate of the market value. 
 
@@ -576,69 +693,166 @@ the assessment with a noisy estimate of the market value.
 \subsection{Experiment: Actual Los Angeles Data}
 
 <<ActualLosAngelesData>>=
-#loaded <- load(control$path.in.e.avm.variants)
-#str(loaded)
-#length(loaded)
-#for (i in 1:8) str(chart1[[i]])
-#avm.variants.chart1 <- chart1
-#str(avm.variants.chart1)
-#
-#Cat <- function(chart) {
-#  all <- NULL
-#  for (line in chart) {
-#    all <- c(all, '\n', line)
-#  }
-#  all
-#}
-#
-#Cat(chart1)
-#all.lines <- c('\\begin{verbatim}', Cat(chart1), '\\end{verbatim}')
-#str(all.lines)
-#control$path.in.e.avm.variants.chart1
 @
 
 
 Recall that monthly median prices were falling rapidly starting in July
-2007, with an uptick in February 2008 and a decline in March 2008. The
-training period is 30, 60, or 90 days before November 1, 2007. We expect
-that longer training periods will pick up increased out-of-test-period
-feature prices and hence lead to worse overall performance.
+2007, with an uptick in February 2009 and a decline in March 2009.
+
+We expect that longer training periods will pick up increased
+out-of-test-period feature prices and hence lead to worse overall
+performance.
+
+In these experiments, we use a log-linear model, because these models
+are popular in the literature. We estimate the generalization error
+using 10-fold cross validation. The feature set is as described above in
+section \ref{Section:FeatureChoice}. The test set is all transactions
+for which the assessment might be relevant, namely transactions in the
+period November 1, 2008 through March 31, 2009. The training period is
+30, 60, or 90 days.  For the assessor and avm scenarios, the training
+period is before the date of the query transactions. For the mortgage
+scenario, the training period is before and after the date of the query
+transactions. 
 
 \subsubsection{Training on 30 days of data}
 
+\begin{figure}[h]
+\caption{Los Angeles Data Trained for 30 Days}
+\label{figure:LosAngelesData30}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.avm.variants.training.30.txt}}
+\end{figure}
+
+In Figure \ref{figure:LosAngelesData30} we see the averaged test errors
+from 10-fold cross validation for the scenarios of interest with and
+without the assessment using a training period of 30 days.
+
+The first finding is that estimated generalization errors are very high
+when estimated using the mean root-mean-squared error of the
+cross-validation folds. The median price during the testing period is
+\Sexpr{Commas(median.median.test.price)}
+dollars and these mean errors are about the same size. The reason is
+that the models badly predict a few very expensive houses by valuing
+them at enormous prices, leading to huge mean price differences. To
+reduce the impact of these few houses on the estimated generalization
+error, we also determine the median of the average errors from the
+folds, where the average error from the fold is also the median. These
+results are reported in the column ``median RMedianSE'' which stands for
+the median of the square root of the median squared errors from the
+folds. These error estimates are much lower.
+
+The next finding is that median errors are lower when the training data
+are nearer the test transactions. Ignoring the use cases with the
+assessments, we see that the median error decreases by over 20,000
+dollars between the assessor and avm scenarios.  The avm scenario, by
+selecting training data based on sales date and not recording dates as
+for the assessor scenario, has more contemporary data, leading to
+increased accuracy. Considering only the use cases with the assessment,
+we see that median error always decreases as the training data become
+more contemporary with the testing data. The lowest error is for the
+mortgage scenario, which benefits from seeing the future prices of
+transactions.
+
+TODO: get actual median price for the test period
+
+
 \subsubsection{Training on 60 days of data}
 
-In this section we train on 60 days of data before November 1, 2008.
-
-
-
 \begin{figure}[h]
-\caption{Los Angeles Data}
+\caption{Los Angeles Data Trained for 60 Days}
 \label{figure:LosAngelesData60}
 %\tiny
 \small
 %\normalsize
-\verbatiminput{\Sexpr{control$path.in.e.avm.variants.chart1}}
+\verbatiminput{\Sexpr{control$path.in.e.avm.variants.training.60.txt}}
 \end{figure}
 
-In Figure \ref{figure:LosAngelesData60} we see the averaged test errors
-from 10-fold cross validation for the scenarios of interest with and
-without the assessment using a training period of 60 days. We see that
-estimating the generalization error using the mean of the test errors
-from the folds (this is the column ``mean RMSE''), that adding the
-assessment as a feature greatly increases the estimated generalization
-error. This is because the models badly mis-estimate test transactions
-and the mean RMSE retains the effect of these bad estimates. 
+Figure \ref{figure:LosAngelesData60} shows results from using a 60-day
+training period. As for the 30-day training period, the estimated
+generalization error increases when the assessment is used as a feature.
+In this use case the prices have fallen even further from the mid point
+of the training period and the assessment's value is even less.
 
-If instead we estimate the generalization error by taking the median of
-the median test errors (this is the column ``median RMedianSE'') we find
-that using the assessment as a feature improves estimation accuracy for
-the assessor scenario and degrades estimation accuracy for the avm
-scenario.
+As in the 30-day use case, training on more contemporary data leads to
+more accurate estimates.
 
 \subsubsection{Training on 90 days of data}
 
+\begin{figure}[h]
+\caption{Los Angeles Data Trained for 90 Days}
+\label{figure:LosAngelesData90}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.avm.variants.training.90.txt}}
+\end{figure}
+
+Figure \ref{figure:LosAngelesData90} shows results from using a 90-day
+training period. Now the mid-point of the training period is even more
+distant that in the other use cases and the value of the assessment is
+negative.
+
+As in the 30-day use case, training on more contemporary data leads to
+more accurate estimates.
+
 \subsubsection{Comparing 30, 60, and 90 training-day accuracy}
+
+<<CompareEAvmVariants>>=
+print(control)
+LoadResult <- function(path) {
+  print(path)
+  loaded <- load(path)
+  str(loaded)
+  print(all.result$experiment.name)
+  all.result
+}
+result.30 <-
+  LoadResult(control$path.in.e.avm.variants.training.30.RData)
+result.60 <-
+  LoadResult(control$path.in.e.avm.variants.training.60.RData)
+result.90 <-
+  LoadResult(control$path.in.e.avm.variants.training.90.RData)
+
+MedianError <- function(scenario, ndays) {
+  result <- if (ndays == 30) result.30 
+            else (if (ndays == 60) result.60
+                  else result.90
+                  )
+  for (rowIndex in 1:nrow(result)) {
+    if (result$experiment.name[[rowIndex]] == scenario) 
+      return (result$median.RMedianSE[[rowIndex]])
+      }
+    stop('bad scenario')
+}
+MedianError('mortgage with assessment', 60)  # test
+# combine and produce a table
+# <scenario> <assessment usage> <30 day error rate> <60> <90>
+@
+
+It is a myth that the assessment always has value. We can see in these
+experiments that using the assessment as a feature degrades the accuracy
+of the estimated price, because the assessment becomes increasingly out
+of date as the market moves rapidly. 
+
+It is a myth that more training data leads to more accurate estimates.
+While it is true that having more training data available generates
+options for model design that may lead to increased accuracy, actually
+using more out-of-date data degrades estimation quality in these
+experiments.
+
+Looking across the assessor and avm use cases, both of which train on
+historic data, we see that using a longer training period always
+degrades accuracy in these experiments.
+
+Looking across the mortgage use cases, which trains on a 50-50 mix of
+historic and future data, we see that in some use cases, using a longer
+training period can improve accuracy. Accuracy decreased when the
+training period was increased from 30 to 60 days and decreased when the
+training period increased from 60 to 90 days. Accuracy for the mortgage
+model was highest when the training period was longest in these
+experiments.
 
 \subsection{Experiment: Synthetic Data}
 
