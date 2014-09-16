@@ -67,8 +67,9 @@ Control <- function() {
              ,path.in.deeds = paste0(working, 'deeds-al-g.RData')
              ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
              ,cache = FALSE
-             ,include = FALSE
-             #,include = TRUE
+             #,cache = TRUE
+             #,include = FALSE
+             ,include = TRUE
         )
     control
 }
@@ -86,6 +87,14 @@ Commas <- function(i) {
 }
 # test
 Commas(123456)
+@
+
+<<About>>=
+About <- function(x) {
+  # return rounded number like 1,200,000 (without the commas)
+  million <- 1000000
+  million * round(x / million, 1)
+}
 @
 
 <<deeds>>=
@@ -121,13 +130,15 @@ Subset <- function(control) {
     subset.loaded <- load(control$path.in.subset)
     str(subset.loaded)
     list( info = info
-          #,df = transactions.al.sfr.subset1
-          ,control = control
+         ,df = transactions.subset1
+         ,control = control
     )
 }
 subset <- Subset(control)
 str(subset$info)
 str(subset$control)
+subset.nrow <- nrow(subset$df)
+subset.nrow
 @
 
 <<transactions>>=
@@ -135,8 +146,8 @@ Transactions <- function(control) {
     transactions.loaded <- load(control$path.in.transactions)
     str(transactions.loaded)
     list( info = info
-          #,df = transactions.al.sfr
-          ,control = control
+         ,df = transactions
+         ,control = control
     )
 }
 # a bug in Knitr prevents something from reloaded
@@ -148,17 +159,26 @@ str(transactions$control)
 
 
 We start with real estate data for Los Angeles Country: the tax roll for
-2008 and 25 years of deeds ending late in 2009. These data came from
+2008, containing about
+\Sexpr{Commas(About(parcels$info$nrow.all))} 
+parcels, and 25 years of deeds, about
+\Sexpr{Commas(About(deeds$info$num.all.deeds))} 
+observations,
+ending early in 2009. These data came from
 CoreLogic. We supplemented them with data from the U.S. Census Bureau
 from the year 2000 and, from a geocoding service, the latitude and
 longitude of many of the parcels. We join a subset of these files to create a
 transactions file for single-family residences that were sold at arms-length. Here
 a transaction is a parcel and the price of the parcel on a date that
-it traded. The transactions file contains observations with unusual values which
+it sold. We have about
+\Sexpr{Commas(About(transactions$info$nrow.transactions))}
+transactions. The transactions file contains observations with unusual values which
 we presume to be erroneous. For example, there are houses with zero rooms.
 So we create a subset (``subset1'') containing only
 transaction observations with values we define to be reasonable. Most of the analysis
-uses subset1.
+uses subset1, which contains about
+\Sexpr{Commas(About(subset$info$num.with.possible.duplicates))}
+observations.
 
 This chapter provides the details on how this was done. It contains these
 sections:
@@ -364,20 +384,41 @@ but all are straight-forward to compute from the information provided.
 
 The transactions file is created by joining each of the input files.
 \begin{itemize}
-  \item The file of all arms-length deeds containing \Sexpr{Commas(transactions$info$nrow.deeds.al)} records.
-  \item The file of all single-family-residence parcels containing \Sexpr{Commas(transactions$info$nrow.parcels.sfr)}
-    records. These parcels are merged into the deeds using the best APN
-    field from each file. The resulting merged file has \Sexpr{Commas(transactions$info$nrow.deeds.parcels)} records.
-  \item The file containing \Sexpr{Commas(transactions$info$nrow.census)} records derived from the census tract 
-    data. This file is merged into the deeds-parcels file using the
-    census tract fields. A file with \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels)} records results.
-  \item The file containing \Sexpr{Commas(transactions$info$nrow.geocoding)} records from the geocoding provider.
-    This file has the APN as its primary key and is merged into the
-    census-deeds-parcel file. The resulting merged file has 
-    \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels.geocoding)} records.
-  \item The file containing \Sexpr{Commas(transactions$info$nrow.derived.zip5)} records recording features of the
-    5-digit zip codes and \Sexpr{Commas(transactions$info$nrow.derived.census.tract)} similar records from census tracts. These
-    files are merged into the census-deeds-geocoding-parcels file to create the
+  \item The file of all arms-length sale deeds containing 
+    \Sexpr{Commas(transactions$info$nrow.deeds.al)} records.
+  \item The file of all single-family-residence parcels containing 
+    \Sexpr{Commas(transactions$info$nrow.parcels.sfr)}
+    records. These parcels are naturally joined into the deeds using the
+    best APN field from each file. The resulting joined file has
+    \Sexpr{Commas(transactions$info$nrow.deeds.parcels)} records. The
+    unique key of each record is the APN and the recording date for the
+    deed. Other fields in the joined records are information from the deeds file
+    including, when available, the date of the sale and the price, and
+    information from the tax roll file including, when available, a
+    description of the property (lot size, interior space, number of
+    rooms, and so forth).
+  \item The file containing 
+    \Sexpr{Commas(transactions$info$nrow.census)} records derived from
+    the census tract data. The information in these records is appended
+    to the joined deeds-parcels file using the census tract fields to
+    line up the records.  A file with
+    \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels)} records
+    results.
+  \item The file containing
+    \Sexpr{Commas(transactions$info$nrow.geocoding)} records from the
+    geocoding provider.  This file has the APN as its primary key and
+    usually contains the latitude and longitude of the corresponding
+    parcels. These location values are appended onto the corresponding
+    records in the census-deeds-parcel file. The resulting merged file
+    has
+    \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels.geocoding)}
+    records.
+  \item The file containing 
+    \Sexpr{Commas(transactions$info$nrow.derived.zip5)} records recording 
+    features of the 5-digit zip codes and 
+    \Sexpr{Commas(transactions$info$nrow.derived.census.tract)} similar 
+    records from census tracts. These information in these files is
+    appended onto the census-deeds-geocoding-parcels file to create the
     transactions file.
 \end{itemize}
 
@@ -385,6 +426,7 @@ The transactions file is created by joining each of the input files.
 The resulting transactions file contains 
 \Sexpr{Commas(transactions$info$nrow.transactions)} 
 records.
+
 
 \section{Pick a subset with reasonable values}
 
@@ -400,7 +442,7 @@ values.
 
 <<Remaining>>=
 Remaining <- function(used) {
-    Commas(transactions$info$nrow.transactions - used)
+    Commas(subset$info$num.transactions.al.sfr - used)
 }
 @
 
@@ -411,13 +453,12 @@ the subset of transactions actually used in the analysis.
     assess value exceeding the maximum sales price were discarded. How
     the maximum sales price was determined is described just below under ``Sale amount.''
     There are \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
-  \item Document type code. Transactions arising only from grant
-    deeds and trust deeds were retained. Grant deeds are sales and trust
-    deeds pledge the property as collateral for a mortgage. There are
-    \Sexpr{Remaining(subset$info$DOCUMENT.TYPE.CODE$grant.deed +
-    subset$info$DOCUMENT.TYPE.CODE$deed.of.trust)} that are neither grant nor trust deeds.
-    A trust deed was used only \Sexpr{Commas(subset$info$DOCUMENT.TYPE.CODE$deed.of.trust)}
-    times.
+  \item Document type code. Only transactions arising from grant
+    deeds were retained. Grant deeds are sales. There are many other 
+    types of deeds. Records with other types
+    of deeds were excluded. There were
+    \Sexpr{Remaining(subset$info$DOCUMENT.TYPE.CODE$grant.deed)}
+    such.
   \item Effective year built. Transactions arising from properties
     without an effective year built were discarded. The effective year
     built is the year of the last major remodeling or the year the property
@@ -497,6 +538,10 @@ these:
     observations with values exceeding the highest allowed
     percentile.
 \end{itemize}
+
+The resulting subset file (``subset1'') contains 
+\Sexpr{Commas(subset.nrow)} 
+records.
 
 \section{Split the subset into individual features}
 
