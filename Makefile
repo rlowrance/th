@@ -89,6 +89,8 @@ targets += $(working)/parcels-sample.RData
 targets += $(working)/parcels-sfr.RData 
 targets += $(working)/transactions.RData 
 targets += $(working)/transactions-subset1.RData
+targets += $(working)/transactions-subset1-train.RData
+targets += $(working)/transactions-subset1-test.RData
 
 # thesis targets
 targets += $(working)/thesis-input-processing.pdf
@@ -127,6 +129,7 @@ transactions.R                      : $(lrwl) BestApns.R ReadCensus.R ReadDeedsA
                                               ReadParcelsSfr.R ZipN.R
 transactions-subset1.R              : $(lwl)  ReadTransactions.R DEEDC.R SCODE.R TRNTP.R
 transactions-subset1-splits.R       : $(lswl) ReadTransactionsSubset1.R
+transactions-subset1-train.R        : $(lwl)  ReadTransactionsSubset1.R
 thesis-input-processing.Rnw         : $(w)    
 
 # dependencies for data files
@@ -289,3 +292,9 @@ $(working)/transactions.RData: transactions.R \
 $(working)/transactions-subset1.RData: transactions-subset1.R \
 	$(working)/transactions.RData
 	Rscript transactions-subset1.R
+
+# the stem is RData
+$(working)/transactions-subset1-train.% \
+$(working)/transactions-subset1-test.% \
+: transactions-subset1-train.R
+	Rscript transactions-subset1-train.R
