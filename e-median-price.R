@@ -11,10 +11,11 @@
 # may also write as output a pdf file containing the chart in pdf form
 
 source('DirectoryLog.R')
-source('DirectorySplits.R')
 source('DirectoryWorking.R')
 
 source('Libraries.R')
+
+source('ReadTransactionsSubset1.R')
 
 library(ggplot2)
 
@@ -32,13 +33,12 @@ Control <- function(parsed.command.args) {
                              )
     
     log <- DirectoryLog()
-    splits <- DirectorySplits()
     working <- DirectoryWorking()
 
     control <- list( from = from
                     ,to = to
                     ,by = parsed.command.args$by
-                    ,path.in.splits = splits
+                    ,path.in = paste0(working, 'transactions-subset1.RData')
                     ,path.out.log = paste0(log, log.file.base, '.log')
                     ,path.out.rdata = paste0(working, log.file.base, '.RData')
                     ,path.out.pdf = paste0(working, log.file.base, '.pdf')
@@ -151,7 +151,6 @@ MedianPricesByYear <- function(from.year, to.year, data) {
 
     #debug(MakeDataFrame)
     #debug(Labels)
-
     analysis <- MakeDataFrame()
     chart <- MakeChart(analysis, Labels(analysis))
     list( analysis = analysis
@@ -162,11 +161,17 @@ Main <- function(control, data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
+    splitDate <- SplitDate(data$transaction.date)
+    relevant <- data.frame( stringsAsFactors = FALSE
+                           ,sale.year = splitDate$year
+                           ,sale.month = splitDate$month
+                           ,price = data$SALE.AMOUNT
+                           )
     medianPrices.chart <- 
         if (control$by == 'month') {
-            MedianPricesByMonth(control$from, control$to, data)
+            MedianPricesByMonth(control$from, control$to, relevant)
         } else {
-            MedianPricesByYear(control$from, control$to, data)
+            MedianPricesByYear(control$from, control$to, relevant)
         }
     median.prices <- medianPrices.chart$analysis
     chart <- medianPrices.chart$chart
@@ -204,7 +209,7 @@ Main <- function(control, data) {
 #debug(MedianPricesByYear)
 
 default.args <- NULL
-#default.args <- list('--by', 'year', '--from', '2000', '--to', '2001')
+#default.args <- list('--by', 'year', '--from', '1984', '--to', '2009')
 #default.args <- list('--by', 'month', '--from', '2006', '--to', '2009')
 
 command.args <- if (is.null(default.args)) CommandArgs() else default.args
@@ -215,9 +220,7 @@ parsed.command.args <- ParseCommandLine( cl = command.args
 control <- Control(parsed.command.args)
 
 if (!exists('transaction.data')) {
-    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
-                                              ,split.names = control$splits.to.read
-                                              )
+    transaction.data <- ReadTransactionsSubset1(path = control$path.in)
 }
 
 Main(control, transaction.data)
