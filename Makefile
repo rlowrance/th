@@ -6,7 +6,7 @@ output  = $(data)/output
 raw     = $(data)/raw
 working = $(data)/working
 
-splits = $(working)/transactions-subset1-splits
+splits = $(working)/transactions-subset1-train-splits
 tex    = $(data)/tex-generated-from-Rnw
 
 raw-deeds-volume-1 = $(raw)/corelogic-deeds-090402_07
@@ -38,12 +38,7 @@ thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
 thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
 # EXPERIMENT TARGETS
-e-median-price-ALL.RData += $(working)/e-median-price-by-year-from-1984-to-2009.RData
-e-median-price-ALL.RData += $(working)/e-median-price-by-month-from-2006-to-2009.RData
-#$(warning e-median-price-ALL.RData is $(e-median-price-ALL.RData))
 
-
-# experiment targets (all produce .RData files)
 targets += $(working)/e-avm-variants-training-30.RData
 targets += $(working)/e-avm-variants-training-30.txt
 targets += $(working)/e-avm-variants-training-60.RData
@@ -51,7 +46,6 @@ targets += $(working)/e-avm-variants-training-60.txt
 targets += $(working)/e-avm-variants-training-90.RData
 targets += $(working)/e-avm-variants-training-90.txt
 $(warning e-avm-variants targets is $(targets))
-
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
@@ -118,7 +112,7 @@ w    =                                                  DirectoryWorking.R
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
-e-avm-variants.R                    : $(lswl)
+e-avm-variants.R                    : $(lwl)  ReadTransactionsSubset1.R
 e-median-price.R                    : $(lswl)
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -128,8 +122,8 @@ parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
 transactions.R                      : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAlG.R \
                                               ReadParcelsSfr.R ZipN.R
 transactions-subset1.R              : $(lwl)  ReadTransactions.R DEEDC.R SCODE.R TRNTP.R
-transactions-subset1-splits.R       : $(lswl) ReadTransactionsSubset1.R
 transactions-subset1-train.R        : $(lwl)  ReadTransactionsSubset1.R
+transactions-subset1-train-splits.R : $(lswl) ReadTransactionsSubset1Train.R
 thesis-input-processing.Rnw         : $(w)    
 
 # dependencies for data files
@@ -188,15 +182,19 @@ $(working)/e-avm-variants-training-%.txt \
 # E-MEDIAN-PRICE
 
 e-median-price-dependencies += e-median-price.R
-e-median-price-dependencies += $(splits)/price.RData
-e-median-price-dependencies += $(splits)/sale.month.RData
-e-median-price-dependencies += $(splits)/sale.year.RData
+e-median-price-dependencies += ReadTransactionsSubset1.R
+e-median-price-dependencies += $(working)/transactions-subset1.RData
 #$(warning e-median-price-dependencies is $(e-median-price-dependencies))
 
-$(working)/e-median-price-by-year-from-1984-to-2009.%: $(e-median-price-dependencies)
+# stem is 2009
+$(working)/e-median-price-by-year-from-1984-to-%.pdf \
+$(working)/e-median-price-by-year-from-1984-to-%.RData \
+: $(e-median-price-dependencies)
 	RScript e-median-price.R --by year --from 1984 --to 2009
 
-$(working)/e-median-price-by-month-from-2006-to-2009.%: $(e-median-price-dependencies)
+$(working)/e-median-price-by-month-from-2006-to-%.pdf \
+$(working)/e-median-price-by-month-from-2006-to-%.Rdata \
+: $(e-median-price-dependencies)
 	RScript e-median-price.R --by month --from 2006 --to 2009
 
 # PDF files (and accompanying tex files)
@@ -215,16 +213,16 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 
 # THESIS-LINEAR-MODELS
 
-$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
-	$(working)/e-avm-variants-training-30.txt \
-	$(working)/e-avm-variants-training-60.txt \
-	$(working)/e-avm-variants-training-90.txt \
-	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
-	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
-	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
-	pdflatex thesis-linear-models.tex
-	mv thesis-linear-models.pdf $(working)/
-	mv thesis-linear-models.tex $(tex)/
+#$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
+#	$(working)/e-avm-variants-training-30.txt \
+#	$(working)/e-avm-variants-training-60.txt \
+#	$(working)/e-avm-variants-training-90.txt \
+#	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
+#	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
+#	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
+#	pdflatex thesis-linear-models.tex
+#	mv thesis-linear-models.pdf $(working)/
+#	mv thesis-linear-models.tex $(tex)/
 
 # the apn.RData target represents all the files in the splits directory
 # this recipe creates all of them
@@ -254,8 +252,8 @@ $(splits)/sale.month.% \
 $(splits)/sale.year.% \
 $(splits)/total.assessment.% \
 $(splits)/year.built.% \
-: transactions-subset1-splits.R $(working)/transactions-subset1.RData
-	Rscript transactions-subset1-splits.R
+: transactions-subset1-train-splits.R $(working)/transactions-subset1-train.RData
+	Rscript transactions-subset1-train-splits.R
 
 $(working)/census.RData: census.R \
 	$(raw-census.csv)
