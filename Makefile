@@ -213,22 +213,18 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 
 # THESIS-LINEAR-MODELS
 
-#$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
-#	$(working)/e-avm-variants-training-30.txt \
-#	$(working)/e-avm-variants-training-60.txt \
-#	$(working)/e-avm-variants-training-90.txt \
-#	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
-#	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
-#	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
-#	pdflatex thesis-linear-models.tex
-#	mv thesis-linear-models.pdf $(working)/
-#	mv thesis-linear-models.tex $(tex)/
+$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
+	$(working)/e-avm-variants-training-30.txt \
+	$(working)/e-avm-variants-training-60.txt \
+	$(working)/e-avm-variants-training-90.txt \
+	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
+	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
+	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
+	pdflatex thesis-linear-models.tex
+	mv thesis-linear-models.pdf $(working)/
+	mv thesis-linear-models.tex $(tex)/
 
 # the apn.RData target represents all the files in the splits directory
-# this recipe creates all of them
-#$(splits)/apn.RData: transactions-al-sfr-subset1-splits.R \
-#	$(working)/transactions-al-sfr-subset1.RData
-#	Rscript transactions-al-sfr-subset1-splits.R
 
 # make all the splits that we use simultaeously
 # requires a pattern rule
