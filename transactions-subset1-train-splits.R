@@ -48,8 +48,10 @@ Identity <- function(current.value) {
 
 Int2Date <- function(current.value) {
     # convert integer YYYYYMMDD to a Date
+    # after converting integer YYYYMM00 to  YYYYMM15
     #cat('starting Int2Date', length(current.value), '\n'); browser()
-    result <- as.Date(as.character(current.value), format = '%Y%m%d')
+    revised <- ifelse(current.value %% 100 == 0, current.value + 15, current.value)
+    result <- as.Date(as.character(revised), format = '%Y%m%d')
     result
 }
 
