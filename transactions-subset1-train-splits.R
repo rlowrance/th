@@ -220,7 +220,6 @@ transactions.subset1.train <-
     } else {
         cat('reading transactions.subset1.train\n')
         #debug(ReadTransactionsAlSfrSubset1)
-        browser()
         ReadTransactionsSubset1Train(path = control$path.in)
     }
 
