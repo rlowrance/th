@@ -163,27 +163,19 @@ e-avm-variants-dependencies += $(splits)/apn.RData
 
 # the stem is 'training'
 $(working)/e-avm-variants-%-30.RData \
-$(working)/e-avm-variants-%-60.RData \
-$(working)/e-avm-variants-%-90.RData \
 $(working)/e-avm-variants-%-30.txt \
-$(working)/e-avm-variants-%-60.txt \
-$(working)/e-avm-variants-%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 30
+
+$(working)/e-avm-variants-%-60.RData \
+$(working)/e-avm-variants-%-60.txt \
+: $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 60
+
+$(working)/e-avm-variants-%-90.RData \
+$(working)/e-avm-variants-%-90.txt \
+: $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
-
-
-#$(working)/e-avm-variants-training-%.RData \
-#$(working)/e-avm-variants-training-%.txt \
-#: $(e-avm-variants-dependencies)
-#	Rscript e-avm-variants.R --training $*
-
-#$(working)/e-avm-variants-training-60.%  : $(e-avm-variants-dependencies)
-#	Rscript e-avm-variants.R --training 60
-#
-#$(working)/e-avm-variants-training-90.%  : $(e-avm-variants-dependencies)
-#	Rscript e-avm-variants.R --training 90
 
 # E-MEDIAN-PRICE
 
