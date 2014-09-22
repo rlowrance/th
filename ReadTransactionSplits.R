@@ -1,3 +1,4 @@
+source('ReadSplit.R')
 ReadTransactionSplits <- function(path.in.base, split.names, verbose = FALSE) {
     # return data.frame containing specified features for all transactions
 
