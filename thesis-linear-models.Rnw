@@ -695,6 +695,35 @@ the assessment with a noisy estimate of the market value.
 <<ActualLosAngelesData>>=
 @
 
+<<CompareEAvmVariants>>=
+print(control)
+GenError <- function(path) {
+  print(path)
+  loaded <- load(path)
+  str(loaded)
+  str(gen.error)
+  gen.error
+}
+gen.error.30 <-
+  GenError(control$path.in.e.avm.variants.training.30.RData)
+gen.error.60 <-
+  GenError(control$path.in.e.avm.variants.training.60.RData)
+gen.error.90 <-
+  GenError(control$path.in.e.avm.variants.training.90.RData)
+
+MedianError <- function(scenario, ndays) {
+  gen.error <- if (ndays == 30) gen.error.30 
+            else (if (ndays == 60) gen.error.60
+                  else gen.error.90
+                  )
+  median.error <- gen.error[[scenario]]$median.RMedianSE
+  cat('median.error', median.error, scenario, ndays, '\n')
+  median.error
+}
+MedianError('mortgage with assessment', 90)  # test
+# combine and produce a table
+# <scenario> <assessment usage> <30 day error rate> <60> <90>
+@
 
 Recall that monthly median prices were falling rapidly starting in July
 2007, with an uptick in February 2009 and a decline in March 2009.
@@ -711,8 +740,8 @@ for which the assessment might be relevant, namely transactions in the
 period November 1, 2008 through March 31, 2009. The training period is
 30, 60, or 90 days.  For the assessor and avm scenarios, the training
 period is before the date of the query transactions. For the mortgage
-scenario, the training period is before and after the date of the query
-transactions. 
+scenario, the training period is split to be half before and half after
+the date of the query transactions. 
 
 \subsubsection{Training on 30 days of data}
 
@@ -743,19 +772,27 @@ results are reported in the column ``median RMedianSE'' which stands for
 the median of the square root of the median squared errors from the
 folds. These error estimates are much lower.
 
-The next finding is that median errors are lower when the training data
-are nearer the test transactions. Ignoring the use cases with the
-assessments, we see that the median error decreases by over 20,000
-dollars between the assessor and avm scenarios.  The avm scenario, by
-selecting training data based on sales date and not recording dates as
-for the assessor scenario, has more contemporary data, leading to
-increased accuracy. Considering only the use cases with the assessment,
-we see that median error always decreases as the training data become
-more contemporary with the testing data. The lowest error is for the
-mortgage scenario, which benefits from seeing the future prices of
-transactions.
+Next we find that the assessment is not always a valuable feature. Using
+the assessment slightly improves the median errors for the assessor
+scenario and slightly degrades the median errors for the AVM scenario.
+When prices are moving rapidly, the assessment becomes out of date and
+is not of certain value.
 
-TODO: get actual median price for the test period
+The next finding is that median errors are lower when the training data
+are nearer the test transactions. Ignoring the use cases without the
+assessments, we see that the median error decreases as we use training
+data that are closer to the query date: the median error decreases from
+\Sexpr{Commas(MedianError('assessor with assessment', 30))}
+for the assessor scenario with the assessment to
+\Sexpr{Commas(MedianError('AVM with assessment', 30))}
+for the AVM scenario with the assessment. The only difference is
+that the assessor data is about two months out of date compared to the
+AVM data. We see that the median error for the mortgage scenario is
+\Sexpr{Commas(MedianError('mortgage with assessment', 30))}
+which is the lowest and uses 30 days of data that is centered on the
+date of the query transaction. When prices are moving rapidly, training
+on data near the training date is needed in order to price the features
+at market values.
 
 
 \subsubsection{Training on 60 days of data}
@@ -770,10 +807,9 @@ TODO: get actual median price for the test period
 \end{figure}
 
 Figure \ref{figure:LosAngelesData60} shows results from using a 60-day
-training period. As for the 30-day training period, the estimated
-generalization error increases when the assessment is used as a feature.
-In this use case the prices have fallen even further from the mid point
-of the training period and the assessment's value is even less.
+training period. Focusing on the medians, we see that as for the 30-day
+training period, the estimated generalization error sometimes increases
+when the assessment is used as a feature. 
 
 As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
@@ -790,46 +826,63 @@ more accurate estimates.
 \end{figure}
 
 Figure \ref{figure:LosAngelesData90} shows results from using a 90-day
-training period. Now the mid-point of the training period is even more
-distant that in the other use cases and the value of the assessment is
-negative.
+training period. The training data are more out of date compared to the
+30 and 60-day training periods. Now the assessment is always valuable.
 
 As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
 
 \subsubsection{Comparing 30, 60, and 90 training-day accuracy}
 
-<<CompareEAvmVariants>>=
-print(control)
-LoadResult <- function(path) {
-  print(path)
-  loaded <- load(path)
-  str(loaded)
-  print(all.result$experiment.name)
-  all.result
-}
-result.30 <-
-  LoadResult(control$path.in.e.avm.variants.training.30.RData)
-result.60 <-
-  LoadResult(control$path.in.e.avm.variants.training.60.RData)
-result.90 <-
-  LoadResult(control$path.in.e.avm.variants.training.90.RData)
-
-MedianError <- function(scenario, ndays) {
-  result <- if (ndays == 30) result.30 
-            else (if (ndays == 60) result.60
-                  else result.90
-                  )
-  for (rowIndex in 1:nrow(result)) {
-    if (result$experiment.name[[rowIndex]] == scenario) 
-      return (result$median.RMedianSE[[rowIndex]])
-      }
-    stop('bad scenario')
-}
-MedianError('mortgage with assessment', 60)  # test
-# combine and produce a table
-# <scenario> <assessment usage> <30 day error rate> <60> <90>
+<<ME>>=
+ME <- function(scenario, ndays)
+  as.integer(MedianError(scenario, ndays))
 @
+
+\begin{figure}[h]
+\caption{Los Angeles Data Median RMedianSE}
+\label{figure:LosAngelesDataMedian}
+\begin{tabular}{l | r | r | r |}
+\hline
+         & training & training & training \\ 
+scenario & 30 days  & 60 days  & 90 days \\ \hline
+assessor without assessment & 
+\Sexpr{ME('assessor without assessment', 30)} &
+\Sexpr{ME('assessor without assessment', 60)} &
+\Sexpr{ME('assessor without assessment', 90)} 
+\\ \hline
+assessor with assessment & 
+\Sexpr{ME('assessor with assessment', 30)} &
+\Sexpr{ME('assessor with assessment', 60)} &
+\Sexpr{ME('assessor with assessment', 90)} 
+\\ \hline
+AVM without assessment & 
+\Sexpr{ME('AVM without assessment', 30)} &
+\Sexpr{ME('AVM without assessment', 60)} &
+\Sexpr{ME('AVM without assessment', 90)} 
+\\ \hline
+AVM with assessment & 
+\Sexpr{ME('AVM with assessment', 30)} &
+\Sexpr{ME('AVM with assessment', 60)} &
+\Sexpr{ME('AVM with assessment', 90)} 
+\\ \hline
+mortgage with assessment & 
+\Sexpr{ME('mortgage with assessment', 30)} &
+\Sexpr{ME('mortgage with assessment', 60)} &
+\Sexpr{ME('mortgage with assessment', 90)} 
+\\ \hline
+\end{tabular}
+\end{figure}
+
+Figure \ref{figure:LosAngelesDataMedian} compares median errors
+across scenarios for 30, 60, and 90 days.
+
+We see that longer training periods usually result in higher errors.
+
+We see that training on more contemporary data always results in lower
+errors.
+
+\subsubsection{Some potential myths}
 
 It is a myth that the assessment always has value. We can see in these
 experiments that using the assessment as a feature degrades the accuracy
@@ -840,18 +893,6 @@ It is a myth that more training data leads to more accurate estimates.
 While it is true that having more training data available generates
 options for model design that may lead to increased accuracy, actually
 using more out-of-date data degrades estimation quality in these
-experiments.
-
-Looking across the assessor and avm use cases, both of which train on
-historic data, we see that using a longer training period always
-degrades accuracy in these experiments.
-
-Looking across the mortgage use cases, which trains on a 50-50 mix of
-historic and future data, we see that in some use cases, using a longer
-training period can improve accuracy. Accuracy decreased when the
-training period was increased from 30 to 60 days and decreased when the
-training period increased from 60 to 90 days. Accuracy for the mortgage
-model was highest when the training period was longest in these
 experiments.
 
 \subsection{Experiment: Synthetic Data}
