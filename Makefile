@@ -1,5 +1,9 @@
 # Makefile
 # debug with --debug=b  (basic debugging)
+
+# disable the built-in rules
+.SUFFIXES:
+
 data = ../../los-angeles
 
 output  = $(data)/output
@@ -45,7 +49,7 @@ targets += $(working)/e-avm-variants-training-60.RData
 targets += $(working)/e-avm-variants-training-60.txt
 targets += $(working)/e-avm-variants-training-90.RData
 targets += $(working)/e-avm-variants-training-90.txt
-$(warning e-avm-variants targets is $(targets))
+#$(warning e-avm-variants targets is $(targets))
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
@@ -90,18 +94,19 @@ targets += $(working)/transactions-subset1-test.RData
 targets += $(working)/thesis-input-processing.pdf
 targets += $(working)/thesis-linear-models.pdf
 
-$(warning targets is $(targets))
+#$(warning targets is $(targets))
 
 # default rule
 .PHONY: all
 all: $(targets)
 
 # dependencies in R source files for functions
-DirectoryLog.R    : DirectoryData.R
-DirectoryOutput.R : DirectoryData.R
-DirectoryRaw.R    : DirectoryData.R
-DirectoryWorking.R: DirectoryData.R
-ZipN.R            : EvaluateWithoutWarnings.R
+DirectoryLog.R         : DirectoryData.R
+DirectoryOutput.R      : DirectoryData.R
+DirectoryRaw.R         : DirectoryData.R
+DirectoryWorking.R     : DirectoryData.R
+ReadTransactionSplits.R: ReadSplit.R
+ZipN.R                 : EvaluateWithoutWarnings.R
 
 # dependencies in R source files for main programs
 lrwl = DirectoryLog.R DirectoryRaw.R                    DirectoryWorking.R Libraries.R
@@ -112,7 +117,7 @@ w    =                                                  DirectoryWorking.R
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
-e-avm-variants.R                    : $(lwl)  ReadTransactionsSubset1.R
+e-avm-variants.R                    : $(lwl)  ReadTransactionSplits.R
 e-median-price.R                    : $(lswl)
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -153,25 +158,26 @@ e-avm-variants-dependencies += $(splits)/recordingDate.RData
 e-avm-variants-dependencies += $(splits)/price.RData
 e-avm-variants-dependencies += $(splits)/price.log.RData
 e-avm-variants-dependencies += $(splits)/apn.RData
-$(warning e-avm-variants-dependencies is $(e-avm-variants-dependencies))
-$(warning working is $(working))
+#$(warning e-avm-variants-dependencies is $(e-avm-variants-dependencies))
+#$(warning working is $(working))
 
-#$(working)/e-avm-variants-training-30.RData : $(e-avm-variants-dependencies)
-#	Rscript e-avm-variants.R --training 30
-
-#$(working)/e-avm-variants-training-30.% \
-#$(working)/e-avm-variants-training-60.% \
-#$(working)/e-avm-variants-training-90.% \
-#: $(e-avm-variants-dependencies)
-#	Rscript e-avm-variants.R --training 30
-#	Rscript e-avm-variants.R --training 60
-#	Rscript e-avm-variants.R --training 90
-
-
-$(working)/e-avm-variants-training-%.RData \
-$(working)/e-avm-variants-training-%.txt \
+# the stem is 'training'
+$(working)/e-avm-variants-%-30.RData \
+$(working)/e-avm-variants-%-60.RData \
+$(working)/e-avm-variants-%-90.RData \
+$(working)/e-avm-variants-%-30.txt \
+$(working)/e-avm-variants-%-60.txt \
+$(working)/e-avm-variants-%-90.txt \
 : $(e-avm-variants-dependencies)
-	Rscript e-avm-variants.R --training $*
+	Rscript e-avm-variants.R --training 30
+	Rscript e-avm-variants.R --training 60
+	Rscript e-avm-variants.R --training 90
+
+
+#$(working)/e-avm-variants-training-%.RData \
+#$(working)/e-avm-variants-training-%.txt \
+#: $(e-avm-variants-dependencies)
+#	Rscript e-avm-variants.R --training $*
 
 #$(working)/e-avm-variants-training-60.%  : $(e-avm-variants-dependencies)
 #	Rscript e-avm-variants.R --training 60
@@ -241,7 +247,7 @@ $(splits)/living.area.% \
 $(splits)/median.household.income.% \
 $(splits)/parking.spaces.% \
 $(splits)/price.% \
-$(splits)/price.log% \
+$(splits)/price.log.% \
 $(splits)/recordingDate.% \
 $(splits)/saleDate.% \
 $(splits)/sale.month.% \
