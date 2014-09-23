@@ -19,7 +19,7 @@ Control <- function(parsed.command.args) {
     num.training.days <- as.integer(parsed.command.args$training)
 
     me <- 'e-avm-variants' 
-    out.base <- sprintf( '%s-training-%d'
+    out.base <- sprintf( '%s--training-%d'
                         ,me
                         ,num.training.days
                         )
@@ -493,35 +493,35 @@ Main <- function(control, transaction.data) {
 
     if (control$testing) {
         nfolds <- 2 
-        Models <- list( CvAvmWithoutAssessment
-                       ,CvMortgageWithAssessment
-                       )
-        model.names <- list( 'assessor without assessment'
-                            ,'mortgage with assessment'
-                            )
+        EvaluateModel <- list( CvAvmWithoutAssessment
+                              ,CvMortgageWithAssessment
+                              )
+        model.name <- list( 'assessor without assessment'
+                           ,'mortgage with assessment'
+                           )
     } else {
         nfolds <- control$nfolds
-        Models <- list( CvAssessorWithoutAssessment
-                       ,CvAssessorWithAssessment
-                       ,CvAvmWithoutAssessment
-                       ,CvAvmWithAssessment
-                       ,CvMortgageWithAssessment
-                       )
-        model.names <- list( 'assessor without assessment'
-                            ,'assessor with assessment'
-                            ,'AVM without assessment'
-                            ,'AVM with assessment'
-                            ,'mortgage with assessment'
-                            )
+        EvaluateModel <- list( CvAssessorWithoutAssessment
+                              ,CvAssessorWithAssessment
+                              ,CvAvmWithoutAssessment
+                              ,CvAvmWithAssessment
+                              ,CvMortgageWithAssessment
+                              )
+        model.name <- list( 'assessor without assessment'
+                           ,'assessor with assessment'
+                           ,'AVM without assessment'
+                           ,'AVM with assessment'
+                           ,'mortgage with assessment'
+                           )
     }
 
     cv.result <- CrossValidate( data = transaction.data
-                                ,nfolds = nfolds
-                                ,Models = Models
-                                ,model.names = model.names
-                                ,control = control
-                                ,verbose = TRUE
-                                )
+                               ,nfolds = nfolds
+                               ,EvaluateModel = EvaluateModel
+                               ,model.name = model.name
+                               ,control = control
+                               ,verbose = TRUE
+                               )
 
     gen.error <- EstimateGeneralizationError(cv.result)
     str(gen.error)
