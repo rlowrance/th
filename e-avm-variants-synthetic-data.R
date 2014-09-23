@@ -9,12 +9,73 @@
 # true value, as defined by the arguments market.sd.fraction and assessment.sd.fraction
 # to the function DataSynthetic.
 
-source('DataSynthetic.R')
-#source('EAvmVariantsSyntheticDataReport.R')
+source('DirectoryLog.R')
+source('DirectorySplits.R')
+source('DirectoryWorking.R')
 
-library(devtools)
-load_all('/Users/roy/Dropbox/lowranceutilitiesr')
-load_all('/Users/roy/Dropbox/lowrancerealestater')
+source('Libraries.R')
+source('ReadTransactionSplits.R')
+
+
+Control <- function() {
+    # capture values from the command line
+    me <- 'e-avm-variants-synthetic-data' 
+
+    log <- DirectoryLog()
+    splits <- DirectorySplits()
+    working <- DirectoryWorking()
+
+    testing <- FALSE
+    testing <- TRUE
+
+    # original control variables
+#    market.sd.fraction = .2
+#    control <- list( response = 'price'
+#                    ,path.out.log = paste0(path.output, me, '.log')
+#                    ,path.out.save = paste0(path.output, me, '.rsave')
+#                    ,obs.per.day = 10
+#                    ,inflation.annual.rate = .10
+#                    ,testing.period = list( first.date = as.Date('2008-01-01')
+#                                           ,last.date = as.Date('2008-01-31')
+#                                           )
+#                    ,market.bias = 1
+#                    ,market.sd.fraction = market.sd.fraction
+#                    ,assessment.bias.names = c('zero', 'lower', 'higher')
+#                    ,assessment.bias.values = list( lower = .8
+#                                                   ,zero  = 1
+#                                                   ,higher = 1.2
+#                                                   )
+#                    ,assessment.relative.sd.names = c('nearzero', 'lower', 'same', 'higher')
+#                    ,assessment.relative.sd.values = list( nearzero = .01
+#                                                          ,lower = .5 * market.sd.fraction
+#                                                          ,same = market.sd.fraction
+#                                                          ,higher = 2 * market.sd.fraction
+#                                                          )
+#                    ,num.training.days = 60
+#                    ,random.seed = 123
+#                    ,testing = FALSE
+#                    )
+    control <- list( response = 'price.log'
+                    ,path.in.splits = splits
+                    ,path.out.log = paste0(log, me, '.log')
+                    ,path.out.rdata = paste0(working, me, '.RData')
+                    ,path.out.chart1 = paste0(working, me, '.txt')
+                    ,split.names = c( 'land.square.footage'
+                                     ,'median.household.income'
+                                     ,'price'
+                                     )
+                    ,random.seed = 123
+                    ,num.samples = 10000   # sample drawn from actual variables
+                    ,fraction.testing = .2
+                    ,assessment.error.mean = 0
+                    ,assessment.error.sd = 50000
+                    ,error.price.fraction = .1
+                    ,error.assessment.fraction = .2
+                    ,testing = TRUE
+                    ,debug = FALSE
+                    )
+    control
+}
 
 
 MakeSyntheticData <- function(assessment.bias.name, assessment.relative.sd.name, control) {
@@ -190,43 +251,108 @@ Sweep <- function(f, assessment.bias.names, assessment.relative.sd.names, contro
     }
     all
 }
+Generate <- function(control, transaction.data) {
+    # return data frame with price, land, income
+    # where land and income are drawn from the actual data
+    # and price ~ land + income
 
-Main <- function() {
-    #cat('start Main'); browser()
+    str(transaction.data)
+    fitted <- lm( data = transaction.data
+                 ,formula = price ~ land.square.footage + median.household.income
+                 )
+    print(fitted)
+    str(fitted)
+    print(summary(fitted))
+    intercept <- fitted$coefficients[['(Intercept)']]
+    coef.land<- fitted$coefficients[['land.square.footage']]
+    coef.income <- fitted$coefficients[['median.household.income']]
 
-    path.output = '../data/v6/output/'
-    me <- 'e-avm-variants-synthetic-data' 
-    market.sd.fraction = .2
-    control <- list( response = 'price'
-                    ,path.out.log = paste0(path.output, me, '.log')
-                    ,path.out.save = paste0(path.output, me, '.rsave')
-                    ,obs.per.day = 10
-                    ,inflation.annual.rate = .10
-                    ,testing.period = list( first.date = as.Date('2008-01-01')
-                                           ,last.date = as.Date('2008-01-31')
-                                           )
-                    ,market.bias = 1
-                    ,market.sd.fraction = market.sd.fraction
-                    ,assessment.bias.names = c('zero', 'lower', 'higher')
-                    ,assessment.bias.values = list( lower = .8
-                                                   ,zero  = 1
-                                                   ,higher = 1.2
-                                                   )
-                    ,assessment.relative.sd.names = c('nearzero', 'lower', 'same', 'higher')
-                    ,assessment.relative.sd.values = list( nearzero = .01
-                                                          ,lower = .5 * market.sd.fraction
-                                                          ,same = market.sd.fraction
-                                                          ,higher = 2 * market.sd.fraction
-                                                          )
-                    ,num.training.days = 60
-                    ,random.seed = 123
-                    ,testing = FALSE
-                    )
+    sampled <- list()
+    num.samples <- control$num.samples
+    sampled$land <- sample( x= transaction.data$land.square.footage
+                           ,size = num.samples
+                           ,replace = TRUE
+                           )
+    sampled$income <- sample( x= transaction.data$median.household.income
+                             ,size = num.samples
+                             ,replace = TRUE
+                             )
+    Price <- function(land, income) {
+        price <- intercept + coef.land * land + coef.income * income
+        price
+    }
+    prices <- mapply(Price, sampled$land, sampled$income)
+    Printf('mean actual price %f\n', mean(transaction.data$price))
+    Printf('mean synthetic price %f\n', mean(prices))
+    assessment <- prices + rnorm( length(prices)
+                                 ,mean = control$assessment.error.mean
+                                 ,sd = control$assessment.error.sd
+                                 )
+    mean.price <- mean(prices)
+    errors.assessment <- rnorm( n = length(prices)
+                          ,mean = 0
+                          ,sd = control$error.assessment.fraction * mean.price
+                          )
+    errors.price <- rnorm( n = length(prices)
+                          ,mean = 0
+                          ,sd = control$error.price.fraction * mean.price
+                          )
 
-    #cat('in Main\n'); browser()
-    InitializeR(duplex.output.to = control$path.out.log, random.seed = control$random.seed)
+    result <- data.frame( stringAsFactor = FALSE
+                         ,price = prices + errors.price
+                         ,land = sampled$land
+                         ,income = sampled$income
+                         ,assessment = prices + errors.assessment
+                         )
+    result
+}
+
+Split <- function(df, fraction.testing) {
+    ran <- runif( n = nrow(df)
+                 ,min = 0
+                 ,max = 1
+                 )
+    is.testing <- sapply(ran, function(x) x <= fraction.testing)
+    result <- list( train = df[!is.testing, ]
+                   ,test  = df[is.testing, ]
+                   )
+    result
+}
+
+Main <- function(control, transaction.data) {
+    InitializeR( duplex.output.to = control$path.out.log
+                ,random.seed = control$random.seed
+                )
     print(control)
 
+    generated <- Generate(control, transaction.data)
+    split <- Split(generated, control$fraction.testing)
+    train <- split$train
+    test <- split$test
+
+    # train both models on training data
+    browser()
+    fitted.m1 <- lm( data = train
+                    ,formula = price ~ land + income
+                    )
+    print(summary(fitted.m1))
+
+    fitted.m2 <- lm( data = train
+                    ,formula = price ~ land + income + assessment
+                    )
+    print(summary(fitted.m2))
+    browser()
+
+    # fit model
+
+
+
+
+
+
+
+    # OLD BELOW ME
+    stop('old code')
     result.df <- Sweep( f = Experiment
                        ,assessment.bias.names = control$assessment.bias.names
                        ,assessment.relative.sd.names = control$assessment.relative.sd.names
@@ -247,8 +373,15 @@ Main <- function() {
     print(control)
 }
 
+control <- Control()
 
+# cache transaction.data
+if (!exists('transaction.data')) {
+    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
+                                              ,split.names = control$split.names
+                                              )
+}
 
-
-Main()
+debug(Main)
+Main(control, transaction.data)
 cat('done\n')
