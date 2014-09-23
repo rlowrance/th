@@ -43,12 +43,12 @@ thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
 # EXPERIMENT TARGETS
 
-targets += $(working)/e-avm-variants-training-30.RData
-targets += $(working)/e-avm-variants-training-30.txt
-targets += $(working)/e-avm-variants-training-60.RData
-targets += $(working)/e-avm-variants-training-60.txt
-targets += $(working)/e-avm-variants-training-90.RData
-targets += $(working)/e-avm-variants-training-90.txt
+targets += $(working)/e-avm-variants--training-30.RData
+targets += $(working)/e-avm-variants--training-30.txt
+targets += $(working)/e-avm-variants--training-60.RData
+targets += $(working)/e-avm-variants--training-60.txt
+targets += $(working)/e-avm-variants--training-90.RData
+targets += $(working)/e-avm-variants--training-90.txt
 #$(warning e-avm-variants targets is $(targets))
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
@@ -162,18 +162,18 @@ e-avm-variants-dependencies += $(splits)/apn.RData
 #$(warning working is $(working))
 
 # the stem is 'training'
-$(working)/e-avm-variants-%-30.RData \
-$(working)/e-avm-variants-%-30.txt \
+$(working)/e-avm-variants--%-30.RData \
+$(working)/e-avm-variants--%-30.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 30
 
-$(working)/e-avm-variants-%-60.RData \
-$(working)/e-avm-variants-%-60.txt \
+$(working)/e-avm-variants--%-60.RData \
+$(working)/e-avm-variants--%-60.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 60
 
-$(working)/e-avm-variants-%-90.RData \
-$(working)/e-avm-variants-%-90.txt \
+$(working)/e-avm-variants--%-90.RData \
+$(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
 
@@ -212,9 +212,12 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 # THESIS-LINEAR-MODELS
 
 $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
-	$(working)/e-avm-variants-training-30.txt \
-	$(working)/e-avm-variants-training-60.txt \
-	$(working)/e-avm-variants-training-90.txt \
+	$(working)/e-avm-variants--training-30.RData \
+	$(working)/e-avm-variants--training-60.RData \
+	$(working)/e-avm-variants--training-90.RData \
+	$(working)/e-avm-variants--training-30.txt \
+	$(working)/e-avm-variants--training-60.txt \
+	$(working)/e-avm-variants--training-90.txt \
 	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
 	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
