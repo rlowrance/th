@@ -842,7 +842,7 @@ ME <- function(scenario, ndays)
 \begin{figure}[h]
 \caption{Los Angeles Data Median RMedianSE}
 \label{figure:LosAngelesDataMedian}
-\begin{tabular}{l | r | r | r |}
+\begin{tabular}{| l | r | r | r |}
 \hline
          & training & training & training \\ 
 scenario & 30 days  & 60 days  & 90 days \\ \hline
@@ -895,7 +895,13 @@ options for model design that may lead to increased accuracy, actually
 using more out-of-date data degrades estimation quality in these
 experiments.
 
-\subsection{Experiment: Synthetic Data}
+\subsubsection{Implications for this work}
+
+Because the tax assessor's assessment often does not have value, we can
+examine all the transaction data we have, instead of just the data for
+which we have the assessments. Thus we can examine 25 years of data
+instead of just the data in late 2008 and early 2009.
+
 
 \section{Do log-level models outperform other model forms?}
 
