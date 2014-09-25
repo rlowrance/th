@@ -5,11 +5,11 @@
 # - use just AVM scenario
 #
 # Command line arguments
-# --which     : one of {cv, chart, both}
-#               cv means just do cross validation (write e-forms*.RData)
-#               chart means just produce chart output (write e-forms*.txt)
-# --testSample: number
-#               fraction of samples in test period to use
+# --which             : one of {cv, chart, both}
+#                       cv means just do cross validation (write e-forms*.RData)
+#                       chart means just produce chart output (write e-forms*.txt)
+# --testSampleFraction: number
+#                       fraction of samples in test period to use
 # Approach: Use k-fold cross validation to compare estimated generalization errors for
 # model variants
 
@@ -85,7 +85,7 @@ Control <- function(parsed.command.args) {
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
-                    ,test.sample.fraction = 0.001
+                    ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
                     ,predictors.level = predictors.level
                     ,predictors.log = predictors.log
                     ,response.level = 'price'
@@ -100,12 +100,11 @@ Control <- function(parsed.command.args) {
                                            ,last.date = as.Date('2009-03-31')
                                            )
                     ,num.training.days = 30
-                    ,chart1.format.header = '%27s | %24s %24s %24s'
-                    ,chart1.format.data =   '%27s | %24.0f %24.3f %24.3f'
+                    ,chart1.format.header = '%-27s | %24s %24s %24s'
+                    ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
                     ,testing = testing
                     ,debug = FALSE
                     ,which = parsed.command.args$which
-                    ,testSample = as.numeric(parsed.command.args$testSample)
                     )
     control
 }
@@ -120,7 +119,7 @@ CreateChart1Body <- function(control, summary) {
                       )
     result <- c( result
                 ,sprintf( control$chart1.format.header
-                         ,'scenario $ form'
+                         ,'scenario & form'
                          ,'RMedianSE'
                          ,'within 10%'
                          ,'coverage'
@@ -215,8 +214,8 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
     TestForNoContrasts <- function(data, feature.name) {
         # this tests works only for factors with level FALSE and TRUE
 
-        if (is.null(data[[feature.name]])) return(list(ok = TRUE))
         f <- data[[feature.name]]
+        if (is.null(f)) return(list(ok = TRUE))
         stopifnot(is.factor(f))
         my.levels <- levels(f)
         stopifnot(TRUE %in% my.levels)
@@ -401,7 +400,10 @@ FitPredictAvm <- function(response, predictors, data, is.testing, is.training, c
     queries.all <- Queries(data[is.testing, ], control)
 
     # sample the possible queries
-    use.query <- ifelse( runif(n = nrow(queries.all), min = 0, max = 1) < control$test.sample.fraction
+    r <- runif( n = nrow(queries.all)
+               ,min = 0
+               ,max = 1)
+    use.query <- ifelse( r < control$test.sample.fraction
                         ,TRUE
                         ,FALSE
                         )
@@ -549,8 +551,8 @@ Chart <- function(my.control, transaction.data) {
                               ,control$testing.period$first.date
                               ,control$testing.period$last.date
                               )
-                     ,sprintf( 'Using %f percent random sample of test transactions'
-                              ,100 * control$test.sample.fraction
+                     ,sprintf( 'Using %f fraction random sample of test transactions'
+                              ,control$test.sample.fraction
                               )
                      )
                             
@@ -593,13 +595,14 @@ Main <- function(control, transaction.data) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--which', 'cv',    '--testSample', '.001')
-#default.args <- list('--which', 'chart', '--testSample', '.001')
-#default.args <- list('--which', 'both',  '--testSample', '.001')
+#default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
+#default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
+#default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
+default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
-                                        ,keywords = c('which', 'testSample')
+                                        ,keywords = c('which', 'testSampleFraction')
                                         ,ignoreUnexpected = TRUE
                                         )
 control <- Control(parsed.command.args)
