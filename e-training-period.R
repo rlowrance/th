@@ -27,7 +27,7 @@ library(memoise)
 Control <- function(parsed.command.args) {
     # there are captured values from the command line
 
-    me <- 'e-forms' 
+    me <- 'e-training-period' 
 
     log <- DirectoryLog()
     splits <- DirectorySplits()
@@ -77,14 +77,20 @@ Control <- function(parsed.command.args) {
                     )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--which-%s--testSample-%s'
+    out.base <- sprintf('%s--which-%s--testSampleFraction-%s'
                         ,me
                         ,parsed.command.args$which
-                        ,parsed.command.args$testSample
+                        ,parsed.command.args$testSampleFraction
                         )
+    in.base <- sprintf('%s--which-%s--testSampleFraction-%s'
+                       ,me
+                       ,'cv'
+                       ,parsed.command.args$testSampleFraction
+                       )
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
+                    ,path.in.rdata = paste0(working, in.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
                     ,predictors.level = predictors.level
@@ -100,7 +106,6 @@ Control <- function(parsed.command.args) {
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
-                    ,num.training.days = 30
                     ,chart1.format.header = '%-27s | %24s %24s %24s'
                     ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
                     ,testing = testing
@@ -267,41 +272,6 @@ Queries <- function(data, control) {
     is.query <- ok.testing.first.date & ok.testing.last.date
     queries <- data[is.query, ]
 }
-FitPredictAvm <- function(response, predictors, data, is.testing, is.training, control) {
-    verbose <- TRUE
-    queries.all <- Queries(data[is.testing, ], control)
-
-    # sample the possible queries
-    r <- runif( n = nrow(queries.all)
-               ,min = 0
-               ,max = 1)
-    use.query <- ifelse( r < control$test.sample.fraction
-                        ,TRUE
-                        ,FALSE
-                        )
-    queries <- queries.all[use.query, ]
-
-    data.training <- data[is.training, ]
-    formula <- Formula( predictors = predictors
-                       ,response = response
-                       )
-    model.result <- ModelAvmLinearLocal( queries = queries
-                                        ,data.training = data.training
-                                        ,formula = formula
-                                        ,num.training.days = control$num.training.days
-                                        )
-    # model.result is a list $predictions $problems $queries
-    prediction.raw <- model.result$prediction
-    prediction <- if (response == 'price') prediction.raw else exp(prediction.raw)
-
-    # determine error rates and coverage
-    actual <- queries$price
-    result <- Evaluate( actual = actual
-                       ,prediction = prediction
-                       )
-    if (verbose) {print('FitPredictAvm'); str(result)}
-    result
-}
 Evaluate <- function(prediction, actual) {
     # return list of evaluations
 
@@ -334,61 +304,114 @@ Evaluate <- function(prediction, actual) {
                    ,median.price = median.price
                    )
 }
-FitPredictAvmLevelLevel <- function(data, is.testing, is.training, control) {
-    FitPredictAvm( response = control$response.level
-                  ,predictors = control$predictors.level
-                  ,data = data
-                  ,is.testing = is.testing
-                  ,is.training = is.training
-                  ,control = control
-                  )
+FitPredictAvmLogLevel <- function( num.training.days, data, is.testing, is.training, control) {
+    verbose <- TRUE
+    response <- control$response.log
+    predictors <- control$predictors.level
+    queries.all <- Queries(data[is.testing, ], control)
+
+    # sample the possible queries
+    r <- runif( n = nrow(queries.all)
+               ,min = 0
+               ,max = 1)
+    use.query <- ifelse( r < control$test.sample.fraction
+                        ,TRUE
+                        ,FALSE
+                        )
+    queries <- queries.all[use.query, ]
+
+    data.training <- data[is.training, ]
+    formula <- Formula( predictors = predictors
+                       ,response = response
+                       )
+    model.result <- ModelAvmLinearLocal( queries = queries
+                                        ,data.training = data.training
+                                        ,formula = formula
+                                        ,num.training.days = num.training.days
+                                        )
+    # model.result is a list $predictions $problems $queries
+    prediction.raw <- model.result$prediction
+    prediction <- if (response == 'price') prediction.raw else exp(prediction.raw)
+
+    # determine error rates and coverage
+    actual <- queries$price
+    result <- Evaluate( actual = actual
+                       ,prediction = prediction
+                       )
+    if (verbose) {print('FitPredictAvm'); str(result)}
+    result
 }
-FitPredictAvmLevelLog <- function(data, is.testing, is.training, control) {
-    FitPredictAvm( response = control$response.level
-                  ,predictors = control$predictors.log
-                  ,data = data
-                  ,is.testing = is.testing
-                  ,is.training = is.training
-                  ,control = control
-                  )
+FitPredictAvmLogLevel30 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 30
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
 }
-FitPredictAvmLogLevel <- function(data, is.testing, is.training, control) {
-    FitPredictAvm( response = control$response.log
-                  ,predictors = control$predictors.level
-                  ,data = data
-                  ,is.testing = is.testing
-                  ,is.training = is.training
-                  ,control = control
-                  )
+FitPredictAvmLogLevel60 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 60
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
 }
-FitPredictAvmLogLog <- function(data, is.testing, is.training, control) {
-    FitPredictAvm( response = control$response.log
-                  ,predictors = control$predictors.log
-                  ,data = data
-                  ,is.testing = is.testing
-                  ,is.training = is.training
-                  ,control = control
-                  )
+FitPredictAvmLogLevel90 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 90
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
+}
+FitPredictAvmLogLevel120 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 120
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
+}
+FitPredictAvmLogLevel150 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 150
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
+}
+FitPredictAvmLogLevel180 <- function(data, is.testing, is.training, control) {
+    FitPredictAvmLogLevel( num.training.days = 180
+                          ,data = data
+                          ,is.testing = is.testing
+                          ,is.training = is.training
+                          ,control = control
+                          )
 }
 Cv <- function(control, transaction.data) {
     if (control$testing) {
-        EvaluateModel <- list( FitPredictAvmLevelLevel
-                              ,FitPredictAvmLogLog
+        EvaluateModel <- list( FitPredictAvmLogLevel30
+                              ,FitPredictAvmLogLevel120
                               )
-        model.name <- list( 'AVM level level'
-                           ,'AVM log log'
+        model.name <- list( 'AVM log level 30 days'
+                           ,'AVM log level 120 days'
                            )
         nfolds <- 2
     } else {
-        EvaluateModel <- list( FitPredictAvmLevelLevel
-                              ,FitPredictAvmLevelLog
-                              ,FitPredictAvmLogLevel
-                              ,FitPredictAvmLogLog
+        EvaluateModel <- list( FitPredictAvmLogLevel30
+                              ,FitPredictAvmLogLevel60
+                              ,FitPredictAvmLogLevel90
+                              ,FitPredictAvmLogLevel120
+                              ,FitPredictAvmLogLevel150
+                              ,FitPredictAvmLogLevel180
                               )
-        model.name <- list( 'AVM level level'
-                           ,'AVM level log'
-                           ,'AVM log level'
-                           ,'AVM log log'
+        model.name <- list( 'AVM log level 30 days'
+                           ,'AVM log level 60 days'
+                           ,'AVM log level 90 days'
+                           ,'AVM log level 120 days'
+                           ,'AVM log level 150 days'
+                           ,'AVM log level 180 days'
                            )
         nfolds <- control$nfolds
     }
@@ -406,7 +429,7 @@ Cv <- function(control, transaction.data) {
 }
 Chart <- function(my.control, transaction.data) {
     cv.result <- NULL
-    loaded <- load(file = my.control$path.out.rdata)
+    loaded <- load(file = my.control$path.in.rdata)
     str(loaded)  # NOTE: control has been replaced
     stopifnot(!is.null(cv.result))
 
@@ -418,6 +441,7 @@ Chart <- function(my.control, transaction.data) {
     description <- c( 'Estimated Generalization Error'
                      ,sprintf('From %d-fold Cross Validation', control$nfolds)
                      ,'AVM scenario'
+                     ,'Log-linear form'
                      ,sprintf('Training period: %d days', control$num.training.days)
                      ,sprintf( 'Testing period: %s through %s'
                               ,control$testing.period$first.date
@@ -467,10 +491,10 @@ Main <- function(control, transaction.data) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
+default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
+#default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
