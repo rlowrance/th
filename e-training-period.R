@@ -86,15 +86,16 @@ Control <- function(parsed.command.args) {
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
-                    ,predictors.level = predictors.level
+                    #,predictors.level = predictors.level
                     ,predictors.log = predictors.log
                     ,response.level = 'price'
                     ,response.log = 'price.log'
-                    ,split.names = unique(c( predictors.level
-                                            ,predictors.log
-                                            ,other.names
-                                            )
-                    )
+                    ,split.names = unique(c(predictors.log, other.names))
+#                    ,split.names = unique(c( predictors.level
+#                                            ,predictors.log
+#                                            ,other.names
+#                                            )
+#                   )
                     ,nfolds = 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
@@ -487,7 +488,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-#default.args <- list('--which', 'chart',  '--testSampleFraction', '.01')
+default.args <- list('--which', 'chart',  '--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
