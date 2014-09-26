@@ -34,22 +34,22 @@ Control <- function(parsed.command.args) {
     working <- DirectoryWorking()
 
     # defines the splits that we use
-    predictors.level = c(# continuous size positive
-                         'land.square.footage'
-                         ,'living.area'
-                         # continuous size nonnegative
-                         ,'bedrooms'
-                         ,'bathrooms'
-                         ,'parking.spaces'
-                         # continuous non size
-                         ,'median.household.income'
-                         ,'year.built'
-                         ,'fraction.owner.occupied'
-                         ,'avg.commute.time'
-                         # discrete
-                         ,'factor.is.new.construction'
-                         ,'factor.has.pool'
-                         )
+#    predictors.level = c(# continuous size positive
+#                         'land.square.footage'
+#                         ,'living.area'
+#                         # continuous size nonnegative
+#                         ,'bedrooms'
+#                         ,'bathrooms'
+#                         ,'parking.spaces'
+#                         # continuous non size
+#                         ,'median.household.income'
+#                         ,'year.built'
+#                         ,'fraction.owner.occupied'
+#                         ,'avg.commute.time'
+#                         # discrete
+#                         ,'factor.is.new.construction'
+#                         ,'factor.has.pool'
+#                         )
     predictors.log = c(# continuous size positive
                        'land.square.footage.log'
                        ,'living.area.log'
@@ -70,7 +70,7 @@ Control <- function(parsed.command.args) {
                     'saleDate'
                     ,'recordingDate'
                     # prices
-                    ,'price'
+                    #,'price'
                     ,'price.log'
                     # apn
                     ,'apn'
