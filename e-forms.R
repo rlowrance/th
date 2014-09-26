@@ -130,7 +130,7 @@ Control <- function(command.args) {
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
-                    ,num.training.days = opt$testSampleFraction
+                    ,num.training.days = opt$trainingDays
                     ,chart1.format.header = '%-27s | %24s %24s %24s'
                     ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
                     ,testing = testing
@@ -628,10 +628,10 @@ Main <- function(control, transaction.data) {
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
-default.args <- list('--trainingDays', '90', '--testSampleFraction', '.001')
+#default.args <- list('--trainingDays', '90', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
 
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly == TRUE) else default.args
+command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 #command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
 #parsed.command.args <- ParseCommandLine( cl = command.args
 #                                        ,keywords = c('which', 'trainingDays', 'testSampleFraction')
