@@ -219,17 +219,17 @@ e-forms-dependencies += $(working)/year.built.RData
 $(working)/e-forms--%-30--testSample-0.001000.RData \
 $(working)/e-forms--%-30--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --trainingMonths 30 --testSample 0.001000
+	Rscript e-forms.R --trainingDays 30 --testSample 0.001000
 
 $(working)/e-forms--%-90--testSample-0.001000.RData \
 $(working)/e-forms--%-90--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --trainingMonths 90 --testSample 0.001000
+	Rscript e-forms.R --trainingDays 90 --testSample 0.001000
 
 $(working)/e-forms--%-120--testSample-0.001000.RData \
 $(working)/e-forms--%-120--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --trainingMonths 120 --testSample 0.001000
+	Rscript e-forms.R --trainingDays 120 --testSample 0.001000
 
 # E-MEDIAN-PRICE
 
