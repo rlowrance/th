@@ -77,20 +77,13 @@ Control <- function(parsed.command.args) {
                     )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--which-%s--testSampleFraction-%s'
+    out.base <- sprintf('%s--testSampleFraction-%s'
                         ,me
-                        ,parsed.command.args$which
                         ,parsed.command.args$testSampleFraction
                         )
-    in.base <- sprintf('%s--which-%s--testSampleFraction-%s'
-                       ,me
-                       ,'cv'
-                       ,parsed.command.args$testSampleFraction
-                       )
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
-                    ,path.in.rdata = paste0(working, in.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
                     ,predictors.level = predictors.level
@@ -125,7 +118,7 @@ CreateChart1Body <- function(control, summary) {
                       )
     result <- c( result
                 ,sprintf( control$chart1.format.header
-                         ,'scenario & form'
+                         ,'scenario-form-training days'
                          ,'RMedianSE'
                          ,'within 10%'
                          ,'coverage'
@@ -429,7 +422,7 @@ Cv <- function(control, transaction.data) {
 }
 Chart <- function(my.control, transaction.data) {
     cv.result <- NULL
-    loaded <- load(file = my.control$path.in.rdata)
+    loaded <- load(file = my.control$path.out.rdata)
     str(loaded)  # NOTE: control has been replaced
     stopifnot(!is.null(cv.result))
 
@@ -437,7 +430,7 @@ Chart <- function(my.control, transaction.data) {
     str(summary)
 
     # produce charts
-    # use the control from when they were created
+    # use the controls from when data were created
     description <- c( 'Estimated Generalization Error'
                      ,sprintf('From %d-fold Cross Validation', control$nfolds)
                      ,'AVM scenario'
@@ -457,14 +450,14 @@ Chart <- function(my.control, transaction.data) {
                            ,summary = summary
                            )
     writeLines( text = chart1
-               ,con = control$path.out.chart1
+               ,con = my.control$path.out.chart1
                )
     print(chart1)
 
     # save results
     str(description)
     str(summary)
-    save(description, control, cv.result, chart1, summary, file = control$path.out.rdata)
+    save(my.control, cv.result, description, chart1, summary, file = my.control$path.out.rdata)
 }
 Both <- function(control, transaction.data) {
     Cv(control, transaction.data)
@@ -491,10 +484,10 @@ Main <- function(control, transaction.data) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
+#default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-#default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
+default.args <- list('--which', 'chart',  '--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
