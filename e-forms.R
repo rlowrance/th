@@ -501,7 +501,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--trainingDays', '90', '--testSampleFraction', '.001')
-default.args <- list('--testSampleFraction', '.01')
+#default.args <- list('--trainingDays', '120', '--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 #command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
@@ -509,6 +509,7 @@ command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else
 #                                        ,keywords = c('which', 'trainingDays', 'testSampleFraction')
 #                                        ,ignoreUnexpected = TRUE
 #                                        )
+#debug(Control)
 control <- Control(command.args)
 
 
