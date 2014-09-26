@@ -126,6 +126,7 @@ lrwl = DirectoryLog.R DirectoryRaw.R                    DirectoryWorking.R Libra
 lwl  = DirectoryLog.R                                   DirectoryWorking.R Libraries.R
 lswl = DirectoryLog.R                DirectorySplits.R  DirectoryWorking.R Libraries.R
 w    =                                                  DirectoryWorking.R
+dl   = Directory.R                                                         Libraries.R
 
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
@@ -133,7 +134,7 @@ deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-avm-variants.R                    : $(lswl) ReadTransactionSplits.R
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(lswl)
-e-training-period.R                 : $(lwsl) ModelLinearLocal.R ReadTransactionSplits.R
+e-training-period.R                 : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
 parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
