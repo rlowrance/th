@@ -22,9 +22,40 @@ source('Libraries.R')
 source('ReadTransactionSplits.R')
 
 library(memoise)
+library(optparse)
 
-Control <- function(parsed.command.args) {
-    # there are captured values from the command line
+Control <- function(command.args) {
+
+    # parse command line arguments in command.args
+    opt.which <- make_option( opt_str = c('--which')
+                             ,action = 'store'
+                             ,type = 'character'
+                             ,default = 'both'
+                             ,help = 'which action to take'
+                             )
+    opt.trainingDays <- make_option( opt_str = c('--trainingDays')
+                                    ,action = 'store'
+                                    ,type = 'integer'
+                                    ,help = 'days in training period'
+                                    )
+    opt.testSampleFraction <- make_option( opt_str = c('--testSampleFraction')
+                                          ,action = 'store'
+                                          ,type = 'double'
+                                          ,help = 'fraction of test sample actually used'
+                                          )
+    option.list <- list( opt.which
+                        ,opt.trainingDays
+                        ,opt.testSampleFraction
+                        )
+    opt <- parse_args( object = OptionParser(option_list = option.list)
+                      ,args = command.args
+                      ,positional_arguments = FALSE
+                      )
+
+
+         
+                                        
+
 
     me <- 'e-forms' 
 
@@ -76,16 +107,16 @@ Control <- function(parsed.command.args) {
                     )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--trainingDays--testSample-%s'
+    out.base <- sprintf('%s--trainingDays-%d--testSample-%f'
                         ,me
-                        ,parsed.command.args$trainingDays
-                        ,parsed.command.args$testSample
+                        ,opt$trainingDays
+                        ,opt$testSampleFraction
                         )
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
-                    ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
+                    ,test.sample.fraction = opt$testSampleFraction
                     ,predictors.level = predictors.level
                     ,predictors.log = predictors.log
                     ,response.level = 'price'
@@ -99,12 +130,12 @@ Control <- function(parsed.command.args) {
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
-                    ,num.training.days = as.numeric(parsed.command.args$trainingDays)
+                    ,num.training.days = opt$testSampleFraction
                     ,chart1.format.header = '%-27s | %24s %24s %24s'
                     ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
                     ,testing = testing
                     ,debug = FALSE
-                    ,which = parsed.command.args$which
+                    ,which = opt$which
                     )
     control
 }
@@ -597,15 +628,16 @@ Main <- function(control, transaction.data) {
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
-default.args <- list('--which', 'both', '--trainingDays', '90', '--testSampleFraction', '.001')
+default.args <- list('--trainingDays', '90', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.01')
 
-command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
-parsed.command.args <- ParseCommandLine( cl = command.args
-                                        ,keywords = c('which', 'trainingDays', 'testSampleFraction')
-                                        ,ignoreUnexpected = TRUE
-                                        )
-control <- Control(parsed.command.args)
+command.args <- if (is.null(default.args)) commandArgs(trailingOnly == TRUE) else default.args
+#command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
+#parsed.command.args <- ParseCommandLine( cl = command.args
+#                                        ,keywords = c('which', 'trainingDays', 'testSampleFraction')
+#                                        ,ignoreUnexpected = TRUE
+#                                        )
+control <- Control(command.args)
 
 
 # cache transaction.data

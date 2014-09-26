@@ -51,12 +51,12 @@ targets += $(working)/e-avm-variants--training-90.RData
 targets += $(working)/e-avm-variants--training-90.txt
 #$(warning e-avm-variants targets is $(targets))
 
-targets += $(working)/e-forms--trainingDays-30--testSample-.001.RData
-targets += $(working)/e-forms--trainingDays-30--testSample-.001.txt
-targets += $(working)/e-forms--trainingDays-90--testSample-.001.RData
-targets += $(working)/e-forms--trainingDays-90--testSample-.001.RData
-targets += $(working)/e-forms--trainingDays-120--testSample-.001.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-.001.txt
+targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.RData
+targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.txt
+targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
+targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
+targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
@@ -69,7 +69,6 @@ targets += $(working)/e-training-period--testSampleFraction-.01.RData
 targets += $(working)/e-training-period--testSampleFraction-.01.txt
 
 # SPLITS actually used
-
 targets += $(splits)/apn.RData
 targets += $(splits)/avg.commute.time.RData
 targets += $(splits)/bathrooms.RData
@@ -130,7 +129,7 @@ census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-avm-variants.R                    : $(lswl) ReadTransactionSplits.R
-e-forms.R                           : $(lswl) RadTransactionSplits.R
+e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(lswl)
 e-training-period.R                 : $(lwsl) ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
@@ -192,7 +191,7 @@ $(working)/e-avm-variants--%-90.txt \
 	Rscript e-avm-variants.R --training 90
 
 # E-FORMS
-# the stem is trainingMonths
+# the stem is trainingDays
 e-forms-dependencies += e-forms.R
 e-forms-dependencies += $(working)/apn.RData
 e-forms-dependencies += $(working)/avg.commute.time.RData
@@ -215,21 +214,22 @@ e-forms-dependencies += $(working)/price.log.RData
 e-forms-dependencies += $(working)/recordingDate.RData
 e-forms-dependencies += $(working)/saleDate.RData
 e-forms-dependencies += $(working)/year.built.RData
+#$(warning e-forms-dependencies is $(e-forms-dependencies))
 
-$(working)/e-forms--%-30--testSample-.001.RData \
-$(working)/e-forms--%-30--testSample-.001.txt \
+$(working)/e-forms--%-30--testSample-0.001000.RData \
+$(working)/e-forms--%-30--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --which both --trainingMonths 30 --testSample .001
+	Rscript e-forms.R --trainingMonths 30 --testSample 0.001000
 
-$(working)/e-forms--%-90--testSample-.001.RData \
-$(working)/e-forms--%-90--testSample-.001.txt \
+$(working)/e-forms--%-90--testSample-0.001000.RData \
+$(working)/e-forms--%-90--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --which both --trainingMonths 90 --testSample .001
+	Rscript e-forms.R --trainingMonths 90 --testSample 0.001000
 
-$(working)/e-forms--%-120--testSample-.001.RData \
-$(working)/e-forms--%-120--testSample-.001.txt \
+$(working)/e-forms--%-120--testSample-0.001000.RData \
+$(working)/e-forms--%-120--testSample-0.001000.txt \
 : $(e-forms-depndencies)
-	Rscript e-forms.R --which both --trainingMonths 120 --testSample .001
+	Rscript e-forms.R --trainingMonths 120 --testSample 0.001000
 
 # E-MEDIAN-PRICE
 
@@ -267,16 +267,18 @@ e-training-period-dependencies += $(working)/price.log.RData
 e-training-period-dependencies += $(working)/recordingDate.RData
 e-training-period-dependencies += $(working)/saleDate.RData
 e-training-period-dependencies += $(working)/year.built.RData
+$(warning e-training-period-dependencies is $(e-training-period-dependencies))
+
 
 $(working)/e-training-period--%-.001.RData \
 $(working)/e-training-period--%-.001.txt \
 : $(e-training-period-dependencies)
-	Rscript --testSampleFraction .001
+	Rscript -which both --testSampleFraction .001
 
 $(working)/e-training-period--%-.01.RData \
 $(working)/e-training-period--%-.01.txt \
 : $(e-training-period-dependencies)
-	Rscript --testSampleFraction .01
+	Rscript -which both --testSampleFraction .01
 
 
 
