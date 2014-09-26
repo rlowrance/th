@@ -57,16 +57,18 @@ targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
 targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
 targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
 targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-0.01000.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-0.01000.txt
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 
-targets += $(working)/e-training-period--testSampleFraction-.001.RData
-targets += $(working)/e-training-period--testSampleFraction-.001.txt
-targets += $(working)/e-training-period--testSampleFraction-.01.RData
-targets += $(working)/e-training-period--testSampleFraction-.01.txt
+targets += $(working)/e-training-period--testSampleFraction-0.001000.RData
+targets += $(working)/e-training-period--testSampleFraction-0.001000.txt
+targets += $(working)/e-training-period--testSampleFraction-0.010000.RData
+targets += $(working)/e-training-period--testSampleFraction-0.010000.txt
 
 # SPLITS actually used
 targets += $(splits)/apn.RData
@@ -231,6 +233,11 @@ $(working)/e-forms--%-120--testSample-0.001000.txt \
 : $(e-forms-depndencies)
 	Rscript e-forms.R --trainingDays 120 --testSample 0.001000
 
+$(working)/e-forms--%-120--testSample-0.01000.RData \
+$(working)/e-forms--%-120--testSample-0.01000.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --trainingDays 120 --testSample 0.01000
+
 # E-MEDIAN-PRICE
 
 e-median-price-dependencies += e-median-price.R
@@ -252,33 +259,32 @@ $(working)/e-median-price-by-month-from-2006-to-%.Rdata \
 # E-TRAINING-PERIOD; stem is testSampleFraction
 
 e-training-period-dependencies += e-training-period.R
-e-training-period-dependencies += $(working)/apn.RData
-e-training-period-dependencies += $(working)/avg.commute.time.RData
-e-training-period-dependencies += $(working)/bathrooms.log1p.RData
-e-training-period-dependencies += $(working)/bedrooms.log1p.RData
-e-training-period-dependencies += $(working)/factor.has.pool.RData
-e-training-period-dependencies += $(working)/factor.is.new.construction.RData
-e-training-period-dependencies += $(working)/fraction.owner.occupied.RData
-e-training-period-dependencies += $(working)/land.square.footage.log.RData
-e-training-period-dependencies += $(working)/living.area.log.RData
-e-training-period-dependencies += $(working)/median.household.income.RData
-e-training-period-dependencies += $(working)/parking.spaces.log1p.RData
-e-training-period-dependencies += $(working)/price.log.RData
-e-training-period-dependencies += $(working)/recordingDate.RData
-e-training-period-dependencies += $(working)/saleDate.RData
-e-training-period-dependencies += $(working)/year.built.RData
-$(warning e-training-period-dependencies is $(e-training-period-dependencies))
+e-training-period-dependencies += $(splits)/apn.RData
+e-training-period-dependencies += $(splits)/avg.commute.time.RData
+e-training-period-dependencies += $(splits)/bathrooms.log1p.RData
+e-training-period-dependencies += $(splits)/bedrooms.log1p.RData
+e-training-period-dependencies += $(splits)/factor.has.pool.RData
+e-training-period-dependencies += $(splits)/factor.is.new.construction.RData
+e-training-period-dependencies += $(splits)/fraction.owner.occupied.RData
+e-training-period-dependencies += $(splits)/land.square.footage.log.RData
+e-training-period-dependencies += $(splits)/living.area.log.RData
+e-training-period-dependencies += $(splits)/median.household.income.RData
+e-training-period-dependencies += $(splits)/parking.spaces.log1p.RData
+e-training-period-dependencies += $(splits)/price.log.RData
+e-training-period-dependencies += $(splits)/recordingDate.RData
+e-training-period-dependencies += $(splits)/saleDate.RData
+e-training-period-dependencies += $(splits)/year.built.RData
+#$(warning e-training-period-dependencies is $(e-training-period-dependencies))
 
-
-$(working)/e-training-period--%-.001.RData \
-$(working)/e-training-period--%-.001.txt \
+$(working)/e-training-period--%-0.001000.RData \
+$(working)/e-training-period--%-0.001000.txt \
 : $(e-training-period-dependencies)
-	Rscript -which both --testSampleFraction .001
+	Rscript e-training-period.R --testSampleFraction 0.001000
 
-$(working)/e-training-period--%-.01.RData \
-$(working)/e-training-period--%-.01.txt \
+$(working)/e-training-period--%-0.010000.RData \
+$(working)/e-training-period--%-0.010000.txt \
 : $(e-training-period-dependencies)
-	Rscript -which both --testSampleFraction .01
+	Rscript e-training-period.R --testSampleFraction 0.010000
 
 
 
@@ -311,8 +317,6 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	pdflatex thesis-linear-models.tex
 	mv thesis-linear-models.pdf $(working)/
 	mv thesis-linear-models.tex $(tex)/
-
-# the apn.RData target represents all the files in the splits directory
 
 # make all the splits that we use simultaeously
 # requires a pattern rule
