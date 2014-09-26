@@ -51,6 +51,13 @@ targets += $(working)/e-avm-variants--training-90.RData
 targets += $(working)/e-avm-variants--training-90.txt
 #$(warning e-avm-variants targets is $(targets))
 
+targets += $(working)/e-forms--trainingDays-30--testSample-.001.RData
+targets += $(working)/e-forms--trainingDays-30--testSample-.001.txt
+targets += $(working)/e-forms--trainingDays-90--testSample-.001.RData
+targets += $(working)/e-forms--trainingDays-90--testSample-.001.RData
+targets += $(working)/e-forms--trainingDays-120--testSample-.001.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-.001.txt
+
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
@@ -117,7 +124,8 @@ w    =                                                  DirectoryWorking.R
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
-e-avm-variants.R                    : $(lwl)  ReadTransactionSplits.R
+e-avm-variants.R                    : $(lswl) ReadTransactionSplits.R
+e-forms.R                           : $(lswl) RadTransactionSplits.R
 e-median-price.R                    : $(lswl)
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -176,6 +184,46 @@ $(working)/e-avm-variants--%-90.RData \
 $(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
+
+# E-FORMS
+# the stem is trainingMonths
+e-forms-dependencies += e-forms.R
+e-forms-dependencies += $(working)/apn.RData
+e-forms-dependencies += $(working)/avg.commute.time.RData
+e-forms-dependencies += $(working)/bathrooms.RData
+e-forms-dependencies += $(working)/bathrooms.log1p.RData
+e-forms-dependencies += $(working)/bedrooms.RData
+e-forms-dependencies += $(working)/bedrooms.log1p.RData
+e-forms-dependencies += $(working)/factor.has.pool.RData
+e-forms-dependencies += $(working)/factor.is.new.construction.RData
+e-forms-dependencies += $(working)/fraction.owner.occupied.RData
+e-forms-dependencies += $(working)/land.square.footage.RData
+e-forms-dependencies += $(working)/land.square.footage.log.RData
+e-forms-dependencies += $(working)/living.area.RData
+e-forms-dependencies += $(working)/living.area.log.RData
+e-forms-dependencies += $(working)/median.household.income.RData
+e-forms-dependencies += $(working)/parking.spaces.RData
+e-forms-dependencies += $(working)/parking.spaces.log1p.RData
+e-forms-dependencies += $(working)/price.RData
+e-forms-dependencies += $(working)/price.log.RData
+e-forms-dependencies += $(working)/recordingDate.RData
+e-forms-dependencies += $(working)/saleDate.RData
+e-forms-dependencies += $(working)/year.built.RData
+
+$(working)/e-forms--%-30--testSample-.001.RData \
+$(working)/e-forms--%-30--testSample-.001.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --which both --trainingMonths 30 --testSample .001
+
+$(working)/e-forms--%-90--testSample-.001.RData \
+$(working)/e-forms--%-90--testSample-.001.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --which both --trainingMonths 90 --testSample .001
+
+$(working)/e-forms--%-120--testSample-.001.RData \
+$(working)/e-forms--%-120--testSample-.001.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --which both --trainingMonths 120 --testSample .001
 
 # E-MEDIAN-PRICE
 
