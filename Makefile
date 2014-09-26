@@ -63,6 +63,11 @@ targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 
+targets += $(working)/e-training-period--testSampleFraction-.001.RData
+targets += $(working)/e-training-period--testSampleFraction-.001.txt
+targets += $(working)/e-training-period--testSampleFraction-.01.RData
+targets += $(working)/e-training-period--testSampleFraction-.01.txt
+
 # SPLITS actually used
 
 targets += $(splits)/apn.RData
@@ -127,6 +132,7 @@ deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-avm-variants.R                    : $(lswl) ReadTransactionSplits.R
 e-forms.R                           : $(lswl) RadTransactionSplits.R
 e-median-price.R                    : $(lswl)
+e-training-period.R                 : $(lwsl) ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
 parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
@@ -242,6 +248,37 @@ $(working)/e-median-price-by-month-from-2006-to-%.pdf \
 $(working)/e-median-price-by-month-from-2006-to-%.Rdata \
 : $(e-median-price-dependencies)
 	RScript e-median-price.R --by month --from 2006 --to 2009
+
+# E-TRAINING-PERIOD; stem is testSampleFraction
+
+e-training-period-dependencies += e-training-period.R
+e-training-period-dependencies += $(working)/apn.RData
+e-training-period-dependencies += $(working)/avg.commute.time.RData
+e-training-period-dependencies += $(working)/bathrooms.log1p.RData
+e-training-period-dependencies += $(working)/bedrooms.log1p.RData
+e-training-period-dependencies += $(working)/factor.has.pool.RData
+e-training-period-dependencies += $(working)/factor.is.new.construction.RData
+e-training-period-dependencies += $(working)/fraction.owner.occupied.RData
+e-training-period-dependencies += $(working)/land.square.footage.log.RData
+e-training-period-dependencies += $(working)/living.area.log.RData
+e-training-period-dependencies += $(working)/median.household.income.RData
+e-training-period-dependencies += $(working)/parking.spaces.log1p.RData
+e-training-period-dependencies += $(working)/price.log.RData
+e-training-period-dependencies += $(working)/recordingDate.RData
+e-training-period-dependencies += $(working)/saleDate.RData
+e-training-period-dependencies += $(working)/year.built.RData
+
+$(working)/e-training-period--%-.001.RData \
+$(working)/e-training-period--%-.001.txt \
+: $(e-training-period-dependencies)
+	Rscript --testSampleFraction .001
+
+$(working)/e-training-period--%-.01.RData \
+$(working)/e-training-period--%-.01.txt \
+: $(e-training-period-dependencies)
+	Rscript --testSampleFraction .01
+
+
 
 # PDF files (and accompanying tex files)
 
