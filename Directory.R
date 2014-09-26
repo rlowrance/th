@@ -7,7 +7,7 @@ Directory <- function(name) {
                    ,log = paste0(data, 'log/')
                    ,output = paste0(data, 'output/')
                    ,raw = paste0(data, 'raw/')
-                   ,source = '../../thesis/src/'
+                   ,source = '.'
                    ,splits = paste0(data, 'working/transactions-subset1-train-splits/')
                    ,utilities = '../../lowranceutilitiesr'
                    ,working = paste0(data, 'working/')
