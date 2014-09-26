@@ -23,9 +23,28 @@ source('ModelLinearLocal.R')
 source('ReadTransactionSplits.R')
 
 library(memoise)
+library(optparse)
 
-Control <- function(parsed.command.args) {
-    # there are captured values from the command line
+Control <- function(command.args) {
+    # parse command line arguments in command.args
+    opt.which <- make_option( opt_str = c('--which')
+                             ,action = 'store'
+                             ,type = 'character'
+                             ,default = 'both'
+                             ,help = 'which action to take'
+                             )
+    opt.testSampleFraction <- make_option( opt_str = c('--testSampleFraction')
+                                          ,action = 'store'
+                                          ,type = 'double'
+                                          ,help = 'fraction of test sample actually used'
+                                          )
+    option.list <- list( opt.which
+                        ,opt.testSampleFraction
+                        )
+    opt <- parse_args( object = OptionParser(option_list = option.list)
+                      ,args = command.args
+                      ,positional_arguments = FALSE
+                      )
 
     me <- 'e-training-period' 
 
@@ -34,38 +53,38 @@ Control <- function(parsed.command.args) {
     working <- DirectoryWorking()
 
     # defines the splits that we use
-#    predictors.level = c(# continuous size positive
-#                         'land.square.footage'
-#                         ,'living.area'
-#                         # continuous size nonnegative
-#                         ,'bedrooms'
-#                         ,'bathrooms'
-#                         ,'parking.spaces'
-#                         # continuous non size
-#                         ,'median.household.income'
-#                         ,'year.built'
-#                         ,'fraction.owner.occupied'
-#                         ,'avg.commute.time'
-#                         # discrete
-#                         ,'factor.is.new.construction'
-#                         ,'factor.has.pool'
-#                         )
-    predictors.log = c(# continuous size positive
-                       'land.square.footage.log'
-                       ,'living.area.log'
-                       # continuous size nonnegative
-                       ,'bedrooms.log1p'
-                       ,'bathrooms.log1p'
-                       ,'parking.spaces.log1p'
-                       # continuous non size
-                       ,'median.household.income'
-                       ,'year.built'
-                       ,'fraction.owner.occupied'
-                       ,'avg.commute.time'
-                       # discrete
-                       ,'factor.is.new.construction'
-                       ,'factor.has.pool'
-                       )
+     predictors.level = c( # continuous size positive
+                          'land.square.footage'
+                          ,'living.area'
+                           # continuous size nonnegative
+                          ,'bedrooms'
+                          ,'bathrooms'
+                          ,'parking.spaces'
+                           # continuous non size
+                          ,'median.household.income'
+                          ,'year.built'
+                          ,'fraction.owner.occupied'
+                          ,'avg.commute.time'
+                           # discrete
+                          ,'factor.is.new.construction'
+                          ,'factor.has.pool'
+                          )
+#    predictors.log = c(# continuous size positive
+#                       'land.square.footage.log'
+#                       ,'living.area.log'
+#                       # continuous size nonnegative
+#                       ,'bedrooms.log1p'
+#                       ,'bathrooms.log1p'
+#                       ,'parking.spaces.log1p'
+#                       # continuous non size
+#                       ,'median.household.income'
+#                       ,'year.built'
+#                       ,'fraction.owner.occupied'
+#                       ,'avg.commute.time'
+#                       # discrete
+#                       ,'factor.is.new.construction'
+#                       ,'factor.has.pool'
+#                       )
     other.names = c(# dates
                     'saleDate'
                     ,'recordingDate'
@@ -77,20 +96,20 @@ Control <- function(parsed.command.args) {
                     )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--testSampleFraction-%s'
+    out.base <- sprintf('%s--testSampleFraction-%f'
                         ,me
-                        ,parsed.command.args$testSampleFraction
+                        ,opt$testSampleFraction
                         )
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
-                    ,test.sample.fraction = as.numeric(parsed.command.args$testSampleFraction)
-                    #,predictors.level = predictors.level
-                    ,predictors.log = predictors.log
-                    ,response.level = 'price'
+                    ,test.sample.fraction = opt$testSampleFraction
+                    ,predictors.level = predictors.level
+                    #,predictors.log = predictors.log
+                    #,response.level = 'price'
                     ,response.log = 'price.log'
-                    ,split.names = unique(c(predictors.log, other.names))
+                    ,split.names = unique(c(predictors.level, other.names))
 #                    ,split.names = unique(c( predictors.level
 #                                            ,predictors.log
 #                                            ,other.names
@@ -488,14 +507,10 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-default.args <- list('--which', 'chart',  '--testSampleFraction', '.01')
+default.args <- list('--testSampleFraction', '.01')
 
-command.args <- if (is.null(default.args)) CommandArgs(defaultArgs = default.args) else default.args
-parsed.command.args <- ParseCommandLine( cl = command.args
-                                        ,keywords = c('which', 'testSampleFraction')
-                                        ,ignoreUnexpected = TRUE
-                                        )
-control <- Control(parsed.command.args)
+command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
+control <- Control(command.args)
 
 
 # cache transaction.data
