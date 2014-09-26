@@ -5,7 +5,7 @@
 # - use just AVM scenario and log-level model
 #
 # Command line arguments
-# --which             : one of {cv, chart, both}
+# --which             : one of {cv, chart, both}; default both
 #                       cv means just do cross validation (write e-forms*.RData)
 #                       chart means just produce chart output (write e-forms*.txt)
 # --testSampleFraction: number
@@ -27,24 +27,7 @@ library(optparse)
 
 Control <- function(command.args) {
     # parse command line arguments in command.args
-    opt.which <- make_option( opt_str = c('--which')
-                             ,action = 'store'
-                             ,type = 'character'
-                             ,default = 'both'
-                             ,help = 'which action to take'
-                             )
-    opt.testSampleFraction <- make_option( opt_str = c('--testSampleFraction')
-                                          ,action = 'store'
-                                          ,type = 'double'
-                                          ,help = 'fraction of test sample actually used'
-                                          )
-    option.list <- list( opt.which
-                        ,opt.testSampleFraction
-                        )
-    opt <- parse_args( object = OptionParser(option_list = option.list)
-                      ,args = command.args
-                      ,positional_arguments = FALSE
-                      )
+    opt <- ParseCommandArgs(command.args)
 
     me <- 'e-training-period' 
 
@@ -127,7 +110,27 @@ Control <- function(command.args) {
                     )
     control
 }
-
+ParseCommandArgs <- function(command.args) {
+    # return name list of values from the command args
+    opt.which <- make_option( opt_str = c('--which')
+                             ,action = 'store'
+                             ,type = 'character'
+                             ,default = 'both'
+                             ,help = 'which action to take'
+                             )
+    opt.testSampleFraction <- make_option( opt_str = c('--testSampleFraction')
+                                          ,action = 'store'
+                                          ,type = 'double'
+                                          ,help = 'fraction of test sample actually used'
+                                          )
+    option.list <- list( opt.which
+                        ,opt.testSampleFraction
+                        )
+    opt <- parse_args( object = OptionParser(option_list = option.list)
+                      ,args = command.args
+                      ,positional_arguments = FALSE
+                      )
+}
 CreateChart1Body <- function(control, summary) {
     # return a vector lines, the body of chart 1
     result <- sprintf( control$chart1.format.header
