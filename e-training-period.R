@@ -13,9 +13,7 @@
 # Approach: Use k-fold cross validation to compare estimated generalization errors for
 # model variants
 
-source('DirectoryLog.R')
-source('DirectorySplits.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 
 source('Libraries.R')
 
@@ -31,9 +29,9 @@ Control <- function(command.args) {
 
     me <- 'e-training-period' 
 
-    log <- DirectoryLog()
-    splits <- DirectorySplits()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    splits <- Directory('splits')
+    working <- Directory('working')
 
     # defines the splits that we use
      predictors.level = c( # continuous size positive
@@ -106,7 +104,7 @@ Control <- function(command.args) {
                     ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
                     ,testing = testing
                     ,debug = FALSE
-                    ,which = parsed.command.args$which
+                    ,which = opt$which
                     )
     control
 }
@@ -510,7 +508,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-default.args <- list('--testSampleFraction', '.01')
+#default.args <- list('--testSampleFraction', '.01')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
