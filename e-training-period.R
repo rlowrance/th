@@ -70,7 +70,7 @@ Control <- function(command.args) {
                     'saleDate'
                     ,'recordingDate'
                     # prices
-                    #,'price'
+                    ,'price'   # NOTE: MUST HAVE THE PRICE
                     ,'price.log'
                     # apn
                     ,'apn'
@@ -288,6 +288,7 @@ Queries <- function(data, control) {
 }
 Evaluate <- function(prediction, actual) {
     # return list of evaluations
+    #cat('start Evaluate\n'); browser()
 
     # most evaluations compare only where predictions are available
     is.prediction <- !is.na(prediction)
@@ -317,8 +318,10 @@ Evaluate <- function(prediction, actual) {
                    ,mean.price = mean.price
                    ,median.price = median.price
                    )
+    result
 }
 FitPredictAvmLogLevel <- function( num.training.days, data, is.testing, is.training, control) {
+    #cat('start FitPredictAvmLogLevel\n'); browser()
     verbose <- TRUE
     response <- control$response.log
     predictors <- control$predictors.level
@@ -406,10 +409,8 @@ FitPredictAvmLogLevel180 <- function(data, is.testing, is.training, control) {
 Cv <- function(control, transaction.data) {
     if (control$testing) {
         EvaluateModel <- list( FitPredictAvmLogLevel30
-                              ,FitPredictAvmLogLevel120
                               )
         model.name <- list( 'AVM log level 30 days'
-                           ,'AVM log level 120 days'
                            )
         nfolds <- 2
     } else {
@@ -442,6 +443,7 @@ Cv <- function(control, transaction.data) {
     str(cv.result)
 }
 Chart <- function(my.control, transaction.data) {
+    #cat('starting Chart\n'); browser()
     cv.result <- NULL
     loaded <- load(file = my.control$path.out.rdata)
     str(loaded)  # NOTE: control has been replaced
@@ -500,6 +502,8 @@ Main <- function(control, transaction.data) {
            ,clock$Wallclock()
            )
     str(control)
+    if (control$testing)
+        cat('TESTING: DISCARD RESULTS\n')
     
 }
 
@@ -508,7 +512,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-#default.args <- list('--testSampleFraction', '.01')
+#default.args <- list('--testSampleFraction', '.001')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
