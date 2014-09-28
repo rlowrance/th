@@ -53,12 +53,16 @@ targets += $(working)/e-avm-variants--training-90.txt
 
 targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.RData
 targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.txt
+targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.RData
+targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.txt
 targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
 targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
+targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
+targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
 targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
 targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-0.01000.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-0.01000.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
+targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
 
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
 targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
@@ -224,10 +228,20 @@ $(working)/e-forms--%-30--testSample-0.001000.txt \
 : $(e-forms-depndencies)
 	Rscript e-forms.R --trainingDays 30 --testSample 0.001000
 
+$(working)/e-forms--%-30--testSample-0.010000.RData \
+$(working)/e-forms--%-30--testSample-0.010000.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --trainingDays 30 --testSample 0.010000
+
 $(working)/e-forms--%-90--testSample-0.001000.RData \
 $(working)/e-forms--%-90--testSample-0.001000.txt \
 : $(e-forms-depndencies)
 	Rscript e-forms.R --trainingDays 90 --testSample 0.001000
+
+$(working)/e-forms--%-90--testSample-0.010000.RData \
+$(working)/e-forms--%-90--testSample-0.010000.txt \
+: $(e-forms-depndencies)
+	Rscript e-forms.R --trainingDays 90 --testSample 0.010000
 
 $(working)/e-forms--%-120--testSample-0.001000.RData \
 $(working)/e-forms--%-120--testSample-0.001000.txt \
