@@ -682,15 +682,7 @@ for the market value only if the house sold during that time period.
 Hence that the assessment is of value as a feature in predictive models
 is not certain.
 
-We ran two experiments to attempt to understand the value of the
-assessment as a feature. In the first, we use the actual data from Los
-Angeles. The key feature of the first experiment is that the assessment
-is not an estimate of the market value.  In the second, we generate
-synthetic data that is drawn from the Los Angeles data set but replaces
-the assessment with a noisy estimate of the market value. 
 
-
-\subsection{Experiment: Actual Los Angeles Data}
 
 <<ActualLosAngelesData>>=
 @
@@ -743,7 +735,7 @@ period is before the date of the query transactions. For the mortgage
 scenario, the training period is split to be half before and half after
 the date of the query transactions. 
 
-\subsubsection{Training on 30 days of data}
+\subsection{Training on 30 days of data}
 
 <<TraingingOn30Days>>=
 @
@@ -799,7 +791,7 @@ on data near the training date is needed in order to price the features
 at market values.
 
 
-\subsubsection{Training on 60 days of data}
+\subsection{Training on 60 days of data}
 
 <<TrainingOn60Days>>=
 @
@@ -821,7 +813,7 @@ when the assessment is used as a feature.
 As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
 
-\subsubsection{Training on 90 days of data}
+\subsection{Training on 90 days of data}
 
 <<TrainingOn90Days>>=
 @
@@ -842,7 +834,7 @@ training period. The training data are more out of date compared to the
 As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
 
-\subsubsection{Comparing 30, 60, and 90 training-day accuracy}
+\subsection{Comparing 30, 60, and 90 training-day accuracy}
 
 <<Comparing306090>>=
 @
@@ -895,7 +887,7 @@ We see that longer training periods usually result in higher errors.
 We see that training on more contemporary data always results in lower
 errors.
 
-\subsubsection{Some potential myths}
+\subsection{Some potential myths}
 
 It is a myth that the assessment always has value. We can see in these
 experiments that using the assessment as a feature degrades the accuracy
@@ -908,7 +900,7 @@ options for model design that may lead to increased accuracy, actually
 using more out-of-date data degrades estimation quality in these
 experiments.
 
-\subsubsection{Implications for this work}
+\subsection{Implications for this work}
 
 Because the tax assessor's assessment often does not have value, we can
 examine all the transaction data we have, instead of just the data for
@@ -936,7 +928,7 @@ forms are:
 where $i$ indexes a feature, $si$ indexes size features such as the lot
 size, interior space in the house, number of bedrooms, number of
 bathrooms, and $oi$ indices non-size (other) features such as whether the
-house has a simming pool.
+house has a swimming pool.
 
 The training periods considered are 30 days before the query date (the
 date of the test transaction), 90 days before the query date, and 120
@@ -1022,7 +1014,7 @@ Figure \ref{figure:Form90001} shows that the log-level model outperforms
 the log-log model as measured by the median RMedianSE metric and that
 log-log outperforms log-linear as measured by the mean fraction within
 10 percent. These conclusions are for a 0.1 percent random sample of the
-test data in the cross validaition process.
+test data in the cross validation process.
 
 \begin{figure}[h]
 \caption{Model Form Comparison 90 Days 1 Percent Sample}
@@ -1053,7 +1045,7 @@ Figure \ref{figure:Form120001} shows that the log-level model outperforms
 the log-log model as measured by the median RMedianSE metric and that
 log-log outperforms log-linear as measured by the mean fraction within
 10 percent. These conclusions are for a 0.1 percent random sample of the
-test data in the cross validaition process.
+test data in the cross validation process.
 
 \begin{figure}[h]
 \caption{Model Form Comparison 120 Days 1 Percent Sample}
@@ -1078,7 +1070,7 @@ $log(price)$ in any of the experiments.
 A clear choice between choosing between a log-level and log-log model is
 not seen in these experiments: sometimes one is slightly better,
 sometimes the other. Which is better may depend on the metric choses to
-guage the best model: median RMedianSE or mean fraction within 10
+gauge the best model: median RMedianSE or mean fraction within 10
 percent.
 
 \section{Which training period is best?}
@@ -1111,26 +1103,48 @@ generalization error found through 10-fold cross validation for time
 periods ranging from 30 to 180 days for a log-linear model. The best
 performance as measured by the median RMedianSE is for 90 days. The best
 performance as measured by mean fraction within 10 percent is for 30
-days. This experiment used a 0.1 percent random sample of the test data
-in each cross validation fold.
+days. Coverage is 100 percent except for the 30 day period. This
+experiment used a 0.1 percent random sample of the test data in each
+cross validation fold.
 
-BLAH FOR 1 PERCENT SAMPLE.
+\begin{figure}[h]
+\caption{Model Training Period Comparison 1 Percent Sample}
+\label{figure:TrainingPeriod01}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.training.period.testSampleFraction.01}}
+\end{figure}
+
+Figure \ref{figure:TrainingPeriod01} repeats the analysis but uses a 1
+percent sample of the data in the test folds. As before, the best
+performance as measured by the median RMedianSE is for 90 days and the
+best performance as measured by the mean fraction within 10 percent is
+for 30 days. For the mean fraction within 10 percent, the differences
+between the 30 and 90 day performance is very small, however. Coverage
+is again 100 percent except for the 30 day period.
+
+One might choose a 90 day training period for the 25 year period,
+perhaps giving up a bit of accuracy for increased coverage.
 
 \subsection{Ideas for Tuning the Training Period}
 
-Future work could explore two alternatives to fixing the training
-period. One alternative is to include dummy variables for the time
-period. The dummy captures average price levels during the time period.
-To forecast, one needs to forecast the value of the dummy variable
-forward one day. A simple linear estimate may be sufficient.
+Future work could explore two alternatives to fixing the training period
+once across the 25 years of data, as was examined in these experiments.
+One alternative is to include dummy variables for the time period. The
+dummy captures average price levels during the time period.  To
+forecast, one needs to forecast the value of the dummy variable forward
+one day. A simple linear estimate for the time-period dummy may be
+sufficient.
 
 Another alternative is to adapt the training period to the volatility in
 the market: when prices are more volatile, train on short periods, when
 prices are more stable, train on longer periods. This idea could be
 implemented by using cross-validation to select the best training period
-just before running the model for a given query date. This would be the
-use case in a common scenario in which a model was extended to price
-transactions that occured in the next day.
+just before running the model for a given query date. One business
+setting in which this approach would apply is the very common one of
+predicting prices for all properties one day into the future.
+
 
 \end{document}
  
