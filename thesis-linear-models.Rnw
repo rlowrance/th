@@ -105,6 +105,60 @@ Control <- function() {
       b <- AppendMedianPricePath(by, from, to, 'RData', a)
       b
     }
+    AppendEformsPaths <- function(lst) {
+      a <- Append( 'path.in.e.forms.trainingDays.30.sample.001'
+                  ,paste0(working,
+                          'e-forms--trainingDays-30--testSample-0.001000.txt'
+                          )
+                  ,lst
+                  )
+      b <- Append( 'path.in.e.forms.trainingDays.30.sample.01'
+                  ,paste0(working,
+                          'e-forms--trainingDays-30--testSample-0.010000.txt'
+                          )
+                  ,a
+                  )
+      c <- Append( 'path.in.e.forms.trainingDays.90.sample.001'
+                  ,paste0(working,
+                          'e-forms--trainingDays-90--testSample-0.001000.txt'
+                          )
+                  ,b
+                  )
+      d <- Append( 'path.in.e.forms.trainingDays.90.sample.01'
+                  ,paste0(working,
+                          'e-forms--trainingDays-90--testSample-0.010000.txt'
+                          )
+                  ,c
+                  )
+      e <- Append( 'path.in.e.forms.trainingDays.120.sample.001'
+                  ,paste0(working,
+                          'e-forms--trainingDays-120--testSample-0.001000.txt'
+                          )
+                  ,d
+                  )
+      f <- Append( 'path.in.e.forms.trainingDays.120.sample.01'
+                  ,paste0(working,
+                          'e-forms--trainingDays-120--testSample-0.010000.txt'
+                          )
+                  ,e
+                  )
+      f
+    }
+    AppendETrainingPeriodPaths <- function(lst) {
+      a <- Append( 'path.in.e.training.period.testSampleFraction.001'
+                  ,paste0(working,
+                          'e-training-period--testSampleFraction-0.001000.txt'
+                          )
+                  ,lst
+                  )
+      b <- Append( 'path.in.e.training.period.testSampleFraction.01'
+                  ,paste0(working,
+                          'e-training-period--testSampleFraction-0.010000.txt'
+                          )
+                  ,a
+                  )
+     b
+    }
 
     control <- list( cache = FALSE
                     #,cache = TRUE
@@ -115,63 +169,9 @@ Control <- function() {
     control4 <- AppendAvmPaths(90, control3)
     control5 <- AppendMedianPricePaths('month', 2006, 2009, control4)
     control6 <- AppendMedianPricePaths('year', 1984, 2009, control5)
-    control6
-#
-#    SetAvmPaths <- function(lst) {
-#      # add the e.avm.variants paths to the control list lst
-#      SetAvmPath <- function(ndays, lst) {
-#        Name <- function(ndays, suffix) {
-#          sprintf( 'path.in.e.avm.variants.training.%d.%s'
-#                  ,ndays
-#                  ,suffix
-#                  )
-#        }
-#        Path <- function(ndays, suffix) {
-#          sprintf( '%se-avm-variants-training-%d.%s'
-#                  ,working
-#                  ,ndays
-#                  ,suffix
-#                  )
-#        }
-#        lst[[Name(ndays, 'txt')]] <- Path(ndays, 'txt')
-#        lst[[Name(ndays, 'rdata')]] <- Path(ndays, 'rdata')
-#        lst
-#      }
-#      SetAvmPath(30, SetAvmPath(60, SetAvmPath(90, lst)))
-#    }
-#    SetMedianPricePaths <- function(lst) {
-#      SetMedianPricePath <- function(by, from, to, lst) {
-#        Name <- function() {
-#          sprintf('path.in.median.price.by.%s.pdf'
-#                  ,by
-#                  )
-#        }
-#        Path <- function() {
-#          sprintf('%se-median-price-by-%s-from-%d-to-%d.pdf'
-#                  ,working
-#                  ,by
-#                  ,from
-#                  ,to
-#                  )
-#        }
-#        lst[[Name()]] <- Path()
-#        lst
-#      } 
-#      SetMedianPricePath('month'
-#                         ,2006
-#                         ,2009
-#                         ,SetMedianPricePath('year'
-#                                             ,1984
-#                                             ,2009
-#                                             ,lst
-#                                             )
-#                         )
-#    }
-#
-#    control2 <- SetAvmPaths(control)
-#    control3 <- SetMedianPricePaths(control2)
-#
-#    control3
+    control7 <- AppendEformsPaths(control6)
+    control8 <- AppendETrainingPeriodPaths(control7)
+    control8
 }
 
 control <- Control()
@@ -745,6 +745,10 @@ the date of the query transactions.
 
 \subsubsection{Training on 30 days of data}
 
+<<TraingingOn30Days>>=
+@
+
+
 \begin{figure}[h]
 \caption{Los Angeles Data Trained for 30 Days}
 \label{figure:LosAngelesData30}
@@ -797,6 +801,9 @@ at market values.
 
 \subsubsection{Training on 60 days of data}
 
+<<TrainingOn60Days>>=
+@
+
 \begin{figure}[h]
 \caption{Los Angeles Data Trained for 60 Days}
 \label{figure:LosAngelesData60}
@@ -805,7 +812,7 @@ at market values.
 %\normalsize
 \verbatiminput{\Sexpr{control$path.in.e.avm.variants.training.60.txt}}
 \end{figure}
-
+ 
 Figure \ref{figure:LosAngelesData60} shows results from using a 60-day
 training period. Focusing on the medians, we see that as for the 30-day
 training period, the estimated generalization error sometimes increases
@@ -815,6 +822,9 @@ As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
 
 \subsubsection{Training on 90 days of data}
+
+<<TrainingOn90Days>>=
+@
 
 \begin{figure}[h]
 \caption{Los Angeles Data Trained for 90 Days}
@@ -833,6 +843,9 @@ As in the 30-day use case, training on more contemporary data leads to
 more accurate estimates.
 
 \subsubsection{Comparing 30, 60, and 90 training-day accuracy}
+
+<<Comparing306090>>=
+@
 
 <<ME>>=
 ME <- function(scenario, ndays)
@@ -905,11 +918,219 @@ instead of just the data in late 2008 and early 2009.
 
 \section{Do log-level models outperform other model forms?}
 
-Explain testing on the 25,000 random samples, 1000 from each year.
+<<ChooseModelForm>>=
+@
 
-Q: How to estimate the generalization error?
+We compare the estimated generalization performance of 4 model forms for
+the AVM scenario for several choices of training periods. The model
+forms are:
+\begin{itemize}
+\item level-level: $price = \beta_0 + \ldots + \beta_i f_i + \ldots$
+\item level-log: $price = \beta_0 + \ldots + \beta_{si} f_{si} + \ldots
++ \beta_{oi} f_{oi} + \ldots$
+
+\item log-level: $\log(price) = \beta_0 + \ldots + \beta_i f_i + \ldots$
+\item log-log: $\log(price) = \beta_0 + \ldots + \beta_{si} f_{si} + \ldots
++ \beta_{oi} f_{oi} + \ldots$
+\end{itemize}
+where $i$ indexes a feature, $si$ indexes size features such as the lot
+size, interior space in the house, number of bedrooms, number of
+bathrooms, and $oi$ indices non-size (other) features such as whether the
+house has a simming pool.
+
+The training periods considered are 30 days before the query date (the
+date of the test transaction), 90 days before the query date, and 120
+days before the query date.
+
+\subsection{Training on 30 days of data}
+
+\begin{figure}[h]
+\caption{Model Form Comparison 30 Days 0.1 Percent Sample}
+\label{figure:Form30001}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.30.sample.001}}
+\end{figure}
+
+In Figure \ref{figure:Form30001} we see estimated generalization errors
+derived from 10-fold cross validation for the AVM scenario trained for a
+30-day period. There are about 100,000 test samples over the 25 year
+period. A separate model is fit to each of them and that fitted model is
+used to predict the test sample.  Fitting 100,000 models was judged to
+take too much time, so instead a random sample of 0.1 percent was drawn
+and used as the test sample.
+
+The median of the square root of the median squared errors form each
+fold (``Median RMedianSE'') is taken as one measure of the
+generalization error. For this measurement, the best model has a
+log-level form: the log of the price is estimated from the other
+variables, which are not transformed. The second best model is the
+log-log model, which estimates the log of the price from a linear
+combination of size variables, for which the log is taken, and non-size
+variables, which enter the model without transformation.
+
+Another popular metric for measuring accuracy of house price model is
+the determine the fraction of estimates in the test sample that lie
+within 10, 20, and 30 percent of the known true price. A larger value is
+better. Using this metric we see that the log-level model is again best
+and that the log-log model performs close to the log-level model.
+
+The third metric is the fraction of samples in the test samples that
+could be estimated. The inability to measure a test sample is primarily
+caused by having training data that is not rich enough for a specific
+test sample. A common failure is to have a training sample that contains
+only one value for a factor such as whether the house is new
+construction or whether the house has a swimming pool. Features that are
+not rich enough (like these two) could be omitted from the model, at
+perhaps some loss of predictive power. We see that the mean coverage is
+best for the log-log model, but since mean coverage values are so close,
+the differences may be due to the specific random samples drawn.
+
+Thus we conclude based on a 0.1 percent sample of the available training
+data using a 30-day training period that the log-level model is best and
+that the log-log model is second best.
+
+\begin{figure}[h]
+\caption{Model Form Comparison 30 Days 1 Percent Sample}
+\label{figure:Form30010}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.30.sample.01}}
+\end{figure}
+
+Figure \ref{figure:Form30010} is the same as the previous figure except
+that the size of the training sample is increased to 1 percent of all
+available samples. We see that with a bigger random sample, the log-log
+model now performs slightly better than the log-level model as measured
+by both the median RMedianSE and mean fraction within 10 percent.
+Coverages are all about the same.
+
+\subsection{Training on 90 days of data}
+
+\begin{figure}[h]
+\caption{Model Form Comparison 90 Days 0.1 Percent Sample}
+\label{figure:Form90001}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.90.sample.001}}
+\end{figure}
+
+Figure \ref{figure:Form90001} shows that the log-level model outperforms
+the log-log model as measured by the median RMedianSE metric and that
+log-log outperforms log-linear as measured by the mean fraction within
+10 percent. These conclusions are for a 0.1 percent random sample of the
+test data in the cross validaition process.
+
+\begin{figure}[h]
+\caption{Model Form Comparison 90 Days 1 Percent Sample}
+\label{figure:Form90010}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.90.sample.01}}
+\end{figure}
+
+For a 1 percent random sample, Figure \ref{figure:Form90010} shows the
+log-log model outperforming the log-linear model as measured by median
+RMedianSE and the log-level model outperforming the log-log model as
+measured by mean fraction with 10 percent.
+
+\subsection{Training on 120 days of data}
+
+\begin{figure}[h]
+\caption{Model Form Comparison 120 Days 0.1 Percent Sample}
+\label{figure:Form120001}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.120.sample.001}}
+\end{figure}
+
+Figure \ref{figure:Form120001} shows that the log-level model outperforms
+the log-log model as measured by the median RMedianSE metric and that
+log-log outperforms log-linear as measured by the mean fraction within
+10 percent. These conclusions are for a 0.1 percent random sample of the
+test data in the cross validaition process.
+
+\begin{figure}[h]
+\caption{Model Form Comparison 120 Days 1 Percent Sample}
+\label{figure:Form120010}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.forms.trainingDays.120.sample.01}}
+\end{figure}
+
+For a 1 percent random sample, Figure \ref{figure:Form120010} shows the
+log-log model outperforming the log-linear model as measured by median
+RMedianSE and the log-level model outperforming the log-log model as
+measured by mean fraction with 10 percent.
+
+\subsection{Looking across training periods and sample sizes}
+
+In these experiments, the models that predict $price$ instead of
+$log(price)$ always were the worse performers: One should predict
+$log(price)$ in any of the experiments.
+
+A clear choice between choosing between a log-level and log-log model is
+not seen in these experiments: sometimes one is slightly better,
+sometimes the other. Which is better may depend on the metric choses to
+guage the best model: median RMedianSE or mean fraction within 10
+percent.
 
 \section{Which training period is best?}
+
+We examine which training period is best. There is a clear tradeoff in
+setting the size of the training period: if it is short, the prices
+discovered by the linear model are more contemporaneous and capture
+recent price levels. If the training period is longer, the prices may be
+more reliable because they were trained on more data.
+
+Here we examine various training periods using a log-level model form.
+
+We start with an examination of experimental results and then present
+some ideas for dynamically tuning the training period.
+
+\subsection{Experimental Results}
+
+
+\begin{figure}[h]
+\caption{Model Training Period Comparison 0.1 Percent Sample}
+\label{figure:TrainingPeriod001}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.training.period.testSampleFraction.001}}
+\end{figure}
+
+Figure \ref{figure:TrainingPeriod001} presents the estimated
+generalization error found through 10-fold cross validation for time
+periods ranging from 30 to 180 days for a log-linear model. The best
+performance as measured by the median RMedianSE is for 90 days. The best
+performance as measured by mean fraction within 10 percent is for 30
+days. This experiment used a 0.1 percent random sample of the test data
+in each cross validation fold.
+
+BLAH FOR 1 PERCENT SAMPLE.
+
+\subsection{Ideas for Tuning the Training Period}
+
+Future work could explore two alternatives to fixing the training
+period. One alternative is to include dummy variables for the time
+period. The dummy captures average price levels during the time period.
+To forecast, one needs to forecast the value of the dummy variable
+forward one day. A simple linear estimate may be sufficient.
+
+Another alternative is to adapt the training period to the volatility in
+the market: when prices are more volatile, train on short periods, when
+prices are more stable, train on longer periods. This idea could be
+implemented by using cross-validation to select the best training period
+just before running the model for a given query date. This would be the
+use case in a common scenario in which a model was extended to price
+transactions that occured in the next day.
 
 \end{document}
  
