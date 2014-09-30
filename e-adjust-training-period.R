@@ -50,22 +50,6 @@ Control <- function(command.args) {
                           ,'factor.is.new.construction'
                           ,'factor.has.pool'
                           )
-#    predictors.log = c(# continuous size positive
-#                       'land.square.footage.log'
-#                       ,'living.area.log'
-#                       # continuous size nonnegative
-#                       ,'bedrooms.log1p'
-#                       ,'bathrooms.log1p'
-#                       ,'parking.spaces.log1p'
-#                       # continuous non size
-#                       ,'median.household.income'
-#                       ,'year.built'
-#                       ,'fraction.owner.occupied'
-#                       ,'avg.commute.time'
-#                       # discrete
-#                       ,'factor.is.new.construction'
-#                       ,'factor.has.pool'
-#                       )
     other.names = c(# dates
                     'saleDate'
                     ,'recordingDate'
@@ -91,11 +75,6 @@ Control <- function(command.args) {
                     #,response.level = 'price'
                     ,response.log = 'price.log'
                     ,split.names = unique(c(predictors.level, other.names))
-#                    ,split.names = unique(c( predictors.level
-#                                            ,predictors.log
-#                                            ,other.names
-#                                            )
-#                   )
                     ,nfolds = 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
@@ -218,22 +197,6 @@ SummarizeFolds <- function(cv.result) {
     summary
 }
 
-ModelAssessorLinearLocal <- function(queries, data.training, formula, num.training.days) {
-    # return vector of predictions from local assssor model trained for each query
-    #cat('start ModelAssessorLinearLocal\n'); browser()
-    InTraining <- function(saleDate) {
-        # return selector vector to identify training samples for the saleDate
-        in.training <- data.training$recordingDate >= (saleDate - num.training.days) &
-                       data.training$recordingDate <= (saleDate - 1)
-
-    }
-    ModelLinearLocal( InTraining
-                     ,queries
-                     ,data.training
-                     ,formula
-                     ,num.training.days
-                     )
-}
 ModelAvmLinearLocal <- function(queries, data.training, formula, num.training.days) {
     # return vector of predictions from local assssor model trained for each query
     #cat('start ModelAvmLinearLocal\n'); browser()
@@ -247,35 +210,6 @@ ModelAvmLinearLocal <- function(queries, data.training, formula, num.training.da
                      ,queries
                      ,data.training
                      ,formula
-                     )
-}
-ModelMortgageLinearLocal <- function(queries, data.training, formula, num.training.days) {
-    # return vector of predictions from local assssor model trained for each query
-    #cat('start ModelMortgageLinearLocal\n'); browser()
-    debug <- TRUE
-    debug <- FALSE
-    InTraining <- function(saleDate) {
-        # return selector vector to identify training samples for the saleDate
-        days.around <- num.training.days / 2
-        in.training <- data.training$saleDate >= (saleDate - days.around) &
-                       data.training$saleDate <= (saleDate + days.around)
-        if (debug) {
-            cat( 'debug ModelMortgageLinearLocal'
-                ,'saleDate', as.character(as.Date(saleDate, origin = '1970-01-01'))
-                ,'num.training.days', num.training.days
-                ,'days.around', days.around
-                ,'number training samples', sum(in.training)
-                ,'\n'
-                )
-            if (sum(in.training) <= 2) browser()
-        }
-        in.training
-    }
-    ModelLinearLocal( InTraining
-                     ,queries
-                     ,data.training
-                     ,formula
-                     ,num.training.days
                      )
 }
 Queries <- function(data, control) {
