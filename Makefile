@@ -6,9 +6,10 @@
 
 data = ../../los-angeles
 
-output  = $(data)/output
-raw     = $(data)/raw
-working = $(data)/working
+drawings = drawings
+output   = $(data)/output
+raw      = $(data)/raw
+working  = $(data)/working
 
 splits = $(working)/transactions-subset1-train-splits
 tex    = $(data)/tex-generated-from-Rnw
@@ -320,6 +321,7 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 # THESIS-LINEAR-MODELS
 
 $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
+	$(drawings)/scenarios.pdf \
 	$(working)/e-avm-variants--training-30.RData \
 	$(working)/e-avm-variants--training-60.RData \
 	$(working)/e-avm-variants--training-90.RData \
