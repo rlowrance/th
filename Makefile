@@ -326,8 +326,16 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-30.txt \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
+	$(working)/e-forms--trainingDays-30--testSample-0.001000.txt \
+	$(working)/e-forms--trainingDays-30--testSample-0.010000.txt \
+	$(working)/e-forms--trainingDays-90--testSample-0.001000.txt \
+	$(working)/e-forms--trainingDays-90--testSample-0.010000.txt \
+	$(working)/e-forms--trainingDays-120--testSample-0.001000.txt \
+	$(working)/e-forms--trainingDays-120--testSample-0.010000.txt \
 	$(working)/e-median-price-by-month-from-2006-to-2009.pdf \
-	$(working)/e-median-price-by-year-from-1984-to-2009.pdf 
+	$(working)/e-median-price-by-year-from-1984-to-2009.pdf \
+	$(working)/e-training-period--testSampleFraction-0.001000.txt \
+	$(working)/e-training-period--testSampleFraction-0.010000.txt 
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
 	pdflatex thesis-linear-models.tex
 	mv thesis-linear-models.pdf $(working)/
