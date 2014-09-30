@@ -60,9 +60,10 @@
 
 <<Control>>=
 options(warn = 2)  # turn warnings into errors
-source('DirectoryWorking.R')
+source('Directory.R')
 Control <- function() {
-    working <- DirectoryWorking()
+    drawings <- Directory('drawings')
+    working <- Directory('working')
     Append <- function(name, value, lst) {
       lst[[name]] <- value
       lst
@@ -159,6 +160,14 @@ Control <- function() {
                   )
      b
     }
+    AppendDrawings <- function(lst) {
+      a <- Append( 'path.in.scenarios'
+                  ,paste0(drawings, 'scenarios.pdf')
+                  ,lst
+                  )
+      a
+    }
+
 
     control <- list( cache = FALSE
                     #,cache = TRUE
@@ -171,7 +180,7 @@ Control <- function() {
     control6 <- AppendMedianPricePaths('year', 1984, 2009, control5)
     control7 <- AppendEformsPaths(control6)
     control8 <- AppendETrainingPeriodPaths(control7)
-    control8
+    control9 <- AppendDrawings(control8)
 }
 
 control <- Control()
@@ -224,6 +233,13 @@ Real estate price prediction takes place in three scenarios (business
 use cases). These differ largely in the business purpose of the estimate
 of market value and the training data that can be used.
 
+
+\begin{figure}[h]
+\caption{Training Periods for Scenarios}
+\label{figure:scenarios}
+\centering\includegraphics[scale=.4]{\Sexpr{control$path.in.scenarios}}
+\end{figure}
+
 \subsection{Assessor Scenario}
 
 The first of these is the ``assessor'' scenario. The tax assessor for
@@ -246,7 +262,11 @@ transaction increased at a rate of at most two percent per year.
 The ``assessor'' scenario is an assessment of the market value in 2008.
 As training data, the assessor can use all of the transactions recorded
 before November 1, 2008. Note that the average delay between the sale
-and recording of the sale is about 60 days.
+and recording of the sale is about 60 days. Figure \ref{figue:scenarios}
+illustrates the various scenarios. For the assessor scenario, there can
+be a gap between when a transaction is recorded and the query date for a
+transaction. This potential gap is illustrated in the top third of the
+figure.
 
 \subsection{AVM Scenario}
 
@@ -268,6 +288,17 @@ and included January 14, 2009. They can also use the tax assessor's
 assessment as a feature. The assessment is by law partitioned into the
 assessment for the land and the assessment for the improvements on the
 land.
+
+Discussions with Charlies Freeman show that AVM providers can be very
+agressive in obtaining up-to-date transaction files. Some rely on
+augmenting data from the tax assessor with data from real estate agents.
+Some simply invest in obtaining more up-to-date data from the official
+government sources.
+
+The middle portion of Figure \ref{figure:scenarios} illustrates that the
+training data in the AVM scenario can be up to just before the query
+data and can have more recent data than is used for the assessor
+scenario.
 
 \subsection{Mortgage Scenario}
 
@@ -307,6 +338,9 @@ estimate, and all the future transactions as well. One can also use any
 transaction on the query house itself, as one is estimating what the
 borrower would think the house is worth. An available feature is the
 tax assessor's assessment.
+
+The ability to use future transactions to predict a query transaction is
+illustrated in the bottom third of Figure \ref{figure:scenarios}.
 
 \section{Model form}
 
