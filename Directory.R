@@ -4,6 +4,7 @@ Directory <- function(name) {
     # a path is a character that ends in a slash
     data <- '../../los-angeles/'
     path <- switch( name
+                   ,drawings = '../drawings/'
                    ,log = paste0(data, 'log/')
                    ,output = paste0(data, 'output/')
                    ,raw = paste0(data, 'raw/')
