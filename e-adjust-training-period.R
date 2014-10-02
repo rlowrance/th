@@ -63,17 +63,18 @@ Control <- function(command.args) {
                        ,response = 'price.log'
                        )
     testing <- FALSE
-    testing <- TRUE
-    out.base <- sprintf('%s--testSampleFraction-%f'
+    #testing <- TRUE
+    out.base <- sprintf('%s--query.fraction-%f'
                         ,me
-                        ,opt$testSampleFraction
+                        ,opt$query.fraction
                         )
     control <- list( path.in.splits = splits
-                    ,path.out.log = paste0(log, out.base, '.log')
+                    ,path.out.log = paste0(log, out.base, '--which-', opt$which, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,query.fraction = opt$query.fraction
-                    ,best.num.tests = opt$best.num.tests
+                    ,num.test.samples.needed = 1
+                    ,max.num.day = 30
                     ,predictors.level = predictors.level
                     #,predictors.log = predictors.log
                     #,response.level = 'price'
@@ -84,8 +85,8 @@ Control <- function(command.args) {
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
-                    ,chart1.format.header = '%-27s | %24s %24s %24s'
-                    ,chart1.format.data =   '%-27s | %24.0f %24.3f %24.3f'
+                    ,chart1.format.line.d = '%30s %d'
+                    ,chart1.format.line.f = '%30s %f'
                     ,testing = testing
                     ,debug = FALSE
                     ,which = opt$which
@@ -106,110 +107,75 @@ ParseCommandArgs <- function(command.args) {
                                           ,default = .01
                                           ,help = 'fraction of samples used as queries'
                                           )
-    opt.best.num.tests <- make_option( opt_str = c('--best.num.tests')
-                                      ,action = 'store'
-                                      ,type = 'double'
-                                      ,default = 100
-                                      ,help = 'fraction of test sample used for cross validation'
-                                      )
     option.list <- list( opt.which
                         ,opt.query.fraction
-                        ,opt.best.num.tests
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
                       ,positional_arguments = FALSE
                       )
 }
-CreateChart1Body <- function(control, summary) {
+Chart1Body <- function(control, best.num.training.days, evaluation) {
     # return a vector lines, the body of chart 1
-    result <- sprintf( control$chart1.format.header
-                      ,' '
-                      ,'median'
-                      ,'mean fraction'
-                      ,'mean'
-                      )
-    result <- c( result
-                ,sprintf( control$chart1.format.header
-                         ,'scenario-form-training days'
-                         ,'RMedianSE'
-                         ,'within 10%'
-                         ,'coverage'
-                         )
-                )
-
-    for (row.index in 1:length(summary)) {
-        name <- names(summary)[[row.index]]
-        row <- summary[[row.index]]
-        result <- c( result
-                    ,sprintf( control$chart1.format.data
-                             ,name
-                             ,row$median.RMedianSE
-                             ,row$mean.fraction.within.10.percent
-                             ,row$mean.coverage
-                             )
-                    )
+    cat('Chart1Body\n'); browser()
+    DistributionDays <- function(num) {
+        cat('DistributionDays\n'); browser()
+        days <- sort(unique(num))
+        len <- length(num)
+        result <- NULL
+        for (day in days) {
+            result <- c( result
+                        ,sprintf('fraction with best.num.training.days = %d is %f'
+                                 ,day
+                                 ,sum(num == day) / len
+                                 )
+                        )
+        }
+        result
     }
-
-    result
-}
-
-CreateChart1 <- function(control, description, summary) {
-    # return a vector of lines, the txt for chart 1
-    #cat('start CreateChart1\n'); browser()
-
-    result <- c( description
-                ,' '
-                ,CreateChart1Body(control, summary)
+    LineD <- function(msg, value) {
+        sprintf( control$chart1.format.line.d
+                ,msg
+                ,round(value)
                 )
-
-    result
+    }
+    LineF <- function(msg, value) {
+        sprintf( control$chart1.format.line.f
+                ,msg
+                ,value
+                )
+    }
+    c( LineD('root mean squared error', evaluation$rootMeanSquaredError)
+      ,LineD('root median squared error', evaluation$rootMedianSquaredError)
+      ,LineF('fraction within  10 percent', evaluation$fraction.within.10.percent)
+      ,LineF('coverage', evaluation$coverage)
+      ,LineD('median price', evaluation$median.price)
+      ,' '
+      ,DistributionDays(best.num.training.days)
+      )
 }
-
-
-SummarizeFolds <- function(cv.result) {
-    # convert cross validation result into an estimate of the generalization error
-    SummarizeModel <- function(cv.result, model.name) {
-        # summarize across folds for one model
-        #cat('start EstGenError', model.name, '\n'); browser()
-        this.result <- cv.result[[model.name]]
-
-        Mean <- function(field.name) {
-            elements <- sapply( this.result
-                               ,function(x) x[[field.name]]
-                               )
-            result <- mean(elements)
-            result
-        }
-        Median <- function(field.name) {
-            elements <- sapply( this.result
-                               ,function(x) x[[field.name]]
-                               )
-            result <- median(elements)
-            result
-        }
-
-        summary.model <- list( mean.RMSE = Mean( 'rootMeanSquaredError')
-                              ,median.RMedianSE = Median('rootMedianSquaredError')
-                              ,mean.coverage = Mean('coverage')
-                              ,mean.fraction.within.10.percent = Mean('fraction.within.10.percent')
-                              ,mean.fraction.within.20.percent = Mean('fraction.within.20.percent')
-                              ,mean.fraction.within.30.percent = Mean('fraction.within.30.percent')
-                              ,mean.price = Mean('mean.price')
-                              ,median.price = Median('median.price')
+Chart1Heading <- function(control, evaluation) {
+    description <- c( sprintf( 'Evaluation of %f Percent Random Sample of Training Transactions'
+                              ,control$query.sample * 100
                               )
-        summary.model
-    }
-    # for each model
-    summary <- list()
-    model.names <- names(cv.result)
-    str(model.names)
-    for (model.name in model.names) {
-        summary[[model.name]] <- SummarizeModel(cv.result, model.name)
-    }
-    summary
+                     ,'Using Best Number of Training Days'
+                     ,sprintf('As Determined through %d Test Transactions the week before the Query'
+                              ,control$best.num.tests
+                              )
+                     ,'AVM scenario'
+                     ,'Log-linear form'
+                     ,sprintf( 'Testing period: %s through %s'
+                              ,control$testing.period$first.date
+                              ,control$testing.period$last.date
+                              )
+                     )
 }
-
+Chart1 <- function(control, best.num.training.days, evaluation) {
+    chart1 <- c( Chart1Heading(control)
+                ,' '
+                ,Chart1Body(control, best.num.training.days, evaluation)
+                )
+}
 ModelAvmLinearLocal <- function(queries, data.training, formula, num.training.days) {
     # return vector of predictions from local AVM model trained for each query
     #cat('start ModelAvmLinearLocal\n'); browser()
@@ -309,25 +275,31 @@ FitPredictAvmLogLevel <- function(num.training.days, data, is.testing, is.traini
     result
 }
 DetermineBestTrainingPeriod <- function(query, data.training, control) {
-    # return best num.training.days for the query transaction
-    # aproach: test each candidate num.training.days and select one with lowest RMSE
-    # approach: for a sample of transactions on the day before the query date, determine
-    # the best number of training days
+    # determine best training period for the query transaction 
+    # approach: define comparables; for them, determine best training period as the training period
+    #           that has the lowest RMedianSE
+    # return list
+    # $best.num.training.days: best number of training days for the comparison
+    # $num.days              : number of weeks of prior transactions 
+    # $comparison.size       : number of elements in the comparison set
     #cat('DetermineBestTrainingPeriod\n'); browser()
-    
+   
+    # determine number of days in the comparables period
+    num.days <- 1  
+    repeat {
+        last.test.date <- query$saleDate - 1
+        first.test.date <- last.test.date - num.days + 1
+        in.test.set <- data.training$saleDate >= first.test.date & 
+                       data.training$saleDate <= last.test.date
 
-    # build test and train data frames
-    first.test.date <- query$saleDate - 8
-    last.test.date <- query$saleDate - 1
-    Printf('test dates %s through %s\n', first.test.date, last.test.date)
-    test.all <- subset( data.training
-                       ,subset = (saleDate >= first.test.date) & (saleDate <= last.test.date)
-                       )
-    train <- subset( data.training
-                    ,subset = saleDate < first.test.date
-                    )
-    test <- test.all[sample(nrow(test.all), control$best.num.tests), ]
-    Printf('nrow test.all %d test %d train %d\n', nrow(test.all), nrow(test), nrow(train))
+        if (sum(in.test.set) >= control$num.test.samples.needed) break
+        num.days <- num.days + 1
+        stopifnot(num.days <= control$max.num.days)  # prevent runaway
+    }
+
+    test <- data.training[in.test.set, ]
+    train <- data.training[!in.test.set, ]
+
     stopifnot(nrow(train) > 0)
     stopifnot(nrow(test) > 0)
 
@@ -355,27 +327,52 @@ DetermineBestTrainingPeriod <- function(query, data.training, control) {
 
     best.index <- which.min(rMedianSE)
     best.num.training.days <- num.training.days[[best.index]]
+    Printf( 'query date %s best.num.training.days %d test days %d nrow test %d train %d\n'
+           ,query$saleDate
+           ,best.num.training.days
+           ,num.days
+           ,nrow(test)
+           ,nrow(train)
+           )
+    result <- list( best.num.training.days = best.num.training.days
+                   ,num.days = num.days
+                   ,comparison.size = nrow(test)
+                   ,query.date = query$saleDate
+                   )
+    result
 }
 Predict <- function(query, data.training, control) {
+    # predict one query point
+    # return list
+    # $ prediction     : predicted value
+    # $ num.days       : number of weeks for comparables to query
+    # $ comparison.size: number of comparison transactions used
+    # $ query.date     : Date of the query
     # return prediction for one query point
     #cat('Predict\n'); browser()
     
-    best.num.training.days <- DetermineBestTrainingPeriod( query = query
-                                                          ,data.training = data.training
-                                                          ,control = control
-                                                          )
+    dbtp <- DetermineBestTrainingPeriod( query = query
+                                        ,data.training = data.training
+                                        ,control = control
+                                        )
     mall <- ModelAvmLinearLocal( queries = query
                                 ,data.training = data.training
                                 ,formula = control$formula
-                                ,num.training.days = best.num.training.days
+                                ,num.training.days = dbtp$best.num.training.days
                                 )
     prediction <- exp(mall$predictions)
     stopifnot(length(prediction) == 1)
-    prediction
+    result <- list( prediction = prediction
+                   ,num.days = dbtp$num.days
+                   ,comparison.size = dbtp$comparison.size
+                   ,best.num.training.days = dbtp$best.num.training.days
+                   ,query.date = query$saleDate
+                   )
+    result
 }
-PredictTestSamples <- function(control, transaction.data) {
+Analysis <- function(control, transaction.data) {
     # return predictions for each query sample
-    cat('PredictTestSamples\n'); browser()
+    #cat('Analysis\n'); browser()
 
     clock <- Clock()
 
@@ -387,16 +384,26 @@ PredictTestSamples <- function(control, transaction.data) {
                              ,size = num.test.transactions
                              ,replace = FALSE
                              )
+    Printf('will sample %d transactions\n', length(which.test))
 
     # One model for each test transaction
     PredictTestSample <- function(test.sample.index) {
         # return prediction for the query point
-        Predict( query = transaction.data[test.sample.index,]
-                ,data.training = transaction.data[-test.sample.index, ]
-                ,control = control
-                )
+        p <- Predict( query = transaction.data[test.sample.index,]
+                     ,data.training = transaction.data[-test.sample.index, ]
+                     ,control = control
+                     )
     }
-    prediction <- sapply(which.test, PredictTestSample)
+    ListExtract <- function(lst, field) {
+        sapply(lst[field,], function(x) x)
+    }
+    pwc <- sapply(which.test, PredictTestSample)
+    prediction <- ListExtract(pwc, 'prediction')
+    num.days <- ListExtract(pwc, 'num.days')
+    comparison.size <- ListExtract(pwc, 'comparison.size')
+    query.date <- ListExtract(pwc, 'query.date')
+    best.num.training.days <- ListExtract(pwc, 'best.num.training.days')
+
     actual <- transaction.data[which.test, 'price']
     evaluation <- Evaluate( prediction = prediction
                            ,actual = actual
@@ -408,78 +415,80 @@ PredictTestSamples <- function(control, transaction.data) {
     str(control)
 
     elapsed.cpu <- clock$Cpu()
-    Printf('predicting %d queries took %f CPU seconds\n'
-           ,num.test.transactions
-           ,elapsed.cpu
-           )
+    elapsed.message <- sprintf( 'predicting %d queries with %f query fraction took %f CPU seconds\n'
+                              ,num.test.transactions
+                              ,control$query.fraction
+                              ,elapsed.cpu
+                              )
+    Printf(elapsed.message)
 
     save( actual
+         ,best.num.training.days
+         ,comparison.size
          ,control
          ,elapsed.cpu
+         ,elapsed.message
          ,evaluation
+         ,num.days
+         ,query.date
          ,file = control$path.out.rdata
          )
     evaluation
 }
-Chart <- function(my.control, transaction.data) {
-    #cat('starting Chart\n'); browser()
-    stop('rewrite me')
-    cv.result <- NULL
+Charts <- function(my.control) {
+    # produce all the charts
+    # for now, there is only one
+    cat('starting Charts\n'); browser()
+
+    # recover cetain values from the predictions
+    best.num.training.days <- NULL
+    evaluation <- NULL
     loaded <- load(file = my.control$path.out.rdata)
     str(loaded)  # NOTE: control has been replaced
-    stopifnot(!is.null(cv.result))
-
-    summary <- SummarizeFolds(cv.result)
-    str(summary)
+    stopifnot(!is.null(best.num.training.days))
+    stopifnot(!is.null(evaluation))
 
     # produce charts
     # use the controls from when data were created
-    description <- c( sprintf( 'Errors on %f Percent Sample of Transactions'
-                              ,control$query.sample * 100
-                              )
-                     ,'Using Best Number of Training Days'
-                     ,'AVM scenario'
-                     ,'Log-linear form'
-                     ,sprintf( 'Testing period: %s through %s'
-                              ,control$testing.period$first.date
-                              ,control$testing.period$last.date
-                              )
-                     )
+    chart1 <- Chart1(control, best.num.training.days, evaluation)
                             
-    chart1 <- CreateChart1( control = control
-                           ,description = description
-                           ,summary = summary
-                           )
     writeLines( text = chart1
                ,con = my.control$path.out.chart1
                )
     print(chart1)
 
-    # save results
-    str(description)
-    str(summary)
-    save(my.control, cv.result, description, chart1, summary, file = my.control$path.out.rdata)
+    print(elapsed.message)  # put the elapsed time from the Analysis phase in the final version of the log
+
+    print(summary(best.num.training.days))
+
+    # save results from the analysis pass and this pass
+
+    save( actual
+         ,best.num.training.days
+         ,comparison.size
+         ,control
+         ,elapsed.cpu
+         ,elapsed.message
+         ,evaluation
+         ,num.days
+         ,query.date
+         ,my.control
+         ,chart1
+         ,file = my.control$path.out.rdata
+         )
 }
 Both <- function(control, transaction.data) {
-    debug(PredictTestSamples)
-    debug(Chart)
-    evaluation <- PredictTestSamples(control, transaction.data)
-    Chart(control, evaluation)
+    evaluation <- Analysis(control, transaction.data)
+    Charts(control)
 }
 Main <- function(control, transaction.data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    clock <- Clock()
     switch( control$which
-           ,cv = Cv(control, transaction.data)
-           ,chart = Chart(control, transaction.data)
+           ,analysis = Analysis(control, transaction.data)
+           ,charts = Charts(control)
            ,both = Both(control, transaction.data)
-           )
-    Printf( 'testSample %f CPU seconds %f Wallclock seconds %f\n'
-           ,control$testSample
-           ,clock$Cpu()
-           ,clock$Wallclock()
            )
     str(control)
     if (control$testing)
@@ -492,7 +501,9 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-default.args <- list('--query.fraction', '.000001', '--best.num.tests', '2')
+default.args <- list('--query.fraction', '.000001')
+default.args <- list('--query.fraction', '.00001')
+#default.args <- list('--query.fraction', '.001')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
