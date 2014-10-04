@@ -6,7 +6,7 @@
 
 data = ../../los-angeles
 
-drawings = drawings
+drawings = ../drawings
 output   = $(data)/output
 raw      = $(data)/raw
 working  = $(data)/working
