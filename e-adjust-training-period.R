@@ -88,7 +88,7 @@ Control <- function(command.args) {
                     ,chart1.format.line.d = '%30s %d'
                     ,chart1.format.line.f = '%30s %f'
                     ,testing = testing
-                    ,debug = FALSE
+                    ,debug = TRUE
                     ,which = opt$which
                     )
     control
@@ -117,20 +117,30 @@ ParseCommandArgs <- function(command.args) {
 }
 Chart1Body <- function(control, best.num.training.days, evaluation) {
     # return a vector lines, the body of chart 1
-    cat('Chart1Body\n'); browser()
-    DistributionDays <- function(num) {
-        cat('DistributionDays\n'); browser()
-        days <- sort(unique(num))
-        len <- length(num)
+    #cat('Chart1Body\n'); browser()
+    DistributionDays <- function(nums) {
+        # determine distribution, accounting for NA values
+        #cat('DistributionDays\n'); browser()
+        days <- sort(unique(nums))
+        len <- length(nums)
         result <- NULL
         for (day in days) {
             result <- c( result
-                        ,sprintf('fraction with best.num.training.days = %d is %f'
+                        ,sprintf('fraction with best.num.training.days = %3d is %f'
                                  ,day
-                                 ,sum(num == day) / len
+                                 ,sum(nums == day, na.rm = TRUE) / len
                                  )
                         )
         }
+        result <- c( result
+                    ,sprintf( 'fraction with best.num.training.days =  NA is %f'
+                             ,sum(is.na(nums)) / len
+                             )
+                    ,' '
+                    ,sprintf( 'number of test samples = %d'
+                             ,len
+                             )
+                    )
         result
     }
     LineD <- function(msg, value) {
@@ -279,10 +289,22 @@ DetermineBestTrainingPeriod <- function(query, data.training, control) {
     # approach: define comparables; for them, determine best training period as the training period
     #           that has the lowest RMedianSE
     # return list
-    # $best.num.training.days: best number of training days for the comparison
+    # $best.num.training.days: best number of training days for the comparison or NA
     # $num.days              : number of weeks of prior transactions 
     # $comparison.size       : number of elements in the comparison set
     #cat('DetermineBestTrainingPeriod\n'); browser()
+
+    if (FALSE && control$debug) {
+        query.date <- query$saleDate
+        if (query.date != as.Date('1986-03-15')) {
+            Printf('skipping %s\n', query.date)
+            result <- list( best.num.training.days = 90
+                           ,num.days = 1
+                           ,comparison.size = 1
+                           )
+            return(result)
+        }
+    }
    
     # determine number of days in the comparables period
     num.days <- 1  
@@ -326,7 +348,19 @@ DetermineBestTrainingPeriod <- function(query, data.training, control) {
     rMedianSE <- sapply(num.training.days, RMSE)
 
     best.index <- which.min(rMedianSE)
-    best.num.training.days <- num.training.days[[best.index]]
+    if (control$debug) {
+        print(query)
+        print(rMedianSE)
+        print(best.index)
+        print(num.training.days)
+        cat('next statement has failed before\n')
+        #browser()
+    }
+    best.num.training.days <- 
+        if (length(best.index) == 1) 
+            num.training.days[[best.index]]
+        else
+            NA
     Printf( 'query date %s best.num.training.days %d test days %d nrow test %d train %d\n'
            ,query$saleDate
            ,best.num.training.days
@@ -355,13 +389,17 @@ Predict <- function(query, data.training, control) {
                                         ,data.training = data.training
                                         ,control = control
                                         )
-    mall <- ModelAvmLinearLocal( queries = query
-                                ,data.training = data.training
-                                ,formula = control$formula
-                                ,num.training.days = dbtp$best.num.training.days
-                                )
-    prediction <- exp(mall$predictions)
-    stopifnot(length(prediction) == 1)
+    prediction <-
+        if (is.na(dbtp$best.num.training.days)) {
+            NA
+        } else {
+            mall <- ModelAvmLinearLocal( queries = query
+                                        ,data.training = data.training
+                                        ,formula = control$formula
+                                        ,num.training.days = dbtp$best.num.training.days
+                                        )
+            exp(mall$predictions)
+        }
     result <- list( prediction = prediction
                    ,num.days = dbtp$num.days
                    ,comparison.size = dbtp$comparison.size
@@ -384,6 +422,13 @@ Analysis <- function(control, transaction.data) {
                              ,size = num.test.transactions
                              ,replace = FALSE
                              )
+    if (FALSE && control$debug) {
+        # drop all transaction not on special date
+        special.date <- as.Date('1986-03-15')
+        all.which.date <- transaction.data$saleDate[which.test]
+        is.special.date <- special.date == all.which.date
+        which.test <- which.test[is.special.date]
+    }
     Printf('will sample %d transactions\n', length(which.test))
 
     # One model for each test transaction
@@ -501,9 +546,10 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'cv',    '--testSampleFraction', '.001')
 #default.args <- list('--which', 'chart', '--testSampleFraction', '.001')
 #default.args <- list('--which', 'both',  '--testSampleFraction', '.001')
-default.args <- list('--query.fraction', '.000001')
-default.args <- list('--query.fraction', '.00001')
+#default.args <- list('--query.fraction', '.000001')
+#default.args <- list('--query.fraction', '.00001')
 #default.args <- list('--query.fraction', '.001')
+#default.args <- list('--which', 'charts', '--query.fraction', '.01')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
