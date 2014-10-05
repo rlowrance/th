@@ -167,6 +167,25 @@ Control <- function() {
                   )
       a
     }
+    AppendAdjustTrainingPeriod <- function(lst) {
+      name.prefix <- 'path.in.e.adjust.training.period..query.fraction.'
+      value.prefix <- paste0( working
+                       ,'e-adjust-training-period--query.fraction-'
+                       )
+      value.suffix <- paste0('.txt')
+      a <- 
+        Append( paste0(name.prefix, '001')
+               ,paste0(value.prefix, '0.001000', value.suffix)
+               ,lst
+               )
+      b <- 
+        Append( paste0(name.prefix, '01')
+               ,paste0(value.prefix, '0.010000', value.suffix)
+               ,a
+               )
+
+      b
+    }
 
 
     control <- list( cache = FALSE
@@ -181,6 +200,7 @@ Control <- function() {
     control7 <- AppendEformsPaths(control6)
     control8 <- AppendETrainingPeriodPaths(control7)
     control9 <- AppendDrawings(control8)
+    control10 <- AppendAdjustTrainingPeriod(control9)
 }
 
 control <- Control()
@@ -1161,7 +1181,92 @@ is again 100 percent except for the 30 day period.
 One might choose a 90 day training period for the 25 year period,
 perhaps giving up a bit of accuracy for increased coverage.
 
+\subsection{Tuning the Training Period}
+
+The experiments just above find the best training period on average
+across all the samples. One could select 90 days as the best training
+period.
+
+The question is can one develop a more accurate model by tuning the
+training period to the query transaction. One idea is to determine the
+best training period at the time of the query transaction and use that
+best training period for the query transaction. Under this idea, every
+query transaction would have a specifically-selected training period.
+
+We implemented this idea by considering all the transactions the day
+before the query date. For these transactions, we determined the
+RMedianSE for training periods of 30, 60, 90, 120, 150, and 180 days and
+selected the training period with the lowest error. We then used that
+training period for the query transaction. For example, if using a
+60-day training period leads to the lowested errors on transactions the
+day before the query, we used a 60-day training period for the query
+transaction. There is one refinement: if there are no transactions the
+day before the query transaction, then the test period for detemining
+the best training period is extended day by day into the past until we
+have found some test transations.
+
+<<TuningTheTrainingPeriod>>=
+control$path.in.e.adjust.training.period..query.fraction.001
+control$path.in.e.adjust.training.period..query.fraction.01
+@
+
+\begin{figure}[h]
+\caption{Tuned Training Period 0.1 Percent Sample}
+\label{figure:TunedTrainingPeriod001}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.adjust.training.period..query.fraction.001}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Tuned Training Period 1 Percent Sample}
+\label{figure:TunedTrainingPeriod01}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{control$path.in.e.adjust.training.period..query.fraction.01}}
+\end{figure}
+
+TODO: capture the figures programmatically
+
+TODO: check that the results are true programmatically
+
+Figure \ref{figure:TunedTrainingPeriod001} shows the results for a 0.1
+percent random sample. The RMedianSE is 32,396, which is higher than the
+RMedianSE when fixing the training period at 90 days (30,844).
+
+Figure \ref{figure:TunedTrainingPeriod01} shows similar results for a 1
+percent random sample. The RMedianSE is 32,066, which is again higher
+than the RMedianSE when fixing the training period at 90 days (31,013).
+
+The most straight-forward interpretation of these results is that the
+proposed tuning procedure does not work. A possible reason for it failing
+is that the best number of training days to use is not a
+smoothly-changing function of the query date: small changes in the date
+lead to large changes in the best number of training days to use.
+On the other hand, it may be that the best number of training days to
+use is smooth, but that are granulatity in estimating it is too large:
+we examine only 30, 60, 90, 120, 150, and 180 day periods.
+
+Another possible interpretation is that the differences in RMedianSE
+values is caused in part by selection of different 0.1 percent and 1
+percent random samples from the data. 
+
+Returning to the intepretation of the results for the two figures, we
+see that the best training period is often 30 days or 180 days. Thi sis
+consistent with supposing that a short training period is appropriate
+when prices are volating and a long training period is appropriate when
+prices are stable. Thus there may be merit to the idea of tuning the
+training period to the volatility of prices at the time of the query,
+and the proposed method simply fails to implement that idea.
+
+
+
+
 \subsection{Ideas for Tuning the Training Period}
+
+REWRITE ME
 
 Future work could explore two alternatives to fixing the training period
 once across the 25 years of data, as was examined in these experiments.
