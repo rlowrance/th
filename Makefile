@@ -141,11 +141,11 @@ e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(lswl)
 e-training-period.R                 : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
-parcels-derived-features.R          : $(lwl)  LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
+parcels-derived-features.R          : $(dl)   LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
 parcels-sample.R                    : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr.R                       : $(lrwl) LUSEI.R ReadRawParcels.R
 parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
-transactions.R                      : $(lrwl) BestApns.R ReadCensus.R ReadDeedsAlG.R \
+transactions.R                      : $(dl)   BestApns.R ReadCensus.R ReadDeedsAlG.R \
                                               ReadParcelsSfr.R ZipN.R
 transactions-subset1.R              : $(lwl)  ReadTransactions.R DEEDC.R SCODE.R TRNTP.R
 transactions-subset1-train.R        : $(lwl)  ReadTransactionsSubset1.R
@@ -398,14 +398,17 @@ $(working)/transactions.RData: transactions.R \
 	$(raw)/geocoding.tsv \
 	$(working)/parcels-sfr.RData \
 	$(working)/parcels-derived-features.RData
-	Rscript transactions-al-sfr.R
+	Rscript transactions.R
 
 $(working)/transactions-subset1.RData: transactions-subset1.R \
 	$(working)/transactions.RData
 	Rscript transactions-subset1.R
 
 # the stem is RData
+transactions-subset-train-dependencies += transactions-subset1.R
+transactions-subset-train-dependencies += $(working)/transactions-subset1.RData
 $(working)/transactions-subset1-train.% \
 $(working)/transactions-subset1-test.% \
-: transactions-subset1-train.R
+: $(transactions-subset1-train-dependencies)
 	Rscript transactions-subset1-train.R
+
