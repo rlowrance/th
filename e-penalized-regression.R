@@ -462,9 +462,6 @@ Analysis <- function(control, transaction.data) {
     #cat('Analysis\n'); browser()
 
     clock <- Clock()
-
-    
-
     # use lasso to determine the order in which variables should enter the model
     fitted <- enet( x = MakeX(transaction.data, control)
                    ,y = MakeY(transaction.data, control)
