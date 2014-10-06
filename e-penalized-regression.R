@@ -179,30 +179,6 @@ Chart1 <- function(control, cv.result, ordered.features) {
                 ,Chart1Body(control, cv.result, ordered.features)
                 )
 }
-ModelAvmLinearLocal <- function(queries, data.training, formula, num.training.days) {
-    # return vector of predictions from local AVM model trained for each query
-    #cat('start ModelAvmLinearLocal\n'); browser()
-    InTraining <- function(saleDate) {
-        # return selector vector to identify training samples for the saleDate
-        in.training <- data.training$saleDate >= (saleDate - num.training.days) &
-                       data.training$saleDate <= (saleDate - 1)
-
-    }
-    result <- ModelLinearLocal( InTraining
-                               ,queries
-                               ,data.training
-                               ,formula
-                               )
-    result
-}
-Queries <- function(data, control) {
-    # return dataframe of queries from the testing data
-    #cat('start Queries\n'); browser()
-    ok.testing.first.date <- data$saleDate >=  control$testing.period$first.date
-    ok.testing.last.date <- data$saleDate <= control$testing.period$last.date
-    is.query <- ok.testing.first.date & ok.testing.last.date
-    queries <- data[is.query, ]
-}
 Evaluate <- function(prediction, actual) {
     # return list of evaluations
     # ARGS
@@ -237,167 +213,6 @@ Evaluate <- function(prediction, actual) {
                    ,fraction.within.30.percent = Fraction(.30)
                    ,mean.price = mean.price
                    ,median.price = median.price
-                   )
-    result
-}
-FitPredictAvmLogLevel <- function(num.training.days, data, is.testing, is.training, query.fraction, control) {
-    # return evaluation of the predicted vs. actual values
-    #cat('start FitPredictAvmLogLevel\n'); browser()
-    verbose <- TRUE
-    response <- control$response.log
-    predictors <- control$predictors.level
-    queries.all <- Queries(data[is.testing, ], control)
-
-    # sample the possible queries
-    r <- runif( n = nrow(queries.all)
-               ,min = 0
-               ,max = 1)
-    use.query <- ifelse( r < query.fraction
-                        ,TRUE
-                        ,FALSE
-                        )
-    queries <- queries.all[use.query, ]
-
-    data.training <- data[is.training, ]
-
-    model.result <- ModelAvmLinearLocal( queries = queries
-                                        ,data.training = data.training
-                                        ,formula = control$formula
-                                        ,num.training.days = num.training.days
-                                        )
-    # model.result is a list $predictions $problems $queries
-    prediction.raw <- model.result$prediction
-    prediction <- if (response == 'price') prediction.raw else exp(prediction.raw)
-
-    # determine error rates and coverage
-    actual <- queries$price
-    result <- Evaluate( actual = actual
-                       ,prediction = prediction
-                       )
-    if (verbose) {print('FitPredictAvm'); str(result)}
-    result
-}
-DetermineBestTrainingPeriod <- function(query, data.training, control) {
-    # determine best training period for the query transaction 
-    # approach: define comparables; for them, determine best training period as the training period
-    #           that has the lowest RMedianSE
-    # return list
-    # $best.num.training.days: best number of training days for the comparison or NA
-    # $num.days              : number of weeks of prior transactions 
-    # $comparison.size       : number of elements in the comparison set
-    #cat('DetermineBestTrainingPeriod\n'); browser()
-
-    if (FALSE && control$debug) {
-        query.date <- query$saleDate
-        if (query.date != as.Date('1986-03-15')) {
-            Printf('skipping %s\n', query.date)
-            result <- list( best.num.training.days = 90
-                           ,num.days = 1
-                           ,comparison.size = 1
-                           )
-            return(result)
-        }
-    }
-   
-    # determine number of days in the comparables period
-    num.days <- 1  
-    repeat {
-        last.test.date <- query$saleDate - 1
-        first.test.date <- last.test.date - num.days + 1
-        in.test.set <- data.training$saleDate >= first.test.date & 
-                       data.training$saleDate <= last.test.date
-
-        if (sum(in.test.set) >= control$num.test.samples.needed) break
-        num.days <- num.days + 1
-        stopifnot(num.days <= control$max.num.days)  # prevent runaway
-    }
-
-    test <- data.training[in.test.set, ]
-    train <- data.training[!in.test.set, ]
-
-    stopifnot(nrow(train) > 0)
-    stopifnot(nrow(test) > 0)
-
-    RMSE <- function(num.training.days) {
-        # return square root of median squared error when using specified number of training days
-        #cat('RMSE\n'); browser()
-        model.result <- ModelAvmLinearLocal( queries = test
-                                            ,data.training = train
-                                            ,formula = control$formula
-                                            ,num.training.days = num.training.days
-                                            )
-        prediction = exp(model.result$prediction)
-        actual <- test$price
-        evaluate <- Evaluate( actual = actual
-                             ,prediction = prediction
-                             )
-        evaluate$rootMedianSquaredError
-    }
-
-    num.training.days <- 
-        if (control$testing) c(30, 90)
-        else c(30, 60, 90, 120, 150, 180)
-
-    rMedianSE <- sapply(num.training.days, RMSE)
-
-    best.index <- which.min(rMedianSE)
-    if (control$debug) {
-        print(query)
-        print(rMedianSE)
-        print(best.index)
-        print(num.training.days)
-        cat('next statement has failed before\n')
-        #browser()
-    }
-    best.num.training.days <- 
-        if (length(best.index) == 1) 
-            num.training.days[[best.index]]
-        else
-            NA
-    Printf( 'query date %s best.num.training.days %d test days %d nrow test %d train %d\n'
-           ,query$saleDate
-           ,best.num.training.days
-           ,num.days
-           ,nrow(test)
-           ,nrow(train)
-           )
-    result <- list( best.num.training.days = best.num.training.days
-                   ,num.days = num.days
-                   ,comparison.size = nrow(test)
-                   ,query.date = query$saleDate
-                   )
-    result
-}
-Predict <- function(query, data.training, control) {
-    # predict one query point
-    # return list
-    # $ prediction     : predicted value
-    # $ num.days       : number of weeks for comparables to query
-    # $ comparison.size: number of comparison transactions used
-    # $ query.date     : Date of the query
-    # return prediction for one query point
-    #cat('Predict\n'); browser()
-    
-    dbtp <- DetermineBestTrainingPeriod( query = query
-                                        ,data.training = data.training
-                                        ,control = control
-                                        )
-    prediction <-
-        if (is.na(dbtp$best.num.training.days)) {
-            NA
-        } else {
-            mall <- ModelAvmLinearLocal( queries = query
-                                        ,data.training = data.training
-                                        ,formula = control$formula
-                                        ,num.training.days = dbtp$best.num.training.days
-                                        )
-            exp(mall$predictions)
-        }
-    result <- list( prediction = prediction
-                   ,num.days = dbtp$num.days
-                   ,comparison.size = dbtp$comparison.size
-                   ,best.num.training.days = dbtp$best.num.training.days
-                   ,query.date = query$saleDate
                    )
     result
 }
@@ -581,6 +396,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'charts', '--query.fraction', '.01')
 default.args <- list('--which', 'charts', '--query.fraction', '.0001')
 default.args <- list('--query.fraction', '.001')
+default.args <- list('--query.fraction', '.01')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
