@@ -136,9 +136,9 @@ dl   = Directory.R                                                         Libra
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
-e-avm-variants.R                    : $(lswl) ReadTransactionSplits.R
+e-avm-variants.R                    : $(dl)   ReadTransactionSplits.R
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
-e-median-price.R                    : $(lswl)
+e-median-price.R                    : $(dl)   ReadTransactionsSubset1.R
 e-training-period.R                 : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(dl)   LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -148,14 +148,10 @@ parcels-sfr-sample.R                : $(lwl)  ReadParcelsSfr.R
 transactions.R                      : $(dl)   BestApns.R ReadCensus.R ReadDeedsAlG.R \
                                               ReadParcelsSfr.R ZipN.R
 transactions-subset1.R              : $(lwl)  ReadTransactions.R DEEDC.R SCODE.R TRNTP.R
-transactions-subset1-train.R        : $(lwl)  ReadTransactionsSubset1.R
-transactions-subset1-train-splits.R : $(lswl) ReadTransactionsSubset1Train.R
+transactions-subset1-train.R        : $(dl)   ReadTransactionsSubset1.R
+transactions-subset1-train-splits.R : $(dl)   ReadTransactionsSubset1Train.R
 thesis-input-processing.Rnw         : $(w)    
 
-# dependencies for data files
-#$(splits)/price.RData     : $(working)/transactions-al-sfr-subset.RData
-#$(splits)/sale.month.RData: $(working)/transactions-al-sfr-subset.RData
-#$(splits)/sale.year.RData : $(working)/transactions-al-sfr-subset.RData
 
 # experiment-driven RData files
 
@@ -259,7 +255,10 @@ $(working)/e-forms--%-120--testSample-0.01000.txt \
 e-median-price-dependencies += e-median-price.R
 e-median-price-dependencies += ReadTransactionsSubset1.R
 e-median-price-dependencies += $(working)/transactions-subset1.RData
-#$(warning e-median-price-dependencies is $(e-median-price-dependencies))
+e-median-price-dependencies += $(splits)/price.RData
+e-median-price-dependencies += $(splits)/sale.year.RData
+e-median-price-dependencies += $(splits)/sale.month.RData
+$(warning e-median-price-dependencies is $(e-median-price-dependencies))
 
 # stem is 2009
 $(working)/e-median-price-by-year-from-1984-to-%.pdf \
@@ -405,8 +404,8 @@ $(working)/transactions-subset1.RData: transactions-subset1.R \
 	Rscript transactions-subset1.R
 
 # the stem is RData
-transactions-subset-train-dependencies += transactions-subset1.R
-transactions-subset-train-dependencies += $(working)/transactions-subset1.RData
+transactions-subset1-train-dependencies += transactions-subset1-train.R
+transactions-subset1-train-dependencies += $(working)/transactions-subset1.RData
 $(working)/transactions-subset1-train.% \
 $(working)/transactions-subset1-test.% \
 : $(transactions-subset1-train-dependencies)
