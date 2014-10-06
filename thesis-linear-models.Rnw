@@ -167,7 +167,7 @@ Control <- function() {
                   )
       a
     }
-    AppendAdjustTrainingPeriod <- function(lst) {
+    AppendAdjustTrainingPeriodPaths <- function(lst) {
       name.prefix <- 'path.in.e.adjust.training.period..query.fraction.'
       value.prefix <- paste0( working
                        ,'e-adjust-training-period--query.fraction-'
@@ -186,6 +186,22 @@ Control <- function() {
 
       b
     }
+    AppendPenalizedRegressionPaths <- function(lst) {
+      name.prefix <- 'path.in.e.penalized.regression..query.fraction.'
+      value.prefix <- paste0( working
+                             ,'e-penalized-regression--query.fraction-'
+                             )
+      value.suffix <- '.txt'
+      a <- Append( paste0(name.prefix, '001')
+                  ,paste0(value.prefix, '0.001000', value.suffix)
+                  ,lst
+                  )
+      b <- Append( paste0(name.prefix, '01')
+                  ,paste0(value.prefix, '0.010000', value.suffix)
+                  ,a
+                  )
+      b
+    }
 
 
     control <- list( cache = FALSE
@@ -200,7 +216,8 @@ Control <- function() {
     control7 <- AppendEformsPaths(control6)
     control8 <- AppendETrainingPeriodPaths(control7)
     control9 <- AppendDrawings(control8)
-    control10 <- AppendAdjustTrainingPeriod(control9)
+    control10 <- AppendAdjustTrainingPeriodPaths(control9)
+    control11 <- AppendPenalizedRegressionPaths(control10)
 }
 
 control <- Control()
@@ -1254,35 +1271,169 @@ values is caused in part by selection of different 0.1 percent and 1
 percent random samples from the data. 
 
 Returning to the intepretation of the results for the two figures, we
-see that the best training period is often 30 days or 180 days. Thi sis
-consistent with supposing that a short training period is appropriate
-when prices are volating and a long training period is appropriate when
-prices are stable. Thus there may be merit to the idea of tuning the
-training period to the volatility of prices at the time of the query,
-and the proposed method simply fails to implement that idea.
-
-
-
+see that the best training period is often 30 days or 180 days. The
+modal nature of the extreme values is consistent with supposing that a
+short training period is appropriate when prices are volating and a long
+training period is appropriate when prices are stable. The modal nature
+of the exteme values also suggests assessing the accuracy of models with
+both shorter and longer training periods. Thus there may be merit to the
+idea of tuning the training period to the volatility of prices at the
+time of the query, and the proposed method simply fails to implement
+that idea.
 
 \subsection{Ideas for Tuning the Training Period}
 
-REWRITE ME
+This work has explored tuning the training period based on transactions
+just before the query period. The proposed method does not give more
+accurate results than simply selecting a best-on-average training
+period. The work does suggest that there is merit in the idea of tuning
+the training period.
 
-Future work could explore two alternatives to fixing the training period
-once across the 25 years of data, as was examined in these experiments.
-One alternative is to include dummy variables for the time period. The
-dummy captures average price levels during the time period.  To
-forecast, one needs to forecast the value of the dummy variable forward
-one day. A simple linear estimate for the time-period dummy may be
-sufficient.
+Another approach, not implemented here, is to directly determine the
+volatility of the prices in the time period before the query
+transaction. The volatility would be an input to a function that yielded
+shorter training periods for times of higher volatity and longer training
+periods for times of lower volatility.
 
-Another alternative is to adapt the training period to the volatility in
-the market: when prices are more volatile, train on short periods, when
-prices are more stable, train on longer periods. This idea could be
-implemented by using cross-validation to select the best training period
-just before running the model for a given query date. One business
-setting in which this approach would apply is the very common one of
-predicting prices for all properties one day into the future.
+\section{Which features are best?}
+
+So far in this work, the features used as predictors have been based on
+those selected by Sumit Chopra for his thesis work \cite{chopra-09}. He
+selected features that were present in many observations. However
+additional features are possible and the features used are not
+necessarily the best ones.  Indeed, Kuhn-13 chapter 19 claims that
+adding non-informative predictors to a linear model can degrade its
+predictive accuracy (TODO: cite the original paper, if possible).
+
+This section explores whether some predictors in the Chopra-derived set
+should be dropped and whether certain additional predictors should be
+added.
+
+\subsection{Possibly dropping some features}
+
+Our predictor feature set has 11 elements. A straight-forward way to
+determine whether a subset of these feature provides more accurate
+predictions would be to form every subset of the 11 features and use
+cross validation to estimate the generalization error for each of the
+subset of features. This approach does not scale well, as the number of
+possible models to test grows factorially with the number of features.
+
+So we developed a heuristic that proceeds in two stages. In stage one,
+we estimate the value of adding each feature in order to a base
+model which initially has no features. Thus we determine the best
+feature to add initially, and given, that this feature is in the model,
+the next feature to add second, and so forth. This greedy procedure is
+of order $O(n^2)$ in $n$, the number of possible predictors. It provides
+a rank-ordering of the value of the features. In stage two, we then
+estimate the generalization error from using just the first of the
+rank-ordered features, then the first and second, then the first and
+second and third, and so forth. The second stage takes time $O(n)$. This
+heuristic approximates the factorial-timed problem with a $O(n^2)$ time
+problem.
+
+The first stage is implemented by running the elastic net procedure from
+Hastie (TODO: provide a reference). This procedure is claimed to implement
+both the lasso and ridge regression efficiently. For our purposes, we
+don't need the ridge regression results, just the rank ordering of
+feature importance in accuracy.
+
+The second stage is implemented by using the rank-ordered features to
+derive models that are studied in a 10-fold cross validation procedure.
+
+<<Dropping>>=
+path.001 <- control$path.in.e.penalized.regression..query.fraction.001
+path.001
+path.01 <- control$path.in.e.penalized.regression..query.fraction.01
+path.01
+@
+
+
+
+
+\begin{figure}[h]
+\caption{Dropping Features 0.1 Percent Sample}
+\label{figure:Dropping001}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.001}}
+\end{figure}
+
+Figure \ref{figure:Dropping001} depicts the results of applying the
+heuristic to a 0.1 percent random sample of the test transactions in
+every fold using 10-fold cross validation. The most important feature is
+the living area and perhaps surprisingly the least important is the
+number of bathrooms. One possible explanation for the low importance of
+the number of bathrooms is that it might be highly correlated with the
+number of bedrooms, which is ranked as more important. The second most
+important feature is the median household income in the census tract.
+This feature is measured in the year 2000, so it does have future
+information for many of the test samples. However, it is none-the-less a
+proxy for the quality of the neighorhood and we are not surprised to see
+that it is a very important feature. Features ranked as third and
+fourth in importance are also features of the census tract. Features
+ranked 2 through 4 are all location features and real estate agents
+claim that location is the most important feature when pricing a house.
+This experiment suggests that location is in fact the second most
+important feature, behind living area, and provides a way to measure
+location quality.
+
+Turning to the second part of the figure, we see that the estimated
+generalization errors as measured by RMedianSE is lowest when the first
+9 features are used and increases when features ranked 10 and 11 are
+added. Dropping the new construction and bathrooms features is suggested
+as a way to improve predicition accuracy.
+
+Moreover, the RMedian SE increases after the three location features are
+added and then decreases until the 9th feature has been added. Because
+the RMedianSE values for the 4th and 9th feature are very close,
+dropping all but the first 4 features is suggested. If this were done,
+we would have a very reduced model: house size plus location features.
+This model has many fewer features than typical models in the house
+price literature.
+
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample}
+\label{figure:Dropping01}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.01}}
+\end{figure}
+
+Figure \ref{figure:Dropping01} contains the same analysis but for a 1
+percent sample of test transactions in the folds. The rank-ordering of
+the features is the same as for the 0.1 percent sample because of the
+way the heuristic is implemented. 
+
+We see that as for the 0.1 percent sample, the living area and three
+location features provide improved estimated RMedianSE values, but now
+using the number of parkig spaces and whether the property has a pool
+also provide improved estimated accuracy. The minimum RMedianSE is again
+for the 9-feature model and the RMedianSE for it is close the the
+RMedianSE for the 6 factor model. One would consider using 6 factors
+instead of 9. Adding the last two features (new construction and number
+of bathrooms degrades accuracy).
+
+Now we can update our re-write of what real estate agents say: In Los
+Angeles, the most important features for house prices are the size of
+the house, its location, the number of parking spaces, and whether it
+has a pool. To me, this seems consistent with my impression of Los
+Angeles: its crowded so that on-street parking is hard to find; its hot
+so that swimming pools are valuable.
+
+The findings from these two experiments show that feature selection is
+in fact an issue when designing linear models for house price
+prediction. The findings do not contradict the claim that adding
+non-information features can reduce prediction accuracy for linear
+models (but we have not shown the features to be non-informative).
+
+
+\subsection{Possibly adding some feature}
+
+WRITE ME.
+
 
 
 \end{document}
