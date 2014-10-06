@@ -1,8 +1,7 @@
 # parcels-derived-features.R
 # Create files OUTPUT/parcels-derived-features.RData
 
-source('DirectoryLog.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 source('Libraries.R')
 
 source('LUSEI.R')
@@ -13,8 +12,8 @@ source('ZipN.R')
 Control <- function() {
     me <-'parcels-derived-features'
     
-    log <- DirectoryLog()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    working <- Directory('working')
     
     control <- list(
          path.in.parcels.coded = paste0(working, 'parcels-coded.RData')
@@ -203,7 +202,7 @@ Main <- function(control, parcels.coded.subset) {
 
     # NOTE: if(TRUE/FALSE) used while debugging, as FeatureX is slow
     # calculating the zip 9 features would take many days
-    features.census.tract <- if (FALSE) FeaturesCensusTract(control, parcels.coded.subset)
+    features.census.tract <- if (TRUE) FeaturesCensusTract(control, parcels.coded.subset)
     features.zip5 <- if (TRUE) FeaturesZip5(control, parcels.coded.subset)
     features.zip9 <- if (FALSE) FeaturesZip9(control, parcels.coded.subset) else NULL
     
@@ -222,7 +221,6 @@ parcels.coded <-
     if (exists('parcels.coded')) parcels.coded else ReadParcelsCoded(control$path.in.parcels.coded)
 parcels.coded.subset <-
     if (exists('parcels.coded.subset')) parcels.coded.subset else ParcelsCodedSubset(parcels.coded)
-debug(Main)
 Main(control, parcels.coded.subset)
 cat('done\n')
 
