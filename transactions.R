@@ -22,9 +22,7 @@
 # Join the deeds and parcels fileson the best APN (defined below), not the
 # formatted or unformatted APN.
 
-source('DirectoryLog.R')
-source('DirectoryRaw.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 source('Libraries.R')
 
 source('BestApns.R')
@@ -37,9 +35,9 @@ Control <- function() {
 # set control variables
     me <- 'transactions'
 
-    log <- DirectoryLog()
-    raw <- DirectoryRaw()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    raw <- Directory('raw')
+    working <- Directory('working')
 
     control <- list( path.out.log = paste0(log, me, '.log')
                     ,path.out.transactions = paste0(working, 'transactions.RData')
