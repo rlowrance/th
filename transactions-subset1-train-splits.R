@@ -1,8 +1,6 @@
 # main program to create directory WORKING/transactions-subset1-splits
 
-source('DirectoryLog.R')
-source('DirectorySplits.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 source('Libraries.R')
 
 source('ReadTransactionsSubset1Train.R')
@@ -10,15 +8,16 @@ source('ReadTransactionsSubset1Train.R')
 Control <- function() {
     me <- 'transactions-subset1-train-splits'
 
-    log <- DirectoryLog()
-    splits <- DirectorySplits()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    splits <- Directory('splits')
+    working <- Directory('working')
 
     control <- 
         list( path.out.log = paste0(log, me, '.log')
-             ,path.out.splits.dir = DirectorySplits()
+             ,path.out.splits.dir = splits
              ,path.in = paste0(working, 'transactions-subset1-train.RData')
              ,testing = FALSE
+             ,summarize = TRUE
              )
 }
 
@@ -35,6 +34,12 @@ CenterLog1p <- function(current.value) {
     result <- Center(log1p(current.value))
     result
 }
+
+HasFireplace <- function(FIREPLACE.INDICATOR.FLAG) {
+    result <- as.factor(ifelse(is.na(FIREPLACE.INDICATOR.FLAG), FALSE, TRUE))
+    result
+}
+debug(HasFireplace)
 
 HasPool <- function(POOL.FLAG) {
     #cat('starting HasPool\n'); browser()
@@ -116,6 +121,16 @@ Main <- function(control, raw) {
 
     raw$total.assessment <- raw$IMPROVEMENT.VALUE.CALCULATED + raw$LAND.VALUE.CALCULATED
 
+    AllNA <- function(new.name, Transform, current.name) {
+        cat('starting AllNA', current.name, '\n')
+        values <- raw[[current.name]]
+        stopifnot(all(is.na(values)))
+    }
+    AllZero <- function(new.name, Transform, current.name) {
+        cat('starting AllNA', current.name, '\n')
+        values <- raw[[current.name]]
+        stopifnot(all(values == 0))
+    }
     Split <- function(new.name, Transform, current.name) {
         # create file new.name.RData with data.frame with one column new.name
         cat('starting Split', new.name, current.name, '\n')
@@ -136,6 +151,16 @@ Main <- function(control, raw) {
         save( data  # other code expects the name to be "data"
              ,file = file
              )
+
+        if (control$summarize) 
+            print(summary(data))
+
+        data
+    }
+    SplitSummarize <- function(new.name, Transform, current.name) {
+        data <- Split(new.name, Transform, current.name)
+        print(summary(data))
+        data
     }
     SplitSizeLog <- function(new.base.name, current.name) {
         Split(new.base.name, Identity, current.name)
@@ -210,6 +235,42 @@ Main <- function(control, raw) {
     Split('zip5.has.park', Identity, 'zip5.has.park')
     Split('zip5.has.retail', Identity, 'zip5.has.retail')
     Split('zip5.has.school', Identity, 'zip5.has.school')
+
+    
+    AllZero('ground.floor.square.feet', Identity, 'GROUND.FLOOR.SQUARE.FEET')
+    Split('basement.square.feet', Identity, 'BASEMENT.SQUARE.FEET')
+    Split('garage.parking.square.feet', Identity, 'GARAGE.PARKING.SQUARE.FEET')
+    Split('effective.year.built', Identity, 'EFFECTIVE.YEAR.BUILT')
+    Split('total.rooms', Identity, 'TOTAL.ROOMS')
+    AllZero('bath.fixtures', Identity, 'BATH.FIXTURES')
+
+    # construction factors
+    Split('air.conditioning.code', Identity, 'AIR.CONDITIONING.CODE')
+    AllNA('basement.finish.code', Identity, 'BASEMENT.FINISH.CODE')
+    AllNA('bldg.code', Identity, 'BLDG.CODE')
+    AllNA('bldg.improvement.code', Identity, 'BLDG.IMPROVEMENT.CODE')
+    Split('condition.code', Identity, 'CONDITION.CODE')
+    Split('construction.type.code', Identity, 'CONSTRUCTION.TYPE.CODE')
+    Split('exterior.walls.code', Identity, 'EXTERIOR.WALLS.CODE')
+    Split('fireplace.indicator.flag', Identity, 'FIREPLACE.INDICATOR.FLAG')
+    Split('fireplace.number', Identity, 'FIREPLACE.NUMBER')
+    Split('fireplace.type.code', Identity, 'FIREPLACE.TYPE.CODE')
+    Split('foundation.code', Identity, 'FOUNDATION.CODE')
+    Split('floor.code', Identity, 'FLOOR.CODE')
+    AllNA('frame.code', Identity, 'FRAME.CODE')
+    Split('garage.code', Identity, 'GARAGE.CODE')
+    Split('heating.code', Identity, 'HEATING.CODE')
+    AllNA('mobile.home.indicator.flag', Identity, 'MOBILE.HOME.INDICATOR.FLAG')
+    Split('parking.type.code', Identity, 'PARKING.TYPE.CODE')
+    Split('pool.code', Identity, 'POOL.CODE')
+    Split('quality.code', Identity, 'QUALITY.CODE')
+    Split('roof.cover.code', Identity, 'ROOF.COVER.CODE')
+    AllNA('stories.code', Identity, 'STORIES.CODE')
+    Split('stories.number', Identity, 'STORIES.NUMBER')
+    AllNA('electric.energy.code', Identity, 'ELECTRIC.ENERGY.CODE')
+    AllNA('fuel.code', Identity, 'FUEL.CODE')  # omitted: all NAs
+    Split('sewer.code', Identity, 'SEWER.CODE')
+    Split('water.code', Identity, 'WATER.CODE')
 }
 
 # EXECUTION STARTS HERE
@@ -224,6 +285,7 @@ transactions.subset1.train <-
         #debug(ReadTransactionsAlSfrSubset1)
         ReadTransactionsSubset1Train(path = control$path.in)
     }
+
 
 
 Main(control, transactions.subset1.train)
