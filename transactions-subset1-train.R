@@ -4,8 +4,7 @@
 # The test data consists of about 1,000 randomly-chosen samples from each year
 # The training data consists of all the other samples
 
-source('DirectoryLog.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 source('Libraries.R')
 
 source('ReadTransactionsSubset1.R')
@@ -16,8 +15,8 @@ Control <- function() {
     # set control variables
     me <- 'transactions-subset1-train'
 
-    log <- DirectoryLog()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    working <- Directory('working')
 
     testing <- TRUE
     testing <- FALSE
