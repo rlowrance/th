@@ -5,11 +5,9 @@
 # Approach: Use k-fold cross validation to compare estimated generalization errors for
 # model variants
 
-source('DirectoryLog.R')
-source('DirectorySplits.R')
-source('DirectoryWorking.R')
-
+source('Directory.R')
 source('Libraries.R')
+
 source('ReadTransactionSplits.R')
 
 library(memoise)
@@ -24,9 +22,9 @@ Control <- function(parsed.command.args) {
                         ,num.training.days
                         )
 
-    log <- DirectoryLog()
-    splits <- DirectorySplits()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    splits <- Directory('splits')
+    working <- Directory('working')
 
     # defines the splits that we use
     predictor.names = c(# continuous size positive
