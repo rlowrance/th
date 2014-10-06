@@ -11,8 +11,13 @@
 #                       chart means just produce chart output (write e-forms*.txt)
 # --query.fraction    : number
 #                       fraction of samples in test period to use
-# Approach: Use k-fold cross validation to compare estimated generalization errors for
-# model variants
+# --feature.set       : one of {chopra, all}; default all
+#                     : which feature set to test
+# Approach
+# 1. Use elestic net's lasso functionality to determine rank ordering of features
+#    in terms of their importance.
+# 2. Cross validate n models, where n is the number of features and model n has
+#    features of importance 1 through importance n.
 
 source('Directory.R')
 
@@ -36,7 +41,8 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # defines the splits that we use
-     predictors.level = c( # continuous size positive
+    PredictorsChopra <- function() {
+     predictors <- c( # continuous size positive
                           'land.square.footage'
                           ,'living.area'
                            # continuous size nonnegative
@@ -52,7 +58,28 @@ Control <- function(command.args) {
                           ,'factor.is.new.construction'
                           ,'factor.has.pool'
                           )
-    other.names = c(# dates
+    }
+    PredictorsAll <- function() {
+        # the list of predictors is built from the transactions-subset1-train-splits directory
+        predictors <- c( PredictorsChopra()
+                        ,'census.tract.has.industry'
+                        ,'census.tract.has.park'
+                        ,'census.tract.has.retail'
+                        ,'census.tract.has.school'
+                        ,'factor.foundation.type'
+                        ,'factor.heating.code'
+                        ,'zip5.has.industry'
+                        ,'zip5.has.park'
+                        ,'zip5.has.retail'
+                        ,'zip5.has.school'
+                        )
+    }
+    predictors <- switch( opt$feature.set
+                         ,chopra = PredictorsChopra()
+                         ,all = PredictorsAll()
+                         ,stop('bad opt$feature.set')
+                         )
+    other.names <- c(# dates
                     'saleDate'
                     ,'recordingDate'
                     # prices
@@ -61,8 +88,9 @@ Control <- function(command.args) {
                     # apn
                     ,'apn'
                     )
-    formula <- Formula( predictors = predictors.level
-                       ,response = 'price.log'
+    response <- 'price.log'
+    formula <- Formula( predictors = predictors
+                       ,response = response
                        )
     testing <- FALSE
     #testing <- TRUE
@@ -76,12 +104,10 @@ Control <- function(command.args) {
                     ,path.out.chart1 = paste0(working, out.base, '.txt')
                     ,query.fraction = opt$query.fraction
                     ,num.training.days = 90
-                    ,predictors.level = predictors.level
-                    #,predictors.log = predictors.log
-                    #,response.level = 'price'
-                    ,response.log = 'price.log'
+                    ,predictors = predictors
+                    ,response = response
                     ,formula = formula
-                    ,split.names = unique(c(predictors.level, other.names))
+                    ,split.names = unique(c(predictors, other.names))
                     ,nfolds = 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
@@ -108,8 +134,15 @@ ParseCommandArgs <- function(command.args) {
                                           ,default = .01
                                           ,help = 'fraction of samples used as queries'
                                           )
+    opt.feature.set <- make_option( opt_str = c('--feature.set')
+                                   ,action = 'store'
+                                   ,type = 'character'
+                                   ,default = 'chopra'
+                                   ,help = 'name of feature set to use'
+                                   )
     option.list <- list( opt.which
                         ,opt.query.fraction
+                        ,opt.feature.set
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
@@ -218,12 +251,28 @@ Evaluate <- function(prediction, actual) {
 }
 MakeX <- function(data, control) {
     # return matrix containing just the predictor columns
-    predictor.df <- data[, control$predictors.level]
+
+    predictor.df <- data[, control$predictors]
+
+    # stop if any columns have zero variance
+    lapply( control$predictors
+           ,function(predictor) {
+               if (predictor == 'census.tract.has.industry') browser()
+               cat('predictor', predictor, '\n')
+               values <- predictor.df[,predictor]
+               if (sum(is.na(values)) > 0) cat('predictor', predictor, 'has NA values\n')
+               standard.deviation <- sd(values, na.rm = TRUE)
+               if (standard.deviation == 0)
+                   stop(sprintf('predictor %s has zero standard deviation', predictor))
+           }
+           )
+
+    # convert data frame to matrix
     result <- data.matrix(predictor.df)
     result
 }
 MakeY <- function(data, control) {
-    result <- data[, control$response.log]
+    result <- data[, control$response]
     result
 }
 ListRemoveNulls <-function(lst) {
@@ -260,7 +309,7 @@ EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
     mll <- ModelLinearLocal( InTraining = InTraining
                             ,queries = queries
                             ,data.training = data.training
-                            ,formula = Formula( response = control$response.log
+                            ,formula = Formula( response = control$response
                                                ,predictors = features
                                                )
                             )
@@ -397,6 +446,10 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 default.args <- list('--which', 'charts', '--query.fraction', '.0001')
 default.args <- list('--query.fraction', '.001')
 default.args <- list('--query.fraction', '.01')
+default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
+debug(MakeX)
+debug(Analysis)
+debug(Charts)
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
