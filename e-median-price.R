@@ -10,8 +10,7 @@
 #
 # may also write as output a pdf file containing the chart in pdf form
 
-source('DirectoryLog.R')
-source('DirectoryWorking.R')
+source('Directory.R')
 
 source('Libraries.R')
 
@@ -32,8 +31,8 @@ Control <- function(parsed.command.args) {
                              ,to
                              )
     
-    log <- DirectoryLog()
-    working <- DirectoryWorking()
+    log <- Directory('log')
+    working <- Directory('working')
 
     control <- list( from = from
                     ,to = to
