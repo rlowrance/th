@@ -1263,7 +1263,7 @@ is that the best number of training days to use is not a
 smoothly-changing function of the query date: small changes in the date
 lead to large changes in the best number of training days to use.
 On the other hand, it may be that the best number of training days to
-use is smooth, but that are granulatity in estimating it is too large:
+use is smooth, but that our granulatity in estimating it is too large:
 we examine only 30, 60, 90, 120, 150, and 180 day periods.
 
 Another possible interpretation is that the differences in RMedianSE
@@ -1276,12 +1276,12 @@ modal nature of the extreme values is consistent with supposing that a
 short training period is appropriate when prices are volating and a long
 training period is appropriate when prices are stable. The modal nature
 of the exteme values also suggests assessing the accuracy of models with
-both shorter and longer training periods. Thus there may be merit to the
-idea of tuning the training period to the volatility of prices at the
-time of the query, and the proposed method simply fails to implement
-that idea.
+both shorter and longer training periods than were done in these
+experimenta. Thus there may be merit to the idea of tuning the training
+period to the volatility of prices at the time of the query, and the
+proposed method simply fails to implement successfully that idea.
 
-\subsection{Ideas for Tuning the Training Period}
+\subsection{Other Ideas for Tuning the Training Period}
 
 This work has explored tuning the training period based on transactions
 just before the query period. The proposed method does not give more
@@ -1322,14 +1322,14 @@ So we developed a heuristic that proceeds in two stages. In stage one,
 we estimate the value of adding each feature in order to a base
 model which initially has no features. Thus we determine the best
 feature to add initially, and given, that this feature is in the model,
-the next feature to add second, and so forth. This greedy procedure is
-of order $O(n^2)$ in $n$, the number of possible predictors. It provides
-a rank-ordering of the value of the features. In stage two, we then
-estimate the generalization error from using just the first of the
-rank-ordered features, then the first and second, then the first and
-second and third, and so forth. The second stage takes time $O(n)$. This
-heuristic approximates the factorial-timed problem with a $O(n^2)$ time
-problem.
+the next feature to add second, and so forth. This greedy procedure has
+time requirements of order $O(n^2)$ in $n$, the number of possible
+predictors. It provides a rank-ordering of the value of the features. In
+stage two, we then estimate the generalization error from using just the
+first of the rank-ordered features, then the first and second, then the
+first and second and third, and so forth. The second stage takes time
+$O(n)$. This heuristic approximates the factorial-timed problem with a
+$O(n^2)$ time problem.
 
 The first stage is implemented by running the elastic net procedure from
 Hastie (TODO: provide a reference). This procedure is claimed to implement
@@ -1386,7 +1386,7 @@ as a way to improve predicition accuracy.
 
 Moreover, the RMedian SE increases after the three location features are
 added and then decreases until the 9th feature has been added. Because
-the RMedianSE values for the 4th and 9th feature are very close,
+the RMedianSE values for the 4th and 9th models are very close,
 dropping all but the first 4 features is suggested. If this were done,
 we would have a very reduced model: house size plus location features.
 This model has many fewer features than typical models in the house
@@ -1409,12 +1409,12 @@ way the heuristic is implemented.
 
 We see that as for the 0.1 percent sample, the living area and three
 location features provide improved estimated RMedianSE values, but now
-using the number of parkig spaces and whether the property has a pool
+using the number of parking spaces and whether the property has a pool
 also provide improved estimated accuracy. The minimum RMedianSE is again
 for the 9-feature model and the RMedianSE for it is close the the
 RMedianSE for the 6 factor model. One would consider using 6 factors
 instead of 9. Adding the last two features (new construction and number
-of bathrooms degrades accuracy).
+of bathrooms) degrades accuracy.
 
 Now we can update our re-write of what real estate agents say: In Los
 Angeles, the most important features for house prices are the size of
