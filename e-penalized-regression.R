@@ -20,7 +20,6 @@
 #    features of importance 1 through importance n.
 
 source('Directory.R')
-
 source('Libraries.R')
 
 source('ModelLinearLocal.R')
@@ -61,13 +60,48 @@ Control <- function(command.args) {
     }
     PredictorsAll <- function() {
         # the list of predictors is built from the transactions-subset1-train-splits directory
-        predictors <- c( PredictorsChopra()
+        predictors <- c( # build list from the directory
+                        ,'air.conditioning.code'
+                        ,'avg.commute.time'
+                        ,'basement.square.feet'
+                        ,'bathrooms'
+                        ,'bedrooms'
                         ,'census.tract.has.industry'
                         ,'census.tract.has.park'
                         ,'census.tract.has.retail'
                         ,'census.tract.has.school'
+                        ,'condition.code'
+                        ,'construction.type.code'
+                        ,'effective.year.built'
+                        ,'exterior.walls.code'
                         ,'factor.foundation.type'
+                        ,'factor.has.pool'
                         ,'factor.heating.code'
+                        ,'factor.is.new.construction'
+                        ,'factor.parking.type'
+                        ,'factor.roof.type'
+                        ,'fireplace.indicator.flag',
+                        ,'fireplace.number'
+                        ,'fireplace.type.code'
+                        ,'floor.code'
+                        ,'foundation.code'
+                        ,'fraction.owner.occupied'
+                        ,'garage.code'
+                        ,'garage.parking.square.feet'
+                        ,'heating.code'
+                        ,'land.square.footage'
+                        ,'living.area'
+                        ,'median.household.income'
+                        ,'parking.spaces'
+                        ,'parking.type.code'
+                        ,'pool.code'
+                        ,'quality.code'
+                        ,'roof.cover.code'
+                        ,'sewer.code'
+                        ,'stories.number'
+                        ,'total.rooms'
+                        ,'water.code'
+                        ,'year.built'
                         ,'zip5.has.industry'
                         ,'zip5.has.park'
                         ,'zip5.has.retail'
@@ -443,10 +477,10 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--query.fraction', '.00001')
 #default.args <- list('--query.fraction', '.001')
 #default.args <- list('--which', 'charts', '--query.fraction', '.01')
-default.args <- list('--which', 'charts', '--query.fraction', '.0001')
-default.args <- list('--query.fraction', '.001')
-default.args <- list('--query.fraction', '.01')
-default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
+#default.args <- list('--which', 'charts', '--query.fraction', '.0001')
+#default.args <- list('--query.fraction', '.001')
+#default.args <- list('--query.fraction', '.01')
+#default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
 debug(MakeX)
 debug(Analysis)
 debug(Charts)
