@@ -1332,8 +1332,10 @@ $O(n)$. This heuristic approximates the factorial-timed problem with a
 $O(n^2)$ time problem.
 
 The first stage is implemented by running the elastic net procedure from
-Hastie (TODO: provide a reference). This procedure is claimed to implement
-both the lasso and ridge regression efficiently. For our purposes, we
+Zou and Hastie (\cite{zou-05}).
+This procedure is claimed to implement
+both the lasso and ridge regression efficiently in the time required for
+ordinary least squares (page 309). For our purposes, we
 don't need the ridge regression results, just the rank ordering of
 feature importance in accuracy.
 
@@ -1434,7 +1436,9 @@ models (but we have not shown the features to be non-informative).
 
 WRITE ME.
 
-
+%%% BIBLIOGRAPHY
+\bibliographystyle{amsplain}
+\bibliography{../../roy-bib/roy-bib}
 
 \end{document}
  
