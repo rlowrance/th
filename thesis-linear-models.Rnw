@@ -1215,12 +1215,12 @@ before the query date. For these transactions, we determined the
 RMedianSE for training periods of 30, 60, 90, 120, 150, and 180 days and
 selected the training period with the lowest error. We then used that
 training period for the query transaction. For example, if using a
-60-day training period leads to the lowested errors on transactions the
+60-day training period leads to the lowest errors on transactions the
 day before the query, we used a 60-day training period for the query
 transaction. There is one refinement: if there are no transactions the
-day before the query transaction, then the test period for detemining
+day before the query transaction, then the test period for determining
 the best training period is extended day by day into the past until we
-have found some test transations.
+have found some test transactions.
 
 <<TuningTheTrainingPeriod>>=
 control$path.in.e.adjust.training.period..query.fraction.001
@@ -1263,21 +1263,21 @@ is that the best number of training days to use is not a
 smoothly-changing function of the query date: small changes in the date
 lead to large changes in the best number of training days to use.
 On the other hand, it may be that the best number of training days to
-use is smooth, but that our granulatity in estimating it is too large:
+use is smooth, but that our granularity in estimating it is too large:
 we examine only 30, 60, 90, 120, 150, and 180 day periods.
 
 Another possible interpretation is that the differences in RMedianSE
 values is caused in part by selection of different 0.1 percent and 1
 percent random samples from the data. 
 
-Returning to the intepretation of the results for the two figures, we
+Returning to the interpretation of the results for the two figures, we
 see that the best training period is often 30 days or 180 days. The
 modal nature of the extreme values is consistent with supposing that a
-short training period is appropriate when prices are volating and a long
+short training period is appropriate when prices are violating and a long
 training period is appropriate when prices are stable. The modal nature
-of the exteme values also suggests assessing the accuracy of models with
+of the extreme values also suggests assessing the accuracy of models with
 both shorter and longer training periods than were done in these
-experimenta. Thus there may be merit to the idea of tuning the training
+experiments. Thus there may be merit to the idea of tuning the training
 period to the volatility of prices at the time of the query, and the
 proposed method simply fails to implement successfully that idea.
 
@@ -1292,7 +1292,7 @@ the training period.
 Another approach, not implemented here, is to directly determine the
 volatility of the prices in the time period before the query
 transaction. The volatility would be an input to a function that yielded
-shorter training periods for times of higher volatity and longer training
+shorter training periods for times of higher volatility and longer training
 periods for times of lower volatility.
 
 \section{Which features are best?}
@@ -1369,7 +1369,7 @@ number of bedrooms, which is ranked as more important. The second most
 important feature is the median household income in the census tract.
 This feature is measured in the year 2000, so it does have future
 information for many of the test samples. However, it is none-the-less a
-proxy for the quality of the neighorhood and we are not surprised to see
+proxy for the quality of the neighborhood and we are not surprised to see
 that it is a very important feature. Features ranked as third and
 fourth in importance are also features of the census tract. Features
 ranked 2 through 4 are all location features and real estate agents
@@ -1382,9 +1382,9 @@ Turning to the second part of the figure, we see that the estimated
 generalization errors as measured by RMedianSE is lowest when the first
 9 features are used and increases when features ranked 10 and 11 are
 added. Dropping the new construction and bathrooms features is suggested
-as a way to improve predicition accuracy.
+as a way to improve prediction accuracy.
 
-Moreover, the RMedian SE increases after the three location features are
+Moreover, the RMedianSE increases after the three location features are
 added and then decreases until the 9th feature has been added. Because
 the RMedianSE values for the 4th and 9th models are very close,
 dropping all but the first 4 features is suggested. If this were done,
