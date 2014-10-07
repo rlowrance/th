@@ -44,6 +44,11 @@ thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
 # EXPERIMENT TARGETS
 
+targets += $(working)/e-adjust-training-period--query.fraction-0.001000.RData
+targets += $(working)/e-adjust-training-period--query.fraction-0.001000.txt
+targets += $(working)/e-adjust-training-period--query.fraction-0.010000.RData
+targets += $(working)/e-adjust-training-period--query.fraction-0.010000.txt
+
 targets += $(working)/e-avm-variants--training-30.RData
 targets += $(working)/e-avm-variants--training-30.txt
 targets += $(working)/e-avm-variants--training-60.RData
@@ -70,10 +75,17 @@ targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
 targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 
+#targets += $(working)/e-penalized-regression--query.fraction-0.001000.RData
+#targets += $(working)/e-penalized-regression--query.fraction-0.001000.txt
+#targets += $(working)/e-penalized-regression--query.fraction-0.010000.RData
+#targets += $(working)/e-penalized-regression--query.fraction-0.010000.txt
+#$(warning targets is $(targets))
+
 targets += $(working)/e-training-period--testSampleFraction-0.001000.RData
 targets += $(working)/e-training-period--testSampleFraction-0.001000.txt
 targets += $(working)/e-training-period--testSampleFraction-0.010000.RData
 targets += $(working)/e-training-period--testSampleFraction-0.010000.txt
+
 
 # SPLITS actually used
 targets += $(splits)/apn.RData
@@ -136,9 +148,11 @@ dl   = Directory.R                                                         Libra
 census.R                            : $(lrwl)
 deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
+e-adjust-training-period.R          : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 e-avm-variants.R                    : $(dl)   ReadTransactionSplits.R
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(dl)   ReadTransactionsSubset1.R
+e-penalized-regression.R            : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 e-training-period.R                 : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 parcels-coded.R                     : $(lrwl) LUSEI.R PROPN.R ReadRawParcels.R
 parcels-derived-features.R          : $(dl)   LUSEI.R PROPN.R ReadParcelsCoded.R ZipN.R
@@ -154,6 +168,40 @@ thesis-input-processing.Rnw         : $(w)
 
 
 # experiment-driven RData files
+
+# E-ADJUST-TRAINING-PERIOD
+
+e-adjust-training-period-dependencies += e-adjust-training-period.R
+e-adjust-training-period-dependencies += $(splits)/land.square.footage.RData
+e-adjust-training-period-dependencies += $(splits)/living.area.RData
+e-adjust-training-period-dependencies += $(splits)/bedrooms.RData
+e-adjust-training-period-dependencies += $(splits)/bathrooms.RData
+e-adjust-training-period-dependencies += $(splits)/parking.spaces.RData
+e-adjust-training-period-dependencies += $(splits)/median.household.income.RData
+e-adjust-training-period-dependencies += $(splits)/year.built.RData
+e-adjust-training-period-dependencies += $(splits)/fraction.owner.occupied.RData
+e-adjust-training-period-dependencies += $(splits)/avg.commute.time.RData
+e-adjust-training-period-dependencies += $(splits)/factor.is.new.construction.RData
+e-adjust-training-period-dependencies += $(splits)/factor.has.pool.RData
+e-adjust-training-period-dependencies += $(splits)/saleDate.RData
+e-adjust-training-period-dependencies += $(splits)/recordingDate.RData
+e-adjust-training-period-dependencies += $(splits)/price.RData
+e-adjust-training-period-dependencies += $(splits)/price.log.RData
+e-adjust-training-period-dependencies += $(splits)/apn.RData
+#$(warning e-adjust-training-period-dependencies is $(e-adjust-training-period-dependencies))
+
+# the stem is query.fraction
+$(working)/e-adjust-training-period--%-0.001000.RData \
+$(working)/e-adjust-training-period--%-0.001000.txt \
+: $(e-adjust-training-period-dependencies)
+	Rscript e-adjust-training-period.R --query.fraction 0.001000
+
+$(working)/e-adjust-training-period--%-0.010000.RData \
+$(working)/e-adjust-training-period--%-0.010000.txt \
+: $(e-adjust-training-period-dependencies)
+	Rscript e-adjust-training-period.R --query.fraction 0.010000
+
+
 
 # E-AVM-VARIANTS
 
@@ -258,7 +306,7 @@ e-median-price-dependencies += $(working)/transactions-subset1.RData
 e-median-price-dependencies += $(splits)/price.RData
 e-median-price-dependencies += $(splits)/sale.year.RData
 e-median-price-dependencies += $(splits)/sale.month.RData
-$(warning e-median-price-dependencies is $(e-median-price-dependencies))
+#$(warning e-median-price-dependencies is $(e-median-price-dependencies))
 
 # stem is 2009
 $(working)/e-median-price-by-year-from-1984-to-%.pdf \
@@ -271,20 +319,89 @@ $(working)/e-median-price-by-month-from-2006-to-%.Rdata \
 : $(e-median-price-dependencies)
 	RScript e-median-price.R --by month --from 2006 --to 2009
 
+# E-PENALIZED-REGRESSION
+
+e-penalized-regression-dependenceis += e-penalized-regression.R
+# predictors used
+e-penalized-regression-dependencies += $(splits)/air.conditioning.code.RData
+e-penalized-regression-dependencies += $(splits)/avg.commute.time.RData
+e-penalized-regression-dependencies += $(splits)/basement.square.feet.RData
+e-penalized-regression-dependencies += $(splits)/bathrooms.RData.RData
+e-penalized-regression-dependencies += $(splits)/bedrooms.RData.RData
+e-penalized-regression-dependencies += $(splits)/census.tract.has.industry.RData
+e-penalized-regression-dependencies += $(splits)/census.tract.has.park.RData
+e-penalized-regression-dependencies += $(splits)/census.tract.has.retail.RData
+e-penalized-regression-dependencies += $(splits)/census.tract.has.school.RData
+e-penalized-regression-dependencies += $(splits)/condition.code.RData
+e-penalized-regression-dependencies += $(splits)/construction.type.code.RData
+e-penalized-regression-dependencies += $(splits)/effective.year.built.RData
+e-penalized-regression-dependencies += $(splits)/exterior.walls.code.RData
+e-penalized-regression-dependencies += $(splits)/factor.foundation.type.RData
+e-penalized-regression-dependencies += $(splits)/factor.has.pool.RData
+e-penalized-regression-dependencies += $(splits)/factor.heating.code.RData
+e-penalized-regression-dependencies += $(splits)/factor.is.new.construction.RData
+e-penalized-regression-dependencies += $(splits)/factor.parking.type.RData
+e-penalized-regression-dependencies += $(splits)/factor.roof.type.RData
+e-penalized-regression-dependencies += $(splits)/fireplace.indicator.flag.RData
+e-penalized-regression-dependencies += $(splits)/fireplace.number.RData
+e-penalized-regression-dependencies += $(splits)/fireplace.type.code.RData
+e-penalized-regression-dependencies += $(splits)/floor.code.RData
+e-penalized-regression-dependencies += $(splits)/foundation.code.RData
+e-penalized-regression-dependencies += $(splits)/fraction.owner.occupied.RData
+e-penalized-regression-dependencies += $(splits)/garage.code.RData
+e-penalized-regression-dependencies += $(splits)/garage.parking.square.feet.RData
+e-penalized-regression-dependencies += $(splits)/heating.code.RData
+e-penalized-regression-dependencies += $(splits)/land.square.footage.RData
+e-penalized-regression-dependencies += $(splits)/living.area.RData
+e-penalized-regression-dependencies += $(splits)/median.household.income.RData
+e-penalized-regression-dependencies += $(splits)/parking.spacies.RData
+e-penalized-regression-dependencies += $(splits)/parking.type.code.RData
+e-penalized-regression-dependencies += $(splits)/pool.code.RData
+e-penalized-regression-dependencies += $(splits)/quality.code.RData
+e-penalized-regression-dependencies += $(splits)/roof.cover.code.RData
+e-penalized-regression-dependencies += $(splits)/sewer.code.RData
+e-penalized-regression-dependencies += $(splits)/stories.number.RData
+e-penalized-regression-dependencies += $(splits)/total.rooms.RData
+e-penalized-regression-dependencies += $(splits)/water.code.RData
+e-penalized-regression-dependencies += $(splits)/year.built.RData
+e-penalized-regression-dependencies += $(splits)/zip5.has.industry.RData
+e-penalized-regression-dependencies += $(splits)/zip5.has.park.RData
+e-penalized-regression-dependencies += $(splits)/zip5.has.retail.RData
+e-penalized-regression-dependencies += $(splits)/zip5.has.school.RData
+# other splits
+e-penalized-regression-dependencies += $(splits)/apn.RData
+e-penalized-regression-dependencies += $(splits)/price.RData
+e-penalized-regression-dependencies += $(splits)/price.log.RData
+e-penalized-regression-dependencies += $(splits)/recordingDate.RData
+e-penalized-regression-dependencies += $(splits)/saleDate.RData
+
+# the stem is query.fraction
+$(working)/e-penalized-regression--%-0.001000.RData \
+$(working)/e-penalized-regression--%-0.001000.txt \
+: $(e-penalized-regression-dependencies)
+	Rscript e-penalized-regression.R --query-fraction 0.001000
+
+$(working)/e-penalized-regression--%-0.010000.RData \
+$(working)/e-penalized-regression--%-0.010000.txt \
+: $(e-penalized-regression-dependencies)
+	Rscript e-penalized-regression.R --query-fraction 0.010000
+
+# TODO: add for all splits (above is for chopra's splits)
+
 # E-TRAINING-PERIOD; stem is testSampleFraction
 
 e-training-period-dependencies += e-training-period.R
 e-training-period-dependencies += $(splits)/apn.RData
 e-training-period-dependencies += $(splits)/avg.commute.time.RData
-e-training-period-dependencies += $(splits)/bathrooms.log1p.RData
-e-training-period-dependencies += $(splits)/bedrooms.log1p.RData
+e-training-period-dependencies += $(splits)/bathrooms.RData
+e-training-period-dependencies += $(splits)/bedrooms.RData
 e-training-period-dependencies += $(splits)/factor.has.pool.RData
 e-training-period-dependencies += $(splits)/factor.is.new.construction.RData
 e-training-period-dependencies += $(splits)/fraction.owner.occupied.RData
-e-training-period-dependencies += $(splits)/land.square.footage.log.RData
-e-training-period-dependencies += $(splits)/living.area.log.RData
+e-training-period-dependencies += $(splits)/land.square.footage.RData
+e-training-period-dependencies += $(splits)/living.area.RData
 e-training-period-dependencies += $(splits)/median.household.income.RData
-e-training-period-dependencies += $(splits)/parking.spaces.log1p.RData
+e-training-period-dependencies += $(splits)/parking.spaces.RData
 e-training-period-dependencies += $(splits)/price.log.RData
 e-training-period-dependencies += $(splits)/recordingDate.RData
 e-training-period-dependencies += $(splits)/saleDate.RData
