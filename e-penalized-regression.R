@@ -61,7 +61,7 @@ Control <- function(command.args) {
     PredictorsAll <- function() {
         # the list of predictors is built from the transactions-subset1-train-splits directory
         predictors <- c( # build list from the directory
-                        ,'air.conditioning.code'
+                         'air.conditioning.code'
                         ,'avg.commute.time'
                         ,'basement.square.feet'
                         ,'bathrooms'
@@ -80,7 +80,7 @@ Control <- function(command.args) {
                         ,'factor.is.new.construction'
                         ,'factor.parking.type'
                         ,'factor.roof.type'
-                        ,'fireplace.indicator.flag',
+                        ,'fireplace.indicator.flag'
                         ,'fireplace.number'
                         ,'fireplace.type.code'
                         ,'floor.code'
@@ -128,8 +128,9 @@ Control <- function(command.args) {
                        )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--query.fraction-%f'
+    out.base <- sprintf('%s--feature.set-%s--query.fraction-%f'
                         ,me
+                        ,opt$feature.set
                         ,opt$query.fraction
                         )
     control <- list( path.in.splits = splits
@@ -480,7 +481,8 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'charts', '--query.fraction', '.0001')
 #default.args <- list('--query.fraction', '.001')
 #default.args <- list('--query.fraction', '.01')
-#default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
+default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
+debug(Control)
 debug(MakeX)
 debug(Analysis)
 debug(Charts)
