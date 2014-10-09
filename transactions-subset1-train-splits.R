@@ -39,7 +39,6 @@ HasFireplace <- function(FIREPLACE.INDICATOR.FLAG) {
     result <- as.factor(ifelse(is.na(FIREPLACE.INDICATOR.FLAG), FALSE, TRUE))
     result
 }
-debug(HasFireplace)
 
 HasPool <- function(POOL.FLAG) {
     #cat('starting HasPool\n'); browser()
@@ -252,11 +251,11 @@ Main <- function(control, raw) {
     Split('condition.code', Identity, 'CONDITION.CODE')
     Split('construction.type.code', Identity, 'CONSTRUCTION.TYPE.CODE')
     Split('exterior.walls.code', Identity, 'EXTERIOR.WALLS.CODE')
-    Split('fireplace.indicator.flag', Identity, 'FIREPLACE.INDICATOR.FLAG')
+    Split('fireplace.indicator.flag', HasFireplace, 'FIREPLACE.INDICATOR.FLAG')
     Split('fireplace.number', Identity, 'FIREPLACE.NUMBER')
-    Split('fireplace.type.code', Identity, 'FIREPLACE.TYPE.CODE')
+    #Split('fireplace.type.code', Identity, 'FIREPLACE.TYPE.CODE')  # redundant with fireplace.indicator.code
     Split('foundation.code', Identity, 'FOUNDATION.CODE')
-    Split('floor.code', Identity, 'FLOOR.CODE')
+    #Split('floor.code', Identity, 'FLOOR.CODE')  # all A00 or NA
     AllNA('frame.code', Identity, 'FRAME.CODE')
     Split('garage.code', Identity, 'GARAGE.CODE')
     Split('heating.code', Identity, 'HEATING.CODE')
