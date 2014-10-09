@@ -1,4 +1,4 @@
-# e-penalized-regression.R
+# e-features.R
 # main program
 # Determine best penalized regression model for log-level AMV with 90
 # days of training data.
@@ -9,10 +9,16 @@
 # --which             : one of {cv, charts, both}; default both
 #                       cv means just do cross validation (write e-forms*.RData)
 #                       chart means just produce chart output (write e-forms*.txt)
+# -- approach         : one of {lcv, pca}
+#                       lcv == lasso then cross validation of implied models
+#                       pca == principle components analysis
+# -- predictors       : one of {chopra, all, always}
+#                       chopra == 11 predictors based on Chopa's work
+#                       all    == every predictors for which we have splits
+#                                 this fails if approach == lcv
+#                       always == 25 predictors that are always present in every observation
 # --query.fraction    : number
 #                       fraction of samples in test period to use
-# --feature.set       : one of {chopra, all}; default all
-#                     : which feature set to test
 # Approach
 # 1. Use elestic net's lasso functionality to determine rank ordering of features
 #    in terms of their importance.
@@ -33,7 +39,7 @@ Control <- function(command.args) {
     # parse command line arguments in command.args
     opt <- ParseCommandArgs(command.args)
 
-    me <- 'e-penalized-regression' 
+    me <- 'e-features' 
 
     log <- Directory('log')
     splits <- Directory('splits')
@@ -82,8 +88,6 @@ Control <- function(command.args) {
                         ,'factor.roof.type'
                         ,'fireplace.indicator.flag'
                         ,'fireplace.number'
-                        ,'fireplace.type.code'
-                        ,'floor.code'
                         ,'foundation.code'
                         ,'fraction.owner.occupied'
                         ,'garage.code'
@@ -108,10 +112,44 @@ Control <- function(command.args) {
                         ,'zip5.has.school'
                         )
     }
-    predictors <- switch( opt$feature.set
+    PredictorsAlways<- function() {
+        # return subset of predictors that is always present
+        # NOTE; fireplace.indicator.flag is always present but is redundant with fireplace.number
+        # fireplace.indicator.flag <= fireplace.number > 0
+        predictors <- c( # subset that always occurs
+                         'avg.commute.time'
+                        ,'basement.square.feet'
+                        ,'bathrooms'
+                        ,'bedrooms'
+                        ,'census.tract.has.industry'
+                        ,'census.tract.has.park'
+                        ,'census.tract.has.retail'
+                        ,'census.tract.has.school'
+                        ,'effective.year.built'
+                        ,'factor.has.pool'
+                        ,'factor.is.new.construction'
+                        #,'fireplace.indicator.flag'  # use fireplace.number instead 
+                        ,'fireplace.number'    #  possibly zero
+                        ,'fraction.owner.occupied'
+                        ,'garage.parking.square.feet'
+                        ,'land.square.footage'
+                        ,'living.area'
+                        ,'median.household.income'
+                        ,'parking.spaces'
+                        ,'stories.number'
+                        ,'total.rooms'
+                        ,'year.built'
+                        ,'zip5.has.industry'
+                        ,'zip5.has.park'
+                        ,'zip5.has.retail'
+                        ,'zip5.has.school'
+                        )
+    }
+    predictors <- switch( opt$predictors
                          ,chopra = PredictorsChopra()
                          ,all = PredictorsAll()
-                         ,stop('bad opt$feature.set')
+                         ,always = PredictorsAlways()
+                         ,stop('bad opt$predictors')
                          )
     other.names <- c(# dates
                     'saleDate'
@@ -128,9 +166,10 @@ Control <- function(command.args) {
                        )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--feature.set-%s--query.fraction-%f'
+    out.base <- sprintf('%s--approach-%s--predictors-%s--query.fraction-%f'
                         ,me
-                        ,opt$feature.set
+                        ,opt$approach
+                        ,opt$predictors
                         ,opt$query.fraction
                         )
     control <- list( path.in.splits = splits
@@ -163,21 +202,26 @@ ParseCommandArgs <- function(command.args) {
                              ,default = 'both'
                              ,help = 'which action to take'
                              )
+    opt.approach <- make_option( opt_str = c('--approach')
+                                ,action = 'store'
+                                ,type = 'character'
+                                ,help = 'name of feature set to use'
+                                )
+    opt.predictors <- make_option( opt_str = c('--predictors')
+                                  ,action = 'store'
+                                  ,type = 'character'
+                                  ,help = 'name of feature set to use'
+                                  )
     opt.query.fraction <- make_option( opt_str = c('--query.fraction')
-                                          ,action = 'store'
-                                          ,type = 'double'
-                                          ,default = .01
-                                          ,help = 'fraction of samples used as queries'
-                                          )
-    opt.feature.set <- make_option( opt_str = c('--feature.set')
-                                   ,action = 'store'
-                                   ,type = 'character'
-                                   ,default = 'chopra'
-                                   ,help = 'name of feature set to use'
-                                   )
+                                      ,action = 'store'
+                                      ,type = 'double'
+                                      ,default = .01
+                                      ,help = 'fraction of samples used as queries'
+                                      )
     option.list <- list( opt.which
+                        ,opt.approach
+                        ,opt.predictors
                         ,opt.query.fraction
-                        ,opt.feature.set
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
@@ -292,11 +336,16 @@ MakeX <- function(data, control) {
     # stop if any columns have zero variance
     lapply( control$predictors
            ,function(predictor) {
-               if (predictor == 'census.tract.has.industry') browser()
-               cat('predictor', predictor, '\n')
                values <- predictor.df[,predictor]
-               if (sum(is.na(values)) > 0) cat('predictor', predictor, 'has NA values\n')
                standard.deviation <- sd(values, na.rm = TRUE)
+               Printf( 'predictor %40s has %d NA values out of %d; sd %f\n'
+                      ,predictor
+                      ,sum(is.na(values))
+                      ,length(values)
+                      ,standard.deviation
+                      )
+#               if (predictor == 'fireplace.number' || predictor == 'fireplace.indicator.flag')
+#                   browser()
                if (standard.deviation == 0)
                    stop(sprintf('predictor %s has zero standard deviation', predictor))
            }
@@ -481,7 +530,7 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'charts', '--query.fraction', '.0001')
 #default.args <- list('--query.fraction', '.001')
 #default.args <- list('--query.fraction', '.01')
-default.args <- list('--feature.set', 'all', '--query.fraction', '.001')
+default.args <- list('--approach', 'lcv', '--predictors', 'always', '--query.fraction', '.001')
 debug(Control)
 debug(MakeX)
 debug(Analysis)
