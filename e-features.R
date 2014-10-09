@@ -191,6 +191,7 @@ Control <- function(command.args) {
                     ,testing = testing
                     ,debug = TRUE
                     ,which = opt$which
+                    ,approach = opt$approach
                     )
     control
 }
@@ -228,7 +229,7 @@ ParseCommandArgs <- function(command.args) {
                       ,positional_arguments = FALSE
                       )
 }
-Chart1Body <- function(control, cv.result, ordered.features) {
+LCVChart1Body <- function(control, cv.result, ordered.features) {
     # return a vector lines, the body of chart 1
     #cat('Chart1Body\n'); browser()
     FeatureNames <- function() {
@@ -270,7 +271,7 @@ Chart1Body <- function(control, cv.result, ordered.features) {
                 )
 
 }
-Chart1Heading <- function(control) {
+LCVChart1Heading <- function(control) {
     description <- c( sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
                               ,control$query.sample * 100
                               )
@@ -285,7 +286,7 @@ Chart1Heading <- function(control) {
                               )
                      )
 }
-Chart1 <- function(control, cv.result, ordered.features) {
+LCVChart1 <- function(control, cv.result, ordered.features) {
     chart1 <- c( Chart1Heading(control)
                 ,' '
                 ,Chart1Body(control, cv.result, ordered.features)
@@ -405,7 +406,7 @@ EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
                          ,actual = actuals)
     evaluate
 }
-Analysis <- function(control, transaction.data) {
+LCVAnalysis <- function(control, transaction.data) {
     # perform lasso regression using elasticnet function enet and predict.enet
     #cat('Analysis\n'); browser()
 
@@ -466,7 +467,7 @@ Analysis <- function(control, transaction.data) {
          ,file = control$path.out.rdata
          )
 }
-Charts <- function(my.control) {
+LCVCharts <- function(my.control) {
     # produce all the charts
     # for now, there is only one
     #cat('starting Charts\n'); browser()
@@ -480,7 +481,7 @@ Charts <- function(my.control) {
 
     # produce charts
     # use the controls from when data were created
-    chart1 <- Chart1(control, cv.result, ordered.features)
+    chart1 <- LCVChart1(control, cv.result, ordered.features)
                             
     writeLines( text = chart1
                ,con = my.control$path.out.chart1
@@ -499,19 +500,47 @@ Charts <- function(my.control) {
          ,file = my.control$path.out.rdata
          )
 }
-Both <- function(control, transaction.data) {
-    evaluation <- Analysis(control, transaction.data)
-    Charts(control)
+LCV <- function(control, transaction.data) {
+    # approach is lasso regression then cross validation on derived models
+    switch( control$which
+           ,analysis = LCVAnalysis(control, transaction.data)
+           ,charts = LCVCharts(control)
+           ,both = {
+               LCVAnalysis(control, transaction.data)
+               LCVCharts(control)
+           }
+           ,stop('bad control$which')
+           )
+}
+PCAAnalysis <- function(control, transaction.data) {
+    # use principle components analysis to determine most important features
+    stop('write me')
+}
+PCACharts <- function(control) {
+    # create all charts for PCA
+    stop('write me')
+}
+PCA <- function(control, transaction.data) {
+    switch( control$which
+           ,analysis = PCAAnalysis(control, transaction.data)
+           ,charts = PCACharts(control)
+           ,both = {
+               PCAAnalysis(control, transaction.data)
+               PCACharts(control)
+           }
+           ,stop('bad control$which')
+           )
 }
 Main <- function(control, transaction.data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    switch( control$which
-           ,analysis = Analysis(control, transaction.data)
-           ,charts = Charts(control)
-           ,both = Both(control, transaction.data)
+    switch( control$approach
+           ,lcv = LCV(control, transaction.data)
+           ,pca = PCA(control, transaction.data)
+           ,spintf('bad approach: %s', control$approach)
            )
+
     str(control)
     if (control$testing)
         cat('TESTING: DISCARD RESULTS\n')
@@ -531,10 +560,11 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--query.fraction', '.001')
 #default.args <- list('--query.fraction', '.01')
 default.args <- list('--approach', 'lcv', '--predictors', 'always', '--query.fraction', '.001')
+default.args <- list('--approach', 'pca', '--predictors', 'chopra', '--query.fraction', '.001')
 debug(Control)
 debug(MakeX)
-debug(Analysis)
-debug(Charts)
+debug(PCAAnalysis)
+debug(PCACharts)
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
