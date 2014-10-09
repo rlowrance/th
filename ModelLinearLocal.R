@@ -102,10 +102,25 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
                         )
             )
         }
-        prediction <- predict( object = fitted$fitted
-                              ,newdata = queries[query.index, ]
-                              )
-        list(ok = TRUE, prediction = prediction, num.training = fitted$num.training)
+        prediction <- 
+            tryCatch(
+                     predict( object = fitted$fitted
+                             ,newdata = queries[query.index,]
+                             )
+                     ,warning = function(w) {
+                         cat('warning in ModelLinearLocal:\n')
+                         print(w)
+                         w
+                     }
+                     ,error = function(e) {
+                         cat('error in ModelLinearLocal:\n')
+                         print(e)
+                     }
+                     )
+        if (is.numeric(prediction) )
+            list(ok = TRUE, prediction = prediction, num.training = fitted$num.training)
+        else
+            list(ok = FALSE, problem = prediction)
     }
 
     # BODY STARTS HERE
