@@ -166,16 +166,36 @@ Control <- function(command.args) {
                        )
     testing <- FALSE
     #testing <- TRUE
-    out.base <- sprintf('%s--approach-%s--predictors-%s--query.fraction-%f'
-                        ,me
-                        ,opt$approach
-                        ,opt$predictors
-                        ,opt$query.fraction
-                        )
+    out.base <-
+        if (opt$approach == 'lcv')
+            sprintf('%s--approach-%s--predictors-%s--query.fraction-%f'
+                    ,me
+                    ,opt$approach
+                    ,opt$predictors
+                    ,opt$query.fraction
+                    )
+        else
+            sprintf('%s--approach-%s--predictors-%s'
+                    ,me
+                    ,opt$approach
+                    ,opt$predictors
+                    )
+    path.out.chart2 <- sapply(1:10,  # create paths for 10 possible principal components
+                              function(component.num) 
+                                  paste0( working
+                                         ,out.base
+                                         ,'.chart2'
+                                         ,sprintf('.%02d', component.num)
+                                         ,'.txt'
+                                         )
+                              )
+
+
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '--which-', opt$which, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
-                    ,path.out.chart1 = paste0(working, out.base, '.txt')
+                    ,path.out.chart1 = paste0(working, out.base, '.chart1.txt')
+                    ,path.out.chart2 = path.out.chart2  # a vector of paths
                     ,query.fraction = opt$query.fraction
                     ,num.training.days = 90
                     ,predictors = predictors
@@ -229,68 +249,84 @@ ParseCommandArgs <- function(command.args) {
                       ,positional_arguments = FALSE
                       )
 }
-LCVChart1Body <- function(control, cv.result, ordered.features) {
-    # return a vector lines, the body of chart 1
-    #cat('Chart1Body\n'); browser()
-    FeatureNames <- function() {
-        c( 'Feature names ordered by importance'
-          ,'1 == most important'
-          ,sapply( 1:length(ordered.features)
-                  ,function(index) 
-                      sprintf(' %2d: %s'
-                              ,index
-                              ,ordered.features[[index]]
-                              )
-                  )
-          )
-    }
-    FeaturePerformance <- function() {
-        RMedianSE <- function(model.index) {
-            model.result <- cv.result[[model.index]]
-            rMedianSE.values <- sapply( 1:length(model.result)
-                                       ,function(fold.index) {
-                                           evaluate <- model.result[[fold.index]]
-                                           evaluate$rootMedianSquaredError
-                                       }
-                                       )
-            result <- median(rMedianSE.values)
-            result
-        }
-        sapply( 1:length(cv.result)
-               ,function(model.index) {
-               sprintf( ' RMedianSE for features 1 through %2d = %f'
-                       ,model.index
-                       ,RMedianSE(model.index)
-                       )
-               }
-               )
-    }
-    result <- c( FeatureNames()
-                ,' '
-                ,FeaturePerformance()
-                )
-
-}
-LCVChart1Heading <- function(control) {
-    description <- c( sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
-                              ,control$query.sample * 100
-                              )
-                     ,'AVM scenario'
-                     ,'Log-linear form'
-                     ,sprintf( 'Testing period: %s through %s'
-                              ,control$testing.period$first.date
-                              ,control$testing.period$last.date
-                              )
-                     ,sprintf( 'Number of training days: %d'
-                              ,control$num.training.days
-                              )
-                     )
-}
 LCVChart1 <- function(control, cv.result, ordered.features) {
-    chart1 <- c( Chart1Heading(control)
+    Body <- function() {
+        # return a vector lines, the body of chart 1
+        #cat('Chart1Body\n'); browser()
+        FeatureNames <- function() {
+            c( 'Feature names ordered by importance'
+              ,'1 == most important'
+              ,sapply( 1:length(ordered.features)
+                      ,function(index) 
+                          sprintf(' %2d: %s'
+                                  ,index
+                                  ,ordered.features[[index]]
+                                  )
+                      )
+              )
+        }
+        FeaturePerformance <- function() {
+            RMedianSE <- function(model.index) {
+                model.result <- cv.result[[model.index]]
+                rMedianSE.values <- sapply( 1:length(model.result)
+                                           ,function(fold.index) {
+                                               evaluate <- model.result[[fold.index]]
+                                               evaluate$rootMedianSquaredError
+                                           }
+                                           )
+                result <- median(rMedianSE.values)
+                result
+            }
+            sapply( 1:length(cv.result)
+                   ,function(model.index) {
+                       sprintf( ' RMedianSE for features 1 through %2d = %f'
+                               ,model.index
+                               ,RMedianSE(model.index)
+                               )
+                   }
+                   )
+        }
+        result <- c( FeatureNames()
+                    ,' '
+                    ,FeaturePerformance()
+                    )
+
+    }
+    Heading <- function() {
+        description <- c(
+                         sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
+                                 ,control$query.sample * 100
+                                 )
+                         ,'AVM scenario'
+                         ,'Log-linear form'
+                         ,sprintf( 'Testing period: %s through %s'
+                                  ,control$testing.period$first.date
+                                  ,control$testing.period$last.date
+                                  )
+                         ,sprintf( 'Number of training days: %d'
+                                  ,control$num.training.days
+                                  )
+                         )
+    }
+    chart1 <- c( Heading()
                 ,' '
                 ,Chart1Body(control, cv.result, ordered.features)
                 )
+}
+PCAChart1 <- function(control, prcomp.result) {
+    Body <- function() {
+        browser()
+        stop('write me')
+    }
+    Heading <- function() {
+        c(
+          sprintf('PCA results for %d features', length(control$predictors))
+          )
+    }
+    chart <- c( Heading()
+               ,' '
+               ,Body()
+               )
 }
 Evaluate <- function(prediction, actual) {
     # return list of evaluations
@@ -512,13 +548,130 @@ LCV <- function(control, transaction.data) {
            ,stop('bad control$which')
            )
 }
-PCAAnalysis <- function(control, transaction.data) {
+PCAAnalysis <- function(control, data) {
     # use principle components analysis to determine most important features
-    stop('write me')
+    # ref: R Cookbook p. 338
+    formula <- Formula( response = NULL
+                       ,predictors = control$predictors
+                       )
+    # recode variables that are TRUE/FALSE to numeric
+    if ('census.tract.has.industry' %in% control$predictors)
+        data$census.tract.has.industry <- as.numeric(data$census.tract.has.industry)
+    if ('census.tract.has.park' %in% control$predictors)
+        data$census.tract.has.park <- as.numeric(data$census.tract.has.park)
+    if ('census.tract.has.retail' %in% control$predictors)
+        data$census.tract.has.retail <- as.numeric(data$census.tract.has.retail)
+    if ('census.tract.has.school' %in% control$predictors)
+        data$census.tract.has.school <- as.numeric(data$census.tract.has.school)
+
+    if ('factor.is.new.construction' %in% control$predictors)
+        data$factor.is.new.construction <- as.numeric(data$factor.is.new.construction)
+    if ('factor.has.pool' %in% control$predictors)
+        data$factor.has.pool <- as.numeric(data$factor.has.pool)
+
+    if ('zip5.has.industry' %in% control$predictors)
+        data$zip5.has.industry <- as.numeric(data$zip5.has.industry)
+    if ('zip5.has.park' %in% control$predictors)
+        data$zip5.has.park <- as.numeric(data$zip5.has.park)
+    if ('zip5.has.retail' %in% control$predictors)
+        data$zip5.has.retail <- as.numeric(data$zip5.has.retail)
+    if ('zip5.has.school' %in% control$predictors)
+        data$zip5.has.school <- as.numeric(data$zip5.has.school)
+    
+    prcomp.result <- prcomp( formula = formula
+                            ,data = data
+                            )
+    print(prcomp.result)
+    print(summary(prcomp.result))
+
+    save( control
+         ,prcomp.result
+         ,file = control$path.out.rdata
+         )
 }
-PCACharts <- function(control) {
+PCACharts <- function(my.control) {
     # create all charts for PCA
-    stop('write me')
+    Chart1 <- function(control, sdev) {
+        num.components <- length(sdev)
+        variance <- sdev * sdev
+        total.variance <- sum(variance)
+        
+        Body <- function() {
+            lapply( 1:num.components
+                   ,function(component.num) {
+                       sum.variance <- sum(variance[1:component.num])
+                       sprintf('Principal Component %2d  Variance %15.0f  Cum Fraction Total Variance %8.6f'
+                               ,component.num
+                               ,variance[[component.num]]
+                               ,sum.variance / total.variance
+                               )
+                   }
+                   )
+        }
+
+        lines <- c(
+                   'PCA Principal Component Variances'
+                   ,' '
+                   ,Body()
+                   )
+        lines
+    }
+    Chart2 <- function(control, rotation, component.number) {
+        Body <- function() {
+            feature.name <- dimnames(rotation)[[1]]
+            weight <- rotation[,component.number]
+            sapply(1:length(feature.name)
+                   ,function(feature.index) {
+                       sprintf('Feature %30s  Weight %+10.6f'
+                               ,feature.name[[feature.index]]
+                               ,weight[[feature.index]]
+                               )
+                   }
+                   )
+        }
+        lines <- c(
+                   sprintf('PCA Rotation for Principal Component %2d', component.number)
+                   ,' '
+                   ,Body()
+                   )
+        lines
+    }
+
+
+    prcomp.result <- NULL
+    loaded <- load(file = my.control$path.out.rdata)
+    str(loaded)  # NOTE: control has been replaced
+    stopifnot(!is.null(prcomp.result))
+
+    # produce charts
+
+    chart1 <- sapply(Chart1(control, prcomp.result$sdev), function(x) x)
+    writeLines(text = chart1, con = my.control$path.out.chart1)
+    print(chart1)
+
+
+    # create all the component chart analyses
+    ComponentChart <- function(component.num) {
+        # create one component chart analysis
+        chart2 <- Chart2(control, prcomp.result$rotation, component.num)
+        writeLines(text = chart2, con = my.control$path.out.chart2[[component.num]])
+        print(chart2)
+        chart2
+    }
+    chart2s <- lapply(1:length(control$path.out.chart2), ComponentChart)
+
+
+    print(prcomp.result)
+    print(chart2s[[1]])  # check first two principal components
+    print(chart2s[[2]])
+
+    # append charts to previously-saved info
+    save( chart1
+         ,chart2s
+         ,control
+         ,prcomp.result
+         ,file = control$path.out.rdata
+         )
 }
 PCA <- function(control, transaction.data) {
     switch( control$which
@@ -559,12 +712,9 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 #default.args <- list('--which', 'charts', '--query.fraction', '.0001')
 #default.args <- list('--query.fraction', '.001')
 #default.args <- list('--query.fraction', '.01')
-default.args <- list('--approach', 'lcv', '--predictors', 'always', '--query.fraction', '.001')
+#default.args <- list('--approach', 'lcv', '--predictors', 'always', '--query.fraction', '.01')
 default.args <- list('--approach', 'pca', '--predictors', 'chopra', '--query.fraction', '.001')
-debug(Control)
-debug(MakeX)
-debug(PCAAnalysis)
-debug(PCACharts)
+default.args <- list('--approach', 'pca', '--predictors', 'always', '--query.fraction', '.001')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
