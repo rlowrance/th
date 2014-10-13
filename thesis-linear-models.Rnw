@@ -202,6 +202,55 @@ Control <- function() {
                   )
       b
     }
+    AppendFeaturePaths <- function(lst) {
+     LCV <- function(predictors, query.fraction, prior) {
+      cat('LCV', predictors, query.fraction, '\n')
+      name <-  sprintf( 'path.in.e.features.lcv.%s.%s'
+                       ,predictors
+                       ,query.fraction
+                       )
+      value <- sprintf( '%se-features--approach-lcv--predictors-%s--query.fraction-0.%s.chart1.txt'
+                       ,working
+                       ,predictors
+                       ,query.fraction
+                       )
+      print(name); print(value); print(substr(value, 50, 200))
+      lcv <- Append(name, value, lst)
+     }
+     PCAChart1 <- function(predictors, prior) {
+       cat('PCAChart1', predictors, '\n')
+       name <-  sprintf( 'path.in.e.features.pca.%s.chart1'
+                        ,predictors
+                        )
+       value <- sprintf( '%se-features--approach-pca--predictors-%s.chart1.txt'
+                        ,working
+                        ,predictors
+                        )
+       print(name); print(value)
+       Append(name, value, prior)
+     }
+     PCAChart2 <- function(predictors, subchart, prior) {
+       cat('PCAChart2', predictors, subchart, '\n')
+       name <-  sprintf( 'path.in.e.features.pca.%s.chart2.%s'
+                        ,predictors
+                        ,subchart
+                        )
+       value <- sprintf( '%se-features--approach-pca--predictors-%s.chart2.%s.txt'
+                        ,working
+                        ,predictors
+                        ,subchart
+                        )
+       print(name); print(value)
+       Append(name, value, prior)
+    }
+     a <- LCV('always', '001000', lst)
+     b <- LCV('always', '010000', a)
+     c <- PCAChart1('always', b)
+     d <- PCAChart2('always', '01', c)
+     e <- PCAChart2('always', '02', d)
+     f <- PCAChart2('always', '03', e)
+     #b
+    }
 
 
     control <- list( cache = FALSE
@@ -218,6 +267,7 @@ Control <- function() {
     control9 <- AppendDrawings(control8)
     control10 <- AppendAdjustTrainingPeriodPaths(control9)
     control11 <- AppendPenalizedRegressionPaths(control10)
+    control12 <- AppendFeaturePaths(control11)
 }
 
 control <- Control()
@@ -1300,7 +1350,7 @@ periods for times of lower volatility.
 So far in this work, the features used as predictors have been based on
 those selected by Sumit Chopra for his thesis work \cite{chopra-09}. He
 selected features that were present in many observations. However
-additional features are possible and the features used are not
+additional features are possible and the features used so far are not
 necessarily the best ones.  Indeed, Kuhn-13 chapter 19 claims that
 adding non-informative predictors to a linear model can degrade its
 predictive accuracy (TODO: cite the original paper, if possible).
@@ -1324,12 +1374,13 @@ model which initially has no features. Thus we determine the best
 feature to add initially, and given, that this feature is in the model,
 the next feature to add second, and so forth. This greedy procedure has
 time requirements of order $O(n^2)$ in $n$, the number of possible
-predictors. It provides a rank-ordering of the value of the features. In
-stage two, we then estimate the generalization error from using just the
-first of the rank-ordered features, then the first and second, then the
-first and second and third, and so forth. The second stage takes time
-$O(n)$. This heuristic approximates the factorial-timed problem with a
-$O(n^2)$ time problem.
+predictors, assuming that the time to determine which feature to add
+next is linear. It provides a rank-ordering of the value of the
+features. In stage two, we then estimate the generalization error from
+using just the first of the rank-ordered features, then the first and
+second, then the first and second and third, and so forth. The second
+stage takes time $O(n)$. This heuristic approximates the factorial-timed
+problem with a $O(n^2)$ time problem.
 
 The first stage is implemented by running the elastic net procedure from
 Zou and Hastie (\cite{zou-05}).
@@ -1434,7 +1485,171 @@ models (but we have not shown the features to be non-informative).
 
 \subsection{Possibly adding some feature}
 
-WRITE ME.
+We now consider adding features beyond the 11 features that we have been
+considering so far. One set of features to consider are those that occur
+in every one of the transactions in our training data. Including these
+additional features means that one does not have to develop an approach
+that handles missing values.
+
+<<AddingFeatures>>=
+path.adding <- control$path.in.e.features.lcv.always.010000
+path.adding
+substr(path.adding, 50, 200)
+@
+
+\begin{figure}[h]
+\caption{Adding Features 1 Percent Sample}
+\label{figure:Adding01}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.adding}}
+\end{figure}
+
+Figure \ref{figure:Adding01} shows the results of applying our heuristic
+to the 25 features that are always present. As shown in the first part
+of the figure, the most important feature is the living area of the
+house. Second most important is the income of the census tract.
+
+As shown in the second part of the figure, the estimated
+generatalization error declines are the first 8 features are included in
+the model, then increases and then declines until 16 features are
+included in the model, and then the pattern repeats. The lowest
+estimated generalization error is for the model with 23 features.
+
+We make these observations
+\begin{itemize}
+\item The 16-feature model only slightly outperforms the 8 feature
+models. 
+\item The 21-feature model only slightly outperforms the 16-feature
+model.
+\item The 23-feature model only slightly outperforms the 21-feature
+model.
+\end{itemize}
+
+Any of these models could be good choices. If one prefers parsimonious
+models, the improvements in estimated accuracy after 16 features are
+included are very small.
+
+If the 8-feature model were used, the most important features of the
+house would be its living area, the number of fireplaces, the year it
+was last remodelled (effective year built), and the total number of
+rooms. The most important features of the neighborhood would be its
+median household income, the average commute time, fraction owner
+occupied, and whether the zip code has any parcels that are classified
+as industry. Both sets of features are consistent with my intuition.
+
+Looking at the first 16 features, the features of the house can be
+grouped as follows:
+\begin{itemize}
+\item Features related to the size of the house: living area, total
+rooms, parking spaces, land square footage, stories number.
+\item Features related to the amenities of the house: fireplace number,
+effective year built, factor has pool.
+\end{itemize}
+
+Again looking at the first 16 features, the features of the neighborhood
+can be grouped as follows:
+\begin{itemize}
+\item Features related to social class of the neighbors: median
+household income, fraction owner occupied. More expansive features of
+the house are additiionally indicative of the social class of the
+neighbors.
+\item Features related to amenities of the location: average commute
+time, census tract has industry, zip5 has pool, census tract has retail,
+and zip5 has school.
+\end{itemize}
+
+Real estate agents claim that the most important three features of a
+house are location, location, and location. This work suggests that the
+house itself is important as well.
+
+
+\subsection{Using PCA to deduce feature importance}
+
+<<PCA>>=
+path.always.1 <- control$path.in.e.features.pca.always.chart1
+path.always.1
+path.always.2.1 <- control$path.in.e.features.pca.always.chart2.01
+path.always.2.1
+path.always.2.2 <- control$path.in.e.features.pca.always.chart2.02
+path.always.2.2
+path.always.2.3 <- control$path.in.e.features.pca.always.chart2.03
+path.always.2.3
+@
+
+We used principal components analysis to inform the discussion about
+which features are most important.
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present}
+\label{figure:PCAAlways1}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.always.1}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways1} shows the cumulative fraction of variance
+accounted for the the principal components derived from using the
+features that are always present. We see that the first three
+principal components account for almost all of the variance; hence we
+focus on understanding these components.
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 1}
+\label{figure:PCAAlways21}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.always.2.1}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways21} shows the weights of the features in the
+first principal component. By far the largest weight is for the median
+household income, a feature of the census tract and hence the location.
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 2}
+\label{figure:PCAAlways22}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.always.2.2}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways22} shows the weights for the features in
+the second principal component. This time the most important feature by
+far is the land square footage, which is a feature of the property. It
+is an enduring feature of the property, because it cannot be redefined
+through construction except by merging the property with another.
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 3}
+\label{figure:PCAAlways23}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.always.2.3}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways23} shows the weights for the features in
+the third principal component. This time the most important feature by
+far is the size of the basement, a feature of the construction on the
+property.
+
+\subsection{A reduced-feature model}
+
+Describe and test a model with fewer features.
+
+Models: 8 features, 16 features, PCA features (median household income,
+land square footage, basement square feet) all 25 features, all 11
+chopra feature, all 11 chopra features
+
+
 
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
