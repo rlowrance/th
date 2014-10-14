@@ -16,10 +16,6 @@
 source('Directory.R')
 source('Libraries.R')
 
-source('ModelLinearLocal.R')
-source('Predictors.R')
-source('ReadTransactionSplits.R')
-
 library(ggplot2)
 library(optparse)
 
@@ -30,7 +26,6 @@ Control <- function(command.args) {
     me <- 'e-features-lcv-chart' 
 
     log <- Directory('log')
-    splits <- Directory('splits')
     working <- Directory('working')
 
     testing <- FALSE
