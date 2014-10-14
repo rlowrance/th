@@ -49,6 +49,7 @@ Control <- function(command.args) {
                     ,path.out.chart2 = paste0(working, out.base, '.2.txt')
                     ,path.out.chart3 = paste0(working, out.base, '.3.pdf')
                     ,path.out.chart4 = paste0(working, out.base, '.4.pdf')
+                    ,path.out.chart5 = paste0(working, out.base, '.5.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -170,6 +171,72 @@ Chart3 <- function(control, cv.result, ordered.features) {
     g
 }
 Chart4 <- function(control, cv.result, ordered.features) {
+    # median of RMedianSE
+    # line graph showing rMedianSE values in each fold with error bars
+    # ref: R Graphics Cookbook p158 (adding error bars to line graph)
+    # ref: R Graphics Cookbook, recipe 15.18 (calculated standard errors)
+    # NOTE: se is the standard deviation / sqrt(sample size)
+    # NOTE: a 95% confidence interval for the mean is +- 1.96 * se
+    df <- NULL
+    for (cv.result.index in 1:length(cv.result)) {
+        one.cv <- cv.result[[cv.result.index]]
+        for (fold.index in 1:length(one.cv)) {
+            next.df <- data.frame( num.vars = cv.result.index
+                                  ,rootMedianSquaredError = one.cv[[fold.index]]$rootMedianSquaredError
+                                  )
+            df <- rbind(df, next.df)
+        }
+    }
+
+    # compute median results and standard errors
+    ResultsForModel <- function(model.index) {
+        values <- df[df$num.vars == model.index, 'rootMedianSquaredError']
+        values
+    }
+    MedianRMedianSE <- function(model.index) {
+        values <- ResultsForModel(model.index)
+        values.median <- median(values)
+        values.median
+    }
+    SE <- function(model.index) {
+        # standard error of the mean
+        values <- ResultsForModel(model.index)
+        values.sd <- sd(values)
+        values.se <- values.sd / length(values)
+        values.se
+    }
+
+    model.index <- 1:length(cv.result)
+    medianRMedianSE <- sapply(1:length(cv.result), MedianRMedianSE)
+    se <- sapply(1:length(cv.result), SE)
+
+    df2 <- data.frame( model.index = model.index
+                      ,medianRMedianSE = medianRMedianSE
+                      ,se = se
+                      )
+    
+
+    gg <- ggplot( df2
+                 ,aes( x = model.index
+                      ,y = medianRMedianSE
+                      )
+                 )
+    g <- 
+        gg + 
+        geom_line(aes(group = 1)) + 
+        geom_point(size = 4) + 
+        geom_errorbar( aes( ymin = medianRMedianSE - se
+                           ,ymax = medianRMedianSE + se
+                           )
+                      ,width = 0.2
+                      )
+        
+
+        
+    g
+}
+Chart5 <- function(control, cv.result, ordered.features) {
+    # mean of rootMedianSquaredError
     # line graph showing rMedianSE values in each fold with error bars
     # ref: R Graphics Cookbook p158 (adding error bars to line graph)
     # ref: R Graphics Cookbook, recipe 15.18 (calculated standard errors)
@@ -204,7 +271,6 @@ Chart4 <- function(control, cv.result, ordered.features) {
         values.se
     }
 
-    browser()
     model.index <- 1:length(cv.result)
     meanRMedianSE <- sapply(1:length(cv.result), MeanRMedianSE)
     se <- sapply(1:length(cv.result), SE)
@@ -245,8 +311,6 @@ Charts <- function(my.control) {
     stopifnot(!is.null(cv.result))
     stopifnot(!is.null(ordered.features))
 
-    debug(Chart4)
-
     chart1 <- Chart1(control, cv.result, ordered.features)
     writeLines( text = chart1
                ,con = my.control$path.out.chart1
@@ -272,12 +336,19 @@ Charts <- function(my.control) {
         )
     print(chart4)
     dev.off()
+    
+    chart5 <- Chart5(control, cv.result, ordered.features)
+    pdf( file = my.control$path.out.chart5
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart5)
+    dev.off()
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    debug(LCVCharts)
     Charts(control)
 
     str(control)
@@ -293,6 +364,5 @@ default.args <- list('--predictors', 'chopra', '--query.fraction', '.0001')
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
 
-debug(Main)
 Main(control)
 cat('done\n')
