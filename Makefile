@@ -42,38 +42,78 @@ raw-census.csv = $(raw)/neighborhood-data/census.csv
 thesis-input-processing.pdf = $(working)/thesis-input-processing.pdf
 thesis-linear-models.pdf    = $(working)/thesis-linear-models.pdf
 
+# PREDICTORS (see Predictors.R)
+predictors.chopra.level += $(splits)/land.square.footage.RData
+predictors.chopra.level += $(splits)/living.area.RData
+predictors.chopra.level += $(splits)/bedrooms.RData
+predictors.chopra.level += $(splits)/bathrooms.RData
+predictors.chopra.level += $(splits)/parking.spaces.RData
+predictors.chopra.level += $(splits)/median.household.income.RData
+predictors.chopra.level += $(splits)/year.built.RData
+predictors.chopra.level += $(splits)/fraction.owner.occupied.RData
+predictors.chopra.level += $(splits)/avg.commute.time.RData
+predictors.chopra.level += $(splits)/factor.is.new.construction.RData
+predictors.chopra.level += $(splits)/factor.has.pool.RData
+
+predictors.always.level += $(splits)/avg.commute.time.RData
+predictors.always.level += $(splits)/basement.square.feet.RData
+predictors.always.level += $(splits)/bathrooms.RData
+predictors.always.level += $(splits)/bedrooms.RData
+predictors.always.level += $(splits)/census.tract.has.industry.RData
+predictors.always.level += $(splits)/census.tract.has.park.RData
+predictors.always.level += $(splits)/census.tract.has.retail.RData
+predictors.always.level += $(splits)/census.tract.has.school.RData
+predictors.always.level += $(splits)/effective.year.built.RData
+predictors.always.level += $(splits)/factor.has.pool.RData
+predictors.always.level += $(splits)/factor.is.new.construction.RData
+predictors.always.level += $(splits)/fireplace.number.RData
+predictors.always.level += $(splits)/fraction.owner.occupied.RData
+predictors.always.level += $(splits)/garage.parking.square.feet.RData
+predictors.always.level += $(splits)/land.square.footage.RData
+predictors.always.level += $(splits)/living.area.RData
+predictors.always.level += $(splits)/median.household.income.RData
+predictors.always.level += $(splits)/parking.spaces.RData
+predictors.always.level += $(splits)/stories.number.RData
+predictors.always.level += $(splits)/total.rooms.RData
+predictors.always.level += $(splits)/year.built.RData
+predictors.always.level += $(splits)/zip5.has.industry.RData
+predictors.always.level += $(splits)/zip5.has.park.RData
+predictors.always.level += $(splits)/zip5.has.retail.RData
+predictors.always.level += $(splits)/zip5.has.school.RData
+
+
 # EXPERIMENT TARGETS
 
-targets += $(working)/e-adjust-training-period--query.fraction-0.001000.RData
-targets += $(working)/e-adjust-training-period--query.fraction-0.001000.txt
-targets += $(working)/e-adjust-training-period--query.fraction-0.010000.RData
-targets += $(working)/e-adjust-training-period--query.fraction-0.010000.txt
-
-targets += $(working)/e-avm-variants--training-30.RData
-targets += $(working)/e-avm-variants--training-30.txt
-targets += $(working)/e-avm-variants--training-60.RData
-targets += $(working)/e-avm-variants--training-60.txt
-targets += $(working)/e-avm-variants--training-90.RData
-targets += $(working)/e-avm-variants--training-90.txt
+#targets += $(working)/e-adjust-training-period--query.fraction-0.001000.RData
+#targets += $(working)/e-adjust-training-period--query.fraction-0.001000.txt
+#targets += $(working)/e-adjust-training-period--query.fraction-0.010000.RData
+#targets += $(working)/e-adjust-training-period--query.fraction-0.010000.txt
+#
+#targets += $(working)/e-avm-variants--training-30.RData
+#targets += $(working)/e-avm-variants--training-30.txt
+#targets += $(working)/e-avm-variants--training-60.RData
+#targets += $(working)/e-avm-variants--training-60.txt
+#targets += $(working)/e-avm-variants--training-90.RData
+#targets += $(working)/e-avm-variants--training-90.txt
 #$(warning e-avm-variants targets is $(targets))
 
-targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.RData
-targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.txt
-targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.RData
-targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.txt
-targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
-targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
-targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
-targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
-targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
-targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
-
-targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
-targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
-targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
-targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
+#targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.RData
+#targets += $(working)/e-forms--trainingDays-30--testSample-0.001000.txt
+#targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.RData
+#targets += $(working)/e-forms--trainingDays-30--testSample-0.010000.txt
+#targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
+#targets += $(working)/e-forms--trainingDays-90--testSample-0.001000.RData
+#targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
+#targets += $(working)/e-forms--trainingDays-90--testSample-0.010000.RData
+#targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
+#targets += $(working)/e-forms--trainingDays-120--testSample-0.001000.txt
+#targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
+#targets += $(working)/e-forms--trainingDays-120--testSample-0.010000.txt
+#
+#targets += $(working)/e-median-price-by-month-from-2006-to-2009.pdf
+#targets += $(working)/e-median-price-by-month-from-2006-to-2009.RData
+#targets += $(working)/e-median-price-by-year-from-1984-to-2009.pdf
+#targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 
 #targets += $(working)/e-penalized-regression--query.fraction-0.001000.RData
 #targets += $(working)/e-penalized-regression--query.fraction-0.001000.txt
@@ -81,45 +121,46 @@ targets += $(working)/e-median-price-by-year-from-1984-to-2009.RData
 #targets += $(working)/e-penalized-regression--query.fraction-0.010000.txt
 #$(warning targets is $(targets))
 
-targets += $(working)/e-training-period--testSampleFraction-0.001000.RData
-targets += $(working)/e-training-period--testSampleFraction-0.001000.txt
-targets += $(working)/e-training-period--testSampleFraction-0.010000.RData
-targets += $(working)/e-training-period--testSampleFraction-0.010000.txt
-
-
-# SPLITS actually used
-targets += $(splits)/apn.RData
-targets += $(splits)/avg.commute.time.RData
-targets += $(splits)/bathrooms.RData
-targets += $(splits)/bedrooms.RData
-targets += $(splits)/factor.has.pool.RData
-targets += $(splits)/factor.is.new.construction.RData
-targets += $(splits)/fraction.owner.occupied.RData
-targets += $(splits)/land.square.footage.RData
-targets += $(splits)/living.area.RData
-targets += $(splits)/median.household.income.RData
-targets += $(splits)/parking.spaces.RData
-targets += $(splits)/price.RData
-targets += $(splits)/price.log.RData
-targets += $(splits)/recordingDate.RData
-targets += $(splits)/saleDate.RData
-targets += $(splits)/sale.month.RData
-targets += $(splits)/sale.year.RData
-targets += $(splits)/total.assessment.RData
-targets += $(splits)/year.built.RData
-
-
-# transactions RData targets
-targets += $(working)/census.RData
-targets += $(working)/deeds-al-g.RData
-targets += $(working)/parcels-derived-features.RData 
-targets += $(working)/parcels-sample.RData 
-targets += $(working)/parcels-sfr.RData 
-targets += $(working)/transactions.RData 
-targets += $(working)/transactions-subset1.RData
-targets += $(working)/transactions-subset1-train.RData
-targets += $(working)/transactions-subset1-test.RData
-
+#targets += $(working)/e-training-period--testSampleFraction-0.001000.RData
+#targets += $(working)/e-training-period--testSampleFraction-0.001000.txt
+#targets += $(working)/e-training-period--testSampleFraction-0.010000.RData
+#targets += $(working)/e-training-period--testSampleFraction-0.010000.txt
+#
+#
+## SPLITS actually used
+#targets += $(splits)/apn.RData
+#targets += $(splits)/avg.commute.time.RData
+#targets += $(splits)/bathrooms.RData
+#targets += $(splits)/bedrooms.RData
+#targets += $(splits)/factor.has.pool.RData
+#targets += $(splits)/factor.is.new.construction.RData
+#targets += $(splits)/fraction.owner.occupied.RData
+#targets += $(splits)/land.square.footage.RData
+#targets += $(splits)/living.area.RData
+#targets += $(splits)/median.household.income.RData
+#targets += $(splits)/parking.spaces.RData
+#targets += $(splits)/price.RData
+#targets += $(splits)/price.log.RData
+#targets += $(splits)/recordingDate.RData
+#targets += $(splits)/saleDate.RData
+#targets += $(splits)/sale.month.RData
+#targets += $(splits)/sale.year.RData
+#targets += $(splits)/total.assessment.RData
+#targets += $(splits)/year.built.RData
+#
+#
+## transactions RData targets
+#targets += $(working)/census.RData
+#targets += $(working)/deeds-al-g.RData
+#targets += $(working)/parcels-derived-features.RData 
+#targets += $(working)/parcels-sample.RData 
+#targets += $(working)/parcels-sfr.RData 
+#targets += $(working)/transactions.RData 
+#targets += $(working)/transactions-subset1.RData
+#targets += $(working)/transactions-subset1-train.RData
+#targets += $(working)/transactions-subset1-test.RData
+#
+#
 # thesis targets
 targets += $(working)/thesis-input-processing.pdf
 targets += $(working)/thesis-linear-models.pdf
@@ -150,6 +191,7 @@ deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-adjust-training-period.R          : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 e-avm-variants.R                    : $(dl)   ReadTransactionSplits.R
+e-features-lcv.R                    : $(dl)   ModelLinearLocal.R Predictors.R ReadTransactionSplits.R
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(dl)   ReadTransactionsSubset1.R
 e-penalized-regression.R            : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
@@ -241,6 +283,38 @@ $(working)/e-avm-variants--%-90.RData \
 $(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
+
+# e-features-lcv always
+
+$(working)/e-features-lcv-chart--predictors-always--query.fraction--0.010000.1.txt \
+: \
+e-features-lcv.R \
+$(working)/e-features-lcv--predictors-always--query.fraction--0.010000.RData
+	Rscript e-features-lcv-chart.R --predictors always --query.fraction 0.010000
+
+$(working)/e-features-lcv--predictors-always--query.fraction--0.010000.RData \
+: \
+e-features-lcv.R \
+$(predictors.always.level)
+	Rscript e-features-lcv.R  --predictors always --query.fraction 0.010000
+
+# e-features-lcv chopra
+
+$(working)/e-features-lcv-chart--predictors-chopra--query.fraction--0.010000.1.txt \
+: \
+e-features-lcv.R \
+$(working)/e-features-lcv--predictors-chopra--query.fraction--0.010000.RData
+	Rscript e-features-lcv-chart.R --predictors chopra --query.fraction 0.010000
+
+$(working)/e-features-lcv--predictors-chopra--query.fraction--0.010000.RData \
+: \
+e-features-lcv.R \
+$(predictors.chopra.level)	
+	Rscript e-features-lcv.R --predictor chopra --query.fraction 0.010000
+
+	
+
+
 
 # E-FORMS
 # the stem is trainingDays
@@ -446,6 +520,8 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-30.txt \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
+	$(working)/e-features-lcv-chart--predictors-always--query.fraction--0.010000.1.txt \
+	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction--0.010000.1.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.001000.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.010000.txt \
 	$(working)/e-forms--trainingDays-90--testSample-0.001000.txt \
