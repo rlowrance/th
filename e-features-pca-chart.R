@@ -13,10 +13,6 @@
 source('Directory.R')
 source('Libraries.R')
 
-#source('ModelLinearLocal.R')
-#source('Predictors.R')
-#source('ReadTransactionSplits.R')
-
 library(optparse)
 
 Control <- function(command.args) {
