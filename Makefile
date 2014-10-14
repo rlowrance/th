@@ -191,7 +191,10 @@ deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-adjust-training-period.R          : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 e-avm-variants.R                    : $(dl)   ReadTransactionSplits.R
+e-features-pca.R                    : $(dl)   Predictors.R ReadTransactionSplits.R
+e-features-pca-chart.R              : $(dl)   
 e-features-lcv.R                    : $(dl)   ModelLinearLocal.R Predictors.R ReadTransactionSplits.R
+e-features-lcv-chart.R              : $(dl)   
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(dl)   ReadTransactionsSubset1.R
 e-penalized-regression.R            : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
@@ -312,9 +315,38 @@ e-features-lcv.R \
 $(predictors.chopra.level)	
 	Rscript e-features-lcv.R --predictor chopra --query.fraction 0.010000
 
-	
+# e-features-pca always
+# stem is txt
+$(working)/e-features-pca-chart--predictors-always.1.% \
+$(working)/e-features-pca-chart--predictors-always.2.01.% \
+$(working)/e-features-pca-chart--predictors-always.2.02.% \
+$(working)/e-features-pca-chart--predictors-always.2.03.% \
+: \
+e-features-pca-chart.R \
+$(working)/e-features-pca--predictors-always.RData
+	Rscript e-features-pca-chart.R --predictors always
+
+$(working)/e-features-pca--predictors-always.RData \
+: \
+e-features-pca.R 
+	Rscript e-features-pca.R --predictors always
 
 
+# e-features-pca chopra
+# stem is txt
+$(working)/e-features-pca-chart--predictors-chopra.1.% \
+$(working)/e-features-pca-chart--predictors-chopra.2.01.% \
+$(working)/e-features-pca-chart--predictors-chopra.2.02.% \
+$(working)/e-features-pca-chart--predictors-chopra.2.03.% \
+: \
+e-features-pca-chart.R \
+$(working)/e-features-pca--predictors-chopra.RData
+	Rscript e-features-pca-chart.R --predictors chopra
+
+$(working)/e-features-pca--predictors-chopra.RData \
+: \
+e-features-pca.R
+	Rscript e-features-pca.R --predictors chopra
 
 # E-FORMS
 # the stem is trainingDays
@@ -522,6 +554,14 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-90.txt \
 	$(working)/e-features-lcv-chart--predictors-always--query.fraction--0.010000.1.txt \
 	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction--0.010000.1.txt \
+	$(working)/e-features-pca-chart--predictors-always.1.txt \
+	$(working)/e-features-pca-chart--predictors-always.2.01.txt \
+	$(working)/e-features-pca-chart--predictors-always.2.02.txt \
+	$(working)/e-features-pca-chart--predictors-always.2.03.txt \
+	$(working)/e-features-pca-chart--predictors-chopra.1.txt \
+	$(working)/e-features-pca-chart--predictors-chopra.2.01.txt \
+	$(working)/e-features-pca-chart--predictors-chopra.2.02.txt \
+	$(working)/e-features-pca-chart--predictors-chopra.2.03.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.001000.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.010000.txt \
 	$(working)/e-forms--trainingDays-90--testSample-0.001000.txt \
