@@ -287,55 +287,55 @@ $(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
 
-# e-features-lcv-chart always stem is query.fraction
-$(working)/e-features-lcv-chart--predictors-always--%-0.010000.1.txt \
-$(working)/e-features-lcv-chart--predictors-always--%-0.010000.2.txt \
-$(working)/e-features-lcv-chart--predictors-always--%-0.010000.3.pdf \
-$(working)/e-features-lcv-chart--predictors-always--%-0.010000.4.pdf \
-$(working)/e-features-lcv-chart--predictors-always--%-0.010000.5.pdf \
+# e-features-lcv-chart always stem is query
+$(working)/e-features-lcv-chart--predictors-always--%-100_1.txt \
+$(working)/e-features-lcv-chart--predictors-always--%-100_2.txt \
+$(working)/e-features-lcv-chart--predictors-always--%-100_3.pdf \
+$(working)/e-features-lcv-chart--predictors-always--%-100_4.pdf \
+$(working)/e-features-lcv-chart--predictors-always--%-100_5.pdf \
 : \
 e-features-lcv-chart.R \
-$(working)/e-features-lcv--predictors-always--query.fraction-0.010000.RData
-	Rscript e-features-lcv-chart.R --predictors always --query.fraction 0.010000
+$(working)/e-features-lcv--predictors-always--query-100.RData
+	Rscript e-features-lcv-chart.R --predictors always --query 100
 
 # e-features-lcv
-$(working)/e-features-lcv--predictors-always--query.fraction--0.010000.RData \
+$(working)/e-features-lcv--predictors-always--query-100.RData \
 : \
 e-features-lcv.R \
 $(predictors.always.level)	
-	Rscript e-features-lcv.R --predictor always --query.fraction 0.010000
+	Rscript e-features-lcv.R --predictor always --query 100
 
-# e-features-lcv-chart chopra stem is query.fraction
-$(working)/e-features-lcv-chart--predictors-chopra--%-0.010000.1.txt \
-$(working)/e-features-lcv-chart--predictors-chopra--%-0.010000.2.txt \
-$(working)/e-features-lcv-chart--predictors-chopra--%-0.010000.3.pdf \
-$(working)/e-features-lcv-chart--predictors-chopra--%-0.010000.4.pdf \
-$(working)/e-features-lcv-chart--predictors-chopra--%-0.010000.5.pdf \
+# e-features-lcv-chart chopra stem is query
+$(working)/e-features-lcv-chart--predictors-chopra--%-100_1.txt \
+$(working)/e-features-lcv-chart--predictors-chopra--%-100_2.txt \
+$(working)/e-features-lcv-chart--predictors-chopra--%-100_3.pdf \
+$(working)/e-features-lcv-chart--predictors-chopra--%-100_4.pdf \
+$(working)/e-features-lcv-chart--predictors-chopra--%-100_5.pdf \
 : \
 e-features-lcv-chart.R \
-$(working)/e-features-lcv--predictors-chopra--query.fraction-0.010000.RData
-	Rscript e-features-lcv-chart.R --predictors chopra --query.fraction 0.010000
+$(working)/e-features-lcv--predictors-chopra--query-100.RData
+	Rscript e-features-lcv-chart.R --predictors chopra --query 100
 
 # e-features-lcv
-$(working)/e-features-lcv--predictors-chopra--query.fraction--0.010000.RData \
+$(working)/e-features-lcv--predictors-chopra--query-100.RData \
 : \
 e-features-lcv.R \
 $(predictors.chopra.level)	
-	Rscript e-features-lcv.R --predictor chopra --query.fraction 0.010000
+	Rscript e-features-lcv.R --predictor chopra --query 100
 
 # e-features-pca-chart always
 # stem is txt
-$(working)/e-features-pca-chart--predictors-always.1.% \
-$(working)/e-features-pca-chart--predictors-always.2.01.% \
-$(working)/e-features-pca-chart--predictors-always.2.02.% \
-$(working)/e-features-pca-chart--predictors-always.2.03.% \
-$(working)/e-features-pca-chart--predictors-always.2.04.% \
-$(working)/e-features-pca-chart--predictors-always.2.05.% \
-$(working)/e-features-pca-chart--predictors-always.2.06.% \
-$(working)/e-features-pca-chart--predictors-always.2.07.% \
-$(working)/e-features-pca-chart--predictors-always.2.08.% \
-$(working)/e-features-pca-chart--predictors-always.2.09.% \
-$(working)/e-features-pca-chart--predictors-always.2.10.% \
+$(working)/e-features-pca-chart--predictors-always_1.% \
+$(working)/e-features-pca-chart--predictors-always_2_01.% \
+$(working)/e-features-pca-chart--predictors-always_2_02.% \
+$(working)/e-features-pca-chart--predictors-always_2_03.% \
+$(working)/e-features-pca-chart--predictors-always_2_04.% \
+$(working)/e-features-pca-chart--predictors-always_2_05.% \
+$(working)/e-features-pca-chart--predictors-always_2_06.% \
+$(working)/e-features-pca-chart--predictors-always_2_07.% \
+$(working)/e-features-pca-chart--predictors-always_2_08.% \
+$(working)/e-features-pca-chart--predictors-always_2_09.% \
+$(working)/e-features-pca-chart--predictors-always_2_10.% \
 : \
 e-features-pca-chart.R \
 $(working)/e-features-pca--predictors-always.RData
@@ -351,17 +351,17 @@ $(predictors.always.level)
 
 # e-features-pca-chart chopra
 # stem is txt
-$(working)/e-features-pca-chart--predictors-chopra.1.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.01.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.02.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.03.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.04.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.05.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.06.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.07.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.08.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.09.% \
-$(working)/e-features-pca-chart--predictors-chopra.2.10.% \
+$(working)/e-features-pca-chart--predictors-chopra_1.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_01.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_02.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_03.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_04.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_05.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_06.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_07.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_08.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_09.% \
+$(working)/e-features-pca-chart--predictors-chopra_2_10.% \
 : \
 e-features-pca-chart.R \
 $(working)/e-features-pca--predictors-chopra.RData
@@ -507,17 +507,6 @@ e-penalized-regression-dependencies += $(splits)/price.log.RData
 e-penalized-regression-dependencies += $(splits)/recordingDate.RData
 e-penalized-regression-dependencies += $(splits)/saleDate.RData
 
-# the stem is query.fraction
-$(working)/e-penalized-regression--%-0.001000.RData \
-$(working)/e-penalized-regression--%-0.001000.txt \
-: $(e-penalized-regression-dependencies)
-	Rscript e-penalized-regression.R --query-fraction 0.001000
-
-$(working)/e-penalized-regression--%-0.010000.RData \
-$(working)/e-penalized-regression--%-0.010000.txt \
-: $(e-penalized-regression-dependencies)
-	Rscript e-penalized-regression.R --query-fraction 0.010000
-
 # TODO: add for all splits (above is for chopra's splits)
 
 # E-TRAINING-PERIOD; stem is testSampleFraction
@@ -578,24 +567,24 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-30.txt \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query.fraction-0.010000.1.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query.fraction-0.010000.2.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query.fraction-0.010000.3.pdf \
-	$(working)/e-features-lcv-chart--predictors-always--query.fraction-0.010000.4.pdf \
-	$(working)/e-features-lcv-chart--predictors-always--query.fraction-0.010000.5.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction-0.010000.1.txt \
-	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction-0.010000.2.txt \
-	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction-0.010000.3.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction-0.010000.4.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query.fraction-0.010000.5.pdf \
-	$(working)/e-features-pca-chart--predictors-always.1.txt \
-	$(working)/e-features-pca-chart--predictors-always.2.01.txt \
-	$(working)/e-features-pca-chart--predictors-always.2.02.txt \
-	$(working)/e-features-pca-chart--predictors-always.2.03.txt \
-	$(working)/e-features-pca-chart--predictors-chopra.1.txt \
-	$(working)/e-features-pca-chart--predictors-chopra.2.01.txt \
-	$(working)/e-features-pca-chart--predictors-chopra.2.02.txt \
-	$(working)/e-features-pca-chart--predictors-chopra.2.03.txt \
+	$(working)/e-features-lcv-chart--predictors-always--query-100_1.txt \
+	$(working)/e-features-lcv-chart--predictors-always--query-100_2.txt \
+	$(working)/e-features-lcv-chart--predictors-always--query-100_3.pdf \
+	$(working)/e-features-lcv-chart--predictors-always--query-100_4.pdf \
+	$(working)/e-features-lcv-chart--predictors-always--query-100_5.pdf \
+	$(working)/e-features-lcv-chart--predictors-chopra--query-100_1.txt \
+	$(working)/e-features-lcv-chart--predictors-chopra--query-100_2.txt \
+	$(working)/e-features-lcv-chart--predictors-chopra--query-100_3.pdf \
+	$(working)/e-features-lcv-chart--predictors-chopra--query-100_4.pdf \
+	$(working)/e-features-lcv-chart--predictors-chopra--query-100_5.pdf \
+	$(working)/e-features-pca-chart--predictors-always_1.txt \
+	$(working)/e-features-pca-chart--predictors-always_2_01.txt \
+	$(working)/e-features-pca-chart--predictors-always_2_02.txt \
+	$(working)/e-features-pca-chart--predictors-always_2_03.txt \
+	$(working)/e-features-pca-chart--predictors-chopra_1.txt \
+	$(working)/e-features-pca-chart--predictors-chopra_2_01.txt \
+	$(working)/e-features-pca-chart--predictors-chopra_2_02.txt \
+	$(working)/e-features-pca-chart--predictors-chopra_2_03.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.001000.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.010000.txt \
 	$(working)/e-forms--trainingDays-90--testSample-0.001000.txt \
