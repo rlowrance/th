@@ -33,7 +33,7 @@ Control <- function(command.args) {
                 )
 
     path.out.chart1 <-
-        sprintf( '%s--predictors-%s.1.txt'
+        sprintf( '%s--predictors-%s_1.txt'
                 ,me
                 ,opt$predictors
                 )
@@ -42,7 +42,7 @@ Control <- function(command.args) {
                              function(component.num) 
                                  paste0( working
                                         ,out.base
-                                        ,sprintf('.2.%02d.txt', component.num)
+                                        ,sprintf('_2_%02d.txt', component.num)
                                         )
                              )
     in.file <-
