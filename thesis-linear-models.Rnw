@@ -1362,7 +1362,17 @@ This section explores whether some predictors in the Chopra-derived set
 should be dropped and whether certain additional predictors should be
 added.
 
-\subsection{Possibly dropping some features}
+We use two approaches to name features that may be important in
+prediction accuracy. In the first approach, we develop a
+heuristic to approximate the features that are best. We start with all
+the features Chopra considered and then add about 15 additional features
+to build a comprehensive set of candidate features. In the second
+approach, we use PCA to identify features. Each of these approaches
+suggests one or more sets of features that may be important. We then
+take all the suggested feature sets and use cross validation to estimate
+the generalized error from each.
+
+\subsection{Possibly dropping some of Chopra's features}
 
 Our predictor feature set has 11 elements. A straight-forward way to
 determine whether a subset of these feature provides more accurate
@@ -1420,23 +1430,23 @@ substr(control$path.in.e.median.price.by.month.pdf, 50, 200)
 @
 
 
-
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Feature Names}
-\label{figure:Dropping01Names}
-%\tiny
-%\small
-\normalsize
-\verbatiminput{\Sexpr{path.1}}
-\end{figure}
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Cross Validation Errors}
-\label{figure:Dropping01Chart}
-\centering\includegraphics[scale=.4]{\Sexpr{path.3}}
-\end{figure}
-
+%
+%
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample Feature Names}
+%\label{figure:Dropping01Names}
+%%\tiny
+%%\small
+%\normalsize
+%\verbatiminput{\Sexpr{path.1}}
+%\end{figure}
+%
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample Cross Validation Errors}
+%\label{figure:Dropping01Chart}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.3}}
+%\end{figure}
+%
 Figure \ref{figure:Dropping01Names} contains the names of the features
 sorted in order of importance as found by the elastic net algorithm.
 Figure \ref{figure:Dropping01Chart} is a box chart depicting the median
@@ -1516,7 +1526,7 @@ price literature.
 %models (but we have not shown the features to be non-informative).
 %
 %
-%\subsection{Possibly adding some feature}
+\subsection{Possibly adding some feature to Chopra's feature set}
 %
 %We now consider adding features beyond the 11 features that we have been
 %considering so far. One set of features to consider are those that occur
@@ -1598,90 +1608,107 @@ price literature.
 %house itself is important as well.
 %
 %
-%\subsection{Using PCA to deduce feature importance}
-%
-%<<PCA>>=
-%path.always.1 <- control$path.in.e.features.pca.always.chart1
-%path.always.1
-%path.always.2.1 <- control$path.in.e.features.pca.always.chart2.01
-%path.always.2.1
-%path.always.2.2 <- control$path.in.e.features.pca.always.chart2.02
-%path.always.2.2
-%path.always.2.3 <- control$path.in.e.features.pca.always.chart2.03
-%path.always.2.3
-%@
-%
-%We used principal components analysis to inform the discussion about
-%which features are most important.
-%
-%
-%\begin{figure}[h]
-%\caption{PCA For Features Always Present}
-%\label{figure:PCAAlways1}
-%%\tiny
-%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.always.1}}
-%\end{figure}
-%
-%Figure \ref{figure:PCAAlways1} shows the cumulative fraction of variance
-%accounted for the the principal components derived from using the
-%features that are always present. We see that the first three
-%principal components account for almost all of the variance; hence we
-%focus on understanding these components.
-%
-%
-%\begin{figure}[h]
-%\caption{PCA For Features Always Present: Principal Component 1}
-%\label{figure:PCAAlways21}
-%%\tiny
-%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.always.2.1}}
-%\end{figure}
-%
-%Figure \ref{figure:PCAAlways21} shows the weights of the features in the
-%first principal component. By far the largest weight is for the median
-%household income, a feature of the census tract and hence the location.
-%
-%\begin{figure}[h]
-%\caption{PCA For Features Always Present: Principal Component 2}
-%\label{figure:PCAAlways22}
-%%\tiny
-%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.always.2.2}}
-%\end{figure}
-%
-%Figure \ref{figure:PCAAlways22} shows the weights for the features in
-%the second principal component. This time the most important feature by
-%far is the land square footage, which is a feature of the property. It
-%is an enduring feature of the property, because it cannot be redefined
-%through construction except by merging the property with another.
-%
-%
-%\begin{figure}[h]
-%\caption{PCA For Features Always Present: Principal Component 3}
-%\label{figure:PCAAlways23}
-%%\tiny
-%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.always.2.3}}
-%\end{figure}
-%
-%Figure \ref{figure:PCAAlways23} shows the weights for the features in
-%the third principal component. This time the most important feature by
-%far is the size of the basement, a feature of the construction on the
-%property.
-%
-%\subsection{A reduced-feature model}
-%
-%Describe and test a model with fewer features.
-%
-%Models: 8 features, 16 features, PCA features (median household income,
-%land square footage, basement square feet) all 25 features, all 11
-%chopra feature, all 11 chopra features
-%
+\subsection{Using PCA to deduce feature importance}
+
+<<PCA>>=
+pgm <- 'e-features-pca-chart'
+options <- '--predictors-always'
+base <- paste0(
+control$working
+,pgm
+,options
+)
+path.1 <-   paste0(base, '_1.txt')
+path.2.1 <- paste0(base, '_2_01.txt')
+path.2.2 <- paste0(base, '_2_02.txt')
+path.2.3 <- paste0(base, '_2_03.txt')
+
+path.1
+substr(path.1, 50, 200)
+@
+
+We used principal components analysis to inform the discussion about
+which features are most important. 
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present}
+\label{figure:PCAAlways1}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways1} shows the cumulative fraction of variance
+accounted for the the principal components derived from using the
+features that are always present. We see that the first three
+principal components account for almost all of the variance; hence we
+focus on understanding these components.
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 1}
+\label{figure:PCAAlways21}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.2.1}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways21} shows the weights of the features in the
+first principal component. By far the largest weight is for the median
+household income, a feature of the census tract and hence the location.
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 2}
+\label{figure:PCAAlways22}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.2.2}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways22} shows the weights for the features in
+the second principal component. This time the most important feature by
+far is the land square footage, which is a feature of the property. It
+is an enduring feature of the property, because it cannot be redefined
+through construction except by merging the property with another.
+
+
+\begin{figure}[h]
+\caption{PCA For Features Always Present: Principal Component 3}
+\label{figure:PCAAlways23}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.2.3}}
+\end{figure}
+
+Figure \ref{figure:PCAAlways23} shows the weights for the features in
+the third principal component. This time the most important feature by
+far is the size of the basement, a feature of the construction on the
+property. This feature may have more information than it may seem to
+have: it indicates something about the land (perhaps no basement means
+the land is damp) and something about the total square footage of the
+house (the other levels are built on top of the basement.)
+
+
+\subsection{A reduced-feature model}
+
+The LCV analysis suggests testing these models: WRITE ME.
+
+The PCA analysis suggest testing models with these feature sets:
+\begin{itemize}
+\item Only the median household income
+\item Both the median household income and the land square footage
+\item All three: income, land size, and basement size.
+\end{itemize}
+
+Models: 8 features, 16 features, PCA features (median household income,
+land square footage, basement square feet) all 25 features, all 11
+chopra feature, all 11 chopra features
+
 
 
 
