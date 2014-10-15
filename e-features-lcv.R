@@ -6,13 +6,14 @@
 # For now, just implement lasso.
 #
 # Command line arguments
-# -- predictors       : one of {chopra, all, always}
-#                       chopra == 11 predictors based on Chopa's work
-#                       all    == every predictors for which we have splits
-#                                 this fails if approach == lcv
-#                       always == 25 predictors that are always present in every observation
-# --query.fraction    : number
-#                       fraction of samples in test period to use
+# --predictors: one of {chopra, all, always}
+#               chopra == 11 predictors based on Chopa's work
+#               all    == every predictors for which we have splits
+#                         this fails if approach == lcv
+#               always == 25 predictors that are always present in every observation
+# --query     : number
+#               1 / fraction of samples in test period to use
+#               ex: --query 100 means take a 1 percent sample
 # Approach
 # 1. Use elestic net's lasso functionality to determine rank ordering of features
 #    in terms of their importance.
@@ -63,16 +64,16 @@ Control <- function(command.args) {
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf( '%s--predictors-%s--query.fraction-%f'
+        sprintf( '%s--predictors-%s--query-%f'
                 ,me
                 ,opt$predictors
-                ,opt$query.fraction
+                ,opt$query
                 )
 
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
-                    ,query.fraction = opt$query.fraction
+                    ,query.fraction = (1 / opt$query)
                     ,num.training.days = 90
                     ,predictors = predictors
                     ,response = response
@@ -96,98 +97,19 @@ ParseCommandArgs <- function(command.args) {
                                   ,type = 'character'
                                   ,help = 'name of feature set to use'
                                   )
-    opt.query.fraction <- make_option( opt_str = c('--query.fraction')
-                                      ,action = 'store'
-                                      ,type = 'double'
-                                      ,default = .01
-                                      ,help = 'fraction of samples used as queries'
-                                      )
+    opt.query <- make_option( opt_str = c('--query')
+                             ,action = 'store'
+                             ,type = 'double'
+                             ,default = .01
+                             ,help = '1 / fraction of samples used as queries'
+                             )
     option.list <- list( opt.predictors
-                        ,opt.query.fraction
+                        ,opt.query
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
                       ,positional_arguments = FALSE
                       )
-}
-LCVChart1 <- function(control, cv.result, ordered.features) {
-    Body <- function() {
-        # return a vector lines, the body of chart 1
-        #cat('Chart1Body\n'); browser()
-        FeatureNames <- function() {
-            c( 'Feature names ordered by importance'
-              ,'1 == most important'
-              ,sapply( 1:length(ordered.features)
-                      ,function(index) 
-                          sprintf(' %2d: %s'
-                                  ,index
-                                  ,ordered.features[[index]]
-                                  )
-                      )
-              )
-        }
-        FeaturePerformance <- function() {
-            RMedianSE <- function(model.index) {
-                model.result <- cv.result[[model.index]]
-                rMedianSE.values <- sapply( 1:length(model.result)
-                                           ,function(fold.index) {
-                                               evaluate <- model.result[[fold.index]]
-                                               evaluate$rootMedianSquaredError
-                                           }
-                                           )
-                result <- median(rMedianSE.values)
-                result
-            }
-            sapply( 1:length(cv.result)
-                   ,function(model.index) {
-                       sprintf( ' RMedianSE for features 1 through %2d = %f'
-                               ,model.index
-                               ,RMedianSE(model.index)
-                               )
-                   }
-                   )
-        }
-        result <- c( FeatureNames()
-                    ,' '
-                    ,FeaturePerformance()
-                    )
-
-    }
-    Heading <- function() {
-        description <- c(
-                         sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
-                                 ,control$query.sample * 100
-                                 )
-                         ,'AVM scenario'
-                         ,'Log-linear form'
-                         ,sprintf( 'Testing period: %s through %s'
-                                  ,control$testing.period$first.date
-                                  ,control$testing.period$last.date
-                                  )
-                         ,sprintf( 'Number of training days: %d'
-                                  ,control$num.training.days
-                                  )
-                         )
-    }
-    chart1 <- c( Heading()
-                ,' '
-                ,Chart1Body(control, cv.result, ordered.features)
-                )
-}
-PCAChart1 <- function(control, prcomp.result) {
-    Body <- function() {
-        browser()
-        stop('write me')
-    }
-    Heading <- function() {
-        c(
-          sprintf('PCA results for %d features', length(control$predictors))
-          )
-    }
-    chart <- c( Heading()
-               ,' '
-               ,Body()
-               )
 }
 Evaluate <- function(prediction, actual) {
     # return list of evaluations
