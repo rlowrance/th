@@ -10,8 +10,8 @@
 #                       all    == every predictors for which we have splits
 #                                 this fails if approach == lcv
 #                       always == 25 predictors that are always present in every observation
-# --query.fraction    : number
-#                       fraction of samples in test period to use
+# --query             : number
+#                       1 / fraction of samples in test period to use
 
 source('Directory.R')
 source('Libraries.R')
@@ -31,25 +31,25 @@ Control <- function(command.args) {
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf('%s--predictors-%s--query.fraction-%f'
+        sprintf('%s--predictors-%s--query-%f'
                 ,me
                 ,opt$predictors
-                ,opt$query.fraction
+                ,opt$query
                 )
     in.file <- 
-        sprintf('%s--predictors-%s--query.fraction-%f.RData'
+        sprintf('%s--predictors-%s--query-%f.RData'
                 ,'e-features-lcv'
                 ,opt$predictors
-                ,opt$query.fraction
+                ,opt$query
                 )
 
     control <- list( path.in = paste0(working, in.file)
                     ,path.out.log = paste0(log, out.base, '.log')
-                    ,path.out.chart1 = paste0(working, out.base, '.1.txt')
-                    ,path.out.chart2 = paste0(working, out.base, '.2.txt')
-                    ,path.out.chart3 = paste0(working, out.base, '.3.pdf')
-                    ,path.out.chart4 = paste0(working, out.base, '.4.pdf')
-                    ,path.out.chart5 = paste0(working, out.base, '.5.pdf')
+                    ,path.out.chart1 = paste0(working, out.base, '_1.txt')
+                    ,path.out.chart2 = paste0(working, out.base, '_2.txt')
+                    ,path.out.chart3 = paste0(working, out.base, '_3.pdf')
+                    ,path.out.chart4 = paste0(working, out.base, '_4.pdf')
+                    ,path.out.chart5 = paste0(working, out.base, '_5.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -64,14 +64,14 @@ ParseCommandArgs <- function(command.args) {
                                   ,type = 'character'
                                   ,help = 'name of feature set to use'
                                   )
-    opt.query.fraction <- make_option( opt_str = c('--query.fraction')
-                                      ,action = 'store'
-                                      ,type = 'double'
-                                      ,default = .01
-                                      ,help = 'fraction of samples used as queries'
-                                      )
+    opt.query <- make_option( opt_str = c('--query')
+                             ,action = 'store'
+                             ,type = 'double'
+                             ,default = .01
+                             ,help = 'fraction of samples used as queries'
+                             )
     option.list <- list( opt.predictors
-                        ,opt.query.fraction
+                        ,opt.query
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
