@@ -359,7 +359,7 @@ Main <- function(control) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--predictors', 'chopra', '--query.fraction', '.0001')
+#default.args <- list('--predictors', 'chopra', '--query.fraction', '.0001')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
