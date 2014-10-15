@@ -64,6 +64,7 @@ source('Directory.R')
 Control <- function() {
     drawings <- Directory('drawings')
     working <- Directory('working')
+
     Append <- function(name, value, lst) {
       lst[[name]] <- value
       lst
@@ -256,6 +257,8 @@ Control <- function() {
     control <- list( cache = FALSE
                     #,cache = TRUE
                     ,include = TRUE
+                    ,working = working
+                    ,drawings = drawings
                     )
     control2 <- AppendAvmPaths(30, control)
     control3 <- AppendAvmPaths(60, control2)
@@ -1383,36 +1386,66 @@ stage takes time $O(n)$. This heuristic approximates the factorial-timed
 problem with a $O(n^2)$ time problem.
 
 The first stage is implemented by running the elastic net procedure from
-Zou and Hastie (\cite{zou-05}).
-This procedure is claimed to implement
+Zou and Hastie (\cite{zou-05}).  This procedure is claimed to implement
 both the lasso and ridge regression efficiently in the time required for
-ordinary least squares (page 309). For our purposes, we
-don't need the ridge regression results, just the rank ordering of
-feature importance in accuracy.
+ordinary least squares (page 309). For our purposes, we don't need the
+ridge regression results, just the rank ordering of feature importance
+in accuracy.
 
 The second stage is implemented by using the rank-ordered features to
 derive models that are studied in a 10-fold cross validation procedure.
 
 <<Dropping>>=
-path.001 <- control$path.in.e.penalized.regression..query.fraction.001
-path.001
-path.01 <- control$path.in.e.penalized.regression..query.fraction.01
-path.01
+pgm <- 'e-features-lcv-chart'
+options <- '--predictors-chopra--query_fraction-0_010000'
+base <- paste0(
+control$working
+,pgm
+,options
+)
+path.1 <- paste0(base, '_1.txt')
+path.2 <- paste0(base, '.2.txt')
+path.3 <- paste0(base, '_3.pdf')
+path.4 <- paste0(base, '.4.pdf')
+path.5 <- paste0(base, '.5.pdf')
+
+path.1
+substr(path.1, 50, 200)
+
+path.3
+substr(path.3, 50, 200)
+
+control$path.in.e.median.price.by.month.pdf
+substr(control$path.in.e.median.price.by.month.pdf, 50, 200)
 @
 
 
 
 
 \begin{figure}[h]
-\caption{Dropping Features 0.1 Percent Sample}
-\label{figure:Dropping001}
+\caption{Dropping Features 1 Percent Sample Feature Names}
+\label{figure:Dropping01Names}
 %\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.001}}
+%\small
+\normalsize
+\verbatiminput{\Sexpr{path.1}}
 \end{figure}
 
-Figure \ref{figure:Dropping001} depicts the results of applying the
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample Cross Validation Errors}
+\label{figure:Dropping01Chart}
+\centering\includegraphics[scale=.4]{\Sexpr{path.3}}
+\end{figure}
+
+Figure \ref{figure:Dropping01Names} contains the names of the features
+sorted in order of importance as found by the elastic net algorithm.
+Figure \ref{figure:Dropping01Chart} is a box chart depicting the median
+errors found in each validation fold.
+
+We see that WRITE ME.
+
+
+depicts the results of applying the
 heuristic to a 0.1 percent random sample of the test transactions in
 every fold using 10-fold cross validation. The most important feature is
 the living area and perhaps surprisingly the least important is the
@@ -1445,209 +1478,210 @@ we would have a very reduced model: house size plus location features.
 This model has many fewer features than typical models in the house
 price literature.
 
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample}
-\label{figure:Dropping01}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.01}}
-\end{figure}
-
-Figure \ref{figure:Dropping01} contains the same analysis but for a 1
-percent sample of test transactions in the folds. The rank-ordering of
-the features is the same as for the 0.1 percent sample because of the
-way the heuristic is implemented. 
-
-We see that as for the 0.1 percent sample, the living area and three
-location features provide improved estimated RMedianSE values, but now
-using the number of parking spaces and whether the property has a pool
-also provide improved estimated accuracy. The minimum RMedianSE is again
-for the 9-feature model and the RMedianSE for it is close the the
-RMedianSE for the 6 factor model. One would consider using 6 factors
-instead of 9. Adding the last two features (new construction and number
-of bathrooms) degrades accuracy.
-
-Now we can update our re-write of what real estate agents say: In Los
-Angeles, the most important features for house prices are the size of
-the house, its location, the number of parking spaces, and whether it
-has a pool. To me, this seems consistent with my impression of Los
-Angeles: its crowded so that on-street parking is hard to find; its hot
-so that swimming pools are valuable.
-
-The findings from these two experiments show that feature selection is
-in fact an issue when designing linear models for house price
-prediction. The findings do not contradict the claim that adding
-non-information features can reduce prediction accuracy for linear
-models (but we have not shown the features to be non-informative).
-
-
-\subsection{Possibly adding some feature}
-
-We now consider adding features beyond the 11 features that we have been
-considering so far. One set of features to consider are those that occur
-in every one of the transactions in our training data. Including these
-additional features means that one does not have to develop an approach
-that handles missing values.
-
-<<AddingFeatures>>=
-path.adding <- control$path.in.e.features.lcv.always.010000
-path.adding
-substr(path.adding, 50, 200)
-@
-
-\begin{figure}[h]
-\caption{Adding Features 1 Percent Sample}
-\label{figure:Adding01}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.adding}}
-\end{figure}
-
-Figure \ref{figure:Adding01} shows the results of applying our heuristic
-to the 25 features that are always present. As shown in the first part
-of the figure, the most important feature is the living area of the
-house. Second most important is the income of the census tract.
-
-As shown in the second part of the figure, the estimated
-generatalization error declines are the first 8 features are included in
-the model, then increases and then declines until 16 features are
-included in the model, and then the pattern repeats. The lowest
-estimated generalization error is for the model with 23 features.
-
-We make these observations
-\begin{itemize}
-\item The 16-feature model only slightly outperforms the 8 feature
-models. 
-\item The 21-feature model only slightly outperforms the 16-feature
-model.
-\item The 23-feature model only slightly outperforms the 21-feature
-model.
-\end{itemize}
-
-Any of these models could be good choices. If one prefers parsimonious
-models, the improvements in estimated accuracy after 16 features are
-included are very small.
-
-If the 8-feature model were used, the most important features of the
-house would be its living area, the number of fireplaces, the year it
-was last remodelled (effective year built), and the total number of
-rooms. The most important features of the neighborhood would be its
-median household income, the average commute time, fraction owner
-occupied, and whether the zip code has any parcels that are classified
-as industry. Both sets of features are consistent with my intuition.
-
-Looking at the first 16 features, the features of the house can be
-grouped as follows:
-\begin{itemize}
-\item Features related to the size of the house: living area, total
-rooms, parking spaces, land square footage, stories number.
-\item Features related to the amenities of the house: fireplace number,
-effective year built, factor has pool.
-\end{itemize}
-
-Again looking at the first 16 features, the features of the neighborhood
-can be grouped as follows:
-\begin{itemize}
-\item Features related to social class of the neighbors: median
-household income, fraction owner occupied. More expansive features of
-the house are additiionally indicative of the social class of the
-neighbors.
-\item Features related to amenities of the location: average commute
-time, census tract has industry, zip5 has pool, census tract has retail,
-and zip5 has school.
-\end{itemize}
-
-Real estate agents claim that the most important three features of a
-house are location, location, and location. This work suggests that the
-house itself is important as well.
-
-
-\subsection{Using PCA to deduce feature importance}
-
-<<PCA>>=
-path.always.1 <- control$path.in.e.features.pca.always.chart1
-path.always.1
-path.always.2.1 <- control$path.in.e.features.pca.always.chart2.01
-path.always.2.1
-path.always.2.2 <- control$path.in.e.features.pca.always.chart2.02
-path.always.2.2
-path.always.2.3 <- control$path.in.e.features.pca.always.chart2.03
-path.always.2.3
-@
-
-We used principal components analysis to inform the discussion about
-which features are most important.
-
-
-\begin{figure}[h]
-\caption{PCA For Features Always Present}
-\label{figure:PCAAlways1}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.always.1}}
-\end{figure}
-
-Figure \ref{figure:PCAAlways1} shows the cumulative fraction of variance
-accounted for the the principal components derived from using the
-features that are always present. We see that the first three
-principal components account for almost all of the variance; hence we
-focus on understanding these components.
-
-
-\begin{figure}[h]
-\caption{PCA For Features Always Present: Principal Component 1}
-\label{figure:PCAAlways21}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.always.2.1}}
-\end{figure}
-
-Figure \ref{figure:PCAAlways21} shows the weights of the features in the
-first principal component. By far the largest weight is for the median
-household income, a feature of the census tract and hence the location.
-
-\begin{figure}[h]
-\caption{PCA For Features Always Present: Principal Component 2}
-\label{figure:PCAAlways22}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.always.2.2}}
-\end{figure}
-
-Figure \ref{figure:PCAAlways22} shows the weights for the features in
-the second principal component. This time the most important feature by
-far is the land square footage, which is a feature of the property. It
-is an enduring feature of the property, because it cannot be redefined
-through construction except by merging the property with another.
-
-
-\begin{figure}[h]
-\caption{PCA For Features Always Present: Principal Component 3}
-\label{figure:PCAAlways23}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{path.always.2.3}}
-\end{figure}
-
-Figure \ref{figure:PCAAlways23} shows the weights for the features in
-the third principal component. This time the most important feature by
-far is the size of the basement, a feature of the construction on the
-property.
-
-\subsection{A reduced-feature model}
-
-Describe and test a model with fewer features.
-
-Models: 8 features, 16 features, PCA features (median household income,
-land square footage, basement square feet) all 25 features, all 11
-chopra feature, all 11 chopra features
+%
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample}
+%\label{figure:Dropping01}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.01}}
+%\end{figure}
+%
+%Figure \ref{figure:Dropping01} contains the same analysis but for a 1
+%percent sample of test transactions in the folds. The rank-ordering of
+%the features is the same as for the 0.1 percent sample because of the
+%way the heuristic is implemented. 
+%
+%We see that as for the 0.1 percent sample, the living area and three
+%location features provide improved estimated RMedianSE values, but now
+%using the number of parking spaces and whether the property has a pool
+%also provide improved estimated accuracy. The minimum RMedianSE is again
+%for the 9-feature model and the RMedianSE for it is close the the
+%RMedianSE for the 6 factor model. One would consider using 6 factors
+%instead of 9. Adding the last two features (new construction and number
+%of bathrooms) degrades accuracy.
+%
+%Now we can update our re-write of what real estate agents say: In Los
+%Angeles, the most important features for house prices are the size of
+%the house, its location, the number of parking spaces, and whether it
+%has a pool. To me, this seems consistent with my impression of Los
+%Angeles: its crowded so that on-street parking is hard to find; its hot
+%so that swimming pools are valuable.
+%
+%The findings from these two experiments show that feature selection is
+%in fact an issue when designing linear models for house price
+%prediction. The findings do not contradict the claim that adding
+%non-information features can reduce prediction accuracy for linear
+%models (but we have not shown the features to be non-informative).
+%
+%
+%\subsection{Possibly adding some feature}
+%
+%We now consider adding features beyond the 11 features that we have been
+%considering so far. One set of features to consider are those that occur
+%in every one of the transactions in our training data. Including these
+%additional features means that one does not have to develop an approach
+%that handles missing values.
+%
+%<<AddingFeatures>>=
+%path.adding <- control$path.in.e.features.lcv.always.010000
+%path.adding
+%substr(path.adding, 50, 200)
+%@
+%
+%\begin{figure}[h]
+%\caption{Adding Features 1 Percent Sample}
+%\label{figure:Adding01}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.adding}}
+%\end{figure}
+%
+%Figure \ref{figure:Adding01} shows the results of applying our heuristic
+%to the 25 features that are always present. As shown in the first part
+%of the figure, the most important feature is the living area of the
+%house. Second most important is the income of the census tract.
+%
+%As shown in the second part of the figure, the estimated
+%generatalization error declines are the first 8 features are included in
+%the model, then increases and then declines until 16 features are
+%included in the model, and then the pattern repeats. The lowest
+%estimated generalization error is for the model with 23 features.
+%
+%We make these observations
+%\begin{itemize}
+%\item The 16-feature model only slightly outperforms the 8 feature
+%models. 
+%\item The 21-feature model only slightly outperforms the 16-feature
+%model.
+%\item The 23-feature model only slightly outperforms the 21-feature
+%model.
+%\end{itemize}
+%
+%Any of these models could be good choices. If one prefers parsimonious
+%models, the improvements in estimated accuracy after 16 features are
+%included are very small.
+%
+%If the 8-feature model were used, the most important features of the
+%house would be its living area, the number of fireplaces, the year it
+%was last remodelled (effective year built), and the total number of
+%rooms. The most important features of the neighborhood would be its
+%median household income, the average commute time, fraction owner
+%occupied, and whether the zip code has any parcels that are classified
+%as industry. Both sets of features are consistent with my intuition.
+%
+%Looking at the first 16 features, the features of the house can be
+%grouped as follows:
+%\begin{itemize}
+%\item Features related to the size of the house: living area, total
+%rooms, parking spaces, land square footage, stories number.
+%\item Features related to the amenities of the house: fireplace number,
+%effective year built, factor has pool.
+%\end{itemize}
+%
+%Again looking at the first 16 features, the features of the neighborhood
+%can be grouped as follows:
+%\begin{itemize}
+%\item Features related to social class of the neighbors: median
+%household income, fraction owner occupied. More expansive features of
+%the house are additiionally indicative of the social class of the
+%neighbors.
+%\item Features related to amenities of the location: average commute
+%time, census tract has industry, zip5 has pool, census tract has retail,
+%and zip5 has school.
+%\end{itemize}
+%
+%Real estate agents claim that the most important three features of a
+%house are location, location, and location. This work suggests that the
+%house itself is important as well.
+%
+%
+%\subsection{Using PCA to deduce feature importance}
+%
+%<<PCA>>=
+%path.always.1 <- control$path.in.e.features.pca.always.chart1
+%path.always.1
+%path.always.2.1 <- control$path.in.e.features.pca.always.chart2.01
+%path.always.2.1
+%path.always.2.2 <- control$path.in.e.features.pca.always.chart2.02
+%path.always.2.2
+%path.always.2.3 <- control$path.in.e.features.pca.always.chart2.03
+%path.always.2.3
+%@
+%
+%We used principal components analysis to inform the discussion about
+%which features are most important.
+%
+%
+%\begin{figure}[h]
+%\caption{PCA For Features Always Present}
+%\label{figure:PCAAlways1}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.always.1}}
+%\end{figure}
+%
+%Figure \ref{figure:PCAAlways1} shows the cumulative fraction of variance
+%accounted for the the principal components derived from using the
+%features that are always present. We see that the first three
+%principal components account for almost all of the variance; hence we
+%focus on understanding these components.
+%
+%
+%\begin{figure}[h]
+%\caption{PCA For Features Always Present: Principal Component 1}
+%\label{figure:PCAAlways21}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.always.2.1}}
+%\end{figure}
+%
+%Figure \ref{figure:PCAAlways21} shows the weights of the features in the
+%first principal component. By far the largest weight is for the median
+%household income, a feature of the census tract and hence the location.
+%
+%\begin{figure}[h]
+%\caption{PCA For Features Always Present: Principal Component 2}
+%\label{figure:PCAAlways22}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.always.2.2}}
+%\end{figure}
+%
+%Figure \ref{figure:PCAAlways22} shows the weights for the features in
+%the second principal component. This time the most important feature by
+%far is the land square footage, which is a feature of the property. It
+%is an enduring feature of the property, because it cannot be redefined
+%through construction except by merging the property with another.
+%
+%
+%\begin{figure}[h]
+%\caption{PCA For Features Always Present: Principal Component 3}
+%\label{figure:PCAAlways23}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.always.2.3}}
+%\end{figure}
+%
+%Figure \ref{figure:PCAAlways23} shows the weights for the features in
+%the third principal component. This time the most important feature by
+%far is the size of the basement, a feature of the construction on the
+%property.
+%
+%\subsection{A reduced-feature model}
+%
+%Describe and test a model with fewer features.
+%
+%Models: 8 features, 16 features, PCA features (median household income,
+%land square footage, basement square feet) all 25 features, all 11
+%chopra feature, all 11 chopra features
+%
 
 
 
