@@ -15,7 +15,8 @@ Control <- function() {
 
     log <- Directory('log')
     working <- Directory('working')
-    dir.nhgis <- '../../nhgis/'  # FIXME: should call Directory('raw')
+
+    dir.nhgis <- '../../nhgis/'  # FIXME: should call Directory('nhgis') (not raw, as not Los Angeles)
     dir.nhgis.1980 <- paste0(dir.nhgis, '1980/nhgis0003_csv/')
 
     control <- list( path.in.1980.ds104 = paste0(dir.nhgis.1980, 'nhgis0003_ds104_1980_tract.csv')
@@ -28,14 +29,28 @@ Control <- function() {
 Read1980DS104 <- function(path.in) {
     # read data set 104 for year 1980
     # return data frame in melted format
-    browser()
     d <- read.csv( file = path.in
                   ,header = TRUE
                   ,skip = 1  # skip first header with short names
                   )
     str(d)
     browser()
-    d
+    stopifnot(all(d$Data.File.Year == 1980))
+    is.california <- d$State.Name == 'California'
+    is.los.angeles.county <- d$County.Name == 'Los Angeles'
+    is.both <- is.california & is.los.angeles.country
+    d.subset <- d[is.both,]
+    owner <- d.subset$Owner.occupied
+    renter <- d.subset$Renter.occupied
+    fraction.owner.occupied <- owner / (owner + renter)
+    stopifnot(all(fraction.owner.occupied >= 0))
+    stopifnot(all(fraction.owner.occupied <= 1))
+    result <- data.frame( year = d.subset$Data.File.Year
+                         ,census.tract = d.subset$Census.Tract.Code
+                         ,variable = 'fraction.owner.occupied'
+                         ,value = fraction.owner.occupied
+                         )
+    result
 }
 
 Read1980DS107 <- function(path.in) {
