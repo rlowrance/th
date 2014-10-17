@@ -31,13 +31,13 @@ Control <- function(command.args) {
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf('%s--predictors-%s--query-%f'
+        sprintf('%s--predictors-%s--query-%d'
                 ,me
                 ,opt$predictors
                 ,opt$query
                 )
     in.file <- 
-        sprintf('%s--predictors-%s--query-%f.RData'
+        sprintf('%s--predictors-%s--query-%d.RData'
                 ,'e-features-lcv'
                 ,opt$predictors
                 ,opt$query
