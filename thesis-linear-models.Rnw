@@ -1405,209 +1405,143 @@ in accuracy.
 The second stage is implemented by using the rank-ordered features to
 derive models that are studied in a 10-fold cross validation procedure.
 
-<<Dropping>>=
+<<DroppingChopra>>=
 pgm <- 'e-features-lcv-chart'
-options <- '--predictors-chopra--query_fraction-0_010000'
+options <- '--predictors-chopra--query-100'
 base <- paste0(
 control$working
 ,pgm
 ,options
 )
 path.1 <- paste0(base, '_1.txt')
-path.2 <- paste0(base, '.2.txt')
+path.2 <- paste0(base, '_2.txt')
 path.3 <- paste0(base, '_3.pdf')
-path.4 <- paste0(base, '.4.pdf')
-path.5 <- paste0(base, '.5.pdf')
+path.4 <- paste0(base, '_4.pdf')
+path.5 <- paste0(base, '_5.pdf')
 
 path.1
 substr(path.1, 50, 200)
 
 path.3
 substr(path.3, 50, 200)
-
-control$path.in.e.median.price.by.month.pdf
-substr(control$path.in.e.median.price.by.month.pdf, 50, 200)
 @
 
 
-%
-%
-%\begin{figure}[h]
-%\caption{Dropping Features 1 Percent Sample Feature Names}
-%\label{figure:Dropping01Names}
-%%\tiny
-%%\small
-%\normalsize
-%\verbatiminput{\Sexpr{path.1}}
-%\end{figure}
-%
-%\begin{figure}[h]
-%\caption{Dropping Features 1 Percent Sample Cross Validation Errors}
-%\label{figure:Dropping01Chart}
-%\centering\includegraphics[scale=.4]{\Sexpr{path.3}}
-%\end{figure}
-%
-Figure \ref{figure:Dropping01Names} contains the names of the features
+
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample Chopra Features Rank Ordered}
+\label{figure:Dropping100ChopraNames}
+%\tiny
+%\small
+\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+Figure \ref{figure:Dropping100ChopraNames} contains the names of the features
 sorted in order of importance as found by the elastic net algorithm.
-Figure \ref{figure:Dropping01Chart} is a box chart depicting the median
-errors found in each validation fold.
+We see that the most important feature is the living area. Perhaps
+surprisingly, of low importance is the number of bedrooms and bathrooms,
+both of which are highly advertised in commercial real estate. Both of
+these features may be highly correlated with living area and hence have
+low ranking.
 
-We see that WRITE ME.
+The second most important feature is the median household
+income in the census tract.  This feature is measured in the year 2000,
+so it does have future information for many of the test samples.
+However, it is none-the-less a proxy for the quality of the neighborhood
+and we are not surprised to see that it is a very important feature.
+Features ranked as third and fourth in importance are also features of
+the census tract. Features ranked 2 through 4 are all location features
+and real estate agents claim that location is the most important feature
+when pricing a house.  
 
+This experiment suggests that location is in fact
+the second most important feature, behind living area, and provides a
+way to measure location quality.
 
-depicts the results of applying the
-heuristic to a 0.1 percent random sample of the test transactions in
-every fold using 10-fold cross validation. The most important feature is
-the living area and perhaps surprisingly the least important is the
-number of bathrooms. One possible explanation for the low importance of
-the number of bathrooms is that it might be highly correlated with the
-number of bedrooms, which is ranked as more important. The second most
-important feature is the median household income in the census tract.
-This feature is measured in the year 2000, so it does have future
-information for many of the test samples. However, it is none-the-less a
-proxy for the quality of the neighborhood and we are not surprised to see
-that it is a very important feature. Features ranked as third and
-fourth in importance are also features of the census tract. Features
-ranked 2 through 4 are all location features and real estate agents
-claim that location is the most important feature when pricing a house.
-This experiment suggests that location is in fact the second most
-important feature, behind living area, and provides a way to measure
-location quality.
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample Chopra Features Models Compared}
+\label{figure:Dropping100ChopraChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.3}}
+\end{figure}
 
-Turning to the second part of the figure, we see that the estimated
-generalization errors as measured by RMedianSE is lowest when the first
-9 features are used and increases when features ranked 10 and 11 are
-added. Dropping the new construction and bathrooms features is suggested
-as a way to improve prediction accuracy.
+Figure \ref{figure:Dropping100ChopraChart} is a box chart depicting the median
+errors found in each validation fold. The first model (tick 1) is the
+model containing the most important variable, namely the living area.
+The second model contains the first two most-imporant features: living
+area and median household income. The eleventh model contains all 11
+features in the Chopra feature set. The value depicted is the median
+across the 10 folds of the rootMedianSquaredErrors from each fold.
 
-Moreover, the RMedianSE increases after the three location features are
-added and then decreases until the 9th feature has been added. Because
-the RMedianSE values for the 4th and 9th models are very close,
-dropping all but the first 4 features is suggested. If this were done,
-we would have a very reduced model: house size plus location features.
-This model has many fewer features than typical models in the house
-price literature.
+We see that model 9 (with the first 9 features) has the lowest estimated
+generalization error. It is perhaps the best model to consider. Another
+choice is model 4 (with the first 4 features), which has a median
+rootMedianSquaredError that drops a lot compared to model 3. It is a
+surprise to me that incremental predictive power is assigned to the
+fourth variable (fraction of houses that are owner occupied).
 
-%
-%\begin{figure}[h]
-%\caption{Dropping Features 1 Percent Sample}
-%\label{figure:Dropping01}
-%%\tiny
-%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.01}}
-%\end{figure}
-%
-%Figure \ref{figure:Dropping01} contains the same analysis but for a 1
-%percent sample of test transactions in the folds. The rank-ordering of
-%the features is the same as for the 0.1 percent sample because of the
-%way the heuristic is implemented. 
-%
-%We see that as for the 0.1 percent sample, the living area and three
-%location features provide improved estimated RMedianSE values, but now
-%using the number of parking spaces and whether the property has a pool
-%also provide improved estimated accuracy. The minimum RMedianSE is again
-%for the 9-feature model and the RMedianSE for it is close the the
-%RMedianSE for the 6 factor model. One would consider using 6 factors
-%instead of 9. Adding the last two features (new construction and number
-%of bathrooms) degrades accuracy.
-%
-%Now we can update our re-write of what real estate agents say: In Los
-%Angeles, the most important features for house prices are the size of
-%the house, its location, the number of parking spaces, and whether it
-%has a pool. To me, this seems consistent with my impression of Los
-%Angeles: its crowded so that on-street parking is hard to find; its hot
-%so that swimming pools are valuable.
-%
-%The findings from these two experiments show that feature selection is
-%in fact an issue when designing linear models for house price
-%prediction. The findings do not contradict the claim that adding
-%non-information features can reduce prediction accuracy for linear
-%models (but we have not shown the features to be non-informative).
-%
-%
 \subsection{Possibly adding some feature to Chopra's feature set}
-%
-%We now consider adding features beyond the 11 features that we have been
-%considering so far. One set of features to consider are those that occur
-%in every one of the transactions in our training data. Including these
-%additional features means that one does not have to develop an approach
-%that handles missing values.
-%
-%<<AddingFeatures>>=
-%path.adding <- control$path.in.e.features.lcv.always.010000
-%path.adding
-%substr(path.adding, 50, 200)
-%@
-%
-%\begin{figure}[h]
-%\caption{Adding Features 1 Percent Sample}
-%\label{figure:Adding01}
-%%\tiny
+
+<<DroppingAlways>>=
+pgm <- 'e-features-lcv-chart'
+options <- '--predictors-always--query-100'
+base <- paste0(
+control$working
+,pgm
+,options
+)
+path.1 <- paste0(base, '_1.txt')
+path.2 <- paste0(base, '_2.txt')
+path.3 <- paste0(base, '_3.pdf')
+path.4 <- paste0(base, '_4.pdf')
+path.5 <- paste0(base, '_5.pdf')
+
+path.1
+substr(path.1, 50, 200)
+
+path.3
+substr(path.3, 50, 200)
+@
+
+
+
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample More Features Rank Ordered}
+\label{figure:Dropping100MoreNames}
+%\tiny
 %\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.adding}}
-%\end{figure}
-%
-%Figure \ref{figure:Adding01} shows the results of applying our heuristic
-%to the 25 features that are always present. As shown in the first part
-%of the figure, the most important feature is the living area of the
-%house. Second most important is the income of the census tract.
-%
-%As shown in the second part of the figure, the estimated
-%generatalization error declines are the first 8 features are included in
-%the model, then increases and then declines until 16 features are
-%included in the model, and then the pattern repeats. The lowest
-%estimated generalization error is for the model with 23 features.
-%
-%We make these observations
-%\begin{itemize}
-%\item The 16-feature model only slightly outperforms the 8 feature
-%models. 
-%\item The 21-feature model only slightly outperforms the 16-feature
-%model.
-%\item The 23-feature model only slightly outperforms the 21-feature
-%model.
-%\end{itemize}
-%
-%Any of these models could be good choices. If one prefers parsimonious
-%models, the improvements in estimated accuracy after 16 features are
-%included are very small.
-%
-%If the 8-feature model were used, the most important features of the
-%house would be its living area, the number of fireplaces, the year it
-%was last remodelled (effective year built), and the total number of
-%rooms. The most important features of the neighborhood would be its
-%median household income, the average commute time, fraction owner
-%occupied, and whether the zip code has any parcels that are classified
-%as industry. Both sets of features are consistent with my intuition.
-%
-%Looking at the first 16 features, the features of the house can be
-%grouped as follows:
-%\begin{itemize}
-%\item Features related to the size of the house: living area, total
-%rooms, parking spaces, land square footage, stories number.
-%\item Features related to the amenities of the house: fireplace number,
-%effective year built, factor has pool.
-%\end{itemize}
-%
-%Again looking at the first 16 features, the features of the neighborhood
-%can be grouped as follows:
-%\begin{itemize}
-%\item Features related to social class of the neighbors: median
-%household income, fraction owner occupied. More expansive features of
-%the house are additiionally indicative of the social class of the
-%neighbors.
-%\item Features related to amenities of the location: average commute
-%time, census tract has industry, zip5 has pool, census tract has retail,
-%and zip5 has school.
-%\end{itemize}
-%
-%Real estate agents claim that the most important three features of a
-%house are location, location, and location. This work suggests that the
-%house itself is important as well.
-%
-%
+\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+Figure \ref{figure:Dropping100MoreNames} shows the rank-ordering of
+features in an expanded feature set. We have included all the features
+in our data that occur in all transactions.
+
+We again see that as for the Chopra features, the living area and median
+household income are the most important features. The other location
+features (average commute time and fraction owner occupied) are also
+highly important. The importance of the number of fireplaces was a
+surprise to me; perhaps having a fireplace is a sign of a high-quality
+house.
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample More Features Models Compared}
+\label{figure:Dropping100MoreChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.3}}
+\end{figure}
+
+Figure \ref{figure:Dropping100MoreChart} is a box chart for all the
+model. The first tick has the most important feature (living area), the
+last tick has all 25 features. Focusing on the median values across the
+folds, we see that the lowest value is for 23 features, and that model
+may be a good choice. Feature not included in the 23rd model are whether
+the zip code has retail parcels (but included is whether the census
+tract has retail parcels) and the size of the garage (but included is
+the number of parking spaces).
+
 \subsection{Using PCA to deduce feature importance}
 
 <<PCA>>=
@@ -1696,7 +1630,20 @@ house (the other levels are built on top of the basement.)
 
 \subsection{A reduced-feature model}
 
-The LCV analysis suggests testing these models: WRITE ME.
+The LCV analysis suggests testing these models: 
+\begin{itemize}
+\item The model with first 9 of Chopra's features: it has the lowest estimated
+generalization error.
+\item The model with the first 4 of Chopra's features: it is sparse in
+features and has a significantly-reduced estimated generalization error
+compared to a model with the first 3 of Chopra' features.
+\item The model with the first 23 of the expanded features: it has the
+lowest estimated generalization error.
+\item The model with the first 5 of the expanded features: it has a much
+lower estimated generalization error than the model with the first 4
+expanded features.
+\end{itemize}
+
 
 The PCA analysis suggest testing models with these feature sets:
 \begin{itemize}
@@ -1705,10 +1652,8 @@ The PCA analysis suggest testing models with these feature sets:
 \item All three: income, land size, and basement size.
 \end{itemize}
 
-Models: 8 features, 16 features, PCA features (median household income,
-land square footage, basement square feet) all 25 features, all 11
-chopra feature, all 11 chopra features
-
+Thus we ran a cross validation study on the seven suggested models. We
+found WRITE ME
 
 
 
