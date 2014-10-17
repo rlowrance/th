@@ -1,24 +1,6 @@
 # e-reduced-features.R
 # main program
-# Determine best penalized regression model for log-level AMV with 90
-# days of training data using my lasso then cross-validation heuristi using my lasso then cross-validation heuristic
-#
-# For now, just implement lasso.
-#
-# Command line arguments
-# --predictors: one of {chopra, all, always}
-#               chopra == 11 predictors based on Chopa's work
-#               all    == every predictors for which we have splits
-#                         this fails if approach == lcv
-#               always == 25 predictors that are always present in every observation
-# --query     : number
-#               1 / fraction of samples in test period to use
-#               ex: --query 100 means take a 1 percent sample
-# Approach
-# 1. Use elestic net's lasso functionality to determine rank ordering of features
-#    in terms of their importance.
-# 2. Cross validate n models, where n is the number of features and model n has
-#    features of importance 1 through importance n.
+# Determine which reduced model is best using 10-fold cross validation.
 
 source('Directory.R')
 source('Libraries.R')
@@ -42,12 +24,7 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # define the splits that we use
-    predictors <- switch( opt$predictors
-                         ,chopra = Predictors('chopra.level')
-                         ,all = Predictors('all.level')
-                         ,always = Predictors('always.level')
-                         ,stop('bad opt$predictors')
-                         )
+    predictors <- Predictors('all.level')  # be conservative and assume everything
     other.names <- c(# dates
                     'saleDate'
                     ,'recordingDate'
@@ -58,16 +35,11 @@ Control <- function(command.args) {
                     ,'apn'
                     )
     response <- 'price.log'
-    formula <- Formula( predictors = predictors
-                       ,response = response
-                       )
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf( '%s--predictors-%s--query-%f'
+        sprintf( '%s'
                 ,me
-                ,opt$predictors
-                ,opt$query
                 )
 
     control <- list( path.in.splits = splits
@@ -77,20 +49,17 @@ Control <- function(command.args) {
                     ,num.training.days = 90
                     ,predictors = predictors
                     ,response = response
-                    ,formula = formula
                     ,split.names = unique(c(predictors, other.names))
                     ,nfolds = 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
                     ,testing = testing
-                    ,debug = TRUE
-                    ,which = opt$which
-                    ,approach = opt$approach
+                    ,debug = FALSE
                     )
     control
 }
-ParseCommandArgs <- function(command.args) {
+ParseCommandArgsOLD <- function(command.args) {
     # return name list of values from the command args
     opt.predictors <- make_option( opt_str = c('--predictors')
                                   ,action = 'store'
@@ -291,39 +260,6 @@ LCVAnalysis <- function(control, transaction.data) {
          ,elapsed.cpu
          ,elapsed.message
          ,file = control$path.out.rdata
-         )
-}
-LCVCharts <- function(my.control) {
-    # produce all the charts
-    # for now, there is only one
-    #cat('starting Charts\n'); browser()
-
-    # recover cetain values from the predictions
-    cv.result <- NULL
-    loaded <- load(file = my.control$path.out.rdata)
-    str(loaded)  # NOTE: control has been replaced
-    stopifnot(!is.null(cv.result))
-    stopifnot(!is.null(ordered.features))
-
-    # produce charts
-    # use the controls from when data were created
-    chart1 <- LCVChart1(control, cv.result, ordered.features)
-                            
-    writeLines( text = chart1
-               ,con = my.control$path.out.chart1
-               )
-    print(chart1)
-
-    print(elapsed.message)  # put the elapsed time from the Analysis phase in the final version of the log
-
-    # save results from the analysis pass and this pass
-    save( control
-         ,cv.result
-         ,ordered.features
-         ,elapsed.cpu
-         ,elapsed.message
-         ,chart1
-         ,file = my.control$path.out.rdata
          )
 }
 Main <- function(control, transaction.data) {
