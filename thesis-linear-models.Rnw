@@ -1466,6 +1466,20 @@ way to measure location quality.
 \centering\includegraphics[scale=.8]{\Sexpr{path.3}}
 \end{figure}
 
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample Chopra Features Models
+Compared Median Standard Error}
+\label{figure:Dropping100ChopraChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample Chopra Features Models
+Compared Mean Standard Errors}
+\label{figure:Dropping100ChopraChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.5}}
+\end{figure}
+
 Figure \ref{figure:Dropping100ChopraChart} is a box chart depicting the median
 errors found in each validation fold. The first model (tick 1) is the
 model containing the most important variable, namely the living area.
@@ -1531,6 +1545,20 @@ house.
 \caption{Dropping Features 1 Percent Sample More Features Models Compared}
 \label{figure:Dropping100MoreChart}
 \centering\includegraphics[scale=.8]{\Sexpr{path.3}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample More Features Models
+Compared Including Standard Errors Median}
+\label{figure:Dropping100MoreChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Dropping Features 1 Percent Sample More Features Models
+Compared Including Standard Errors Mean}
+\label{figure:Dropping100MoreChart}
+\centering\includegraphics[scale=.8]{\Sexpr{path.5}}
 \end{figure}
 
 Figure \ref{figure:Dropping100MoreChart} is a box chart for all the
