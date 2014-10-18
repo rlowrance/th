@@ -49,7 +49,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                     ,' '
                     ,sapply( 1:length(cv.result)
                             ,function(model.index)
-                                 sprintf( ' RMedianSE for model %d:%-30s %0.f'
+                                 sprintf( ' RMedianSE for model %d:%-40s %0.f'
                                          ,model.index
                                          ,model.name[[model.index]]
                                          ,RMedianSE(model.index)
@@ -214,11 +214,6 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
     }
 
     # BODY STARTS HERE
-    debug(Chart1)
-    debug(Chart2)
-    debug(Chart3)
-    debug(Chart4)
-    debug(Chart5)
 
     charts <- list( chart1 = Chart1(control, cv.result, model.name)
                    ,chart2 = Chart2(control, cv.result, model.name)
