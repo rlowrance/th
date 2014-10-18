@@ -1,17 +1,16 @@
 # e-ridge-regression.R
 # main program
-# Determine which reduced model is best using 10-fold cross validation.
+# compare the best of the reduced model: OLS vs. ridge regression
 # command line
 # --query INT: 1 / INT fraction of query transactions are used
 
 source('Directory.R')
 source('Libraries.R')
 
-source('ModelLinearLocal.R')
+source('ModelLinearRidgeLocal.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
 
-library(elasticnet)
 library(memoise)
 library(optparse)
 
@@ -45,11 +44,19 @@ Control <- function(command.args) {
                 ,opt$query
                 )
 
+    preliminary <- TRUE  # test an arbitrary reduced model
+    if (preliminary) {
+        predictors <- FeatureSetLCV1()
+    }
+    else {
+        stop('write me')
+    }
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,num.training.days = 90
                     ,response = response
+                    ,predictors = predictors
                     ,split.names = unique(c(predictors, other.names))
                     ,nfolds = 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
@@ -57,15 +64,16 @@ Control <- function(command.args) {
                                            )
                     ,testing = testing
                     ,debug = FALSE
+                    ,preliminary = TRUE
                     ,verbose.CrossValidate = TRUE
-                    ,feature.set = list( FeatureSetLCV1()
-                                        ,FeatureSetLCV2()
-                                        ,FeatureSetLCV3()
-                                        ,FeatureSetLCV4()
-                                        ,FeatureSetPCA1()
-                                        ,FeatureSetPCA2()
-                                        ,FeatureSetPCA3()
-                                        )
+                    ,lambda = c( 0
+                                ,100
+                                ,10
+                                ,1
+                                ,.1
+                                ,.01
+                                ,.001
+                                )
                     ,query.fraction = (1 / opt$query)
                     )
     control
@@ -204,7 +212,7 @@ EvaluatePredictions <- function(prediction, actual) {
                    )
     result
 }
-EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
+EvaluateFeatures <- function(lambda, data, is.testing, is.training, control) {
     # reduce to call to ModelLinearLocal followed by call to evaluate preditions
     # determine which transactions will be the query transactions
 
@@ -228,13 +236,14 @@ EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
     queries <- data.testing[which.test,]
     Printf('will sample %d of %d test transactions\n', nrow(queries), nrow(data.testing))
 
-    mll <- ModelLinearLocal( InTraining = InTraining
-                            ,queries = queries
-                            ,data.training = data.training
-                            ,formula = Formula( response = control$response
-                                               ,predictors = features
-                                               )
-                            )
+    mll <- ModelLinearRidgeLocal( InTraining = InTraining
+                                 ,queries = queries
+                                 ,data.training = data.training
+                                 ,formula = Formula( response = control$response
+                                                    ,predictors = control$predictors
+                                                    )
+                                 ,lambda = lambda
+                                 )
     predictions <- exp(mll$predictions)    # possible NA
     num.training <- mll$num.training       # probably not used
     
@@ -249,13 +258,13 @@ Main <- function(control, transaction.data) {
 
 
     
-    num.models <- length(control$feature.set)
+    num.models <- length(control$lambda)
     EvaluateModel <- sapply(1:num.models
                             ,function(n) {
                                 # return function that implements CrossValidation API
                                 force(n)
                                 function(data, is.testing, is.training, control)
-                                    EvaluateFeatures( control$feature.set[[n]]
+                                    EvaluateFeatures( control$lambda[[n]]
                                                      ,data
                                                      ,is.testing
                                                      ,is.training
@@ -265,9 +274,8 @@ Main <- function(control, transaction.data) {
 
     model.name <- sapply( 1:num.models
                          ,function(n)
-                             sprintf( '%s using %d features'
-                                     ,if (n <=4)  'LCV' else 'PCA'
-                                     ,length(control$feature.set[[n]])
+                             sprintf( 'ridge regression lambda = %f'
+                                     ,control$lambda[[n]]
                                      )
                          )
 
@@ -288,12 +296,14 @@ Main <- function(control, transaction.data) {
     str(control)
     if (control$testing)
         cat('TESTING: DISCARD RESULTS\n')
+    if (control$preliminary)
+        cat('PRELIMINARY: DISCARD RESULTS\n')
     
 }
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--query', '10000')
+default.args <- list('--query', '10000')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
@@ -305,6 +315,9 @@ if (!exists('transaction.data')) {
                                               ,split.names = control$split.names
                                               )
 }
+
+if (!is.null(default.args))
+    cat('USING DEFAULT ARGS\n')
 
 Main(control, transaction.data)
 cat('done\n')
