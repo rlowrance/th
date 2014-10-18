@@ -2,75 +2,59 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
     # return list of objects, each a chart
     library(ggplot2)
     Heading.1.and.2 <- function(control) {
-        result <- c( sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
-                             ,control$query.sample * 100
-                             )
-        ,'AVM scenario'
-        ,'Log-linear form'
-        ,sprintf( 'Testing period: %s through %s'
-                 ,control$testing.period$first.date
-                 ,control$testing.period$last.date
-                 )
-        ,sprintf( 'Number of training days: %d'
-                 ,control$num.training.days
-                 )
-        )
+        result <- 
+            c( sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
+                       ,control$query.sample * 100
+                       )
+              ,'AVM scenario'
+              ,'Log-linear form'
+              ,sprintf( 'Testing period: %s through %s'
+                       ,control$testing.period$first.date
+                       ,control$testing.period$last.date
+                       )
+              ,sprintf( 'Number of training days: %d'
+                       ,control$num.training.days
+                       )
+              )
         result
     }
 
     Chart1 <- function(control, cv.result, model.name) {
         # text file with variables in order
-        Body <- function() {
-            # return a vector lines, the body of chart 1
-            FeatureNames <- function() {
-                c( 'Model descriptions'
-                  ,sapply( 1:length(model.name)
-                          ,function(index) 
-                              sprintf(' %2d: %s'
-                                      ,index
-                                      ,model.name[[index]]
-                                      )
-                          )
-                  )
-            }
-            result <- FeatureNames()
-            result
-        }
         result <- c( Heading.1.and.2(control)
                     ,' '
-                    ,Body()
+                    ,'Model descriptions'
+                    ,sapply( 1:length(model.name)
+                            ,function(index)
+                                sprintf(' %2d: %s', index, model.name[[index]])
+                            )
                     )
         result
     }
 
     Chart2 <- function(control, cv.result, model.name) {
         # text file with median of rootMedianSquaredErrors
-        Body <- function() {
-            RMedianSE <- function(model.index) {
-                model.result <- cv.result[[model.index]]
-                rMedianSE.values <- sapply( 1:length(model.result)
-                                           ,function(fold.index) {
-                                               evaluate <- model.result[[fold.index]]
-                                               evaluate$rootMedianSquaredError
-                                           }
-                                           )
-                result <- median(rMedianSE.values)
-                result
-            }
-            result <- sapply( 1:length(cv.result)
-                             ,function(model.index) {
-                                 sprintf( ' RMedianSE for model %d:%s %f'
-                                         ,model.index
-                                         ,model.name[[model.index]]
-                                         ,RMedianSE(model.index)
-                                         )
-                             }
-                             )
+        RMedianSE <- function(model.index) {
+            model.result <- cv.result[[model.index]]
+            rMedianSE.values <- sapply( 1:length(model.result)
+                                       ,function(fold.index) {
+                                           evaluate <- model.result[[fold.index]]
+                                           evaluate$rootMedianSquaredError
+                                       }
+                                       )
+            result <- median(rMedianSE.values)
             result
         }
         result <- c( Heading.1.and.2(control)
                     ,' '
-                    ,Body()
+                    ,sapply( 1:length(cv.result)
+                            ,function(model.index)
+                                 sprintf( ' RMedianSE for model %d:%-30s %0.f'
+                                         ,model.index
+                                         ,model.name[[model.index]]
+                                         ,RMedianSE(model.index)
+                                         )
+                            )
                     )
         result
     }
@@ -230,11 +214,17 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
     }
 
     # BODY STARTS HERE
-    charts <- list( chart1 = chart1(control, cv.result, model.name)
-                   ,chart2 = chart2(control, cv.result, model.name)
-                   ,chart3 = chart3(control, cv.result)
-                   ,chart4 = chart4(control, cv.result)
-                   ,chart5 = chart5(control, cv.result)
+    debug(Chart1)
+    debug(Chart2)
+    debug(Chart3)
+    debug(Chart4)
+    debug(Chart5)
+
+    charts <- list( chart1 = Chart1(control, cv.result, model.name)
+                   ,chart2 = Chart2(control, cv.result, model.name)
+                   ,chart3 = Chart3(control, cv.result)
+                   ,chart4 = Chart4(control, cv.result)
+                   ,chart5 = Chart5(control, cv.result)
                    )
     charts
 }
