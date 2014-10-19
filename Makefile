@@ -82,6 +82,7 @@ predictors.always.level += $(splits)/zip5.has.retail.RData
 predictors.always.level += $(splits)/zip5.has.school.RData
 
 
+
 # EXPERIMENT TARGETS
 
 #targets += $(working)/e-adjust-training-period--query.fraction-0.001000.RData
@@ -509,6 +510,38 @@ e-penalized-regression-dependencies += $(splits)/saleDate.RData
 
 # TODO: add for all splits (above is for chopra's splits)
 
+# E-REDUCED-FEATURES
+
+e-reduced.features.R : Directory.R Libraries.R ModelLinearLocal.R Predictors.R ReadTransactionSplits.R
+
+$(working)/e-reduced-features--query-100.RData \
+: \
+e-reduced-features.R \
+$(predictors.all.level) \
+$(splits)/saleDate.RData \
+$(splits)/recordingDate.RData \
+$(splits)/price.RData \
+$(splits)/price.log.RData \
+$(splits)/apn.RData
+	Rscript e-reduced-features.R --query 100
+
+# E-REDUCED-FEATURES-CHART
+
+e-reduced-features-chart.R : Directory.R Libraries.R CrossValidateCharts.R
+
+# stem is _
+
+$(working)/e-reduced-features-chart--query-100%1.txt \
+$(working)/e-reduced-features-chart--query-100%2.txt \
+$(working)/e-reduced-features-chart--query-100%3.pdf \
+$(working)/e-reduced-features-chart--query-100%4.pdf \
+$(working)/e-reduced-features-chart--query-100%5.pdf \
+: \
+e-reduced-features-chart.R \
+$(working)/e-reduced-features--query-100.RData
+	Rscript e-reduced-features-chart.R --query 100
+
+
 # E-TRAINING-PERIOD; stem is testSampleFraction
 
 e-training-period-dependencies += e-training-period.R
@@ -596,7 +629,12 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
 	$(working)/e-training-period--testSampleFraction-0.001000.txt \
-	$(working)/e-training-period--testSampleFraction-0.010000.txt 
+	$(working)/e-training-period--testSampleFraction-0.010000.txt \
+	$(working)/e-reduced-features-chart--query-100_1.txt \
+	$(working)/e-reduced-features-chart--query-100_2.txt \
+	$(working)/e-reduced-features-chart--query-100_3.pdf \
+	$(working)/e-reduced-features-chart--query-100_4.pdf \
+	$(working)/e-reduced-features-chart--query-100_5.pdf 
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
 	pdflatex thesis-linear-models.tex
 	bibtex thesis-linear-models
