@@ -298,11 +298,9 @@ Charts <- function(my.control) {
     model.name <- NULL
     loaded <- load(file = my.control$path.in)
     str(loaded)  # NOTE: control has been replaced
-    browser()
     stopifnot(!is.null(cv.result))
     stopifnot(!is.null(model.name))
 
-    debug(CrossValidateCharts)
     charts <- CrossValidateCharts(control, cv.result, model.name)
 
     writeLines( text = charts$chart1
@@ -353,6 +351,6 @@ default.args <- NULL  # synthesize the command line that will be used in the Mak
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
 
-debug(Main)
+#debug(Main)
 Main(control)
 cat('done\n')
