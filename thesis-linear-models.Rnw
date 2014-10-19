@@ -1716,7 +1716,7 @@ identified in Figure \ref{figure:ReducedFeatureIdentification}. We see
 in Figure \ref{figure:ReducedFeatureCrossValidated} that
 all of the reduced-feature models identified through our LCV heuristic
 outperformed all the models identified through our PCA experiments. The
-best model is the model with 21 features.
+best model is the model with 23 features.
 
 \section{Ridge Regression}
 
