@@ -3,6 +3,7 @@
 # compare the best of the reduced model: OLS vs. ridge regression
 # command line
 # --query INT: 1 / INT fraction of query transactions are used
+# --lambdaSet NAME : name of a set of lambda parameters
 
 source('Directory.R')
 source('Libraries.R')
@@ -25,7 +26,31 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # define the splits that we use
-    predictors <- Predictors('all.level')  # we need all but 2 of these, to take them all
+    predictors <- c(#the 23 most-important predicators from the LCV experiment
+                     'living.area'
+                    ,'median.household.income'
+                    ,'fireplace.number'
+                    ,'avg.commute.time'
+                    ,'fraction.owner.occupied'
+                    ,'effective.year.built'
+                    ,'zip5.has.industry'
+                    ,'total.rooms'
+                    ,'census.tract.has.industry'
+                    ,'parking.spaces'
+                    ,'land.square.footage'
+                    ,'factor.has.pool'
+                    ,'zip5.has.school'
+                    ,'stories.number'
+                    ,'census.tract.has.retail'
+                    ,'zip5.has.park'
+                    ,'bedrooms'
+                    ,'bathrooms'
+                    ,'factor.is.new.construction'
+                    ,'census.tract.has.school'
+                    ,'year.built'
+                    ,'census.tract.has.park'
+                    ,'basement.square.feet'
+                    )
     other.names <- c(# dates
                     'saleDate'
                     ,'recordingDate'
@@ -44,13 +69,11 @@ Control <- function(command.args) {
                 ,opt$query
                 )
 
-    preliminary <- TRUE  # test an arbitrary reduced model
-    if (preliminary) {
-        predictors <- FeatureSetLCV1()
-    }
-    else {
-        stop('write me')
-    }
+    lambdaSets <-
+        list(one = c(0,100,10,1,.1,.01,.001))
+    lambda <- lambdaSets[[opt$lambdaSet]]
+    stopifnot(!is.null(lambda))
+
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
@@ -58,117 +81,34 @@ Control <- function(command.args) {
                     ,response = response
                     ,predictors = predictors
                     ,split.names = unique(c(predictors, other.names))
-                    ,nfolds = 10
+                    ,nfolds = if (testing) 2 else 10
                     ,testing.period = list( first.date = as.Date('1984-02-01')
                                            ,last.date = as.Date('2009-03-31')
                                            )
                     ,testing = testing
                     ,debug = FALSE
-                    ,preliminary = TRUE
                     ,verbose.CrossValidate = TRUE
-                    ,lambda = c( 0
-                                ,100
-                                ,10
-                                ,1
-                                ,.1
-                                ,.01
-                                ,.001
-                                )
+                    ,lambda = lambda
                     ,query.fraction = (1 / opt$query)
                     )
     control
 }
-FeatureSetLCV1 <- function() {
-    # return the first 9 of Chopra's features from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                ,'parking.spaces'
-                ,'factor.has.pool'
-                ,'land.square.footage'
-                ,'year.built'
-                ,'bedrooms'
-                )
-    result
-}
-FeatureSetLCV2 <- function() {
-    # return the first 4 of Chopra's features from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                )
-    result
-}
-FeatureSetLCV3 <- function() {
-    # return the first 23 of the expanded feature set from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'fireplace.number'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                ,'effective.year.built'
-                ,'zip5.has.industry'
-                ,'total.rooms'
-                ,'census.tract.has.industry'
-                ,'parking.spaces'
-                ,'land.square.footage'
-                ,'factor.has.pool'
-                ,'zip5.has.school'
-                ,'stories.number'
-                ,'census.tract.has.retail'
-                ,'zip5.has.park'
-                ,'bedrooms'
-                ,'bathrooms'
-                ,'factor.is.new.construction'
-                ,'census.tract.has.school'
-                ,'basement.square.feet'
-                )
-    result
-}
-FeatureSetLCV4 <- function() {
-    # return the first 5 of the expanded feature set from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'fireplace.number'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                )
-    result
-}
-FeatureSetPCA1 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                ,'land.square.footage'
-                ,'basement.square.feet'
-                )
-    result
-}
-FeatureSetPCA2 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                ,'land.square.footage'
-                )
-    result
-}
-FeatureSetPCA3 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                )
-    result
-}
-
-
 ParseCommandArgs <- function(command.args) {
     # return name list of values from the command args
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
                              ,type = 'double'
-                             ,default = .01
+                             ,default = 100
                              ,help = '1 / fraction of samples used as queries'
                              )
+    opt.lambdaSet <- make_option( opt_str = c('--lambdaSet')
+                                 ,action = 'store'
+                                 ,type = 'character'
+                                 ,default = 'one'
+                                 ,help = 'for now, "one"'
+                                 )
     option.list <- list( opt.query
+                        ,opt.lambdaSet
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
@@ -296,14 +236,11 @@ Main <- function(control, transaction.data) {
     str(control)
     if (control$testing)
         cat('TESTING: DISCARD RESULTS\n')
-    if (control$preliminary)
-        cat('PRELIMINARY: DISCARD RESULTS\n')
-    
 }
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '10000')
+default.args <- list('--query', '100', '--lambdaSet', 'one' )
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
