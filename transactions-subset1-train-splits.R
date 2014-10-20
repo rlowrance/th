@@ -176,6 +176,11 @@ Main <- function(control, raw) {
 
     Split('apn', Identity, 'apn.recoded')
 
+    # locations
+    Split('census.tract', Identity, 'CENSUS.TRACT')
+    Split('property.city', Identity, 'PROPERTY.CITY')
+    Split('zip5', Identity, 'zip5')
+
     Split('saleDate', as.Date, 'transaction.date')
     Split('sale.day', SplitDateDay, 'transaction.date')
     Split('sale.month', SplitDateMonth, 'transaction.date')
