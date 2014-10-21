@@ -288,6 +288,55 @@ $(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
 
+
+# E-CITY
+$(working)/e-city.RData \
+: \
+e-city.R \
+$(splits)/living.area.RData \
+$(splits)/median.household.income.RData \
+$(splits)/fireplace.number.RData \
+$(splits)/avg.commute.time.RData \
+$(splits)/fraction.owner.occupied.RData \
+$(splits)/effective.year.built.RData \
+$(splits)/zip5.has.industry.RData \
+$(splits)/total.rooms.RData \
+$(splits)/census.tract.has.industry.RData \
+$(splits)/parking.spaces.RData \
+$(splits)/land.square.footage.RData \
+$(splits)/factor.has.pool.RData \
+$(splits)/zip5.has.school.RData \
+$(splits)/stories.number.RData \
+$(splits)/census.tract.has.retail.RData \
+$(splits)/zip5.has.park.RData \
+$(splits)/bedrooms.RData \
+$(splits)/bathrooms.RData \
+$(splits)/factor.is.new.construction.RData \
+$(splits)/census.tract.has.school.RData \
+$(splits)/year.built.RData \
+$(splits)/census.tract.has.park.RData \
+$(splits)/basement.square.feet.RData \
+$(splits)/saleDate.RData \
+$(splits)/recordingDate.RData \
+$(splits)/price.RData \
+$(splits)/price.log.RData \
+$(splits)/apn.RData \
+$(splits)/property.city.RData 
+	Rscript e-city.R
+
+# E-CITY-CHART stem is _
+
+$(working)/e-city-chart%1.txt \
+$(working)/e-city-chart%2.txt \
+$(working)/e-city-chart%3.txt \
+$(working)/e-city-chart%4.txt \
+: \
+e-city-chart.R \
+$(working)/e-city.RData
+	Rscript e-city-chart.R
+
+
+
 # e-features-lcv-chart always stem is query
 $(working)/e-features-lcv-chart--predictors-always--%-100_1.txt \
 $(working)/e-features-lcv-chart--predictors-always--%-100_2.txt \
@@ -652,6 +701,10 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-30.txt \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
+	$(working)/e-city-chart_1.txt \
+	$(working)/e-city-chart_2.txt \
+	$(working)/e-city-chart_3.txt \
+	$(working)/e-city-chart_4.txt \
 	$(working)/e-features-lcv-chart--predictors-always--query-100_1.txt \
 	$(working)/e-features-lcv-chart--predictors-always--query-100_2.txt \
 	$(working)/e-features-lcv-chart--predictors-always--query-100_3.pdf \
