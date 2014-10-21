@@ -1770,7 +1770,90 @@ Figure \ref{figure:SubmarketsCrossValidated} contains the results of a
 cross validation study of the four models. We see that the third model,
 with the city indicators, outperforms the other models.
 
-DO THIS: SHOW AVERAGE COEFFICIENT FOR THE CITIES.
+<<Cities>>=
+pgm <- 'e-city-chart'
+options <- ''
+base<- paste0(control$working, pgm, options)
+base
+path.1 <- paste0(base, '_1.txt')
+path.2 <- paste0(base, '_2.txt')
+path.3 <- paste0(base, '_3.txt')
+path.4 <- paste0(base, '_4.txt')
+
+path.1
+path.2
+@
+
+\begin{figure}[h]
+\caption{Submarket City Model: Non-city Indicator Estimated Coefficients}
+\label{figure:CityIndicatorsNoncity}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+To examine the model with city indicators, we fitted an OLS model to all
+the training data (1.2 million transactions) using all the features
+inclusive of the city indicators. Figure
+\ref{figure:CityIndicatorsNoncity} shows the estimated coefficients for
+all the features except for the city indicator features. The p-values of
+all but two of the features are consistent with rejecting the null
+hypothesis that the coefficient is zero. Many of the signs of the
+estimated coefficients are consistent with my prior beliefs, except for
+these:
+\begin{itemize}
+\item effective.year.built: I had expected more recently-built
+properties to be worth more. Perhaps there is some interaction with
+location that causes the sign to be inverted relative to my expectation.
+\item census.tract.has.schoolTRUE: I had thought this sign would be
+positive.
+\item bedrooms. The negative sign may reflect that more rooms cut up the
+living space into smaller rooms, and that may be unattractive.
+\item zip5.has.parkTRUE: but the coefficient for
+census.tract.has.parkTRUE is positive
+\item factor.is.new.constructionTRUE: I had expected new construction to
+be more valuable than existing construction; perhaps new construction is
+to on average lower standards
+\item zip5.has.schoolTRUE: the similar census.tract.has.schoolTRUE is
+also negative; both together being negative is a surprise to me
+\item fraction.owner.occupied: I had expected higher rates of owner
+occupancy to be positively valued, not negatively valued.
+\end{itemize}
+
+\begin{figure}[h]
+\caption{Submarket City Model: Largest Postive City-Indicator Estimated Coefficients}
+\label{figure:CityIndicatorsPositive}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.3}}
+\end{figure}
+
+There are many cities in Los Angeles Country. We have fit a model with
+an indicator variable for each. To examine the outcome, we divide all
+the coefficients into two groups: positive coefficients (indicating the
+city has higher-priced properties than on average) and negative
+coefficients (indicating lower-priced properties). Within this two
+group, we order by the size of the coeffficients.
+
+Figure \ref{figure:CityIndicatorsPositive} shows the largest positive
+coefficients in order of decreasing size. We see that the highest
+average prices are in Malibu, Beverly Hills, West Hollywood, and Santa
+Monica. To me these are not a surprise.
+
+\begin{figure}[h]
+\caption{Submarket City Model: Negative Postive City-Indicator Estimated Coefficients}
+\label{figure:CityIndicatorsNegative}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.4}}
+\end{figure}
+
+Figure \ref{figure:CityIndicatorsNegative} shows the largest negative
+coefficients in order of decreasing size. I'm not familiar enough with
+Los Angeles to judge whether these cities are appropriately on the list.
 
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
