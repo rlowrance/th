@@ -541,6 +541,58 @@ e-reduced-features-chart.R \
 $(working)/e-reduced-features--query-100.RData
 	Rscript e-reduced-features-chart.R --query 100
 
+# E-SUBMARKETS
+
+$(working)/e-submarkets--query-100.RData \
+: \
+e-submarkets.R \
+$(splits)/living.area.RData \
+$(splits)/median.household.income.RData \
+$(splits)/fireplace.number.RData \
+$(splits)/avg.commute.time.RData \
+$(splits)/fraction.owner.occupied.RData \
+$(splits)/effective.year.built.RData \
+$(splits)/zip5.has.industry.RData \
+$(splits)/total.rooms.RData \
+$(splits)/census.tract.has.industry.RData \
+$(splits)/parking.spaces.RData \
+$(splits)/land.square.footage.RData \
+$(splits)/factor.has.pool.RData \
+$(splits)/zip5.has.school.RData \
+$(splits)/stories.number.RData \
+$(splits)/census.tract.has.retail.RData \
+$(splits)/zip5.has.park.RData \
+$(splits)/stories.number.RData \
+$(splits)/census.tract.has.retail.RData \
+$(splits)/zip5.has.park.RData \
+$(splits)/bedrooms.RData \
+$(splits)/bathrooms.RData \
+$(splits)/factor.is.new.construction.RData \
+$(splits)/census.tract.has.school.RData \
+$(splits)/year.built.RData \
+$(splits)/census.tract.has.park.RData \
+$(splits)/basement.square.feet.RData \
+$(splits)/saleDate.RData \
+$(splits)/price.RData \
+$(splits)/price.log.RData \
+$(splits)/apn.RData \
+$(splits)/census.tract.RData \
+$(splits)/property.city.RData \
+$(splits)/zip5.RData 
+	Rscript e-submarkets.R --query 100
+
+
+
+# E-SUBMARKETS-CHARTS; stem is _
+
+$(working)/e-submarkets-chart--query-100%1.txt \
+$(working)/e-submarkets-chart--query-100%4.pdf \
+: \
+e-submarkets-charts.R \
+$(working)/e-submarkets--query-100.RData
+	Rscript e-submarkets-chart.R --query 100
+
+
 
 # E-TRAINING-PERIOD; stem is testSampleFraction
 
@@ -628,13 +680,15 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-median-price-by-year-from-1984-to-2009.pdf \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
-	$(working)/e-training-period--testSampleFraction-0.001000.txt \
-	$(working)/e-training-period--testSampleFraction-0.010000.txt \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
 	$(working)/e-reduced-features-chart--query-100_2.txt \
 	$(working)/e-reduced-features-chart--query-100_3.pdf \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
-	$(working)/e-reduced-features-chart--query-100_5.pdf 
+	$(working)/e-reduced-features-chart--query-100_5.pdf \
+	$(working)/e-submarkets-chart--query-100_1.txt \
+	$(working)/e-submarkets-chart--query-100_4.pdf \
+	$(working)/e-training-period--testSampleFraction-0.001000.txt \
+	$(working)/e-training-period--testSampleFraction-0.010000.txt
 	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
 	pdflatex thesis-linear-models.tex
 	bibtex thesis-linear-models
