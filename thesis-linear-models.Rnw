@@ -1725,7 +1725,52 @@ regularized. In these experiments, we regularize it to detemine if
 regularization leads to better peformance.
 
 
+\section{Submarket}
 
+<<Submarkets>>=
+pgm <- 'e-submarkets-chart'
+options <- '--query-100'
+base<- paste0(control$working, pgm, options)
+base
+path.1 <- paste0(base, '_1.txt')
+path.4 <- paste0(base, '_4.pdf')
+@
+
+
+\begin{figure}[h]
+\caption{Submarket Models: Identification}
+\label{figure:SubmarketsIdentification}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Submarket Models: Cross Validated Median RMedianSE
+Values}
+\label{figure:SubmarketsCrossValidated}
+\centering\includegraphics[scale=.4]{\Sexpr{path.4}}
+\end{figure}
+
+In the literature (WRITE ME) say that models built for submarkets are
+said to perform better. Quote barrasa saying that what the realtors know
+in Aukland is best (and that is neighborhood names).
+
+Figure \ref{figure:SubmarketsIdentification} contains the identifiers
+for several models designed to test whether submarkets-based models lead
+to improved prediction accuracy. The first model is the model we have
+been discussion up to now, except we now call it the ``global model.''
+It is one model for every location. The other models add an indicator
+variable for locations. The variable is either an indicator for each
+census tract (model 2), an indicator for each city (model 3), or an
+indicator for each zip code (model 4).
+
+Figure \ref{figure:SubmarketsCrossValidated} contains the results of a
+cross validation study of the four models. We see that the third model,
+with the city indicators, outperforms the other models.
+
+DO THIS: SHOW AVERAGE COEFFICIENT FOR THE CITIES.
 
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
