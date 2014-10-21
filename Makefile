@@ -702,7 +702,6 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
 	$(working)/e-city-chart_1.txt \
-	$(working)/e-city-chart_2.txt \
 	$(working)/e-city-chart_3.txt \
 	$(working)/e-city-chart_4.txt \
 	$(working)/e-features-lcv-chart--predictors-always--query-100_1.txt \
