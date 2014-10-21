@@ -1,6 +1,6 @@
+library(ggplot2)
 CrossValidateCharts <- function(control, cv.result, model.name) {
     # return list of objects, each a chart
-    library(ggplot2)
     Heading.1.and.2 <- function(control) {
         result <- 
             c( sprintf( 'cv.result of %f Percent Random Sample of Training Transactions'
@@ -65,15 +65,15 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
         for (cv.result.index in 1:length(cv.result)) {
             one.cv <- cv.result[[cv.result.index]]
             for (fold.index in 1:length(one.cv)) {
-                next.df <- data.frame( num.vars = cv.result.index
+                next.df <- data.frame( model.index = cv.result.index
                                       ,rootMedianSquaredError = one.cv[[fold.index]]$rootMedianSquaredError
                                       )
                 df <- rbind(df, next.df)
             }
         }
-        df$num.vars <- factor(df$num.vars)
+        df$model.index <- factor(df$model.index)
         gg <- ggplot( df
-                     ,aes( x = num.vars
+                     ,aes( x = model.index
                           ,y = rootMedianSquaredError
                           )
                      )
@@ -92,7 +92,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
         for (cv.result.index in 1:length(cv.result)) {
             one.cv <- cv.result[[cv.result.index]]
             for (fold.index in 1:length(one.cv)) {
-                next.df <- data.frame( num.vars = cv.result.index
+                next.df <- data.frame( model.index = cv.result.index
                                       ,rootMedianSquaredError = one.cv[[fold.index]]$rootMedianSquaredError
                                       )
                 df <- rbind(df, next.df)
@@ -101,7 +101,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
 
         # compute median results and standard errors
         ResultsForModel <- function(model.index) {
-            values <- df[df$num.vars == model.index, 'rootMedianSquaredError']
+            values <- df[df$model.index == model.index, 'rootMedianSquaredError']
             values
         }
         MedianRMedianSE <- function(model.index) {
@@ -134,7 +134,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                      )
         g <- 
             gg + 
-            geom_line(aes(group = 1)) + 
+      #      geom_line(aes(group = 1)) + 
             geom_point(size = 4) + 
             geom_errorbar( aes( ymin = medianRMedianSE - se
                                ,ymax = medianRMedianSE + se
@@ -158,7 +158,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
         for (cv.result.index in 1:length(cv.result)) {
             one.cv <- cv.result[[cv.result.index]]
             for (fold.index in 1:length(one.cv)) {
-                next.df <- data.frame( num.vars = cv.result.index
+                next.df <- data.frame( model.index = cv.result.index
                                       ,rootMedianSquaredError = one.cv[[fold.index]]$rootMedianSquaredError
                                       )
                 df <- rbind(df, next.df)
@@ -167,7 +167,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
 
         # compute median results and standard errors
         ResultsForModel <- function(model.index) {
-            values <- df[df$num.vars == model.index, 'rootMedianSquaredError']
+            values <- df[df$model.index == model.index, 'rootMedianSquaredError']
             values
         }
         MeanRMedianSE <- function(model.index) {
@@ -200,7 +200,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                      )
         g <- 
             gg + 
-            geom_line(aes(group = 1)) + 
+      #      geom_line(aes(group = 1)) + 
             geom_point(size = 4) + 
             geom_errorbar( aes( ymin = meanRMedianSE - se
                                ,ymax = meanRMedianSE + se
