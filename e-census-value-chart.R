@@ -124,7 +124,7 @@ Main <- function(control) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '100')
+#default.args <- list('--query', '100')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
