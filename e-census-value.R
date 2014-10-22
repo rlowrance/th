@@ -7,6 +7,7 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('After2002.R')
 source('ModelLinearLocal.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
@@ -164,11 +165,7 @@ Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-
-    # discard all data before 2003
-    jan.1.2003 <- as.Date('2003-01-01')
-    is.in.2003.or.later <- transaction.data.all.years$saleDate >= jan.1.2003
-    transaction.data <- transaction.data.all.years[is.in.2003.or.later,]
+    transaction.data <- After2002(transaction.data.all.years)
     
     num.models <- length(control$feature.set)
     EvaluateModel <- sapply(1:num.models
@@ -234,4 +231,6 @@ if (!exists('transaction.data')) {
 }
 
 Main(control, transaction.data)
+if (!is.null(default.args))
+    cat('DISCARD RESULTS; USED DEFAULT ARGS')
 cat('done\n')
