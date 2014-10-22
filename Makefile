@@ -307,6 +307,8 @@ $(working)/e-census-value--query-100.RData \
 : \
 e-census-value.R \
 Directory.R \
+Libraries.R \
+After2002.R \
 ModelLinearLocal.R \
 Predictors.R \
 ReadTransactionSplits.R \
@@ -375,43 +377,34 @@ e-city-chart.R \
 $(working)/e-city.RData
 	Rscript e-city-chart.R
 
+# E-FEATURES-LCV
 
-
-# e-features-lcv-chart always stem is query
-$(working)/e-features-lcv-chart--predictors-always--%-100_1.txt \
-$(working)/e-features-lcv-chart--predictors-always--%-100_2.txt \
-$(working)/e-features-lcv-chart--predictors-always--%-100_3.pdf \
-$(working)/e-features-lcv-chart--predictors-always--%-100_4.pdf \
-$(working)/e-features-lcv-chart--predictors-always--%-100_5.pdf \
-: \
-e-features-lcv-chart.R \
-$(working)/e-features-lcv--predictors-always--query-100.RData
-	Rscript e-features-lcv-chart.R --predictors always --query 100
-
-# e-features-lcv
-$(working)/e-features-lcv--predictors-always--query-100.RData \
+$(working)/e-features-lcv--query-100.RData \
 : \
 e-features-lcv.R \
-$(predictors.always.level)	
-	Rscript e-features-lcv.R --predictor always --query 100
+Directory.R \
+Libraries.R \
+After2002.R \
+ModelLinearLocal.R \
+Predictors.R \
+ReadTransactionSplits.R \
+$(predictors.alwaysl.level) \
+$(predictors.identification) \
+$(predictors.prices)
+	Rscript e-features-lcv --query 100
 
-# e-features-lcv-chart chopra stem is query
-$(working)/e-features-lcv-chart--predictors-chopra--%-100_1.txt \
-$(working)/e-features-lcv-chart--predictors-chopra--%-100_2.txt \
-$(working)/e-features-lcv-chart--predictors-chopra--%-100_3.pdf \
-$(working)/e-features-lcv-chart--predictors-chopra--%-100_4.pdf \
-$(working)/e-features-lcv-chart--predictors-chopra--%-100_5.pdf \
+# E-FEATURES-LCV-CHART stem is _
+
+$(working)/e-features-lcv-chart--query-100%1.txt \
+$(working)/e-features-lcv-chart--query-100%2.txt \
+$(working)/e-features-lcv-chart--query-100%3.pdf \
+$(working)/e-features-lcv-chart--query-100%4.pdf \
+$(working)/e-features-lcv-chart--query-100%5.pdf \
 : \
 e-features-lcv-chart.R \
-$(working)/e-features-lcv--predictors-chopra--query-100.RData
-	Rscript e-features-lcv-chart.R --predictors chopra --query 100
+$(working)/e-features-lcv--query-100.RData
+	Rscript e-features-lcv-chart.R --query 100
 
-# e-features-lcv
-$(working)/e-features-lcv--predictors-chopra--query-100.RData \
-: \
-e-features-lcv.R \
-$(predictors.chopra.level)	
-	Rscript e-features-lcv.R --predictor chopra --query 100
 
 # e-features-pca-chart always
 # stem is txt
@@ -606,12 +599,15 @@ e-reduced.features.R : Directory.R Libraries.R ModelLinearLocal.R Predictors.R R
 $(working)/e-reduced-features--query-100.RData \
 : \
 e-reduced-features.R \
+Directory.R \
+Libraries.R \
+After2002.R \
+ModelLinearLocal.R \
+Predictors.R \
+ReadTransactionSplits.R \
 $(predictors.all.level) \
-$(splits)/saleDate.RData \
-$(splits)/recordingDate.RData \
-$(splits)/price.RData \
-$(splits)/price.log.RData \
-$(splits)/apn.RData
+$(predictors.identification) \
+$(predictors.prices) 
 	Rscript e-reduced-features.R --query 100
 
 # E-REDUCED-FEATURES-CHART
@@ -745,16 +741,8 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-city-chart_1.txt \
 	$(working)/e-city-chart_3.txt \
 	$(working)/e-city-chart_4.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query-100_1.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query-100_2.txt \
-	$(working)/e-features-lcv-chart--predictors-always--query-100_3.pdf \
-	$(working)/e-features-lcv-chart--predictors-always--query-100_4.pdf \
-	$(working)/e-features-lcv-chart--predictors-always--query-100_5.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query-100_1.txt \
-	$(working)/e-features-lcv-chart--predictors-chopra--query-100_2.txt \
-	$(working)/e-features-lcv-chart--predictors-chopra--query-100_3.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query-100_4.pdf \
-	$(working)/e-features-lcv-chart--predictors-chopra--query-100_5.pdf \
+	$(working)/e-features-lcv-chart--query-100_1.txt \
+	$(working)/e-features-lcv-chart--query-100_4.pdf \
 	$(working)/e-features-pca-chart--predictors-always_1.txt \
 	$(working)/e-features-pca-chart--predictors-always_2_01.txt \
 	$(working)/e-features-pca-chart--predictors-always_2_02.txt \
@@ -774,10 +762,7 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
-	$(working)/e-reduced-features-chart--query-100_2.txt \
-	$(working)/e-reduced-features-chart--query-100_3.pdf \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
-	$(working)/e-reduced-features-chart--query-100_5.pdf \
 	$(working)/e-submarkets-chart--query-100_1.txt \
 	$(working)/e-submarkets-chart--query-100_4.pdf \
 	$(working)/e-training-period--testSampleFraction-0.001000.txt \
