@@ -299,14 +299,20 @@ $(working)/e-avm-variants--%-90.txt \
 
 # E-CENSUS-VALUE
 
-$(working)/e-census-value.RData \
+#$(warning predictors.always.level $(predictors.always.level))
+#$(warning predictors.prices $(predictors.prices))
+#$(warning predictors.identification $(predictors.identification))
+
+$(working)/e-census-value--query-100.RData \
 : \
-e-census-value.RData \
+e-census-value.R \
+Directory.R \
 ModelLinearLocal.R \
 Predictors.R \
 ReadTransactionSplits.R \
 $(predictors.always.level) \
-$(predictors.other.names)
+$(predictors.identification) \
+$(predictors.prices)
 	Rscript e-census-value.R --query 100
 
 # E-CENSUS-VALUE-CHART
