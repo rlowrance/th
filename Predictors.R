@@ -2,7 +2,41 @@ Predictors <- function(which) {
     # return predictor set as a vector of character, where which is oneof
     # 'chopra.level'
     # 'all.level'
-    # 'always.level'}
+    # 'always.level'
+    # 'always.level.census'
+    # 'always.level.no.census'
+    always.level.census <-
+        c( # subset that always occurs and is derived from census tract data
+           'avg.commute.time'
+          ,'census.tract.has.industry'
+          ,'census.tract.has.park'
+          ,'census.tract.has.retail'
+          ,'census.tract.has.school'
+          ,'fraction.owner.occupied'
+          ,'median.household.income'
+          )
+    always.level.no.census <-
+        c( # subset that always occurs
+           'basement.square.feet'
+          ,'bathrooms'
+          ,'bedrooms'
+          ,'effective.year.built'
+          ,'factor.has.pool'
+          ,'factor.is.new.construction'
+          #,'fireplace.indicator.flag'  # use fireplace.number instead 
+          ,'fireplace.number'    #  possibly zero
+          ,'land.square.footage'
+          ,'living.area'
+          ,'parking.spaces'
+          ,'stories.number'
+          ,'total.rooms'
+          ,'year.built'
+          ,'zip5.has.industry'
+          ,'zip5.has.park'
+          ,'zip5.has.retail'
+          ,'zip5.has.school'
+          )
+
     result <-
         switch( which
                ,chopra.level = c( 'land.square.footage'
@@ -62,34 +96,17 @@ Predictors <- function(which) {
                                  ,'zip5.has.retail'
                                  ,'zip5.has.school'
                                  )
-               ,always.level = c( # subset that always occurs
-                                 'avg.commute.time'
-                                 ,'basement.square.feet'
-                                 ,'bathrooms'
-                                 ,'bedrooms'
-                                 ,'census.tract.has.industry'
-                                 ,'census.tract.has.park'
-                                 ,'census.tract.has.retail'
-                                 ,'census.tract.has.school'
-                                 ,'effective.year.built'
-                                 ,'factor.has.pool'
-                                 ,'factor.is.new.construction'
-                                 #,'fireplace.indicator.flag'  # use fireplace.number instead 
-                                 ,'fireplace.number'    #  possibly zero
-                                 ,'fraction.owner.occupied'
-                                 ,'garage.parking.square.feet'
-                                 ,'land.square.footage'
-                                 ,'living.area'
-                                 ,'median.household.income'
-                                 ,'parking.spaces'
-                                 ,'stories.number'
-                                 ,'total.rooms'
-                                 ,'year.built'
-                                 ,'zip5.has.industry'
-                                 ,'zip5.has.park'
-                                 ,'zip5.has.retail'
-                                 ,'zip5.has.school'
-                                 )
+               ,always.level.no.census = always.level.no.census
+               ,always.level = c(always.level.census, always.level.no.census)
+               ,identification = c( 'recordingDate'
+                                   ,'saleDate'
+                                   ,'apn'
+                                   ,'census.tract'
+                                   ,'zip5'
+                                   )
+               ,prices = c('price', 'price.log')
+
+               
                ,stop('bad which')
                )
     result
