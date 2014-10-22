@@ -1,7 +1,6 @@
 # e-features-lcv.R
 # main program
-# Determine best penalized regression model for log-level AMV with 90
-# days of training data using my lasso then cross-validation heuristi using my lasso then cross-validation heuristic
+# Determine best set of features to use using my LCV heuristic
 #
 # For now, just implement lasso.
 #
@@ -14,7 +13,7 @@
 # --query     : number
 #               1 / fraction of samples in test period to use
 #               ex: --query 100 means take a 1 percent sample
-# Approach
+# LCV Approach
 # 1. Use elestic net's lasso functionality to determine rank ordering of features
 #    in terms of their importance.
 # 2. Cross validate n models, where n is the number of features and model n has
@@ -23,6 +22,7 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('After2002.R')
 source('ModelLinearLocal.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
@@ -42,21 +42,9 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # define the splits that we use
-    predictors <- switch( opt$predictors
-                         ,chopra = Predictors('chopra.level')
-                         ,all = Predictors('all.level')
-                         ,always = Predictors('always.level')
-                         ,stop('bad opt$predictors')
-                         )
-    other.names <- c(# dates
-                    'saleDate'
-                    ,'recordingDate'
-                    # prices
-                    ,'price'   # NOTE: MUST HAVE THE PRICE
-                    ,'price.log'
-                    # apn
-                    ,'apn'
-                    )
+    predictors <- Predictors('always.level')
+    identification <- Predictors('identification')
+    prices <- Predictors('prices')
     response <- 'price.log'
     formula <- Formula( predictors = predictors
                        ,response = response
@@ -78,13 +66,10 @@ Control <- function(command.args) {
                     ,predictors = predictors
                     ,response = response
                     ,formula = formula
-                    ,split.names = unique(c(predictors, other.names))
+                    ,split.names = unique(c(predictors, identification, prices))
                     ,nfolds = 10
-                    ,testing.period = list( first.date = as.Date('1984-02-01')
-                                           ,last.date = as.Date('2009-03-31')
-                                           )
                     ,testing = testing
-                    ,debug = TRUE
+                    ,debug = FALSE
                     ,which = opt$which
                     ,approach = opt$approach
                     )
@@ -92,19 +77,13 @@ Control <- function(command.args) {
 }
 ParseCommandArgs <- function(command.args) {
     # return name list of values from the command args
-    opt.predictors <- make_option( opt_str = c('--predictors')
-                                  ,action = 'store'
-                                  ,type = 'character'
-                                  ,help = 'name of feature set to use'
-                                  )
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
                              ,type = 'double'
                              ,default = .01
                              ,help = '1 / fraction of samples used as queries'
                              )
-    option.list <- list( opt.predictors
-                        ,opt.query
+    option.list <- list( opt.query
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
@@ -196,6 +175,7 @@ ListRemoveNulls <-function(lst) {
 EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
     # reduce to call to ModelLinearLocal followed by call to evaluate preditions
     # determine which transactions will be the query transactions
+    #cat('EvaluateFeatures\n'); browser()
 
     data.training <- data[is.training,]
     InTraining <- function(saleDate) {
@@ -234,7 +214,7 @@ EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
 }
 LCVAnalysis <- function(control, transaction.data) {
     # perform lasso regression using elasticnet function enet and predict.enet
-    #cat('Analysis\n'); browser()
+    #cat('LCVAnalysis\n'); browser()
 
     clock <- Clock()
     # use lasso to determine the order in which variables should enter the model
@@ -293,42 +273,11 @@ LCVAnalysis <- function(control, transaction.data) {
          ,file = control$path.out.rdata
          )
 }
-LCVCharts <- function(my.control) {
-    # produce all the charts
-    # for now, there is only one
-    #cat('starting Charts\n'); browser()
-
-    # recover cetain values from the predictions
-    cv.result <- NULL
-    loaded <- load(file = my.control$path.out.rdata)
-    str(loaded)  # NOTE: control has been replaced
-    stopifnot(!is.null(cv.result))
-    stopifnot(!is.null(ordered.features))
-
-    # produce charts
-    # use the controls from when data were created
-    chart1 <- LCVChart1(control, cv.result, ordered.features)
-                            
-    writeLines( text = chart1
-               ,con = my.control$path.out.chart1
-               )
-    print(chart1)
-
-    print(elapsed.message)  # put the elapsed time from the Analysis phase in the final version of the log
-
-    # save results from the analysis pass and this pass
-    save( control
-         ,cv.result
-         ,ordered.features
-         ,elapsed.cpu
-         ,elapsed.message
-         ,chart1
-         ,file = my.control$path.out.rdata
-         )
-}
-Main <- function(control, transaction.data) {
+Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
+
+    transaction.data <- After2002(transaction.data.all.years)
 
     LCVAnalysis(control, transaction.data)
 
@@ -340,7 +289,7 @@ Main <- function(control, transaction.data) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--predictors', 'chopra', '--query.fraction', '.0001')
+#default.args <- list('--query', '100')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
@@ -355,4 +304,8 @@ if (!exists('transaction.data')) {
 
 #debug(Main)
 Main(control, transaction.data)
+if (!is.null(default.args))
+    cat('DISCARD: USED DEFAULT ARGS')
+if (control$testing)
+    cat('DISCARD: TESTING')
 cat('done\n')
