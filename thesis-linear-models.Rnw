@@ -1855,6 +1855,68 @@ Figure \ref{figure:CityIndicatorsNegative} shows the largest negative
 coefficients in order of decreasing size. I'm not familiar enough with
 Los Angeles to judge whether these cities are appropriately on the list.
 
+\section{Census Value}
+
+<<CensusValue>>=
+pgm <- 'e-census-value-chart'
+options <- '--query-100'
+base<- paste0(control$working, pgm, options)
+base
+path.1 <- paste0(base, '_1.txt')
+path.4 <- paste0(base, '_4.pdf')
+
+path.1
+path.4
+@
+
+The taxroll contains the census tract number for each parcel. We have
+the taxroll for year 2008 only, which means we have the census tracts
+for year 2008. An investigation into census data determined that census
+tract numbers are not stable over time because census tracts are split
+by the census bureau when they become too large. Thus we need to
+determine if the census tract data are valuable in improving price
+estimation accuracy.
+
+\begin{figure}[h]
+\caption{
+Estimated Generalization Errors from 10-fold Cross Validation \\
+Model 1: With Census Tract Data\\
+Model 2: Without Census Tract Data
+}
+\label{figure:CensusTractCv}
+\centering\includegraphics[scale=.4]{\Sexpr{path.4}}
+\end{figure}
+
+To make this assessment, we estimated the generalization error for two
+models, one using the census tract-derived features and one not using
+these features. The estimate was created using 10-fold cross validation
+and taking a 1 percent sample of the query points in each fold. The
+results are in Figure \ref{figure:CensusTractCv}, which shows that using
+the census tract features greatly improves the accuracy of the
+estimates.
+
+The census tract features are:
+\begin{itemize}
+\item avg.commute.time: average time to travel to work for workers who
+do not work at home
+\item fraction.owner.occupied: fraction of houses that are occupied by
+their owner
+\item median.household.income: the median value for household income
+\item census.tract.has.industry: whether any parcel in the census tract
+has a land use value consistent with containing industry
+\item census.tract.has.park: whether any parcel in the censsus tract has
+a land use value consistent with containing a park
+\item census.tract.has.retail: whether any parcel in the census tract
+has a land use value consistent with containing a retail store
+\item census.tract.has.school: whether any parcel in the census tract
+has a land use value consistent with containing a school
+\end{itemize}
+
+As a result of this analysis, we restrict our work to transactions that
+occur on or after January 1, 2003. Thus our training and test data sets
+encompass almost 6 years: 2003, 2004, and so forth up to the first 9 months of
+2009.
+
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
 \bibliography{../../roy-bib/roy-bib}
