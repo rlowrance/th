@@ -201,7 +201,7 @@ Main <- function(control, transaction.data.all.years) {
                                ,control = control
                                ,verbose = control$verbose.CrossValidate
                                )
-    Printf( 'cross validate for query.fraction %f took %f CPU seconds'
+    Printf( 'cross validate for query.fraction %f took %f CPU seconds\n'
            ,control$query.fraction
            ,clock$Cpu()
            )
@@ -220,7 +220,7 @@ Main <- function(control, transaction.data.all.years) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '100')
+#default.args <- list('--query', '100')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
