@@ -55,6 +55,7 @@ predictors.chopra.level += $(splits)/avg.commute.time.RData
 predictors.chopra.level += $(splits)/factor.is.new.construction.RData
 predictors.chopra.level += $(splits)/factor.has.pool.RData
 
+# always.level includes always.level.no.census
 predictors.always.level += $(splits)/avg.commute.time.RData
 predictors.always.level += $(splits)/basement.square.feet.RData
 predictors.always.level += $(splits)/bathrooms.RData
@@ -81,6 +82,14 @@ predictors.always.level += $(splits)/zip5.has.park.RData
 predictors.always.level += $(splits)/zip5.has.retail.RData
 predictors.always.level += $(splits)/zip5.has.school.RData
 
+predictors.identification += $(splits)/apn.RData
+predictors.identification += $(splits)/census.tract.RData
+predictors.identification += $(splits)/recordingDate.RData
+predictors.identification += $(splits)/saleDate.RData
+predictors.identification += $(splits)/zip5.RData
+
+predictors.prices += $(splits)/price.RData
+predictors.prices += $(splits)/price.log.RData
 
 
 # EXPERIMENT TARGETS
@@ -287,6 +296,31 @@ $(working)/e-avm-variants--%-90.RData \
 $(working)/e-avm-variants--%-90.txt \
 : $(e-avm-variants-dependencies)
 	Rscript e-avm-variants.R --training 90
+
+# E-CENSUS-VALUE
+
+$(working)/e-census-value.RData \
+: \
+e-census-value.RData \
+ModelLinearLocal.R \
+Predictors.R \
+ReadTransactionSplits.R \
+$(predictors.always.level) \
+$(predictors.other.names)
+	Rscript e-census-value.R --query 100
+
+# E-CENSUS-VALUE-CHART
+
+$(working)/e-census-value-chart--query-100_1.txt \
+$(working)/e-census-value-chart--query-100_2.txt \
+$(working)/e-census-value-chart--query-100_3.pdf \
+$(working)/e-census-value-chart--query-100_4.pdf \
+$(working)/e-census-value-chart--query-100_5.pdf \
+: \
+e-census-value-chart.R \
+$(working)/e-census-value--query-100.RData
+	Rscript e-census-value-chart.R --query 100
+
 
 
 # E-CITY
@@ -701,6 +735,7 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-avm-variants--training-30.txt \
 	$(working)/e-avm-variants--training-60.txt \
 	$(working)/e-avm-variants--training-90.txt \
+	$(working)/e-census-value-chart--query-100_4.pdf \
 	$(working)/e-city-chart_1.txt \
 	$(working)/e-city-chart_3.txt \
 	$(working)/e-city-chart_4.txt \
