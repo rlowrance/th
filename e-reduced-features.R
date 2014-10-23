@@ -7,6 +7,7 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('After2002.R')
 source('ModelLinearLocal.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
@@ -26,19 +27,46 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # define the splits that we use
-    predictors <- Predictors('all.level')  # we need all but 2 of these, to take them all
-    other.names <- c(# dates
-                    'saleDate'
-                    ,'recordingDate'
-                    # prices
-                    ,'price'   # NOTE: MUST HAVE THE PRICE
-                    ,'price.log'
-                    # apn
-                    ,'apn'
-                    )
+    predictors.all.level <- Predictors('all.level')
+    predictors.identification <- Predictors('identification')
+    predictors.prices <- Predictors('prices')
     response <- 'price.log'
+
+    # predictors from e-feature-lcv in order of importance
+    lcv.features <- c( 'living.area'
+                      ,'median.household.income'
+                      ,'avg.commute.time'
+                      ,'fireplace.number'
+                      ,'year.built'
+                      ,'fraction.owner.occupied'
+                      ,'land.square.footage'
+                      ,'zip5.has.industry'
+                      ,'census.tract.has.industry'
+                      ,'factor.has.pool'
+                      ,'census.tract.has.retail'
+                      ,'parking.spaces'
+                      ,'effective.year.built'
+                      ,'stories.number'
+                      ,'zip5.has.school'
+                      ,'bedrooms'
+                      ,'bathrooms'
+                      ,'census.tract.has.school'
+                      ,'factor.is.new.construction'
+                      ,'census.tract.has.park'
+                      ,'zip5.has.park'
+                      ,'basement.square.feet'
+                      ,'zip5.has.retail'
+                      ,'total.rooms'
+                      )
+    pca.features <- c( 'median.household.income'
+                      ,'land.square.footage'
+                      ,'basement.square.feet'
+                      ,'living.area'
+                      )
+
     testing <- FALSE
     #testing <- TRUE
+
     out.base <-
         sprintf( '%s--query-%d'
                 ,me
@@ -50,108 +78,37 @@ Control <- function(command.args) {
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,num.training.days = 90
                     ,response = response
-                    ,split.names = unique(c(predictors, other.names))
+                    ,split.names = unique(c( predictors.all.level
+                                            ,predictors.identification
+                                            ,predictors.prices
+                                            )
+                    )
                     ,nfolds = 10
-                    ,testing.period = list( first.date = as.Date('1984-02-01')
-                                           ,last.date = as.Date('2009-03-31')
-                                           )
                     ,testing = testing
                     ,debug = FALSE
                     ,verbose.CrossValidate = TRUE
-                    ,feature.set = list( FeatureSetLCV1()
-                                        ,FeatureSetLCV2()
-                                        ,FeatureSetLCV3()
-                                        ,FeatureSetLCV4()
-                                        ,FeatureSetPCA1()
-                                        ,FeatureSetPCA2()
-                                        ,FeatureSetPCA3()
+                    ,feature.set = list( lcv.features[1:6]
+                                        ,lcv.features[1:9]
+                                        ,lcv.features[1:14]
+                                        ,lcv.features[1:21]
+                                        ,pca.features[1:1]
+                                        ,pca.features[1:2]
+                                        ,pca.features[1:3]
+                                        ,pca.features[1:4]
                                         )
+                    ,model.name = list( 'lcv 6 features'
+                                       ,'lcv 9 features'
+                                       ,'lcv 14 features'
+                                       ,'lcv 21 features'
+                                       ,'pca 1 feature'
+                                       ,'pca 2 features'
+                                       ,'pca 3 features'
+                                       ,'pca 4 features'
+                                       )
                     ,query.fraction = (1 / opt$query)
                     )
     control
 }
-FeatureSetLCV1 <- function() {
-    # return the first 9 of Chopra's features from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                ,'parking.spaces'
-                ,'factor.has.pool'
-                ,'land.square.footage'
-                ,'year.built'
-                ,'bedrooms'
-                )
-    result
-}
-FeatureSetLCV2 <- function() {
-    # return the first 4 of Chopra's features from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                )
-    result
-}
-FeatureSetLCV3 <- function() {
-    # return the first 23 of the expanded feature set from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'fireplace.number'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                ,'effective.year.built'
-                ,'zip5.has.industry'
-                ,'total.rooms'
-                ,'census.tract.has.industry'
-                ,'parking.spaces'
-                ,'land.square.footage'
-                ,'factor.has.pool'
-                ,'zip5.has.school'
-                ,'stories.number'
-                ,'census.tract.has.retail'
-                ,'zip5.has.park'
-                ,'bedrooms'
-                ,'bathrooms'
-                ,'factor.is.new.construction'
-                ,'census.tract.has.school'
-                ,'basement.square.feet'
-                )
-    result
-}
-FeatureSetLCV4 <- function() {
-    # return the first 5 of the expanded feature set from the LCV experiments
-    result <- c( 'living.area'
-                ,'median.household.income'
-                ,'fireplace.number'
-                ,'avg.commute.time'
-                ,'fraction.owner.occupied'
-                )
-    result
-}
-FeatureSetPCA1 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                ,'land.square.footage'
-                ,'basement.square.feet'
-                )
-    result
-}
-FeatureSetPCA2 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                ,'land.square.footage'
-                )
-    result
-}
-FeatureSetPCA3 <- function() {
-    # return list of features from PCA experiments
-    result <- c( 'median.household.income'
-                )
-    result
-}
-
-
 ParseCommandArgs <- function(command.args) {
     # return name list of values from the command args
     opt.query <- make_option( opt_str = c('--query')
@@ -243,12 +200,12 @@ EvaluateFeatures <- function(features, data, is.testing, is.training, control) {
                          ,actual = actuals)
     evaluate
 }
-Main <- function(control, transaction.data) {
+Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
+    transaction.data <- After2002(transaction.data.all.years)
 
-    
     num.models <- length(control$feature.set)
     EvaluateModel <- sapply(1:num.models
                             ,function(n) {
@@ -263,13 +220,7 @@ Main <- function(control, transaction.data) {
                             }
                             )
 
-    model.name <- sapply( 1:num.models
-                         ,function(n)
-                             sprintf( '%s using %d features'
-                                     ,if (n <=4)  'LCV' else 'PCA'
-                                     ,length(control$feature.set[[n]])
-                                     )
-                         )
+    model.name <- control$model.name
 
     cv.result <- CrossValidate( data = transaction.data
                                ,nfolds = control$nfolds
@@ -291,9 +242,10 @@ Main <- function(control, transaction.data) {
     
 }
 
+clock <- Clock()
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--query', '10000')
+#default.args <- list('--query', '100')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
@@ -307,4 +259,7 @@ if (!exists('transaction.data')) {
 }
 
 Main(control, transaction.data)
+if (!is.null(default.args))
+    cat('DISCARD: USED DEFAULT ARGS\n')
+Printf('cpu seconds %f\n', clock$Cpu())
 cat('done\n')
