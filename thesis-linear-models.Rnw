@@ -1350,6 +1350,126 @@ periods for times of lower volatility.
 
 \section{Which features are best?}
 
+So far is this work, we have used all 24 features that occur in every
+one of our 1.2 million transactions. We now consider which of these
+features is best, where ``best'' means leads to the lowest expected
+generalization error.
+
+We used two approaches to identify these features: a heuristic and
+principle components analysis.
+
+\subsection{The Heuristic}
+
+<<Naive>>=
+# count number of models in naive approach
+sum <- 0
+num.features <- 24
+for (k in 1:num.features) sum <- sum + choose(num.features, k)
+sum
+@
+
+A straight-forward way to determine which features are most valuable as
+measured by an estimated generalization error is to select every combination
+of the 24 features taken 1, 2, \ldots, 24 at a time and use cross
+validation to compare errors in the folds. There would be
+\Sexpr{Commas(sum)} such models.
+
+Our alternative idea is to use the lasso (\cite{hastie-01} page 64) to
+select subsets of the 24 features. The version of lasso that we use is
+the elastic net (\cite{zou-05}), which combines $L2$ regularization and
+feature selection, and is claimed to ``outperform the lasso, while
+enjoying a similar sparsity of representation.'' The implementation is
+in the R \cite{r-14} package \code{elasticnet} (\cite{zou-12}) which
+provides a rank-ordering of the features in terms of their
+importance. 
+
+<<FeaturesLCV>>=
+pgm <- 'e-features-lcv-chart'
+options <- '--query-100'
+base <- paste0(control$working, pgm, options)
+path.1 <- paste0(base, '_1.txt')
+#path.2 <- paste0(base, '_2.txt')
+#path.3 <- paste0(base, '_3.pdf')
+path.4 <- paste0(base, '_4.pdf')
+#path.5 <- paste0(base, '_5.pdf')
+
+path.1
+substr(path.1, 50, 200)
+
+path.4
+substr(path.4, 50, 200)
+@
+
+
+
+
+\begin{figure}[h]
+\caption{Dropping Features\\1 Percent Sample\\Features Rank Ordered}
+\label{figure:LCVNames}
+%\tiny
+%\small
+\normalsize
+\verbatiminput{\Sexpr{path.1}}
+\end{figure}
+
+For our transaction set, the rank-ordering of the features is in Figure
+\ref{figure:LCVNames}. The rank-ordering is obtained by setting the $L2$
+regularization hyperparameter of the elastic net procedure to $0$,
+resulting in a pure lasso-type regularization. The figure depicts the
+features in the order that the entered the model.
+
+We see that the most important feature is the living area. For these
+data, it is not true that the most important feature is location,
+location, location, as claimed by real estate agents. In fact,
+median.household.income, a feature of the location, is the second-most
+important feature.
+
+Examining the 10 most highly-ranked features, we see that these features
+of the house itself are the most important: living area, fireplace
+number, the year the house was built, land square footage, and whether there is a swimming pool. These
+features are consistent with my intuition, except for the number of
+fireplaces. Perhaps the number of fireplaces is correlated with other
+desirable features of the house. 
+
+The most important features of the location are the median household
+income, the average commuting time, and whether there is industry in the
+zip code and census tract. These are again intuitively consistent for
+me.
+
+Looking at the lowly-ranked features, a surprise is that the
+least-important feature is the number of rooms. Perhaps this is because
+living area is very important and adding rooms to the living area simply
+cuts up the space into smaller rooms. Whether the zip code has a store
+is of low importance, but whether the census tract has a store is of
+medium importance.
+
+
+\begin{figure}[h]
+\caption{Dropping Features\\1 Percent Sample\\Cross Validation Results}
+\label{figure:LCVEstGenError}
+\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+\end{figure}
+
+We built 24 models as input to a 10-fold cross validation procedure. The
+first model has just the most highly-ranked feature: the living area.
+The second model has the two most highly-ranked features: living area
+and median household income. The 24th model had all the features.
+
+Figure \ref{figure:LCVEstGenError} depicts the cross validation results.
+We measure the median value across the folds of the square root of the
+median square errors (which we call code{medianRMedianSE}). Standard
+errors are depicted by the tick marks above and below the plot points.
+
+We see that the estimated generalization error falls rapidly until the
+sixth feature is added. There are local minima at 9 features, 14
+features, and 21 features. The standard errors are small.
+
+All these models might be appealing from a sparsity perspective. Later
+we will compare these models to models derived from the PCA analysis.
+
+OLDER STUFF BELOW ME
+
+
 So far in this work, the features used as predictors have been based on
 those selected by Sumit Chopra for his thesis work \cite{chopra-09}. He
 selected features that were present in many observations. However
@@ -1405,40 +1525,7 @@ in accuracy.
 The second stage is implemented by using the rank-ordered features to
 derive models that are studied in a 10-fold cross validation procedure.
 
-<<DroppingChopra>>=
-pgm <- 'e-features-lcv-chart'
-options <- '--predictors-chopra--query-100'
-base <- paste0(
-control$working
-,pgm
-,options
-)
-path.1 <- paste0(base, '_1.txt')
-path.2 <- paste0(base, '_2.txt')
-path.3 <- paste0(base, '_3.pdf')
-path.4 <- paste0(base, '_4.pdf')
-path.5 <- paste0(base, '_5.pdf')
-
-path.1
-substr(path.1, 50, 200)
-
-path.3
-substr(path.3, 50, 200)
-@
-
-
-
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Chopra Features Rank Ordered}
-\label{figure:Dropping100ChopraNames}
-%\tiny
-%\small
-\normalsize
-\verbatiminput{\Sexpr{path.1}}
-\end{figure}
-
-Figure \ref{figure:Dropping100ChopraNames} contains the names of the features
+Figure \ref{figure:LCVNames} contains the names of the features
 sorted in order of importance as found by the elastic net algorithm.
 We see that the most important feature is the living area. Perhaps
 surprisingly, of low importance is the number of bedrooms and bathrooms,
@@ -1460,27 +1547,9 @@ This experiment suggests that location is in fact
 the second most important feature, behind living area, and provides a
 way to measure location quality.
 
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Chopra Features Models Compared}
-\label{figure:Dropping100ChopraChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.3}}
-\end{figure}
 
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Chopra Features Models
-Compared Median Standard Error}
-\label{figure:Dropping100ChopraChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
-\end{figure}
 
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample Chopra Features Models
-Compared Mean Standard Errors}
-\label{figure:Dropping100ChopraChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.5}}
-\end{figure}
-
-Figure \ref{figure:Dropping100ChopraChart} is a box chart depicting the median
+Figure \ref{figure:LCVEstGenError} is a box chart depicting the median
 errors found in each validation fold. The first model (tick 1) is the
 model containing the most important variable, namely the living area.
 The second model contains the first two most-imporant features: living
@@ -1497,38 +1566,18 @@ fourth variable (fraction of houses that are owner occupied).
 
 \subsection{Possibly adding some feature to Chopra's feature set}
 
-<<DroppingAlways>>=
-pgm <- 'e-features-lcv-chart'
-options <- '--predictors-always--query-100'
-base <- paste0(
-control$working
-,pgm
-,options
-)
-path.1 <- paste0(base, '_1.txt')
-path.2 <- paste0(base, '_2.txt')
-path.3 <- paste0(base, '_3.pdf')
-path.4 <- paste0(base, '_4.pdf')
-path.5 <- paste0(base, '_5.pdf')
-
-path.1
-substr(path.1, 50, 200)
-
-path.3
-substr(path.3, 50, 200)
-@
 
 
 
 
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample More Features Rank Ordered}
-\label{figure:Dropping100MoreNames}
-%\tiny
-%\small
-\normalsize
-\verbatiminput{\Sexpr{path.1}}
-\end{figure}
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample More Features Rank Ordered}
+%\label{figure:Dropping100MoreNames}
+%%\tiny
+%%\small
+%\normalsize
+%\verbatiminput{\Sexpr{path.1}}
+%\end{figure}
 
 Figure \ref{figure:Dropping100MoreNames} shows the rank-ordering of
 features in an expanded feature set. We have included all the features
@@ -1541,25 +1590,25 @@ highly important. The importance of the number of fireplaces was a
 surprise to me; perhaps having a fireplace is a sign of a high-quality
 house.
 
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample More Features Models Compared}
-\label{figure:Dropping100MoreChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.3}}
-\end{figure}
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample More Features Models
-Compared Including Standard Errors Median}
-\label{figure:Dropping100MoreChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
-\end{figure}
-
-\begin{figure}[h]
-\caption{Dropping Features 1 Percent Sample More Features Models
-Compared Including Standard Errors Mean}
-\label{figure:Dropping100MoreChart}
-\centering\includegraphics[scale=.8]{\Sexpr{path.5}}
-\end{figure}
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample More Features Models Compared}
+%\label{figure:Dropping100MoreChart}
+%\centering\includegraphics[scale=.8]{\Sexpr{path.3}}
+%\end{figure}
+%
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample More Features Models
+%Compared Including Standard Errors Median}
+%\label{figure:Dropping100MoreChart}
+%\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+%\end{figure}
+%
+%\begin{figure}[h]
+%\caption{Dropping Features 1 Percent Sample More Features Models
+%Compared Including Standard Errors Mean}
+%\label{figure:Dropping100MoreChart}
+%\centering\includegraphics[scale=.8]{\Sexpr{path.5}}
+%\end{figure}
 
 Figure \ref{figure:Dropping100MoreChart} is a box chart for all the
 model. The first tick has the most important feature (living area), the
