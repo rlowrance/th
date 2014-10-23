@@ -405,57 +405,50 @@ e-features-lcv-chart.R \
 $(working)/e-features-lcv--query-100.RData
 	Rscript e-features-lcv-chart.R --query 100
 
+# E-FEATURES-PCA
 
-# e-features-pca-chart always
-# stem is txt
-$(working)/e-features-pca-chart--predictors-always_1.% \
-$(working)/e-features-pca-chart--predictors-always_2_01.% \
-$(working)/e-features-pca-chart--predictors-always_2_02.% \
-$(working)/e-features-pca-chart--predictors-always_2_03.% \
-$(working)/e-features-pca-chart--predictors-always_2_04.% \
-$(working)/e-features-pca-chart--predictors-always_2_05.% \
-$(working)/e-features-pca-chart--predictors-always_2_06.% \
-$(working)/e-features-pca-chart--predictors-always_2_07.% \
-$(working)/e-features-pca-chart--predictors-always_2_08.% \
-$(working)/e-features-pca-chart--predictors-always_2_09.% \
-$(working)/e-features-pca-chart--predictors-always_2_10.% \
-: \
-e-features-pca-chart.R \
-$(working)/e-features-pca--predictors-always.RData
-	Rscript e-features-pca-chart.R --predictors always
-
-# e-features-pca always
-$(working)/e-features-pca--predictors-always.RData \
+$(working)/e-features-pca.RData \
 : \
 e-features-pca.R \
-$(predictors.always.level)
-	Rscript e-features-pca.R --predictors always
+$(predictors.always.level) \
+$(predictors.identification) \
+$(predictors.prices)
+	Rscript e-features-pca.R 
 
 
-# e-features-pca-chart chopra
-# stem is txt
-$(working)/e-features-pca-chart--predictors-chopra_1.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_01.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_02.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_03.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_04.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_05.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_06.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_07.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_08.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_09.% \
-$(working)/e-features-pca-chart--predictors-chopra_2_10.% \
+# E-FEATURES-PCA-CHART stem is _
+
+#$(working)/e-features-pca-chart%1.txt \
+#$(working)/e-features-pca-chart%2_01.txt \
+#$(working)/e-features-pca-chart%2_02.txt \
+#$(working)/e-features-pca-chart%2_03.txt \
+#$(working)/e-features-pca-chart%2_04.txt \
+#$(working)/e-features-pca-chart%2_05.txt \
+#$(working)/e-features-pca-chart%2_06.txt \
+#$(working)/e-features-pca-chart%2_07.txt \
+#$(working)/e-features-pca-chart%2_08.txt \
+#$(working)/e-features-pca-chart%2_09.txt \
+#$(working)/e-features-pca-chart%2_10.txt \
+#: \
+#e-features-pca-chart.R \
+#$(working)/e-features-pca.RData
+#	Rscript e-features-pca-chart.R
+
+$(working)/e-features-pca-chart%1.txt \
+$(working)/e-features-pca-chart%2_01.txt \
+$(working)/e-features-pca-chart%2_02.txt \
+$(working)/e-features-pca-chart%2_03.txt \
+$(working)/e-features-pca-chart%2_04.txt \
+$(working)/e-features-pca-chart%2_05.txt \
+$(working)/e-features-pca-chart%2_06.txt \
+$(working)/e-features-pca-chart%2_07.txt \
+$(working)/e-features-pca-chart%2_08.txt \
+$(working)/e-features-pca-chart%2_09.txt \
+$(working)/e-features-pca-chart%2_10.txt \
 : \
 e-features-pca-chart.R \
-$(working)/e-features-pca--predictors-chopra.RData
-	Rscript e-features-pca-chart.R --predictors chopra
-
-# e-features-pca chopra
-$(working)/e-features-pca--predictors-chopra.RData \
-: \
-e-features-pca.R \
-$(predictors.chopra.level)
-	Rscript e-features-pca.R --predictors chopra
+$(working)/e-features-pca.RData
+	Rscript e-features-pca-chart.R
 
 # E-FORMS
 # the stem is trainingDays
@@ -743,14 +736,10 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-city-chart_4.txt \
 	$(working)/e-features-lcv-chart--query-100_1.txt \
 	$(working)/e-features-lcv-chart--query-100_4.pdf \
-	$(working)/e-features-pca-chart--predictors-always_1.txt \
-	$(working)/e-features-pca-chart--predictors-always_2_01.txt \
-	$(working)/e-features-pca-chart--predictors-always_2_02.txt \
-	$(working)/e-features-pca-chart--predictors-always_2_03.txt \
-	$(working)/e-features-pca-chart--predictors-chopra_1.txt \
-	$(working)/e-features-pca-chart--predictors-chopra_2_01.txt \
-	$(working)/e-features-pca-chart--predictors-chopra_2_02.txt \
-	$(working)/e-features-pca-chart--predictors-chopra_2_03.txt \
+	$(working)/e-features-pca-chart_1.txt \
+	$(working)/e-features-pca-chart_2_01.txt \
+	$(working)/e-features-pca-chart_2_02.txt \
+	$(working)/e-features-pca-chart_2_03.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.001000.txt \
 	$(working)/e-forms--trainingDays-30--testSample-0.010000.txt \
 	$(working)/e-forms--trainingDays-90--testSample-0.001000.txt \
