@@ -5,11 +5,6 @@
 # For now, just implement lasso.
 #
 # Command line arguments
-# --predictors: one of {chopra, all, always}
-#               chopra == 11 predictors based on Chopa's work
-#               all    == every predictors for which we have splits
-#                         this fails if approach == lcv
-#               always == 25 predictors that are always present in every observation
 # --query     : number
 #               1 / fraction of samples in test period to use
 #               ex: --query 100 means take a 1 percent sample
