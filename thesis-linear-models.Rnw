@@ -1392,6 +1392,7 @@ path.1 <- paste0(base, '_1.txt')
 #path.3 <- paste0(base, '_3.pdf')
 path.4 <- paste0(base, '_4.pdf')
 #path.5 <- paste0(base, '_5.pdf')
+path.6 <- paste0(base, '_6.pdf')
 
 path.1
 substr(path.1, 50, 200)
@@ -1447,7 +1448,7 @@ medium importance.
 \begin{figure}[h]
 \caption{Dropping Features\\1 Percent Sample\\Cross Validation Results}
 \label{figure:LCVEstGenError}
-\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+\centering\includegraphics[scale=.8]{\Sexpr{path.6}}
 \end{figure}
 
 We built 24 models as input to a 10-fold cross validation procedure. The
