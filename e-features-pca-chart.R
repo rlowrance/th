@@ -1,14 +1,10 @@
 # e-features-pca-chart.R
 # main program
-# Produce charts using as input file e-features-pcs--predictors-PREDICTORS.RData
+# Produce charts using as input file e-features-pcs.RData
 # Write file
 #  e-features-pcs-chart.1.txt
 #
-# Command line arguments
-# -- predictors       : one of {chopra, all, always}
-#                       chopra == 11 predictors based on Chopa's work
-#                       all    == every predictors for which we have splits
-#                       always == 25 predictors that are always present in every observation
+# Command line arguments NONE
 
 source('Directory.R')
 source('Libraries.R')
@@ -27,15 +23,13 @@ Control <- function(command.args) {
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf('%s--predictors-%s'
+        sprintf('%s'
                 ,me
-                ,opt$predictors
                 )
 
     path.out.chart1 <-
-        sprintf( '%s--predictors-%s_1.txt'
+        sprintf( '%s_1.txt'
                 ,me
-                ,opt$predictors
                 )
     
     path.out.chart2 <- sapply(1:10,  # create paths for 10 possible principal components
@@ -46,8 +40,7 @@ Control <- function(command.args) {
                                         )
                              )
     in.file <-
-        sprintf( 'e-features-pca--predictors-%s.RData'
-                ,opt$predictors
+        sprintf( 'e-features-pca.RData'
                 )
 
 

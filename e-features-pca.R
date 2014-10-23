@@ -2,15 +2,12 @@
 # main program
 # determine best features to use using PCA.
 #
-# Command line arguments
-# -- predictors       : one of {chopra, all, always}
-#                       chopra == 11 predictors based on Chopa's work
-#                       all    == every predictors for which we have splits
-#                       always == 25 predictors that are always present in every observation
+# Command line arguments: NONE
 
 source('Directory.R')
 source('Libraries.R')
 
+source('After2002.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
 
@@ -28,31 +25,21 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # defines the splits that we use
-    predictors <- switch( opt$predictors
-                         ,chopra = Predictors('chopra.level')
-                         ,all = Predictors('all.level')
-                         ,always = Predictors('always.level')
-                         ,stop('bad opt$predictors')
-                         )
-    other.names <- c(# dates
-                    'saleDate'
-                    ,'recordingDate'
-                    # prices
-                    ,'price'   # NOTE: MUST HAVE THE PRICE
-                    ,'price.log'
-                    # apn
-                    ,'apn'
-                    )
+    predictors <- Predictors('always.level')
+    identification <- Predictors('identification')
+    prices <- Predictors('prices')
     response <- 'price.log'
+
     formula <- Formula( predictors = predictors
                        ,response = response
                        )
+
     testing <- FALSE
     #testing <- TRUE
+
     out.base <-
-        sprintf('%s--predictors-%s'
+        sprintf('%s'
                 ,me
-                ,opt$predictors
                 )
 
     control <- list( path.in.splits = splits
@@ -63,11 +50,8 @@ Control <- function(command.args) {
                     ,predictors = predictors
                     ,response = response
                     ,formula = formula
-                    ,split.names = unique(c(predictors, other.names))
+                    ,split.names = unique(c(predictors, identification, prices))
                     ,nfolds = 10
-                    ,testing.period = list( first.date = as.Date('1984-02-01')
-                                           ,last.date = as.Date('2009-03-31')
-                                           )
                     ,testing = testing
                     ,debug = FALSE
                     )
