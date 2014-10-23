@@ -1790,9 +1790,11 @@ base<- paste0(control$working, pgm, options)
 base
 path.1 <- paste0(base, '_1.txt')
 path.4 <- paste0(base, '_4.pdf')
+path.6 <- paste0(base, '_6.pdf')
 
 path.1
 path.4
+path.6
 @
 
 The taxroll contains the census tract number for each parcel. We have
@@ -1803,6 +1805,16 @@ by the census bureau when they become too large. Thus we need to
 determine if the census tract data are valuable in improving price
 estimation accuracy.
 
+%\begin{figure}[h]
+%\caption{
+%Estimated Generalization Errors from 10-fold Cross Validation \\
+%Model 1: With Census Tract Data\\
+%Model 2: Without Census Tract Data
+%}
+%\label{figure:CensusTractCv}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.4}}
+%\end{figure}
+
 \begin{figure}[h]
 \caption{
 Estimated Generalization Errors from 10-fold Cross Validation \\
@@ -1810,7 +1822,7 @@ Model 1: With Census Tract Data\\
 Model 2: Without Census Tract Data
 }
 \label{figure:CensusTractCv}
-\centering\includegraphics[scale=.4]{\Sexpr{path.4}}
+\centering\includegraphics[scale=.4]{\Sexpr{path.6}}
 \end{figure}
 
 To make this assessment, we estimated the generalization error for two

@@ -45,6 +45,7 @@ Control <- function(command.args) {
                     ,path.out.chart3 = paste0(working, out.base, '_3.pdf')
                     ,path.out.chart4 = paste0(working, out.base, '_4.pdf')
                     ,path.out.chart5 = paste0(working, out.base, '_5.pdf')
+                    ,path.out.chart6 = paste0(working, out.base, '_6.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -108,6 +109,13 @@ Charts <- function(my.control) {
         ,height = my.control$chart.height
         )
     print(charts$chart5)
+    dev.off()
+
+    pdf( file = my.control$path.out.chart6
+        ,width = my.control$chart.width
+        ,height = my.control$chart.height
+        )
+    print(charts$chart6)
     dev.off()
 }
 Main <- function(control) {
