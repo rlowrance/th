@@ -201,10 +201,6 @@ deeds-al-sample.R                   : $(lwl)  ReadDeedsAl.R
 deeds-al-g.R                        : $(lrwl) DEEDC.R PRICATCODE.R
 e-adjust-training-period.R          : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
 e-avm-variants.R                    : $(dl)   ReadTransactionSplits.R
-e-features-pca.R                    : $(dl)   Predictors.R ReadTransactionSplits.R
-e-features-pca-chart.R              : $(dl)   
-e-features-lcv.R                    : $(dl)   ModelLinearLocal.R Predictors.R ReadTransactionSplits.R
-e-features-lcv-chart.R              : $(dl)   
 e-forms.R                           : $(lswl) ReadTransactionSplits.R
 e-median-price.R                    : $(dl)   ReadTransactionsSubset1.R
 e-penalized-regression.R            : $(dl)   ModelLinearLocal.R ReadTransactionSplits.R
@@ -391,7 +387,7 @@ ReadTransactionSplits.R \
 $(predictors.alwaysl.level) \
 $(predictors.identification) \
 $(predictors.prices)
-	Rscript e-features-lcv --query 100
+	Rscript e-features-lcv.R --query 100
 
 # E-FEATURES-LCV-CHART stem is _
 
@@ -587,8 +583,6 @@ e-penalized-regression-dependencies += $(splits)/saleDate.RData
 
 # E-REDUCED-FEATURES
 
-e-reduced.features.R : Directory.R Libraries.R ModelLinearLocal.R Predictors.R ReadTransactionSplits.R
-
 $(working)/e-reduced-features--query-100.RData \
 : \
 e-reduced-features.R \
@@ -603,11 +597,7 @@ $(predictors.identification) \
 $(predictors.prices) 
 	Rscript e-reduced-features.R --query 100
 
-# E-REDUCED-FEATURES-CHART
-
-e-reduced-features-chart.R : Directory.R Libraries.R CrossValidateCharts.R
-
-# stem is _
+# E-REDUCED-FEATURES-CHART stem is _
 
 $(working)/e-reduced-features-chart--query-100%1.txt \
 $(working)/e-reduced-features-chart--query-100%2.txt \
@@ -616,6 +606,9 @@ $(working)/e-reduced-features-chart--query-100%4.pdf \
 $(working)/e-reduced-features-chart--query-100%5.pdf \
 : \
 e-reduced-features-chart.R \
+Directory.R \
+Libraries.R \
+CrossValidateCharts.R \
 $(working)/e-reduced-features--query-100.RData
 	Rscript e-reduced-features-chart.R --query 100
 
