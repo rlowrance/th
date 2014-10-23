@@ -51,10 +51,10 @@ Control <- function(command.args) {
                        )
     testing <- FALSE
     #testing <- TRUE
+
     out.base <-
-        sprintf( '%s--predictors-%s--query-%d'
+        sprintf( '%s--query-%d'
                 ,me
-                ,opt$predictors
                 ,opt$query
                 )
 
@@ -80,7 +80,7 @@ ParseCommandArgs <- function(command.args) {
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
                              ,type = 'double'
-                             ,default = .01
+                             ,default = 100
                              ,help = '1 / fraction of samples used as queries'
                              )
     option.list <- list( opt.query
@@ -259,9 +259,9 @@ LCVAnalysis <- function(control, transaction.data) {
     str(ordered.features)
 
     elapsed.cpu <- clock$Cpu()
-    elapsed.message <- sprintf( 'predicting with %f query fraction took %f CPU seconds\n'
+    elapsed.message <- sprintf( 'predicting with %f query fraction took %f CPU minutes\n'
                               ,control$query.fraction
-                              ,elapsed.cpu
+                              ,elapsed.cpu / 60
                               )
     Printf(elapsed.message)
 
@@ -287,6 +287,8 @@ Main <- function(control, transaction.data.all.years) {
     
 }
 
+#debug(LCVAnalysis)
+#debug(Main)
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
 #default.args <- list('--query', '100')
