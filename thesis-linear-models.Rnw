@@ -1592,17 +1592,17 @@ substr(path.1, 50, 200)
 \verbatiminput{\Sexpr{path.1}}
 \end{figure}
 
-Figue \ref{figure:ReducedFeatureIdentification} identifies the 7 models
+Figue \ref{figure:ReducedFeatureIdentification} identifies the eight models
 tested. For each, we estimated the generalization error using 10-fold
 cross validation on a 1 percent sample for the test transactions in each
 fold.
 
-\begin{figure}[h]
-\caption{Reduced Feature Models: Cross Validated Median RMedianSE
-Values}
-\label{figure:ReducedFeatureCrossValidated}
-\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
-\end{figure}
+%\begin{figure}[h]
+%\caption{Reduced Feature Models: Cross Validated Median RMedianSE
+%Values}
+%\label{figure:ReducedFeatureCrossValidated}
+%\centering\includegraphics[scale=.8]{\Sexpr{path.4}}
+%\end{figure}
 
 \begin{figure}[h]
 \caption{Reduced Feature Models: Cross Validated Median RMedianSE
@@ -1613,9 +1613,12 @@ Values}
 
 Figure \ref{figure:ReducedFeatureCrossValidated} shows that all the
 models derived from the heuristic (called ``LCV'') outperform all the
-models derived from PCA. The best model is the first model, which has
-the six most important features found through the heuristic. The
-features are:
+models derived from PCA. Adding features to the PCA-derived models may
+be helping with accuracy; if so, the PCA approach has lead to models
+which may be to sparse.
+
+The best model is the first model, which has the six most important
+features found through the heuristic. The features are:
 \begin{itemize}
 \item living area
 \item median household income
