@@ -1467,19 +1467,14 @@ features, and 21 features. The standard errors are small.
 All these models might be appealing from a sparsity perspective. Later
 we will compare these models to models derived from the PCA analysis.
 
-OLDER STUFF BELOW ME
 
 
 \subsection{Using PCA to deduce feature importance}
 
 <<PCA>>=
 pgm <- 'e-features-pca-chart'
-options <- '--predictors-always'
-base <- paste0(
-control$working
-,pgm
-,options
-)
+options <- ''
+base <- paste0(control$working, pgm, options)
 path.1 <-   paste0(base, '_1.txt')
 path.2.1 <- paste0(base, '_2_01.txt')
 path.2.2 <- paste0(base, '_2_02.txt')
@@ -1553,31 +1548,19 @@ far is the size of the basement, a feature of the construction on the
 property. This feature may have more information than it may seem to
 have: it indicates something about the land (perhaps no basement means
 the land is damp) and something about the total square footage of the
-house (the other levels are built on top of the basement.)
+house (the other levels are built on top of the basement).
 
 
 \subsection{A reduced-feature model}
 
-The LCV analysis suggests testing these models: 
-\begin{itemize}
-\item The model with first 9 of Chopra's features: it has the lowest estimated
-generalization error.
-\item The model with the first 4 of Chopra's features: it is sparse in
-features and has a significantly-reduced estimated generalization error
-compared to a model with the first 3 of Chopra' features.
-\item The model with the first 23 of the expanded features: it has the
-lowest estimated generalization error.
-\item The model with the first 5 of the expanded features: it has a much
-lower estimated generalization error than the model with the first 4
-expanded features.
-\end{itemize}
-
+The LCV analysis suggests testing these models with the first 6, 9, 14,
+and 21 features.
 
 The PCA analysis suggest testing models with these feature sets:
 \begin{itemize}
 \item Only the median household income
 \item Both the median household income and the land square footage
-\item All three: income, land size, and basement size.
+\item All three: income, land size, and basement size. 
 \end{itemize}
 
 <<ReducedFeatureModel>>=
@@ -1594,6 +1577,12 @@ path.4 <-   paste0(base, '_4.pdf')
 path.1
 substr(path.1, 50, 200)
 @
+
+
+
+OLDER STUFF BELOW ME
+
+
 
 \begin{figure}[h]
 \caption{Reduced Feature Models: Identification}
