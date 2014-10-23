@@ -81,7 +81,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
         g
     }
 
-    Chart4 <- function(control, cv.result) {
+    Chart4 <- function(control, cv.result, show.y.zero = FALSE) {
         # median of RMedianSE
         # line graph showing rMedianSE values in each fold with error bars
         # ref: R Graphics Cookbook p158 (adding error bars to line graph)
@@ -125,6 +125,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                           ,medianRMedianSE = medianRMedianSE
                           ,se = se
                           )
+        max.y <- max(df2$medianRMedianSE) + max(df2$se)
 
 
         gg <- ggplot( df2
@@ -132,16 +133,25 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                           ,y = medianRMedianSE
                           )
                      )
-        g <- 
+
+        g <-   
+            if (show.y.zero)
+                gg + 
+                coord_cartesian(ylim=c(0, max.y)) +
+                geom_point(size = 4) + 
+                geom_errorbar( aes( ymin = medianRMedianSE - se
+                                   ,ymax = medianRMedianSE + se
+                                   )
+                              ,width = 0.2
+                              )
+            else
             gg + 
-      #      geom_line(aes(group = 1)) + 
             geom_point(size = 4) + 
             geom_errorbar( aes( ymin = medianRMedianSE - se
                                ,ymax = medianRMedianSE + se
                                )
-            ,width = 0.2
-            )
-
+                          ,width = 0.2
+                          )
 
 
             g
@@ -220,6 +230,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                    ,chart3 = Chart3(control, cv.result)
                    ,chart4 = Chart4(control, cv.result)
                    ,chart5 = Chart5(control, cv.result)
+                   ,chart6 = Chart4(control, cv.result, show.y.zero = TRUE)
                    )
     charts
 }
