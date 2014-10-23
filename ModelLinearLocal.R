@@ -56,6 +56,22 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
         return(list(ok = TRUE))
     }
 
+    TestForAllEqual <- function(data, feature.name) {
+        #cat('TestForAllEqual\n'); browser()
+        v <- data[[feature.name]]
+        all.equal <- all(v[[1]] == v)
+        if (all.equal)
+            return(list( ok = FALSE
+                        ,problem = sprintf( 'feature %s has all equal values %s'
+                                           ,feature.name
+                                           ,as.character(v[[1]])
+                                           )
+                        )
+        )
+        else 
+            return(list(ok = TRUE))
+    }
+
     Fit <- function(saleDate) {
         # return list, either
         # $ok = TRUE, $fitted = lm object $num.training
@@ -73,6 +89,9 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
 
         test3 <- TestForInsufficientObservations(data, formula)
         if (!test3$ok) return(test3)
+
+        #test4 <- TestForAllEqual(data, 'census.tract.has.retail')
+        #if (!test4$ok) return(test4)
         
         if (verbose) {
             print(formula)
@@ -102,6 +121,7 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
                         )
             )
         }
+        #cat('in FitPredict: about to predict\n'); browser()
         prediction <- 
             tryCatch(
                      predict( object = fitted$fitted
@@ -115,6 +135,7 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
                      ,error = function(e) {
                          cat('error in ModelLinearLocal:\n')
                          print(e)
+                         e
                      }
                      )
         if (is.numeric(prediction) )
@@ -132,7 +153,10 @@ ModelLinearLocal <- function(InTraining, queries, data.training, formula) {
         if (fit.predict$ok) {
             predictions[[query.index]] <- fit.predict$prediction
             num.training[[query.index]] <- fit.predict$num.training
-        } 
+        } else {
+            Printf('failed to fit and predict query index %d\n', query.index)
+            print(fit.predict)
+        }
     }
 
     if (verbose) {print('ModelLinearLocal prediction'); print(predictions)}
