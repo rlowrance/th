@@ -45,6 +45,7 @@ Control <- function(command.args) {
                     ,path.out.chart3 = paste0(working, out.base, '_3.pdf')
                     ,path.out.chart4 = paste0(working, out.base, '_4.pdf')
                     ,path.out.chart5 = paste0(working, out.base, '_5.pdf')
+                    ,path.out.chart6 = paste0(working, out.base, '_6.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -291,7 +292,7 @@ Chart5 <- function(control, cv.result, ordered.features) {
 }
 Charts <- function(my.control) {
     # produce all the charts
-    #cat('starting Charts\n'); browser()
+    cat('starting Charts\n'); browser()
 
     # recover cetain values from the predictions
     cv.result <- NULL
@@ -331,6 +332,13 @@ Charts <- function(my.control) {
         )
     print(charts$chart5)
     dev.off()
+
+    pdf( file = my.control$path.out.chart6
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(charts$chart6)
+    dev.off()
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
@@ -346,7 +354,7 @@ Main <- function(control) {
 
 #debug(Control)
 default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--query', '10000')
+#default.args <- list('--query', '100')
 
 command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
 control <- Control(command.args)
