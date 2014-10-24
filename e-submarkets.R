@@ -5,6 +5,7 @@
 # variant 2: there is a model for every census tract
 #  NOTE: variant 2 fails, because the training data sets are too small
 #        having few observations than features
+#        For now, this program implements only variant 1.
 #
 # command line
 # --query INT: 1 / INT fraction of query transactions are used
@@ -12,17 +13,19 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('After2002.R')
 source('ModelLinearLocal.R')
 source('ModelLinearSubmarketLocal.R')
 source('Predictors.R')
+source('PredictorsBest.R')
 source('ReadTransactionSplits.R')
 
 library(memoise)
 library(optparse)
 
-Control <- function(command.args) {
+Control <- function(default.args) {
     # parse command line arguments in command.args
-    opt <- ParseCommandArgs(command.args)
+    opt <- ParseCommandArgs(default.args)
 
     me <- 'e-submarkets' 
 
@@ -31,48 +34,19 @@ Control <- function(command.args) {
     working <- Directory('working')
 
     # define the splits that we use
-    predictors <- c(#the 23 most-important predicators from the LCV experiment
-                     'living.area'
-                    ,'median.household.income'
-                    ,'fireplace.number'
-                    ,'avg.commute.time'
-                    ,'fraction.owner.occupied'
-                    ,'effective.year.built'
-                    ,'zip5.has.industry'
-                    ,'total.rooms'
-                    ,'census.tract.has.industry'
-                    ,'parking.spaces'
-                    ,'land.square.footage'
-                    ,'factor.has.pool'
-                    ,'zip5.has.school'
-                    ,'stories.number'
-                    ,'census.tract.has.retail'
-                    ,'zip5.has.park'
-                    ,'bedrooms'
-                    ,'bathrooms'
-                    ,'factor.is.new.construction'
-                    ,'census.tract.has.school'
-                    ,'year.built'
-                    ,'census.tract.has.park'
-                    ,'basement.square.feet'
-                    )
-    other.names <- c(# dates
-                    'saleDate'
-                    ,'recordingDate'
-                    # prices
-                    ,'price'   # NOTE: MUST HAVE THE PRICE
-                    ,'price.log'
-                    # apn
-                    ,'apn'
-                    )
+    predictors <- PredictorsBest()
+    identification <- Predictors('identification')
+    prices <- Predictors('prices')
 
     submarket.feature.names <- c( 'census.tract'
                                  ,'property.city'
                                  ,'zip5'
                                  )
     response <- 'price.log'
+
     testing <- FALSE
     #testing <- TRUE
+
     out.base <-
         sprintf( '%s--query-%d'
                 ,me
@@ -85,11 +59,13 @@ Control <- function(command.args) {
                     ,num.training.days = 90
                     ,response = response
                     ,predictors = predictors
-                    ,split.names = unique(c(predictors, other.names, submarket.feature.names))
+                    ,split.names = unique(c( predictors
+                                            ,identification
+                                            ,prices
+                                            ,submarket.feature.names
+                                            )
+                    )
                     ,nfolds = if (testing) 2 else 10
-                    ,testing.period = list( first.date = as.Date('1984-02-01')
-                                           ,last.date = as.Date('2009-03-31')
-                                           )
                     ,testing = testing
                     ,debug = FALSE
                     ,verbose.CrossValidate = TRUE
@@ -98,16 +74,17 @@ Control <- function(command.args) {
                     )
     control
 }
-ParseCommandArgs <- function(command.args) {
+ParseCommandArgs <- function(default.args) {
     # return name list of values from the command args
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
                              ,type = 'double'
-                             ,default = 100
+                             ,default = default.args$query
                              ,help = '1 / fraction of samples used as queries'
                              )
     option.list <- list( opt.query
                         )
+    command.args <- commandArgs(trailingOnly = TRUE)
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
                       ,positional_arguments = FALSE
@@ -230,9 +207,11 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                          ,actual = actuals)
     evaluate
 }
-Main <- function(control, transaction.data) {
+Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
+
+    transaction.data <- After2002(transaction.data.all.years)
 
     hps <- ListAppend(NULL, list(use.submarket = FALSE))
     for (submarket.feature.name in control$submarket.feature.names) {
@@ -288,18 +267,20 @@ Main <- function(control, transaction.data) {
          )
 
     str(control)
-    if (control$testing)
-        cat('TESTING: DISCARD RESULTS\n')
 }
 
-#debug(Control)
-default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '10000')
-default.args <- list('--query', '100')
+################## Main program
+clock <- Clock()
 
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
-control <- Control(command.args)
+just.testing <- FALSE
+default.args <-
+    if (just.testing) {
+        list(query = 10000)
+    } else {
+        list(query = 100)
+    }
 
+control <- Control(default.args)
 
 # cache transaction.data
 if (!exists('transaction.data')) {
@@ -308,8 +289,8 @@ if (!exists('transaction.data')) {
                                               )
 }
 
-if (!is.null(default.args))
-    cat('USING DEFAULT ARGS\n')
-
 Main(control, transaction.data)
+if (control$testing)
+    cat('TESTING: DISCARD RESULTS\n')
+Printf('took %f CPU minutes\n', clock$Cpu() / 60)
 cat('done\n')
