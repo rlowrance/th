@@ -12,13 +12,15 @@ source('Directory.R')
 source('Libraries.R')
 
 source('CrossValidateCharts.R')
+source('ParseCommandArgsERidgeRegression.R')
 
 library(ggplot2)
 library(optparse)
 
-Control <- function(command.args) {
-    # parse command line arguments in command.args
-    opt <- ParseCommandArgs(command.args)
+Control <- function(default.args) {
+    opt <- ParseCommandArgsERidgeRegression( command.args = commandArgs(trailingOnly = TRUE)
+                                            ,default.args
+                                            )
 
     me <- 'e-ridge-regression-chart' 
 
@@ -28,14 +30,16 @@ Control <- function(command.args) {
     testing <- FALSE
     #testing <- TRUE
     out.base <-
-        sprintf('%s--query-%d'
+        sprintf('%s--query-%d--lambdaSet-%s'
                 ,me
                 ,opt$query
+                ,opt$lambdaSet
                 )
     in.file <- 
-        sprintf('%s--query-%d.RData'
+        sprintf('%s--query-%d--lambdaSet-%s.RData'
                 ,'e-ridge-regression'
                 ,opt$query
+                ,opt$lambdaSet
                 )
 
     control <- list( path.in = paste0(working, in.file)
@@ -45,6 +49,7 @@ Control <- function(command.args) {
                     ,path.out.chart3 = paste0(working, out.base, '_3.pdf')
                     ,path.out.chart4 = paste0(working, out.base, '_4.pdf')
                     ,path.out.chart5 = paste0(working, out.base, '_5.pdf')
+                    ,path.out.chart6 = paste0(working, out.base, '_6.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -291,7 +296,6 @@ Chart5OLD <- function(control, cv.result, ordered.features) {
 }
 Charts <- function(my.control) {
     # produce all the charts
-    cat('starting Charts\n'); browser()
 
     # recover cetain values from the predictions
     cv.result <- NULL
@@ -332,6 +336,13 @@ Charts <- function(my.control) {
         )
     print(charts$chart5)
     dev.off()
+
+    pdf( file = my.control$path.out.chart6
+        ,width = my.control$chart.width
+        ,height = my.control$chart.height
+        )
+    print(charts$chart6)
+    dev.off()
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
@@ -345,12 +356,23 @@ Main <- function(control) {
     
 }
 
-#debug(Control)
-default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '10000')
+############### Execution Starts Here
 
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
-control <- Control(command.args)
+just.testing <- FALSE
+default.args <-
+    if (just.testing) {
+        list( query = 10000
+             ,lambdaSet = 'one'
+             )
+    } else {
+        list( query = 100
+             ,lambdaSet = 'one'
+             )
+    }
+
+control <- Control(default.args)
 
 Main(control)
+if (control$testing)
+    cat('TESTING: DISCARD RESULT\n')
 cat('done\n')
