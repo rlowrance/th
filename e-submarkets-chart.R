@@ -16,9 +16,11 @@ source('CrossValidateCharts.R')
 library(ggplot2)
 library(optparse)
 
-Control <- function(command.args) {
+Control <- function(default.args) {
     # parse command line arguments in command.args
-    opt <- ParseCommandArgs(command.args)
+    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
+                            ,default.args
+                            )
 
     me <- 'e-submarkets-chart' 
 
@@ -45,6 +47,7 @@ Control <- function(command.args) {
                     ,path.out.chart3 = paste0(working, out.base, '_3.pdf')
                     ,path.out.chart4 = paste0(working, out.base, '_4.pdf')
                     ,path.out.chart5 = paste0(working, out.base, '_5.pdf')
+                    ,path.out.chart6 = paste0(working, out.base, '_6.pdf')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,testing = testing
@@ -52,12 +55,12 @@ Control <- function(command.args) {
                     )
     control
 }
-ParseCommandArgs <- function(command.args) {
+ParseCommandArgs <- function(command.args, default.args) {
     # return name list of values from the command args
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
                              ,type = 'double'
-                             ,default = .01
+                             ,default = default.args$query
                              ,help = 'fraction of samples used as queries'
                              )
     option.list <- list( opt.query
@@ -66,6 +69,7 @@ ParseCommandArgs <- function(command.args) {
                       ,args = command.args
                       ,positional_arguments = FALSE
                       )
+    opt
 }
 Charts <- function(my.control) {
     # produce all the charts
@@ -109,6 +113,13 @@ Charts <- function(my.control) {
         )
     print(charts$chart5)
     dev.off()
+    
+    pdf( file = my.control$path.out.chart6
+        ,width = my.control$chart.width
+        ,height = my.control$chart.height
+        )
+    print(charts$chart6)
+    dev.off()
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
@@ -122,12 +133,12 @@ Main <- function(control) {
     
 }
 
-#debug(Control)
-default.args <- NULL  # synthesize the command line that will be used in the Makefile
-default.args <- list('--query', '100')
 
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
-control <- Control(command.args)
+### Execution starts here
+
+default.args <- list(query = 100)
+
+control <- Control(default.args)
 
 Main(control)
 cat('done\n')
