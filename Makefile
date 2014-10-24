@@ -82,6 +82,13 @@ predictors.always.level += $(splits)/zip5.has.park.RData
 predictors.always.level += $(splits)/zip5.has.retail.RData
 predictors.always.level += $(splits)/zip5.has.school.RData
 
+predictors.best += $(splits)/living.area.RData
+predictors.best += $(splits)/median.household.income.RData
+predictors.best += $(splits)/avg.commute.time.RData
+predictors.best += $(splits)/fireplace.number.RData
+predictors.best += $(splits)/year.built.RData
+predictors.best += $(splits)/fraction.owner.occupied.RData
+
 predictors.identification += $(splits)/apn.RData
 predictors.identification += $(splits)/census.tract.RData
 predictors.identification += $(splits)/recordingDate.RData
@@ -581,6 +588,38 @@ e-penalized-regression-dependencies += $(splits)/saleDate.RData
 
 # TODO: add for all splits (above is for chopra's splits)
 
+# E-RANDOM-FORESTS-GLOBAL 
+
+$(working)/e-random-forests-global--query-1.RData \
+: \
+e-random-forests-global.R \
+Directory.R \
+Libraries.R \
+After2002.R \
+Predictors.R \
+PredictorsBest.R \
+ReadTransactionSplits.R \
+$(predictors.best) \
+$(predictors.identification) \
+$(predictors.prices)
+	Rscript e-random-forests-global.R --query 1
+
+# E-RANDOM-FORESTS-CHART stem is %
+
+$(working)/e-random-forests-global-chart--query-1%1.txt \
+$(working)/e-random-forests-global-chart--query-1%2.txt \
+$(working)/e-random-forests-global-chart--query-1%3.pdf \
+$(working)/e-random-forests-global-chart--query-1%4.pdf \
+$(working)/e-random-forests-global-chart--query-1%5.pdf \
+$(working)/e-random-forests-global-chart--query-1%6.pdf \
+: \
+e-random-forests-global-chart.R \
+Directory.R \
+Libraries.R \
+CrossValidateCharts.R \
+$(working)/e-random-forests-global--query-1.RData
+	Rscript e-random-forests-global-chart.R --query 1
+
 # E-REDUCED-FEATURES
 
 $(working)/e-reduced-features--query-100.RData \
@@ -743,6 +782,8 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-median-price-by-year-from-1984-to-2009.pdf \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
+	$(working)/e-random-forests-global-chart--query-1_1.txt \
+	$(working)/e-random-forests-global-chart--query-1_2.txt \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
 	$(working)/e-submarkets-chart--query-100_1.txt \
