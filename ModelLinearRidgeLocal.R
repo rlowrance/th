@@ -12,9 +12,6 @@ ModelLinearRidgeLocal <- function(InTraining, queries, data.training, formula, l
     verbose <- TRUE
     verbose <- FALSE
     
-    debugging <- TRUE   # figure out how to predict after call lm.ridge
-    debugging <- FALSE
-
     TestForNoContrasts <- function(data, feature.name) {
         # this tests works only for factors with level FALSE and TRUE
 
@@ -87,23 +84,36 @@ ModelLinearRidgeLocal <- function(InTraining, queries, data.training, formula, l
 
         
         #cat('Fit fitted\n'); browser()
-        fitted.lm <-
-            if (debugging)
-                lm( formula = formula
-                   ,data = data
-                   )
-            else
-                NULL
 
-        fitted.ridge <- lm.ridge( formula = formula
-                                 ,data = data
-                                 ,lambda = lambda
-                                 )
-        return <- list( ok = TRUE
-                       ,fitted.ridge = fitted.ridge
-                       ,num.training = nrow(data)
-                       ,fitted.lm = fitted.lm
-                       )
+        # catch errors in call to lm.ridge()
+        #cat('about to call lm.ridge()\n'); print(saleDate); browser()
+        fitted.ridge <- 
+            tryCatch(
+                     lm.ridge( formula = formula
+                              ,data = data
+                              ,lambda = lambda
+                              )
+                     ,warning = function(w) {
+                         cat('ModelLinearRidgeLocal: warning on lm.ridge()\n')
+                         print(w)
+                         w
+                     }
+                     ,error = function(e) {
+                         cat('ModelLinearRidgeLocal: lm.ridge() generated an error\n')
+                         print(e)
+                         e
+                     }
+                     )
+        #cat('test class(fitted.ridge\n'); print(class(fitted.ridge))#; browser()
+        if (length(class(fitted.ridge)) == 1 && class(fitted.ridge) == 'ridgelm')
+            list( ok = TRUE
+                 ,fitted.ridge = fitted.ridge
+                 ,num.training = nrow(data)
+                 )
+        else
+            list( ok = FALSE
+                 ,problem = fitted.ridge
+                 )
     }
 
     FitMemoised <- memoise(Fit)
@@ -140,11 +150,6 @@ ModelLinearRidgeLocal <- function(InTraining, queries, data.training, formula, l
                      # maybe I can use the coefficients directly
                      {
                      #cat('FitPredict prediction\n'); browser()
-                     if (debugging) {
-                         lm.predict <- predict( object = fitted$fitted.lm
-                                               ,newdata = queries[query.index,]
-                                               )
-                     }
                      # plan: use the coefficients directly, if they are correct
                      # use the coefficients
                      coe <- coef(fitted$fitted.ridge)
@@ -177,6 +182,7 @@ ModelLinearRidgeLocal <- function(InTraining, queries, data.training, formula, l
                      ,error = function(e) {
                          cat('error in ModelLinearRidgeLocal:\n')
                          print(e)
+                         e
                      }
                      )
         if (is.numeric(prediction) )
@@ -186,6 +192,7 @@ ModelLinearRidgeLocal <- function(InTraining, queries, data.training, formula, l
     }
 
     # BODY STARTS HERE
+    #browser()
     num.queries <- nrow(queries)
     predictions <- as.double(rep(NA, num.queries))
     num.training <- as.double(rep(NA, num.queries))
