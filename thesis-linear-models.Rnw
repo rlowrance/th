@@ -1651,7 +1651,7 @@ regularized. In these experiments, we regularize it to detemine if
 regularization leads to better peformance.
 
 
-\section{Submarket}
+\section{Submarkets}
 
 <<Submarkets>>=
 pgm <- 'e-submarkets-chart'
@@ -1659,7 +1659,9 @@ options <- '--query-100'
 base<- paste0(control$working, pgm, options)
 base
 path.1 <- paste0(base, '_1.txt')
-path.4 <- paste0(base, '_4.pdf')
+path.6 <- paste0(base, '_6.pdf')
+path.1
+path.6
 @
 
 
@@ -1676,7 +1678,7 @@ path.4 <- paste0(base, '_4.pdf')
 \caption{Submarket Models: Cross Validated Median RMedianSE
 Values}
 \label{figure:SubmarketsCrossValidated}
-\centering\includegraphics[scale=.4]{\Sexpr{path.4}}
+\centering\includegraphics[scale=.4]{\Sexpr{path.6}}
 \end{figure}
 
 In the literature (WRITE ME) say that models built for submarkets are
