@@ -1857,51 +1857,51 @@ encompass almost 6 years: 2003, 2004, and so forth up to the first 9 months of
 
 \section{Random Forest}
 
-<<RandomForest>>=
-pgm <- 'e-random-forests-global-chart'
-options <- '--query-1'
-base <- paste0(control$working, pgm, options)
-base
-jan.2003.path.1 <- paste0(base, '_1.txt')
-jan.2003.path.6 <- paste0(base, '_6.pdf')
-@
-
-
-\begin{figure}[h]
-\caption{Random Forest Global Model\\January 2003 Test Data\\Identification}
-\label{figure:RandomForestGlobalJan2003Identification}
-%\tiny
-\small
-%\normalsize
-\verbatiminput{\Sexpr{jan.2003.path.1}}
-\end{figure}
-
-Figure \ref{figure:RandomForestGlobalJan2003Identification} identifies
-parameters for a global random forest model. The training data are the
-90 days before January 1, 2003. The test data are every transaction in
-January 2003. The two hyperparameters are: 
-\begin{itemize}
-\item $mtry$: the number of features considered for inclusion at each
-stage as a random tree is constructed. The value $mtry = 2$ means that
-two features were selected at random and tested for inclusion in the
-next layer of the tree. The best one was included.
-\item $ntree$: the number of random tree constructed in the forest. The
-literature on random forests suggests that more tree is better.
-\end{itemize}
-
-\begin{figure}[h]
-\caption{Random Forest Global Model\\January 2003 Test Data\\Cross Validation}
-\label{figure:RandomForestGlobalJan2003CV}
-\centering\includegraphics[scale=.8]{\Sexpr{jan.2003.path.6}}
-\end{figure}
-
-Figure \ref{figure:RandomForestGlobalJan2003CV} shows the estimated
-generalization errors from the models using the hyperparameters. We see
-that setting $mtry = 1$ seems promising, because there is perhaps a
-trend in the first five data points (corresponding to $mtry = 1$ and
-increasing values for $ntree$) and other choices for $mtry$ do not
-appear to be have both lower estimated gneralization errors and a
-consistent downward trend as more trees are added.
+%<<RandomForest>>=
+%pgm <- 'e-random-forests-global-chart'
+%options <- '--query-1'
+%base <- paste0(control$working, pgm, options)
+%base
+%jan.2003.path.1 <- paste0(base, '_1.txt')
+%jan.2003.path.6 <- paste0(base, '_6.pdf')
+%@
+%
+%
+%\begin{figure}[h]
+%\caption{Random Forest Global Model\\January 2003 Test Data\\Identification}
+%\label{figure:RandomForestGlobalJan2003Identification}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{jan.2003.path.1}}
+%\end{figure}
+%
+%Figure \ref{figure:RandomForestGlobalJan2003Identification} identifies
+%parameters for a global random forest model. The training data are the
+%90 days before January 1, 2003. The test data are every transaction in
+%January 2003. The two hyperparameters are: 
+%\begin{itemize}
+%\item $mtry$: the number of features considered for inclusion at each
+%stage as a random tree is constructed. The value $mtry = 2$ means that
+%two features were selected at random and tested for inclusion in the
+%next layer of the tree. The best one was included.
+%\item $ntree$: the number of random tree constructed in the forest. The
+%literature on random forests suggests that more tree is better.
+%\end{itemize}
+%
+%\begin{figure}[h]
+%\caption{Random Forest Global Model\\January 2003 Test Data\\Cross Validation}
+%\label{figure:RandomForestGlobalJan2003CV}
+%\centering\includegraphics[scale=.8]{\Sexpr{jan.2003.path.6}}
+%\end{figure}
+%
+%Figure \ref{figure:RandomForestGlobalJan2003CV} shows the estimated
+%generalization errors from the models using the hyperparameters. We see
+%that setting $mtry = 1$ seems promising, because there is perhaps a
+%trend in the first five data points (corresponding to $mtry = 1$ and
+%increasing values for $ntree$) and other choices for $mtry$ do not
+%appear to be have both lower estimated gneralization errors and a
+%consistent downward trend as more trees are added.
 
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
