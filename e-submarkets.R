@@ -25,7 +25,9 @@ library(optparse)
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
-    opt <- ParseCommandArgs(default.args)
+    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
+                            ,default.args = default.args
+                            )
 
     me <- 'e-submarkets' 
 
@@ -74,7 +76,7 @@ Control <- function(default.args) {
                     )
     control
 }
-ParseCommandArgs <- function(default.args) {
+ParseCommandArgs <- function(command.args, default.args) {
     # return name list of values from the command args
     opt.query <- make_option( opt_str = c('--query')
                              ,action = 'store'
@@ -84,7 +86,6 @@ ParseCommandArgs <- function(default.args) {
                              )
     option.list <- list( opt.query
                         )
-    command.args <- commandArgs(trailingOnly = TRUE)
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
                       ,positional_arguments = FALSE
