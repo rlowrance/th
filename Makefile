@@ -596,15 +596,16 @@ e-random-forests-global.R \
 Directory.R \
 Libraries.R \
 After2002.R \
+ParseCommandArgsERandomForestsGlobal.R \
 Predictors.R \
 PredictorsBest.R \
 ReadTransactionSplits.R \
 $(predictors.best) \
 $(predictors.identification) \
 $(predictors.prices)
-	Rscript e-random-forests-global.R --query 1
+	Rscript e-random-forests-global.R --hpset a --year 2003 --month jan
 
-# E-RANDOM-FORESTS-CHART stem is %
+# E-RANDOM-FORESTS-GLOBAL-CHART stem is %
 
 $(working)/e-random-forests-global-chart--query-1%1.txt \
 $(working)/e-random-forests-global-chart--query-1%2.txt \
@@ -617,8 +618,9 @@ e-random-forests-global-chart.R \
 Directory.R \
 Libraries.R \
 CrossValidateCharts.R \
+ParseCommandArgsERandomForestsGlobal.R \
 $(working)/e-random-forests-global--query-1.RData
-	Rscript e-random-forests-global-chart.R --query 1
+	Rscript e-random-forests-global-chart.R --hpset a --year 2003 --month jan
 
 # E-REDUCED-FEATURES
 
@@ -767,8 +769,9 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-median-price-by-year-from-1984-to-2009.pdf \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
-	$(working)/e-random-forests-global-chart--query-1_1.txt \
-	$(working)/e-random-forests-global-chart--query-1_2.txt \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_1.txt \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_2.txt \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_6.pdf \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
 	$(working)/e-submarkets-chart--query-100_1.txt \
