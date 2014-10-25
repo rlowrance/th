@@ -1646,9 +1646,41 @@ best model is the model with 23 features.
 
 \section{Ridge Regression}
 
-The best model identified so far as based on 21 features. It is not
-regularized. In these experiments, we regularize it to detemine if
-regularization leads to better peformance.
+<<RidgeRegression>>=
+pgm <- 'e-ridge-regression-chart'
+options <- '--query-100--lambdaSet-%s'
+path.a.2 <- paste0(control$working, pgm, sprintf(options, 'a'), '_2.txt')
+path.a.7 <- paste0(control$working, pgm, sprintf(options, 'a'), '_7.pdf')
+path.b.2 <- paste0(control$working, pgm, sprintf(options, 'b'), '_2.txt')
+path.b.7 <- paste0(control$working, pgm, sprintf(options, 'b'), '_7.pdf')
+path.c.2 <- paste0(control$working, pgm, sprintf(options, 'c'), '_2.txt')
+path.c.7 <- paste0(control$working, pgm, sprintf(options, 'c'), '_7.pdf')
+path.c.7
+@
+
+The best model identified so far is not regularized. Here we determine
+if adding an $L2$ regularizer is likely to reduce the generalization
+error.
+
+
+\begin{figure}[h]
+\caption{Ridge Regression\\First Search for Lambda}
+\label{figure:RidgeA}
+\centering\includegraphics[scale=.4]{\Sexpr{path.a.7}}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Ridge Regression\\First Search for Lambda\\Identification}
+\label{figure:RidgeAId}
+%\tiny
+\small
+%\normalsize
+\verbatiminput{\Sexpr{path.a.2}}
+\end{figure}
+
+Our implementation is to use ridge regression and test various values
+for $\lambda$, the weight of the $L2$ regularizer. Figure
+\ref{figure:RidgeA} shows the first test set, BLAH.
 
 
 \section{Submarkets}
