@@ -766,6 +766,30 @@ $(working)/e-training-period--%-0.010000.txt \
 
 # PDF files (and accompanying tex files)
 
+# DEFENSE
+
+.PHONY: defense
+defense: $(working)/defense.pdf
+
+$(working)/defense.pdf : \
+defense.Rnw
+	Rscript -e "library('knitr'); knit('defense.Rnw')"
+	pdflatex defense.tex
+	mv defense.pdf $(working)/
+	mv defense.tex $(tex)/
+	
+# THESIS
+
+.PHONY: thesis
+thesis: $(working)/thesis.pdf
+
+$(working)/thesis.pdf : \
+thesis.Rnw 
+	Rscript -e "library('knitr'); knit('thesis.Rnw')"
+	pdflatex thesis.tex
+	mv thesis.pdf $(working)/
+	mv thesis.tex $(tex)/
+	
 # THESIS-INPUT-PROCESSING
 
 $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
@@ -778,7 +802,7 @@ $(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
 	mv thesis-input-processing.pdf $(working)/
 	mv thesis-input-processing.tex $(tex)/
 
-# THESIS-LINEAR-MODELS
+# THESIS-LINEAR-MODELS (TODO: RENAME TO experiments.pdf)
 
 $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(drawings)/scenarios.pdf \
