@@ -1680,7 +1680,9 @@ error.
 
 Our implementation is to use ridge regression and test various values
 for $\lambda$, the weight of the $L2$ regularizer. Figure
-\ref{figure:RidgeA} shows the first test set, BLAH.
+\ref{figure:RidgeA} shows the first test set, were we see the lowest
+estimated generalization error when $\lambda = 0.7$. Figure
+\ref{figure:RidgeAId} has the same result in tabular form.
 
 
 \section{Submarkets}
