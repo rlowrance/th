@@ -48,7 +48,7 @@ Control <- function(default.args) {
                 )
 
     lambdaSets <-
-        list( a = c(0, 0.1, 0.3, 1, 10, 30, 100)
+        list( a = c(0, .1, .2, .3, .4, .5, .6, .7, .8, .9,  1)
              ,b = c(0, .01, .03, .10, .30, 1, 3, 10, 30, 100)
              ,c = c(0, .001, .003, .010, .03, .10, .30, 1.0)
              ,d = c(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.000)
@@ -210,7 +210,7 @@ default.args <-
              )
     } else {
         list( query = 100
-             ,lambdaSet = 'one'
+             ,lambdaSet = 'a'
              )
     }
 
