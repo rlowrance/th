@@ -48,7 +48,11 @@ Control <- function(default.args) {
                 )
 
     lambdaSets <-
-        list( one = c(0,100,10,1,.1,.01,.001)
+        list( a = c(0, .001, .01, .1, 1, 10, 100)
+             ,b = c(0, .01, .03, .10, .30, 1, 3, 10, 30, 100)
+             ,c = c(0, .001, .003, .010, .03, .10, .30, 1.0)
+             ,d = c(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.000)
+             ,e = c(.01, .02, .03, .04, .05, .06, .07, .08, .09, .10)
              ,just_001 = c(.001)
              )
     lambda <- lambdaSets[[opt$lambdaSet]]
@@ -67,6 +71,7 @@ Control <- function(default.args) {
                     ,verbose.CrossValidate = TRUE
                     ,lambda = lambda
                     ,query.fraction = (1 / opt$query)
+                    ,opt = opt
                     )
     control
 }
@@ -110,6 +115,8 @@ EvaluatePredictions <- function(prediction, actual) {
 EvaluateFeatures <- function(lambda, data, is.testing, is.training, control) {
     # reduce to call to ModelLinearLocal followed by call to evaluate preditions
     # determine which transactions will be the query transactions
+
+    str(control$opt)
 
     data.training <- data[is.training,]
     InTraining <- function(saleDate) {
