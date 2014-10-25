@@ -607,12 +607,12 @@ $(predictors.prices)
 
 # E-RANDOM-FORESTS-GLOBAL-CHART stem is %
 
-$(working)/e-random-forests-global-chart--query-1%1.txt \
-$(working)/e-random-forests-global-chart--query-1%2.txt \
-$(working)/e-random-forests-global-chart--query-1%3.pdf \
-$(working)/e-random-forests-global-chart--query-1%4.pdf \
-$(working)/e-random-forests-global-chart--query-1%5.pdf \
-$(working)/e-random-forests-global-chart--query-1%6.pdf \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%1.txt \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%2.txt \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%3.pdf \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%4.pdf \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%5.pdf \
+$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan%6.pdf \
 : \
 e-random-forests-global-chart.R \
 Directory.R \
@@ -769,9 +769,9 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-median-price-by-year-from-1984-to-2009.pdf \
 	$(working)/e-penalized-regression--query.fraction-0.001000.txt \
 	$(working)/e-penalized-regression--query.fraction-0.010000.txt \
-	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_1.txt \
-	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_2.txt \
-	$(working)/e-random-forests-global-chart--hpset-a--year-2003-month-jan_6.pdf \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan_1.txt \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan_2.txt \
+	$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan_6.pdf \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
 	$(working)/e-submarkets-chart--query-100_1.txt \
