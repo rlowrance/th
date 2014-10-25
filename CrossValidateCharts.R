@@ -1,5 +1,5 @@
 library(ggplot2)
-CrossValidateCharts <- function(control, cv.result, model.name) {
+CrossValidateCharts <- function(control, cv.result, model.name, chart7.info = NULL) {
     # return list of objects, each a chart
     Heading.1.and.2 <- function(control) {
         result <- 
@@ -223,6 +223,75 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
             g
     }
 
+    Chart7 <- function(control, cv.result, chart7.info) {
+        # median of RMedianSE
+        # line graph showing rMedianSE values in each fold with error bars
+        # ref: R Graphics Cookbook p158 (adding error bars to line graph)
+        # ref: R Graphics Cookbook, recipe 15.18 (calculated standard errors)
+        # NOTE: se is the standard deviation / sqrt(sample size)
+        # NOTE: a 95% confidence interval for the mean is +- 1.96 * se
+        df <- NULL
+        for (cv.result.index in 1:length(cv.result)) {
+            one.cv <- cv.result[[cv.result.index]]
+            for (fold.index in 1:length(one.cv)) {
+                next.df <- data.frame( model.index = cv.result.index
+                                      ,rootMedianSquaredError = one.cv[[fold.index]]$rootMedianSquaredError
+                                      )
+                df <- rbind(df, next.df)
+            }
+        }
+
+        # compute median results and standard errors
+        ResultsForModel <- function(model.index) {
+            values <- df[df$model.index == model.index, 'rootMedianSquaredError']
+            values
+        }
+        MedianRMedianSE <- function(model.index) {
+            values <- ResultsForModel(model.index)
+            values.median <- median(values)
+            values.median
+        }
+        SE <- function(model.index) {
+            # standard error of the mean
+            values <- ResultsForModel(model.index)
+            values.sd <- sd(values)
+            values.se <- values.sd / length(values)
+            values.se
+        }
+
+        model.index <- 1:length(cv.result)
+        medianRMedianSE <- sapply(1:length(cv.result), MedianRMedianSE)
+        se <- sapply(1:length(cv.result), SE)
+
+        df2 <- data.frame( model.index = model.index
+                          ,lambda = chart7.info$lambda
+                          ,medianRMedianSE = medianRMedianSE
+                          ,se = se
+                          )
+        max.y <- max(df2$medianRMedianSE) + max(df2$se)
+
+
+        gg <- ggplot( df2
+                     ,aes( x = lambda
+                          ,y = medianRMedianSE
+                          )
+                     )
+
+        g <-   
+            gg + 
+            geom_point(size = 4) + 
+            geom_line() +
+            coord_cartesian(ylim=c(0, max.y)) +
+            geom_errorbar( aes( ymin = medianRMedianSE - se
+                               ,ymax = medianRMedianSE + se
+                               )
+                          ,width = 0.2
+                          )
+
+
+       g
+    }
+
     # BODY STARTS HERE
 
     charts <- list( chart1 = Chart1(control, cv.result, model.name)
@@ -231,6 +300,7 @@ CrossValidateCharts <- function(control, cv.result, model.name) {
                    ,chart4 = Chart4(control, cv.result)
                    ,chart5 = Chart5(control, cv.result)
                    ,chart6 = Chart4(control, cv.result, show.y.zero = TRUE)
+                   ,chart7 = if (is.null(chart7.info)) NULL else Chart7(control, cv.result, chart7.info)
                    )
     charts
 }
