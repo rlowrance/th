@@ -15,7 +15,6 @@ source('After2002.R')
 source('ParseCommandArgsERandomForestsGlobal.R')
 source('Predictors.R')
 source('PredictorsBest.R')
-source('ParseCommandArgsRandomForestsGlobal.R')
 source('ReadTransactionSplits.R')
 
 library(memoise)
@@ -23,7 +22,7 @@ library(optparse)
 library(randomForest)
 
 Control <- function(default.args) {
-    opt <- ParseCommandArgsERandomForestsGlobal( command.args = command.args(trailingOnly = TRUE)
+    opt <- ParseCommandArgsERandomForestsGlobal( command.args = commandArgs(trailingOnly = TRUE)
                                                 ,default.args = default.args
                                                 )
 
