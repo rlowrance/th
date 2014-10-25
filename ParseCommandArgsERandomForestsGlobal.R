@@ -1,4 +1,4 @@
-GlobalParseCommandArgsERandomForestsGlobal <- function(default.args) {
+ParseCommandArgsERandomForestsGlobal <- function(command.args, default.args) {
     # return name list of values from the command args
     opt.hpset <- make_option( opt_str = c('--hpset')
                              ,action = 'store'
@@ -22,7 +22,6 @@ GlobalParseCommandArgsERandomForestsGlobal <- function(default.args) {
                         ,opt.year
                         ,opt.month
                         )
-    command.args <- commandArgs(trailingOnly = TRUE)
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
                       ,positional_arguments = FALSE
