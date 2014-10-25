@@ -653,6 +653,47 @@ CrossValidateCharts.R \
 $(working)/e-reduced-features--query-100.RData
 	Rscript e-reduced-features-chart.R --query 100
 
+# E-RIDGE-REGRESSION
+
+$(working)/e-ridge-regression--query-100--lambdaSet-a.RData \
+: \
+e-ridge-regression.R \
+Directory.R \
+Libraries.R \
+After2002.R \
+ParseCommandArgsERidgeRegression.R \
+ModelLinearRidgeLocal.R \
+Predictors.R \
+PredictorsBest.R \
+ReadTransactionSplits.R \
+$(predictors.best) \
+$(predictors.identification) \
+$(predictors.prices) 
+	Rscript e-ridge-regression.R --query 100 --lambdaSet a
+
+
+
+
+# E-RIDGE-REGRESSION-CHART step is _
+
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%1.txt \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%2.txt \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%3.pdf \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%4.pdf \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%5.pdf \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%6.pdf \
+$(working)/e-ridge-regression-chart--query-100--lambdaSet-a%7.pdf \
+: \
+e-ridge-regression-chart.R \
+Directory.R \
+Libraries.R \
+CrossValidateCharts.R \
+ParseCommandArgsERidgeRegression.R \
+$(working)/e-ridge-regression--query-100--lambdaSet-a.RData
+	Rscript e-ridge-regression-chart.R --query 100 --lambdaSet a
+
+
+
 # E-SUBMARKETS
 
 $(working)/e-submarkets--query-100.RData \
@@ -774,6 +815,8 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-random-forests-global-chart--hpset-a--year-2003--month-jan_6.pdf \
 	$(working)/e-reduced-features-chart--query-100_1.txt \
 	$(working)/e-reduced-features-chart--query-100_4.pdf \
+	$(working)/e-ridge-regression-chart--query-100--lambdaSet-a_2.txt \
+	$(working)/e-ridge-regression-chart--query-100--lambdaSet-a_7.pdf \
 	$(working)/e-submarkets-chart--query-100_1.txt \
 	$(working)/e-submarkets-chart--query-100_6.pdf \
 	$(working)/e-training-period--testSampleFraction-0.001000.txt \
