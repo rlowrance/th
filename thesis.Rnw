@@ -174,13 +174,22 @@ Commas <- function(i) {
 Commas(123456)
 @
 
+<<About>>=
+About <- function(x) {
+  # return rounded number like 1,200,000 (without the commas)
+  million <- 1000000
+  million * round(x / million, 1)
+}
+@
+
 %%%%%%%%%%%%%%%%% chapters
 
-\include{thesis-chapter-literature-review}
-\include{thesis-chapter-data-munging}
-\include{thesis-chapter-linear-models}
-\include{thesis-chapter-non-linear-models}
-\include{thesis-chapter-future-work}
+%\include{thesis-chapter-literature-review}
+\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
+%\include{thesis-chapter-data-munging}
+%\include{thesis-chapter-linear-models}
+%\include{thesis-chapter-non-linear-models}
+%\include{thesis-chapter-future-work}
 
 %%%%%%%%%%%%%%% BACK MATTER: BIBLIOGRAPHY
 \backmatter
