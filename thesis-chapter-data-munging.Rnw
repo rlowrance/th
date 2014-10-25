@@ -81,22 +81,6 @@ opts_chunk$set(cache = control$cache)
 opts_chunk$set(include = control$include)
 @
 
-<<Commas>>=
-Commas <- function(i) {
-    # insert commas into an integer
-    format(i, big.mark = ',')
-}
-# test
-Commas(123456)
-@
-
-<<About>>=
-About <- function(x) {
-  # return rounded number like 1,200,000 (without the commas)
-  million <- 1000000
-  million * round(x / million, 1)
-}
-@
 
 <<deeds>>=
 Deeds <- function(control) {
