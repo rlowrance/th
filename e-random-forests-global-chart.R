@@ -12,14 +12,16 @@ source('Directory.R')
 source('Libraries.R')
 
 source('CrossValidateCharts.R')
-source('RandomForestsGlobalParseCommandArgs.R')
+source('ParseCommandArgsERandomForestsGlobal.R')
 
 library(ggplot2)
 library(optparse)
 
-Control <- function(command.args) {
+Control <- function(default.args) {
     # parse command line arguments in command.args
-    opt <- RandomForestsGlobalParseCommandArgs(command.args)
+    opt <- ParseCommandArgsERandomForestsGlobal( command.args = commandArgs(trailingOnly = TRUE)
+                                                ,default.args = default.args
+                                               )
 
     me <- 'e-random-forests-global-chart' 
 
