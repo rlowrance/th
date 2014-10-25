@@ -1,0 +1,231 @@
+% vim: textwidth=72
+% vim: foldmethod=manual
+
+
+
+% STYLE GUIDE
+% not dataset, but data set
+%\input{thesis-prologue}
+
+%%%%%%%%%%%%%%%%%%% PREAMBLE
+
+\documentclass[12pt,draft]{amsbook}  
+% draft ==> print slug in margin if line too wide
+
+%\documentclass[10pt]{amsbook}
+%\setlength{\textwidth}{5in}
+
+\usepackage{amssymb,latexsym,amsmath}
+\usepackage{listings}
+\usepackage{verbatim}
+
+% double space text
+% ref: Gratzer p 99 (this approach and an alternative)
+\usepackage{setspace}  % ref: Gratzer p 99
+\doublespacing
+
+
+%\usepackage[all]{xy}   %xy-pic
+
+% graphics
+\usepackage{graphicx}    % needed for \includegraphics
+% Tell \includegraphics where to search for files
+% see Gratzer p 317
+% The trailing / is required
+\graphicspath{%
+{/home/roy/Dropbox/nyu-real-estate/repp-repo.git/src/local-weighted-regression-2/src/}
+}
+\usepackage{epstopdf}   % allow eps files as graphics input
+\usepackage{caption}    % allow line breaks \\ in captions
+
+\usepackage{layout}
+
+% don't indent first list of a paragraph
+%\setlength{\parindent}{0pt}   
+% increase spacing between paragraphs
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
+% don't align right margin
+\raggedright
+
+% proclamations
+%\newtheorem{corollary}{Corollary}
+%\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+%\newtheorem{notation}{Notation}
+%\newtheorem{proposition}{Proposition}
+%\newtheorem{theorem]{Theorem}
+
+%%%%%% commands local to this document
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\blanks}{\_\_\_}
+\newcommand{\blank}{\textunderscore\textunderscore\textunderscore}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%%%%%%%%%%%%%%%%%%% TOP MATTER
+
+\begin{document}
+
+\frontmatter
+
+% ref: sharelatex blog at thesis-series-pt5
+
+%\title{Residential Real Estate Price Prediction}
+%\author{Roy E. Lowrance}
+%\date{\today}
+%\email{roy.lowrance@gmail.com}
+%\maketitle
+
+\begin{titlepage}
+\begin{center}
+Predicting the Market Value of Single-Family Residential Real Estate
+
+\vspace{0.5 in}
+by
+
+\vspace{0.5 in}
+Roy E. Lowrance
+
+\vspace{0.5 in}
+A dissertation submitted in partial fulfillment\\
+of the requirements for the degree of\\
+Doctor of Philsophy\\
+Department of Computer Science\\
+New York University\\
+January, 2015
+
+\vspace{0.5 in}
+\begin{flushright}
+\makebox[2in]{\hrulefill} \\
+Yann LeCun
+
+\vspace{0.5 in}
+\makebox[2in]{\hrulefill} \\
+Dennis Shasha
+\end{flushright}
+
+\end{center}
+\end{titlepage}
+
+%%%%%%%%%%%%% copyright
+
+\setcounter{page}{2}
+\thispagestyle{empty}
+\copyright \; Roy E. Lowrance\\
+All Rights Reserved, 2015
+
+\chapter*{Dedication}
+Dedication goes here.
+
+
+\chapter*{Acknowledgements}
+Acknowledgements go here. Thanks to \ldots.
+
+\chapter*{Abstract}
+
+This work develops the best linear model of residential real estate
+prices for 2003 through 2009 in Los Angeles County. This work differs
+from typical academic research on prediction of home prices by covering
+seven years instead of a single year.  The multi-year time period covers
+both ups and downs in the real estate market. It also uses a much larger
+population than is typical, as the data is on Los Angeles County, a
+large metropolitan area. With the best linear model in hand, we compare
+its performance to a non-linear model and conclude that the gain in
+performance from introducing non-linearity is relative small.
+
+\tableofcontents
+
+\listoffigures
+
+%%%%%%%%%%%%%%%%%%%%%% MAIN MATTER
+
+\mainmatter
+
+\chapter{Introduction}
+
+There are many parties interested in accurate predictions of the market
+value of residential real estate. Buyers and sellers have a clear
+interest in setting prices relative to market values. Mortgage
+originators, who use the property as collateral for the loan, want to
+know the extent to which the borrow starts with equity in the house.
+Investors in mortgages want to know the current value of the property
+relative to the current debt on the property. Local governments use the
+market values in part to set real estate taxes.
+
+With so much interest, it is not surprising that a business has arisen
+in predicting market values of residences. The structure of this
+prediction market comprises a few large players and many regional
+players. The players regard their algorithms and often their data
+sources as a source of competitive advantage.
+
+Academic studies of real estate pricing models have been limited by data
+availability and the absence of benchmarks from the commercial players.
+Most academic studies are generated around a data set for one city for
+one year. Often the data are licensed only to the scientists doing the
+work, which inhibits comparing work from other scientists on the same
+data.
+
+This work systematically compares models for predicting prices of
+single-family residential real estate. The data are from Core Logic, one
+of the providers of both the data and algorithms for real estate price
+prediction. As for other academic work, the data are proprietary to the
+study. However, the source code for the work is licenses under the GPL
+and is available in the author's github account.
+
+WRITE MORE
+
+\layout    % see Gratzer p 268
+
+<<Control>>=
+options(warn = 2)  # turn warnings into errors
+source('Directory.R')
+
+# whether to maintain cache of executed R code
+cache <- FALSE
+#cache <- TRUE
+
+# whether to include code like this in the output
+include <- TRUE
+#include <- FALSE  # for review and final copies
+control <- list( cache = cache
+                ,include = include
+                ,working = Directory('working')
+                ,drawings = Directory('drawings')
+                )
+str(control)
+opts_chunk$set(cache = control$cache)
+opts_chunk$set(include = control$include)
+@
+
+<<Commas>>=
+Commas <- function(i) {
+    # insert commas into an integer
+    format(i, big.mark = ',')
+}
+# test
+Commas(123456)
+@
+
+\chapter{Literature Review}
+
+\chapter{Munging the Data}
+
+\chapter{Linear Models}
+
+\chapter{Non-linear Models}
+
+\chapter{Future Work}
+
+%%%%%%%%%%%%%%% BACK MATTER: BIBLIOGRAPHY
+\backmatter
+
+\appendix
+\chapter{First Appendix Title}
+
+\bibliographystyle{amsplain}
+\bibliography{../../roy-bib/roy-bib}
+
+\end{document}
+ 
