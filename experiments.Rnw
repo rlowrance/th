@@ -1947,19 +1947,19 @@ Validation}
 
 Figure \ref{figure:RandomForestGlobalJan2003CV} shows the estimated
 generalization errors from the models using the hyperparameters. The
-model with the lowest estimated generalization error is model 7, which
-has $mtry = 2$ and $ntree = 1000$. The model with one tree for each
-training sample slighlty underperformed the model with 1000 trees. Exact
+model was trained on transactions from the 90 days before January 1,
+2003 and then tested on every transaction in 2003.
+
+Each group of 4 plot points corresponds to one setting for $mtry$ and
+then incremental values for $ntree$. In all the $mtry$ cases, increasing
+the number of trees ($ntree$) first decreases then estimated
+generalization error and then increases it. The lowest estimated
+generalization error is for $mtry = 2$ and $ntree = 1000$. Exact
 values for the cross-validated loss estimates are in Figure
-\ref{figure:RandomForestsGlobalJan2003CVExact}
+\ref{figure:RandomForestsGlobalJan2003CVExact}.
 
-
-We see
-that setting $mtry = 1$ seems promising, because there is perhaps a
-trend in the first five data points (corresponding to $mtry = 1$ and
-increasing values for $ntree$) and other choices for $mtry$ do not
-appear to be have both lower estimated gneralization errors and a
-consistent downward trend as more trees are added.
+We used the hyperparamters found to be best for January 2003
+transactions to estimate the generalized error from XXXX.
 
 %%% BIBLIOGRAPHY
 \bibliographystyle{amsplain}
