@@ -186,7 +186,8 @@ targets += $(working)/thesis-linear-models.pdf
 
 # default rule
 .PHONY: all
-all: $(targets)
+#all: $(working)/defense.pdf $(working)/experiments.pdf $(working)/thesis.pdf
+all:  $(working)/experiments.pdf $(working)/thesis.pdf
 
 # dependencies in R source files for functions
 DirectoryLog.R         : DirectoryData.R
@@ -768,15 +769,15 @@ $(working)/e-training-period--%-0.010000.txt \
 
 # DEFENSE
 
-.PHONY: defense
-defense: $(working)/defense.pdf
-
-$(working)/defense.pdf : \
-defense.Rnw
-	Rscript -e "library('knitr'); knit('defense.Rnw')"
-	pdflatex defense.tex
-	mv defense.pdf $(working)/
-	mv defense.tex $(tex)/
+#.PHONY: defense
+#defense: $(working)/defense.pdf
+#
+#$(working)/defense.pdf : \
+#defense.Rnw
+#	Rscript -e "library('knitr'); knit('defense.Rnw')"
+#	pdflatex defense.tex
+#	mv defense.pdf $(working)/
+#	mv defense.tex $(tex)/
 	
 # THESIS
 
@@ -796,21 +797,20 @@ thesis-chapter-future-work.tex
 	mv thesis.pdf $(working)/
 	mv thesis.tex $(tex)/
 	
-# THESIS-INPUT-PROCESSING
 
-$(working)/thesis-input-processing.pdf: thesis-input-processing.Rnw \
-	$(working)/transactions.RData \
-	$(working)/transactions-subset1.RData \
-	$(working)/deeds-al-g.RData \
-	$(working)/parcels-sfr.RData
-	Rscript -e "library('knitr'); knit('thesis-input-processing.Rnw')"
-	pdflatex thesis-input-processing.tex
-	mv thesis-input-processing.pdf $(working)/
-	mv thesis-input-processing.tex $(tex)/
+# data dependencies for thesis chapters
+thesis-chapter-data-munging.Rnw : \
+$(working)/transactions.RData \
+$(working)/transactions-subset1.RData \
+$(working)/deeds-al-g.RData \
+$(working)/parcels-sfr.RData
 
-# THESIS-LINEAR-MODELS (TODO: RENAME TO experiments.pdf)
+# EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
 
-$(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
+.PHONY: experiments
+experiments: $(working)/experiments.pdf
+
+$(working)/experiments.pdf: experiments.Rnw \
 	$(drawings)/scenarios.pdf \
 	$(working)/e-adjust-training-period--query.fraction-0.001000.txt \
 	$(working)/e-adjust-training-period--query.fraction-0.010000.txt \
@@ -851,11 +851,11 @@ $(working)/thesis-linear-models.pdf: thesis-linear-models.Rnw \
 	$(working)/e-submarkets-chart--query-100_6.pdf \
 	$(working)/e-training-period--testSampleFraction-0.001000.txt \
 	$(working)/e-training-period--testSampleFraction-0.010000.txt
-	Rscript -e "library('knitr'); knit('thesis-linear-models.Rnw')"
-	pdflatex thesis-linear-models.tex
-	bibtex thesis-linear-models
-	mv thesis-linear-models.pdf $(working)/
-	mv thesis-linear-models.tex $(tex)/
+	Rscript -e "library('knitr'); knit('experiments.Rnw')"
+	pdflatex experiments.tex
+	bibtex experiments
+	mv experiments.pdf $(working)/
+	mv experiments.tex $(tex)/
 
 # make all the splits that we use simultaeously
 # requires a pattern rule
