@@ -38,6 +38,24 @@ ModelRandomForestsLocal <- function(InTraining, queries, data.training, formula,
                                ,ntree = ntree
                                ,mtry = mtry
                                )
+        Printf('fitting date %s\n', as.character(saleDate))
+        fitted <-
+            tryCatch( randomForest( formula = formula
+                                   ,data = data
+                                   ,ntree = ntree
+                                   ,mtry = mtry
+                                   )
+                     ,warning = function(w) {
+                         cat('warning in ModelRandomForestLocal fitting randomForest\n')
+                         print(w)
+                         w
+                     }
+                     ,error = function(e) {
+                         cat('error in ModelRandomForestLocal fitting randomForest\n')
+                         print(e)
+                         e
+                     }
+                     )
         if (verbose) {
             Printf( 'cpu minutes to fit (%s ntree %d mtry %d)= %f\n'
                    ,as.character(saleDate)
@@ -46,11 +64,17 @@ ModelRandomForestsLocal <- function(InTraining, queries, data.training, formula,
                    ,clock$Cpu() / 60
                    )
         }
-
-        return <- list( ok = TRUE
-                       ,fitted = fitted
-                       ,num.training = nrow(data)
-                       )
+        #cat('check fitted\n'); browser()
+        result <- if (inherits(fitted, 'randomForest'))
+            list( ok = TRUE
+                 ,fitted = fitted
+                 ,num.training = nrow(data)
+                 )
+        else
+            list( ok = false
+                 ,problem = fitted
+                 )
+        result
     }
 
     FitMemoised <- memoise(Fit)
