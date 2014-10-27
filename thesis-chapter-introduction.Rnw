@@ -29,7 +29,9 @@ prediction. As for other academic work, the data are proprietary to the
 study. However, the source code for the work is licenses under the GPL
 and is available in the author's github account.
 
+
 WRITE MORE
+
 
 \layout    % see Gratzer p 268
 
