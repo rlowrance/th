@@ -9,8 +9,9 @@
 
 %%%%%%%%%%%%%%%%%%% PREAMBLE
 
-\documentclass[12pt,draft]{amsbook}  
-% draft ==> print slug in margin if line too wide
+\documentclass[12pt]{amsbook}  
+%\documentclass[12pt,draft]{amsbook}  
+% draft ==> print slug in margin if line too wide and boxes for figures
 
 %\documentclass[10pt]{amsbook}
 %\setlength{\textwidth}{5in}
@@ -18,6 +19,7 @@
 \usepackage{amssymb,latexsym,amsmath}
 \usepackage{listings}
 \usepackage{verbatim}
+%\usepackage{etoolbox}
 
 % double space text
 % ref: Gratzer p 99 (this approach and an alternative)
@@ -43,7 +45,7 @@
 % don't indent first list of a paragraph
 %\setlength{\parindent}{0pt}   
 % increase spacing between paragraphs
-\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
+%\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
 % don't align right margin
 \raggedright
 
@@ -132,7 +134,8 @@ seven years instead of a single year.  The multi-year time period covers
 both ups and downs in the real estate market. It also uses a much larger
 population than is typical, as the data is on Los Angeles County, a
 large metropolitan area. With the best linear model in hand, we compare
-its performance to a non-linear model and conclude that the gain in
+its performance to a non-linear model and conclude (TODO: REPLACE WITH
+RESULTS FROM e-random-forests-local) that the gain in
 performance from introducing non-linearity is relative small.
 
 \tableofcontents
@@ -184,12 +187,22 @@ About <- function(x) {
 
 %%%%%%%%%%%%%%%%% chapters
 
+\Sexpr{knit_child('thesis-chapter-introduction.Rnw')}
+\chapter{Literature Review}
 %\include{thesis-chapter-literature-review}
-\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
-%\include{thesis-chapter-data-munging}
-%\include{thesis-chapter-linear-models}
-%\include{thesis-chapter-non-linear-models}
-%\include{thesis-chapter-future-work}
+
+%\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
+\chapter{Data Munging} Dummy text.
+
+\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
+\Sexpr{knit_child('thesis-chapter-using-the-2008-assessment.Rnw')}
+%\Sexpr{knit_child('thesis-chapter-how-valuable-is-the-2008-assessment.Rnw')}
+\chapter{How Valuables is the Year 2000 Census?}
+\chapter{Selecting Linear Models Using the 2000 Census Features}
+\chapter{To What Extent are Non-Linear Models An Improvement over Linear
+Models?}
+\chapter{Future Work}
+
 
 %%%%%%%%%%%%%%% BACK MATTER: BIBLIOGRAPHY
 \backmatter
