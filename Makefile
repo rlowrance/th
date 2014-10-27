@@ -786,10 +786,10 @@ thesis: $(working)/thesis.pdf
 
 $(working)/thesis.pdf : \
 thesis.Rnw \
-thesis-chapter-introduction.tex \
+thesis-chapter-introduction.Rnw \
 thesis-chapter-literature-review.tex \
 thesis-chapter-data-munging.Rnw \
-thesis-chapter-linear-models.tex \
+thesis-chapter-selecting-data.Rnw \
 thesis-chapter-non-linear-models.tex \
 thesis-chapter-future-work.tex 
 	Rscript -e "library('knitr'); knit('thesis.Rnw')"
