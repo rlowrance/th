@@ -242,10 +242,16 @@ Main <- function(control, raw) {
 
     
     AllZero('ground.floor.square.feet', Identity, 'GROUND.FLOOR.SQUARE.FEET')
+
     Split('basement.square.feet', Identity, 'BASEMENT.SQUARE.FEET')
+    SplitSizeLog1p('basement.square.feet', 'BASEMENT.SQUARE.FEET')
+
     Split('garage.parking.square.feet', Identity, 'GARAGE.PARKING.SQUARE.FEET')
     Split('effective.year.built', Identity, 'EFFECTIVE.YEAR.BUILT')
+    
     Split('total.rooms', Identity, 'TOTAL.ROOMS')
+    SplitSizeLog1p('total.rooms', 'TOTAL.ROOMS')
+
     AllZero('bath.fixtures', Identity, 'BATH.FIXTURES')
 
     # construction factors
@@ -257,7 +263,10 @@ Main <- function(control, raw) {
     Split('construction.type.code', Identity, 'CONSTRUCTION.TYPE.CODE')
     Split('exterior.walls.code', Identity, 'EXTERIOR.WALLS.CODE')
     Split('fireplace.indicator.flag', HasFireplace, 'FIREPLACE.INDICATOR.FLAG')
+
     Split('fireplace.number', Identity, 'FIREPLACE.NUMBER')
+    SplitSizeLog1p('fireplace.number', 'FIREPLACE.NUMBER')
+
     #Split('fireplace.type.code', Identity, 'FIREPLACE.TYPE.CODE')  # redundant with fireplace.indicator.code
     Split('foundation.code', Identity, 'FOUNDATION.CODE')
     #Split('floor.code', Identity, 'FLOOR.CODE')  # all A00 or NA
@@ -270,7 +279,10 @@ Main <- function(control, raw) {
     Split('quality.code', Identity, 'QUALITY.CODE')
     Split('roof.cover.code', Identity, 'ROOF.COVER.CODE')
     AllNA('stories.code', Identity, 'STORIES.CODE')
+    
     Split('stories.number', Identity, 'STORIES.NUMBER')
+    SplitSizeLog1p('stories.number', 'STORIES.NUMBER')
+
     AllNA('electric.energy.code', Identity, 'ELECTRIC.ENERGY.CODE')
     AllNA('fuel.code', Identity, 'FUEL.CODE')  # omitted: all NAs
     Split('sewer.code', Identity, 'SEWER.CODE')
