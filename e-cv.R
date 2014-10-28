@@ -1,4 +1,4 @@
-# e-local-linear.R
+# e-cv.R
 # main program
 # estimate generalization error using 10-fold cross validation for one combination of
 #
@@ -11,19 +11,27 @@
 # scenario, one of assessor | avm | mortgage
 #
 # write one file containing cv.result (cross validation results)
-# WORKING/e-local-linear-TIMEPERIOD-NDAYS-PREDICTORS-PREDICTORSFORM-REGRESSOR-SCENARIO.RData
+# WORKING/e-cv-TIMEPERIOD-NDAYS-PREDICTORS-PREDICTORSFORM-REGRESSOR-SCENARIO.RData
 # Write file WORKING/e-enpsr--y/n-N-Log/linear-assessor/avm/mortgage-price/logprice.RData
 # 
-# Use 100% of the test data in each fold.
-#
+# example output file name
+# e-cv-global-linear-2009-assessor-logprice-linear-alwaysNoAssessment-90-100---.RData
+# e-cv-submarket-linearReg-2003-avm-price-log-always-30-10-2000--.RData
+# e-cv-submarketIndicator-randomForest-2003-mortgage-logprice-linear-120-100--1000-2.RData
+# 
 # command line
-# --ndays INT
-# --predictors {always|alwayNoassessment}
-# --predictorsForm {linear|log}
-# --query INT: 1 / INT fraction of query transactions are used
+# --scope {global, submarket, submarketIndicator}
+# --model {linear, linearReg, randomForest}
+# --timePeriod {2003|2009}
 # --scenario {assessor|avm|mortgage}
 # --response  {logprice|price}
-# --timePeriod {2003|2009}
+# --predictorsForm {linear|log}
+# --predictors {always|alwaysNoAssessment}
+# --ndays INT
+# --query INT: 1 / INT fraction of query transactions in a fold that are used
+# --C     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
+# --ntree INT
+# --mtry  INT
 
 source('Directory.R')
 source('Libraries.R')
@@ -41,7 +49,7 @@ Control <- function(default.args) {
                             ,default.args = default.args
                             )
 
-    me <- 'e-local-linear' 
+    me <- 'e-cv' 
 
     log <- Directory('log')
     splits <- Directory('splits')
@@ -82,8 +90,10 @@ Control <- function(default.args) {
     #testing <- TRUE
 
     out.base <-
-        sprintf( '%s-%s-%s-%s-%s-%s-%d-%d'
+        sprintf( '%s-%s-%s-%s-%s-%s-%d-%d-%d-%d-%d'
                 ,me
+                ,opt$scope
+                ,opt$model
                 ,opt$timePeriod
                 ,opt$scenario
                 ,opt$response
@@ -91,6 +101,9 @@ Control <- function(default.args) {
                 ,opt$predictorsForm
                 ,opt$ndays
                 ,opt$query
+                ,opt$C
+                ,opt$ntree
+                ,opt$mtry
                 )
 
     control <- list( path.in.splits = splits
@@ -132,13 +145,18 @@ ParseCommandArgs <- function(command.args, default.args) {
     }
 
     option.list <-
-        list( OptionInt('ndays', 'number of days in training period')
-             ,OptionChr('predictors', 'name of predictor set')
+        list( OptionChr('scope',          'one of {global, submarket, submarketIndicator}')
+             ,OptionChr('model',          'one of {linear, linearReg, randomForest}')
+             ,OptionChr('timePeriod',     'one of {2003|2009}')
+             ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
+             ,OptionChr('response',       'one of {logprice|price}')
              ,OptionChr('predictorsForm', 'one of {linear|log}')
-             ,OptionInt('query', ' 1 / <fraction of test sample used as queries>')
-             ,OptionChr('scenario', 'one of {assessor|avm|mortgage}')
-             ,OptionChr('response', 'one of {logprice|price}')
-             ,OptionChr('timePeriod', 'one of {2003|2009}')
+             ,OptionChr('predictors',     'name of predictor set')
+             ,OptionInt('ndays',          'number of days in training period')
+             ,OptionInt('query',          ' 1 / <fraction of test sample used as queries>')
+             ,OptionInt('C',              '(1/lamdda) for regularized regression')
+             ,OptionInt('ntree',          'number of trees (for randomForest)')
+             ,OptionInt('mtry',           'number of features samples when growing tree (for randomForest)')
              )
 
     opt <- parse_args( object = OptionParser(option_list = option.list)
@@ -208,6 +226,7 @@ PredictOneQuery <- function(data.training.fold, query, control) {
                        )
 }
 SelectTrainingDataAssessor <- function(data, saleDate, ndays) {
+    browser()
     last.date <- saleDate - 1
     first.date <- last.date - ndays + 1
     is.selected <-
@@ -239,6 +258,7 @@ SelectTrainingDataMortgage <- function(data, saleDate, ndays) {
     selected
 }
 SelectTrainingData <- function(data.training.fold, query.saleDate, control) {
+    browser()
     # return transactions within opt$ndays of the saleDate, conditioned on opt$scenario
     Selector <- switch( control$opt$scenario
                        ,assessor = SelectTrainingDataAssessor
@@ -250,6 +270,7 @@ SelectTrainingData <- function(data.training.fold, query.saleDate, control) {
     result
 }
 PredictEachQuery <- function(data.training.fold, queries, control) {
+    browser()
     # return vector of predictions or NA
 
     verbose <- TRUE
@@ -316,6 +337,7 @@ PredictEachQuery <- function(data.training.fold, queries, control) {
     predictions
 }
 Queries <- function(data.testing.fold, control) {
+    browser()
     # return query transactions, which are a subset of the testing fold
 
     first.test.date <-
@@ -337,6 +359,7 @@ Queries <- function(data.testing.fold, control) {
     queries
 }
 EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
+    browser()
     # evaluate model with specified hyperparameters hp on one fold of data
     # return evaluation list that is then returned to CrossValidate
     
@@ -385,13 +408,18 @@ Main <- function(control, transaction.data.all.years) {
 
     # build list of hyperparameters to be used in defining the models for CrossValidate
     # here there is only one model and the hyperparameters are from the command line options
-    hps <- list(list( timePeriod = control$opt$timePeriod
-                     ,scenario = control$opt$scenario
-                     ,response = control$opt$response
-                     ,predictors = control$opt$predictors
+    hps <- list(list( scope          = control$opt$scope
+                     ,model          = control$opt$model
+                     ,timePeriod     = control$opt$timePeriod
+                     ,scenario       = control$opt$scenario
+                     ,response       = control$opt$response
                      ,predictorsForm = control$opt$predictorsForm
-                     ,ndays = control$opt$ndays
-                     ,query = control$opt$query
+                     ,predictors     = control$opt$predictors
+                     ,ndays          = control$opt$ndays
+                     ,query          = control$opt$query
+                     ,C              = control$opt$C
+                     ,ntree          = control$opt$ntree
+                     ,mtry           = control$opt$mtry
                      )
     )
     
@@ -432,13 +460,18 @@ Main <- function(control, transaction.data.all.years) {
 clock <- Clock()
 
 default.args <-
-    list( ndays=30
-         ,predictors = 'always'
+    list( scope          = 'global'
+         ,model          = 'linear'
+         ,timePeriod     = '2009'
+         ,scenario       = 'assessor'
+         ,response       = 'logprice'
          ,predictorsForm = 'log'
-         ,query = 1
-         ,scenario = 'assessor'
-         ,response = 'logprice'
-         ,timePeriod = '2009'
+         ,predictors     = 'always'
+         ,ndays          = 30
+         ,query          = 1
+         ,C              = NULL
+         ,ntree          = NULL
+         ,mtry           = NULL
          )
 control <- Control(default.args)
 
