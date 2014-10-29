@@ -4,14 +4,14 @@
 #
 # timePeriod, one of 2009 | 2003
 # ndays of training data, a positive integer (N)
-# predictors, one of all | butAssessment
+# predictorsName, one of all | butAssessment
 # predictorsForm, one of linear | log
 # query, positive integer, sample (1 / TIMEPERIOD) of queries
 # regressor, one of logprice | price
 # scenario, one of assessor | avm | mortgage
 #
 # write one file containing cv.result (cross validation results)
-# WORKING/e-cv-TIMEPERIOD-NDAYS-PREDICTORS-PREDICTORSFORM-REGRESSOR-SCENARIO.RData
+# WORKING/e-cv-TIMEPERIOD-NDAYS-predictorsName-PREDICTORSFORM-REGRESSOR-SCENARIO.RData
 # Write file WORKING/e-enpsr--y/n-N-Log/linear-assessor/avm/mortgage-price/logprice.RData
 # 
 # example output file name
@@ -25,8 +25,8 @@
 # --timePeriod {2003|2009}
 # --scenario {assessor|avm|mortgage}
 # --response  {logprice|price}
-# --predictorsForm {linear|log}
-# --predictors {always|alwaysNoAssessment}
+# --predictorsForm {level|log}
+# --predictorsName {always|alwaysNoAssessment}
 # --ndays INT
 # --query INT: 1 / INT fraction of query transactions in a fold that are used
 # --C     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
@@ -59,10 +59,10 @@ Control <- function(default.args) {
     # validate each command arg
 
     stopifnot(opt$ndays > 0)
-    stopifnot(  opt$predictors == 'always'
+    stopifnot(  opt$predictorsName == 'always'
               ||opt$predicrors == 'alwaysNoAssessment'
               )
-    stopifnot(  opt$predictorsForm == 'linear'
+    stopifnot(  opt$predictorsForm == 'level'
               ||opt$predictorsForm == 'log'
               )
     stopifnot(opt$query > 0)
@@ -78,14 +78,11 @@ Control <- function(default.args) {
               )
 
     # define splits we use
-    predictors <- Predictors2( predictors.name = opt$predictors
+    browser()
+    predictors <- Predictors2( predictors.name = opt$predictorsName
                               ,predictors.form = opt$predictorsForm
                               )
     identification <- Predictors2('identification')
-    response <- switch( opt$response
-                        ,logprice = 'price.log'
-                        ,price = 'price'
-                        )
     prices <- c('price.log', 'price')
 
     testing <- FALSE
@@ -99,7 +96,7 @@ Control <- function(default.args) {
                 ,opt$timePeriod
                 ,opt$scenario
                 ,opt$response
-                ,opt$predictors
+                ,opt$predictorsName
                 ,opt$predictorsForm
                 ,opt$ndays
                 ,opt$query
@@ -113,11 +110,8 @@ Control <- function(default.args) {
                     ,path.out.rdata = paste0(working, out.base, '.RData')
                     ,opt = opt
                     ,model.name = out.base
-                    ,predictors = predictors
-                    ,response = response
                     ,nfolds = if (testing) 2 else 10
                     ,split.names = unique(c( predictors
-                                            ,response
                                             ,identification
                                             ,prices
                                             )
@@ -153,8 +147,8 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionChr('timePeriod',     'one of {2003|2009}')
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
              ,OptionChr('response',       'one of {logprice|price}')
-             ,OptionChr('predictorsForm', 'one of {linear|log}')
-             ,OptionChr('predictors',     'name of predictor set')
+             ,OptionChr('predictorsForm', 'one of {level|log}')
+             ,OptionChr('predictorsName', 'name of predictor set')
              ,OptionInt('ndays',          'number of days in training period')
              ,OptionInt('query',          ' 1 / <fraction of test sample used as queries>')
              ,OptionInt('C',              '(1/lamdda) for regularized regression')
@@ -221,7 +215,7 @@ TrainingData <- function(data.training, scenario, ndays, saleDate) {
                                          data.training$recordingDate <= last.date
                                          ,
                                          ]
-               ,avm      = data.training[data.training$saleDate >= first.day &
+               ,avm      = data.training[data.training$saleDate >= first.date &
                                          data.training$saleDate <= last.date
                                          ,
                                          ]
@@ -248,17 +242,20 @@ ReplaceXWithY <- function(vec, x, y) {
     else
         vec
 }
-MakeFormula <- function(data, scope, response, predictorsForm, predictors, control) {
+MakeFormula <- function(data, scope, response, predictorsForm, predictorsName, control) {
     # return list $ok $value (maybe) $problem (optional)
     # return a formula using predictors that are informative (have more than 1 value)
     # --scope {global, submarket, submarketIndicator}
     # --response  {logprice|price}
     # --predictorsForm {linear|log}
-    # --predictors {always|alwaysNoAssessment}
+    # --predictorsName {always|alwaysNoAssessment}
     # NOTE: if non-informative features are not dropped, lm() works and predict() fails
 
+    # for now, just implement predictorsName == always
+    stopifnot(predictorsName == 'always')
+
     # an informative predictor has more than one value
-    all.predictors.with.year<- Predictors2( predictors.name = predictors
+    all.predictors.with.year<- Predictors2( predictors.name = predictorsName
                                            ,predictors.form = predictorsForm
                                            )
     all.predictors.1 <- ReplaceXWithY( vec = all.predictors.with.year
@@ -320,7 +317,7 @@ ConvertYearFeatures <- function(data, saleDate) {
     data.2
 }
 PredictLinear <- function(scenario, ndays, data.training, queries
-                          ,scope, response, predictorsForm, predictors, control) {
+                          ,scope, response, predictorsForm, predictorsName, control) {
     # Return evaluation of the specified model on the given training and test data
     # Return vector of predictions for the queries using a local model
 
@@ -348,7 +345,7 @@ PredictLinear <- function(scenario, ndays, data.training, queries
                                      ,scope = scope
                                      ,response = response
                                      ,predictorsForm = predictorsForm
-                                     ,predictors = predictors
+                                     ,predictorsName = predictorsName
                                      ,control = control
                                      )
         if (!maybe.formula$ok)
@@ -407,7 +404,7 @@ PredictLinear <- function(scenario, ndays, data.training, queries
     predictions
 }
 Evaluate_10 <- function(scope, model, scenario, response
-                       ,predictorsForm, predictors, ndays
+                       ,predictorsForm, predictorsName, ndays
                        ,C, ntree, mtry
                        ,data.training
                        ,queries
@@ -425,7 +422,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                                    ,scope = scope
                                                    ,response = response
                                                    ,predictorsForm = predictorsForm
-                                                   ,predictors = predictors
+                                                   ,predictorsName = predictorsName
                                                    ,control = control
                                                    )
                ,linearReg    = PredictLinearReg   ( scenario = scenario
@@ -436,7 +433,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                                    ,scope = scope
                                                    ,response = response
                                                    ,predictorsForm = predictorsForm
-                                                   ,predictors = predictors
+                                                   ,predictorsName = predictorsName
                                                    ,control = contro
                                                    )
                ,randomForest = PredictRandomForest( scenario = scenario
@@ -448,7 +445,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                                    ,scope = scope
                                                    ,response = response
                                                    ,predictorsForm = predictorsForm
-                                                   ,predictors = predictors
+                                                   ,predictorsName = predictorsName
                                                    ,control= control
                                                    )
                ,stop('bad model')
@@ -462,7 +459,7 @@ Evaluate_10 <- function(scope, model, scenario, response
     result
 }
 Evaluate_11 <- function(scope, model, scenario, response
-                       ,predictorsForm, predictors, ndays, query
+                       ,predictorsForm, predictorsName, ndays, query
                        ,C, ntree, mtry
                        ,data.training, data.testing
                        ,control) {
@@ -483,7 +480,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                           ,scenario = scenario
                           ,response = response
                           ,predictorsForm = predictorsForm
-                          ,predictor = predictors
+                          ,predictorsName = predictorsName
                           ,ndays = ndays
                           ,C = C
                           ,ntree = ntree
@@ -495,7 +492,7 @@ Evaluate_11 <- function(scope, model, scenario, response
     result
 }
 Evaluate_12 <- function(scope, model, timePeriod, scenario, response
-                        ,predictorsForm, predictors, ndays, query
+                        ,predictorsForm, predictorsName, ndays, query
                         ,C, ntree, mtry
                         ,data.training, data.testing
                         ,control) {
@@ -516,7 +513,7 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                           ,scenario = scenario
                           ,response = response
                           ,predictorsForm = predictorsForm
-                          ,predictors = predictors
+                          ,predictorsName = predictorsName
                           ,ndays = ndays
                           ,query = query
                           ,C = C
@@ -543,7 +540,7 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                 ,scenario = hp$scenario
                 ,response = hp$response
                 ,predictorsForm = hp$predictorsForm
-                ,predictors = hp$predictors
+                ,predictorsName = hp$predictorsName
                 ,ndays = hp$ndays
                 ,query =  hp$query
                 ,C = hp$C
@@ -568,7 +565,7 @@ Main <- function(control, transaction.data.all.years) {
                      ,scenario       = control$opt$scenario
                      ,response       = control$opt$response
                      ,predictorsForm = control$opt$predictorsForm
-                     ,predictors     = control$opt$predictors
+                     ,predictorsName = control$opt$predictorsName
                      ,ndays          = control$opt$ndays
                      ,query          = control$opt$query
                      ,C              = control$opt$C
@@ -645,10 +642,10 @@ default.args <-
     list( scope          = 'global'
          ,model          = 'linear'
          ,timePeriod     = '2009'
-         ,scenario       = 'assessor'
-         ,response       = 'logprice'
-         ,predictorsForm = 'log'
-         ,predictors     = 'always'
+         ,scenario       = 'mortgage'
+         ,response       = 'price'
+         ,predictorsForm = 'level'
+         ,predictorsName = 'always'
          ,ndays          = 30
          ,query          = 1
          ,C              = 0
@@ -670,4 +667,5 @@ Main(control, transaction.data)
 if (control$testing)
     cat('TESTING: DISCARD RESULTS\n')
 Printf('took %f CPU minutes\n', clock$Cpu() / 60)
+Printf('took %f wallclock minutes\n', clock$Wallclock() / 60)
 cat('done\n')
