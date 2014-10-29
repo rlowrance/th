@@ -1,0 +1,115 @@
+\chapter{Using the 2008 Assessment}
+% vim: textwidth=72
+% vim: foldmethod=manual
+
+<<Assessment2008>>=
+@
+
+The 2008 assessment for Los Angeles Country was issued November 1, 2008.
+Because of the way California real estate assessment work, the
+assessment is an upper bound on the value of the property for some
+vaguely-defined date between November 1, 2007 and October 31, 2008. If
+the property sold at arms length during this vague period, the
+assessment is the price.
+
+The assessor provides an estimate of the maximum value of the land and
+the maximum value of the improvements on the land. We are interested in
+comparing the performance of parts of the real estate model taxonomy. We
+start with estimating prices for houses that transacted after the
+assessment was available, that is, starting November 1, 2008 and running
+until October 31, 2009.
+
+For now, all of the models are linear and all of the models use all
+the features available in all the transactions in subset 1.
+
+The features available in all transactions in subset 1 can be broken
+into three groups: features from the assessment, features of the
+location of the property, and features of the property itself. This work
+did not use latitude and longitude as features.
+
+The features from the assessment are the land value and the improvement
+value. 
+
+The features of the location can be broken into two groups. One group is
+features derived from the U.S. decinial census. These features are:
+\begin{itemize}
+\item the average commute time in minutes
+\item whether the census tract has any parcels that are for industry
+\item whether the census tract has a park
+\item whether the census tract has any retail stores
+\item whether the census tract has a school
+\item the fraction of houses that are owner occupied
+\item the median household income
+\end{itemize}
+
+The other group of features that are location specific are derived from
+the zip 5 codes. These features are:
+\begin{itemize}
+\item whether the zip code has any parcels that are for industry
+\item whether the zip code has a park
+\item whether the zip code has any retail stores
+\item whether the census tract has a school
+\end{itemize}
+
+Features of the property itself are these:
+\begin{itemize}
+\item the kind of air conditioning
+\item square feet in the basement (possibly 0)
+\item number of bathrooms
+\item number of bedrooms
+\item the condition of the property
+\item the effective year built (last year of major remodeling)
+\item the kind of exterior walls
+\item the kind of foundation
+\item the kind of heating
+\item whether the house is new at the time of its sale
+\item the kind of parking
+\item the kind of roof
+\item whether there is any fireplace
+\item the number of fireplaces
+\item the type of foundation
+\item the type of garage
+\item square feet in the garage
+\item the kind of heating
+\item square footage of the land
+\item square footage of the living area
+\item number of parking spaces
+\item the kind of parking (TODO: Did I use this twice?)
+\item the kind of pool
+\item the quality code
+\item the kind of roof cover
+\item the kind of sewer
+\item number of stories
+\item number of rooms
+\item the kind of water
+\item year built
+\end{itemize}
+
+
+As seen in Figure CREATE FIGURE, prices were not stable during the test
+period (November 1, 2008 through October 31, 2009. The instability of
+the prices raises questions about the most appropriate training period.
+A longer training period has more data over which to generate average
+prices for features. However, the longer period has more opportunity for
+value of features to change.
+
+
+
+
+TODO: Create chart with median prices in 2007 through end of data.
+
+
+
+We use all the features that are available in all the transactions in
+subset1. There are: GENERATE A CHART.
+
+We investigate these design choices:
+\begin{itemize}
+\item Model form: the model could be of form level-level, level-log,
+log-level, or log-log.
+\item The data for the  training period could be shorter or longer. We
+investigate 30, 60, 90, 120, 150, and 180 days.
+\item The business scenario could be the assessor's scenario, the AVM
+scenario, or the mortgage scenario.
+\end{itemize}
+
