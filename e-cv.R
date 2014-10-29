@@ -40,6 +40,7 @@ source('Libraries.R')
 source('Predictors2.R') 
 source('ReadTransactionSplits.R')
 
+library(lubridate)
 library(memoise)
 library(optparse)
 
@@ -85,12 +86,13 @@ Control <- function(default.args) {
                         ,logprice = 'price.log'
                         ,price = 'price'
                         )
+    prices <- c('price.log', 'price')
 
     testing <- FALSE
     #testing <- TRUE
 
     out.base <-
-        sprintf( '%s-%s-%s-%s-%s-%s-%d-%d-%d-%d-%d'
+        sprintf( '%s-%s-%s-%s-%s-%s-%s-%s-%d-%d-%d-%d-%d'
                 ,me
                 ,opt$scope
                 ,opt$model
@@ -117,6 +119,7 @@ Control <- function(default.args) {
                     ,split.names = unique(c( predictors
                                             ,response
                                             ,identification
+                                            ,prices
                                             )
                     )
                     ,testing = testing
@@ -202,209 +205,360 @@ EvaluatePredictions <- function(prediction, actual) {
                    )
     result
 }
-PredictOneQuery <- function(data.training.fold, query, control) {
-    browser()
-    # return list
-    # $ok: TRUE or FALSE
-    # $value: prediction if $ok == TRUE
-    # $problem: chr description of $ok == FALSE
-
-    # use query saleDate to select training transactions
-    saleDate <- query$saleDate
-
-    Selector <- 
-        switch( control$opt$scenario
-               ,assessor = TrainingTransactionsAssessor
-               ,avm      = TrainingTransactionsAVM
-               ,mortgage = TrainingTransactionsMortgage
-               ,stop('bad control$opt$scenario')
+TrainingData <- function(data.training, scenario, ndays, saleDate) {
+    # return data frame with ndays of training data for the scenario and saleDate and ndays
+    last.date <-
+        switch( scenario
+               ,assessor = saleDate - 1
+               ,avm      = saleDate - 1
+               ,mortgage = saleDate + (ndays / 2)
                )
-    data.training <- Selector(data.training.fold, saleDate, control$opt$ndays)
-
-    formula <- Formula( predictors = control$predictors
-                       ,response = control$response
-                       )
-}
-SelectTrainingDataAssessor <- function(data, saleDate, ndays) {
-    browser()
-    last.date <- saleDate - 1
     first.date <- last.date - ndays + 1
-    is.selected <-
-        data$recordingDate >= first.date &
-        data$recordingDate <= last.date
-    selected <- data[is.selected,]
-    selected
-}
-SelectTrainingDataAVM <- function(data, saleDate, ndays) {
-    browser()
-    last.date <- saleDate - 1
-    first.date <- last.date - ndays + 1
-    is.selected <-
-        data$saleDate >= first.date &
-        data$saleData <= last.date
-    selected <- data[is.selected,]
-    selected
-}
-SelectTrainingDataMortgage <- function(data, saleDate, ndays) {
-    browser()
-    last.date <- saleDate + round(ndays / 2)
-    first.date <- last.date - round(ndays / 2)
-    if (last.date - first.day != nday) 
-        first.date <- first.date - 1
-    is.selected <-
-        data$saleDate >= first.date &
-        data$saleData <= last.date
-    selected <- data[is.selected,]
-    selected
-}
-SelectTrainingData <- function(data.training.fold, query.saleDate, control) {
-    browser()
-    # return transactions within opt$ndays of the saleDate, conditioned on opt$scenario
-    Selector <- switch( control$opt$scenario
-                       ,assessor = SelectTrainingDataAssessor
-                       ,avm = SelectTrainingDataAVM
-                       ,mortgage = SelectTrainingDataMortgage
-                       ,stop('bad opt$scenario')
-                       )
-    result <- Selector(data.training.fold, query.saleDate, control$opt$ndays)
-    result
-}
-PredictEachQuery <- function(data.training.fold, queries, control) {
-    browser()
-    # return vector of predictions or NA
 
-    verbose <- TRUE
+    data <- 
+        switch( scenario
+               ,assessor = data.training[data.training$recordingDate >= first.date &
+                                         data.training$recordingDate <= last.date
+                                         ,
+                                         ]
+               ,avm      = data.training[data.training$saleDate >= first.day &
+                                         data.training$saleDate <= last.date
+                                         ,
+                                         ]
+               ,mortgage = data.training[data.training$saleDate >= first.date &
+                                         data.training$saleDate <= last.date
+                                         ,
+                                         ]
+               )
+    data
+}
+PrintNoninformativePredictors <- function(informative.predictors, all.predictors) {
+    non.informative <- setdiff(all.predictors, informative.predictors)
+    stopifnot(length(non.informative) > 0)
+    if (length(non.informative) == 1)
+        Printf('1 non-informative feature: %s\n', non.informative[[1]])
+    else {
+        Printf('%d non-informative features:\n', length(non.informative))
+        lapply(non.informative, function(x) Printf(' %s\n', x))
+    }
+}
+ReplaceXWithY <- function(vec, x, y) {
+    if (x %in% vec) 
+        union(setdiff(vec, x), y)
+    else
+        vec
+}
+MakeFormula <- function(data, scope, response, predictorsForm, predictors, control) {
+    # return list $ok $value (maybe) $problem (optional)
+    # return a formula using predictors that are informative (have more than 1 value)
+    # --scope {global, submarket, submarketIndicator}
+    # --response  {logprice|price}
+    # --predictorsForm {linear|log}
+    # --predictors {always|alwaysNoAssessment}
+    # NOTE: if non-informative features are not dropped, lm() works and predict() fails
 
-    formula <- Formula( predictors = control$predictors
-                       ,response = control$response
-                       )
+    # an informative predictor has more than one value
+    all.predictors.with.year<- Predictors2( predictors.name = predictors
+                                           ,predictors.form = predictorsForm
+                                           )
+    all.predictors.1 <- ReplaceXWithY( vec = all.predictors.with.year
+                                      ,x = 'year.built'
+                                      ,y = c('age', 'age2')
+                                      )
+    all.predictors <- ReplaceXWithY( vec = all.predictors.1
+                                    ,x = 'effective.year.built'
+                                    ,y = c('effective.age', 'effective.age2')
+                                    )
+    is.informative <- sapply(all.predictors
+                             ,function(predictor) {
+                                 length(unique(data[[predictor]])) > 1
+                             }
+                             )
+    informative.predictors <- all.predictors[is.informative]
+    num.informative <-  length(informative.predictors)
+    if (num.informative == 0) {
+        return(list(ok = FALSE, problem = paste0('MakeFormula: ', '0 informative features')))
+    }
+    if (length(informative.predictors) != length(all.predictors)) {
+        PrintNoninformativePredictors( informative.predictors = informative.predictors
+                                      ,all.predictors = all.predictors
+                                      )
+    }
 
-    Fit <- function(query.saleDate) {
-        data <- SelectTrainingData(data.training.fold, query.saleDate, control)
+    # for now, only handle scope == global
+    # if scope = submarketIndicator, must add indicators
+
+    stopifnot(scope == 'global')
+
+    formula = Formula( response = if (response == 'logprice') 'price.log' else 'price'
+                      ,predictors = informative.predictors
+                      )
+    list(ok = TRUE, value = formula)
+}
+ConvertYearFeatures <- function(data, saleDate) {
+    # replace any year.built feature with age and age2 (measured in years)
+    # replace any effective.year.built feature with effective.age and effective.age2 (in years)
+    Ages <- function(year.vector, sale.year) {
+        # return age and age^2 as of the sale.year
+        age <- sale.year - year.vector
+        age2 <- age * age
+        list( age = age
+             ,age2 = age2
+             )
+    }
+    Replace <- function(current, new1, new2, data) {
+        if (current %in% names(data)) {
+            ages <- Ages(data[[current]], year(saleDate))
+            data[[new1]] <- ages$age
+            data[[new2]] <- ages$age2
+            data[[current]] <- NULL
+        }
+        data 
+    }
+    data.1 <- Replace('year.built', 'age', 'age2', data)
+    data.2 <- Replace('effective.year.built', 'effective.age', 'effective.age2', data.1)
+    data.2
+}
+PredictLinear <- function(scenario, ndays, data.training, queries
+                          ,scope, response, predictorsForm, predictors, control) {
+    # Return evaluation of the specified model on the given training and test data
+    # Return vector of predictions for the queries using a local model
+
+    verbose <- FALSE
+
+    Fit <- function(saleDate) {
+        # return list $ok $value (maybe) $problem (maybe)
+        training.data <- TrainingData( data.training = data.training
+                                      ,scenario = scenario
+                                      ,ndays = ndays
+                                      ,saleDate = saleDate
+                                      )
+        if (nrow(training.data) == 0) {
+            return(list(ok = FALSE, problem = 'no training samples'))
+        }
+        # convert year.built to age and age2
+        # convert effective.year.built to effective.age and effective.age2
+        converted.data <- ConvertYearFeatures( data = training.data
+                                              ,saleDate = saleDate
+                                              )
+
+        stopifnot(scope == 'global')  # must take city-sample for submarket scope
+        # drop feature that are non-informative; otherwise, lm sets coefficient to NA and predict fails
+        maybe.formula <- MakeFormula( data = converted.data
+                                     ,scope = scope
+                                     ,response = response
+                                     ,predictorsForm = predictorsForm
+                                     ,predictors = predictors
+                                     ,control = control
+                                     )
+        if (!maybe.formula$ok)
+            return(list(ok = false, problem = maybe.formula$problem))
         maybe.fitted <-
-            tryCatch( lm(formula = formula, data = data)
+            tryCatch( lm(formula = maybe.formula$value, data = converted.data)
                      ,warning = function(w) w
                      ,error = function(e) e
                      )
-        result <- list( ok = inherits(maybe.fitted, 'lm')
-                       ,value = maybe.fitted
-                       )
-        result
+        if (inherits(maybe.fitted, 'lm'))
+            list(ok = TRUE, value = maybe.fitted)
+        else
+            list(ok = FALSE, problem = paste0('Fit: ', maybe.fitted))
     }
     FitMemoised <- memoise(Fit)
-
     Predict <- function(fitted, query) {
-        maybe.prediction <- 
+        # return list $ok $value (maybe) $problem (maybe)
+        maybe.predict <-
             tryCatch( predict(object = fitted, newdata = query)
                      ,warning = function(w) w
                      ,error = function(e) e
                      )
-        result <- list( ok = inherits(maybe.prediction, 'numeric')
-                       ,value = maybe.prediction
-                       )
-        result
+        if (inherits(maybe.predict, 'numeric')) 
+            list(ok = TRUE, value = maybe.predict)
+        else
+            list(ok = FALSE, problem = paste0('Predict: ', maybe.predict))
+    }
+    FitPredict <- function(query) {
+        saleDate <- query$saleDate
+        maybe.fitted <- FitMemoised(saleDate)
+        if (maybe.fitted$ok) {
+            maybe.prediction <- Predict( fitted = maybe.fitted$value
+                                        ,query = ConvertYearFeatures( data = query
+                                                                     ,saleDate = saleDate
+                                                                     )
+                                        )
+            return(maybe.prediction)
+        } else {
+            return(maybe.fitted)
+        }
     }
 
     predictions <- as.double(rep(NA), nrow(queries))
     for (query.index in 1:nrow(queries)) {
-        query <- queries[query.index,]
-        query.saleDate <- query$saleDate
-        maybe.fitted <- FitMemoised(query.saleDate)
-        if (maybe.fitted$ok) {
-            maybe.prediction <- Predict(maybe.fitted$value, query)
-            if (maybe.prediction$ok) {
-                predictions[[query.index]] <- maybe.prediction$value
-            } else {
-                if (verbose) {
-                    Printf( 'prediction failed for query.index %d saleDate %s\n'
-                           ,query.index
-                           ,as.character(query.saleDate)
-                           )
-                    print(maybe.prediction$value)
-                }
-            }
+        maybe.prediction <- FitPredict(queries[query.index,])
+        if (maybe.prediction$ok) {
+            if (verbose) 
+                Printf('prediction query.index %d value %f\n', query.index, maybe.prediction$value)
+            predictions[[query.index]] <- maybe.prediction$value
         } else {
-            if (verbose) {
-                Printf( 'fitting failed for query.index %d saleDate %s\n'
-                       ,query.index
-                       ,as.character(query.saleDate)
-                       )
-                print(maybe.fitted$value)
-            }
+            Printf( 'prediction query.index %d failed: %s\n'
+                   ,query.index
+                   ,as.character(maybe.prediction$problem))
         }
-        #Printf('query.index %d prediction %f\n', query.index, predictions[[query.index]])
     }
     predictions
 }
-Queries <- function(data.testing.fold, control) {
-    browser()
-    # return query transactions, which are a subset of the testing fold
+Evaluate_10 <- function(scope, model, scenario, response
+                       ,predictorsForm, predictors, ndays
+                       ,C, ntree, mtry
+                       ,data.training
+                       ,queries
+                       ,control
+                       ) {
+    # Return evaluation of the specified model on the given training and test data
+    # reduce over model
 
-    first.test.date <-
-        switch( control$opt$timePeriod
+    predictions.raw <- 
+        switch( model
+               ,linear       = PredictLinear      ( scenario = scenario
+                                                   ,ndays = ndays
+                                                   ,data.training = data.training
+                                                   ,queries = queries
+                                                   ,scope = scope
+                                                   ,response = response
+                                                   ,predictorsForm = predictorsForm
+                                                   ,predictors = predictors
+                                                   ,control = control
+                                                   )
+               ,linearReg    = PredictLinearReg   ( scenario = scenario
+                                                   ,ndays = ndays
+                                                   ,queries = queries
+                                                   ,C = C
+                                                   ,data.training = data.training
+                                                   ,scope = scope
+                                                   ,response = response
+                                                   ,predictorsForm = predictorsForm
+                                                   ,predictors = predictors
+                                                   ,control = contro
+                                                   )
+               ,randomForest = PredictRandomForest( scenario = scenario
+                                                   ,ndays = ndays
+                                                   ,scope = scope
+                                                   ,ntree = ntree
+                                                   ,mtry = mtry
+                                                   ,data.training = data.training
+                                                   ,scope = scope
+                                                   ,response = response
+                                                   ,predictorsForm = predictorsForm
+                                                   ,predictors = predictors
+                                                   ,control= control
+                                                   )
+               ,stop('bad model')
+               )
+    predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
+
+    actuals <- queries$price
+    result <- EvaluatePredictions(prediction = predictions
+                                  ,actual = actuals
+                                  )
+    result
+}
+Evaluate_11 <- function(scope, model, scenario, response
+                       ,predictorsForm, predictors, ndays, query
+                       ,C, ntree, mtry
+                       ,data.training, data.testing
+                       ,control) {
+    # Return evaluation of the specified model on the given training and test data
+    # Reduce over query
+
+    num.test.transactions <- max( 1
+                                 ,round(nrow(data.testing) / query)
+                                 )
+    which.test <- sample.int( n = nrow(data.testing)
+                             ,size = num.test.transactions
+                             ,replace = FALSE
+                             )
+    queries <- data.testing[which.test,]
+    Printf('will sample %d of %d test transactions\n', nrow(queries), nrow(data.testing))
+    result <- Evaluate_10( scope = scope
+                          ,model = model
+                          ,scenario = scenario
+                          ,response = response
+                          ,predictorsForm = predictorsForm
+                          ,predictor = predictors
+                          ,ndays = ndays
+                          ,C = C
+                          ,ntree = ntree
+                          ,mtry = mtry
+                          ,data.training = data.training
+                          ,queries = queries
+                          ,control = control
+                          )
+    result
+}
+Evaluate_12 <- function(scope, model, timePeriod, scenario, response
+                        ,predictorsForm, predictors, ndays, query
+                        ,C, ntree, mtry
+                        ,data.training, data.testing
+                        ,control) {
+    # Return evaluation of the specified model on the given training and test data
+    # Reduce over timePeriod
+    first.date <-
+        switch( timePeriod
                ,'2009' = as.Date('2008-11-01')
                ,'2003' = as.Date('2003-01-01')
                ,stop('unimplemented opt$timePeriod')
                )
-    in.test <- data.testing.fold$saleDate >= first.test.date
-    data.testing <- data.testing.fold[in.test,]
-    num.test.transactions <- max( 1
-                                 ,round(nrow(data.testing) / control$opt$query)
-                                 )
-    which.test <- sample.int( n = nrow(data.testing)
-                             ,size = num.test.transactions
-                             ,replace = FALSE)
-    queries <- data.testing[which.test,]
-    Printf('will sample %d of %d test transactions\n', nrow(queries), nrow(data.testing))
-    queries
+
+    is.training <- data.training$saleDate >= first.date
+    is.testing <- data.testing$saleDate >= first.date
+
+    result <- Evaluate_11( scope = scope
+                          ,model = model
+                          ,scenario = scenario
+                          ,response = response
+                          ,predictorsForm = predictorsForm
+                          ,predictors = predictors
+                          ,ndays = ndays
+                          ,query = query
+                          ,C = C
+                          ,ntree = ntree
+                          ,mtry = mtry
+                          ,data.training = data.training[is.training,]
+                          ,data.testing = data.testing[is.testing,]
+                          ,control = control
+                          )
+    result
 }
 EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
-    browser()
-    # evaluate model with specified hyperparameters hp on one fold of data
-    # return evaluation list that is then returned to CrossValidate
+    # Return evaluation of the model specified in the hyperparameters using
+    # the specified training and test data.
     
     # split the data into training and test folds
 
     data.training.fold <- data[is.training,]
     data.testing.fold <- data[is.testing, ]
 
-    queries <- Queries(data.testing.fold, control)
-
-    # predict and compare to actuals
-    predictions.raw <- PredictEachQuery(data.training.fold, queries, control)
-    if (control$response == 'price.log') {
-        predictions <- exp(predictions.raw)
-        actuals <- exp(queries$price.log)
-    } else {
-        predictions <- predictions.raw
-        actuals <- queries$price
-    }
-
-    # always evaluate in the level domain (not log domain)
-    evaluate <- EvaluatePredictions( prediction = predictions
-                                    ,actual = actuals)
-    evaluate
+    result <- Evaluate_12( scope = hp$scope
+                ,model = hp$model
+                ,timePeriod = hp$timePeriod
+                ,scenario = hp$scenario
+                ,response = hp$response
+                ,predictorsForm = hp$predictorsForm
+                ,predictors = hp$predictors
+                ,ndays = hp$ndays
+                ,query =  hp$query
+                ,C = hp$C
+                ,ntree = hp$ntree
+                ,mtry = hp$mtry
+                ,data.training = data.training.fold
+                ,data.testing = data.testing.fold
+                ,control = control
+                )
+    result
 }
 Main <- function(control, transaction.data.all.years) {
     browser()
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
-
-    # extract transactions just for the time period we want
-    if (FALSE) {
-        first.date <-
-            if (control$opt$timePeriod == '2003') {
-                as.Date('2003-01-01')
-            } else if (control$opt$timePeriod == '2009') {
-                as.Date('2008-11-01')
-            } else {
-                stop('bad opt$timePeriod')
-            }
-
-        in.time.period <-
-            transaction.data.all.years$saleDate >= first.date
-        transaction.data <- transaction.data.all.years[in.time.period,]
-    }
 
     # build list of hyperparameters to be used in defining the models for CrossValidate
     # here there is only one model and the hyperparameters are from the command line options
@@ -455,8 +609,36 @@ Main <- function(control, transaction.data.all.years) {
 
     str(control)
 }
+AllAlwaysPresent <- function(data) {
+    # return TRUE iff there is no NA in the data frame
+    na.found <- FALSE
+    for (name in names(data)) {
+        v <- data[[name]]
+        na.indices <- is.na(v)
+        if (sum(na.indices) > 0) {
+            Printf('column %s has %d NA values\n', name, sum(na.indices))
+            na.found <- TRUE
+        }
+    }
+    !na.found
+}
+AllInformative <- function(data) {
+    # return TRUE iff every column has more than one unique value
+    found.just.1 <- FALSE
+    for (name in names(data)) {
+        v <- data[[name]]
+        num.unique <- length(unique(v))
+        stopifnot(num.unique > 0)
+        if (num.unique == 1) {
+            Printf('column %s has just 1 unique value\n', name)
+            found.just.1 <- TRUE
+        }
+    }
+    !found.just.1
+}
 
-################## Main program
+
+################## EXECUTION STARTS HERE
 clock <- Clock()
 
 default.args <-
@@ -469,9 +651,9 @@ default.args <-
          ,predictors     = 'always'
          ,ndays          = 30
          ,query          = 1
-         ,C              = NULL
-         ,ntree          = NULL
-         ,mtry           = NULL
+         ,C              = 0
+         ,ntree          = 0
+         ,mtry           = 0
          )
 control <- Control(default.args)
 
@@ -480,6 +662,8 @@ if (!exists('transaction.data')) {
     transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
                                               ,split.names = control$split.names
                                               )
+    stopifnot(AllAlwaysPresent(transaction.data))
+    stopifnot(AllInformative(transaction.data))
 }
 
 Main(control, transaction.data)
