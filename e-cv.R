@@ -29,7 +29,7 @@
 # --predictorsName {always|alwaysNoAssessment}
 # --ndays INT
 # --query INT: 1 / INT fraction of query transactions in a fold that are used
-# --C     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
+# --c     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
 # --ntree INT
 # --mtry  INT
 
@@ -78,7 +78,7 @@ Control <- function(default.args) {
               )
 
     # define splits we use
-    browser()
+    stopifnot(opt$predictorsName == 'always')  # for now, just handle these predictors
     predictors <- Predictors2( predictors.name = opt$predictorsName
                               ,predictors.form = opt$predictorsForm
                               )
@@ -89,7 +89,7 @@ Control <- function(default.args) {
     #testing <- TRUE
 
     out.base <-
-        sprintf( '%s-%s-%s-%s-%s-%s-%s-%s-%d-%d-%d-%d-%d'
+        sprintf( '%s_%s_%s_%s_%s_%s_%s_%s_%d_%d_%d_%d_%d'
                 ,me
                 ,opt$scope
                 ,opt$model
@@ -100,7 +100,7 @@ Control <- function(default.args) {
                 ,opt$predictorsForm
                 ,opt$ndays
                 ,opt$query
-                ,opt$C
+                ,opt$c
                 ,opt$ntree
                 ,opt$mtry
                 )
@@ -151,7 +151,7 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionChr('predictorsName', 'name of predictor set')
              ,OptionInt('ndays',          'number of days in training period')
              ,OptionInt('query',          ' 1 / <fraction of test sample used as queries>')
-             ,OptionInt('C',              '(1/lamdda) for regularized regression')
+             ,OptionInt('c',              '(1/lamdda) for regularized regression')
              ,OptionInt('ntree',          'number of trees (for randomForest)')
              ,OptionInt('mtry',           'number of features samples when growing tree (for randomForest)')
              )
@@ -167,7 +167,6 @@ EvaluatePredictions <- function(prediction, actual) {
     # ARGS
     # prediction: vector of predictions or NA
     # actual    : vector of actual values
-    #cat('start EvaluatePredictions\n'); browser()
 
     # most evaluations compare only where predictions are available
     is.prediction <- !is.na(prediction)
@@ -405,7 +404,7 @@ PredictLinear <- function(scenario, ndays, data.training, queries
 }
 Evaluate_10 <- function(scope, model, scenario, response
                        ,predictorsForm, predictorsName, ndays
-                       ,C, ntree, mtry
+                       ,c, ntree, mtry
                        ,data.training
                        ,queries
                        ,control
@@ -428,7 +427,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                ,linearReg    = PredictLinearReg   ( scenario = scenario
                                                    ,ndays = ndays
                                                    ,queries = queries
-                                                   ,C = C
+                                                   ,c = c
                                                    ,data.training = data.training
                                                    ,scope = scope
                                                    ,response = response
@@ -460,7 +459,7 @@ Evaluate_10 <- function(scope, model, scenario, response
 }
 Evaluate_11 <- function(scope, model, scenario, response
                        ,predictorsForm, predictorsName, ndays, query
-                       ,C, ntree, mtry
+                       ,c, ntree, mtry
                        ,data.training, data.testing
                        ,control) {
     # Return evaluation of the specified model on the given training and test data
@@ -482,7 +481,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                           ,predictorsForm = predictorsForm
                           ,predictorsName = predictorsName
                           ,ndays = ndays
-                          ,C = C
+                          ,c = c
                           ,ntree = ntree
                           ,mtry = mtry
                           ,data.training = data.training
@@ -493,7 +492,7 @@ Evaluate_11 <- function(scope, model, scenario, response
 }
 Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                         ,predictorsForm, predictorsName, ndays, query
-                        ,C, ntree, mtry
+                        ,c, ntree, mtry
                         ,data.training, data.testing
                         ,control) {
     # Return evaluation of the specified model on the given training and test data
@@ -516,7 +515,7 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                           ,predictorsName = predictorsName
                           ,ndays = ndays
                           ,query = query
-                          ,C = C
+                          ,c = c
                           ,ntree = ntree
                           ,mtry = mtry
                           ,data.training = data.training[is.training,]
@@ -543,7 +542,7 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                 ,predictorsName = hp$predictorsName
                 ,ndays = hp$ndays
                 ,query =  hp$query
-                ,C = hp$C
+                ,c = hp$c
                 ,ntree = hp$ntree
                 ,mtry = hp$mtry
                 ,data.training = data.training.fold
@@ -553,7 +552,6 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
     result
 }
 Main <- function(control, transaction.data.all.years) {
-    browser()
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
@@ -568,7 +566,7 @@ Main <- function(control, transaction.data.all.years) {
                      ,predictorsName = control$opt$predictorsName
                      ,ndays          = control$opt$ndays
                      ,query          = control$opt$query
-                     ,C              = control$opt$C
+                     ,c              = control$opt$c
                      ,ntree          = control$opt$ntree
                      ,mtry           = control$opt$mtry
                      )
@@ -590,7 +588,7 @@ Main <- function(control, transaction.data.all.years) {
 
     model.name = control$model.name
 
-    cv.result <- CrossValidate( data = transaction.data
+    cv.result <- CrossValidate( data = transaction.data.all.years
                                ,nfolds = control$nfolds
                                ,EvaluateModel = EvaluateModel
                                ,model.name = model.name
@@ -642,15 +640,15 @@ default.args <-
     list( scope          = 'global'
          ,model          = 'linear'
          ,timePeriod     = '2009'
-         ,scenario       = 'mortgage'
+         ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
          ,predictorsName = 'always'
-         ,ndays          = 30
-         ,query          = 1
-         ,C              = 0
-         ,ntree          = 0
-         ,mtry           = 0
+         ,ndays          = '120'
+         ,query          = '1'
+         ,c              = '0'
+         ,ntree          = '0'
+         ,mtry           = '0'
          )
 control <- Control(default.args)
 
