@@ -69,6 +69,12 @@ Predictors2 <- function(predictors.name, predictors.form) {
           ,'census.tract'
           ,'zip5'
           )
+    price <- 
+        c( 'price'
+          ,'price.log'
+          )
+
+
 
     Log <- function(v) {
         # list of names in log space
@@ -80,7 +86,9 @@ Predictors2 <- function(predictors.name, predictors.form) {
     }
 
     result.named <-
-        if (predictors.name == 'identification') {
+        if (predictors.name == 'price') {
+            price
+        } else if (predictors.name == 'identification') {
             identification
         } else if (predictors.name == 'always' && predictors.form == 'level') {
             c( always.house.not.assessment.size.positive
