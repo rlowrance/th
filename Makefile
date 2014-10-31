@@ -320,14 +320,15 @@ include e-cv-generate.makefile
 # E-CV-CHART
 # for now, all charts are produced by one program (which has no command line)
 
-e-cv-chart_chart1_dependencies.makefile : e-cv-chart.R
-	Rscript e-cv-chart.R
+# create and include make file to state dependencies in e-cv-chart output files
+e-cv-chart-generated.makefile: e-cv-chart.R
+	Rscript e-cv-chart.R --makefile
 
-# dependencies of the outputs of e-cv-chart.R that we use
-include e-cv-chart_chart1_dependencies.makefile
+include e-cv-chart-generated.makefile
 
 # stem is .
-$(working)/e-cv-chart_chart1_global_linear_2009_always%txt \
+$(working)/e-cv-chart_chart1%txt \
+$(working)/e-cv-chart_chart2%txt \
 : \
 e-cv-chart.R
 	Rscript e-cv-chart.R
@@ -756,7 +757,8 @@ $(working)/deeds-al-g.RData \
 $(working)/parcels-sfr.RData
 
 thesis-chapter-using-the-2008-assessment.Rnw : \
-$(working)/e-cv-chart_chart1_global_linear_2009_always.txt
+$(working)/e-cv-chart_chart1_global_linear_2009_always.txt \
+$(working)/e-cv-chart_chart2_global_linear_2009_alwaysNoAssessment.txt
 
 
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
