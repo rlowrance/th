@@ -104,278 +104,7 @@ MedianRMSE <- function(a.cv.result) {
     result <- median(rMedianSE.values)
     result
 }
-ReadAndCalculate <- function(predictorsName, actually.read) {
-    # keep track of input files read and perform Median RMSE calculations
-    file.names.read <- Lines()
-    
-    MedianRootMedianSE <- function(path.in.base, scenario, response, predictorsForm, ndays) {
-        path.in <- paste0( path.in.base
-                          ,'_global'
-                          ,'_linear'
-                          ,'_2009'
-                          ,'_', scenario
-                          ,'_', response
-                          ,'_', predictorsName
-                          ,'_', predictorsForm
-                          ,'_', ndays
-                          ,'_1'
-                          ,'_0'
-                          ,'_0'
-                          ,'_0'
-                          ,'.RData'
-                          )
-        file.names.read$Append(path.in)
-        if (actually.read) {
-            loaded <- load(path.in)
-            stopifnot(!is.null(control))
-            stopifnot(!is.null(cv.result))
-            stopifnot(!is.null(model.name))
-
-            # check for just one model in file
-            stopifnot(length(model.name) == 1)
-            stopifnot(length(cv.result) == 1)
-
-            median.RMSE <- MedianRMSE(cv.result[[1]])
-        } else {
-            median.RMSE <- NA
-        }
-    }
-
-    GetFileNamesRead <- function() {
-        file.names.read$Get()
-    }
-
-    list( MedianRootMedianSE = MedianRootMedianSE
-         ,GetFileNamesRead = GetFileNamesRead
-         )
-}
-MakeDependenciesOLD <- function(control, file.names.read) {
-    # return makefile lines for chart1 dependencies
-    # this is a dependency only rule (without a recipe)
-    lines <- Lines()
-
-    lines$Append(paste0(control$path.out.chart1.content, ' :\\'))
-    for (index in 1:length(file.names.read)) {
-        line <- paste0( file.names.read[[index]]
-                       ,if (index == length(file.names.read)) ' ' else ' \\'
-                       )
-        lines$Append(line)
-    }
-    result <- lines$Get()
-    result
-}
 Chart.1.2 <- function(my.control, predictorsName) {
-    # produce summary txt chart for global linear 2009 always
-    # Do not include the assessor scenario
-    # return list $text $dependencies
-
-    stopifnot(predictorsName == 'always' |
-              predictorsName == 'alwaysNoAssessment'
-              )
-    # these format lines must be edited as a group (15 columns)
-    # line fields: scenario / response / predictorsForm / 12 x ndays
-    case   <- '%8s %8s %5s'
-    header.format <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
-    data.format   <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
-
-    # accumulate into this object
-    lines <- Lines()
-
-    TableHeader <- function() {
-        lines$Append('Median of Root Median Squared Errors from Folds')
-        lines$Append('For global linear model')
-        lines$Append('Data from late 2008 and 2009')
-        lines$Append('Features Present in Every Transaction')
-        lines$Append(switch( predictorsName
-                            ,always = 'Using Assessments'
-                            ,alwaysNoAssessment = 'Not Using Assessments'
-                            )
-        )
-        lines$Append(' ')
-    }
-    DataHeaders <- function() {
-        # append headers to lines
-        lines$Append(sprintf( header.format
-                             ,' '
-                             ,' '
-                             ,'preds'  # abbreviate 'predictors' to fit into 6 columns
-                             ,'ndays'
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             ,' '
-                             )
-        )
-        lines$Append(sprintf( header.format
-                             ,'scenario'
-                             ,'response'
-                             ,'Form'
-                             ,'30'
-                             ,'60'
-                             ,'90'
-                             ,'120'
-                             ,'150'
-                             ,'180'
-                             ,'210'
-                             ,'240'
-                             ,'270'
-                             ,'300'
-                             ,'330'
-                             ,'360'
-                             )
-        )
-    }
-    read.and.calculate <- ReadAndCalculate(predictorsName, !my.control$testing)
-    DataRecord <- function(scenario, response, predictorsForm) {
-        # return one data record
-        MedianRMSE <-function(ndays) {
-            read.and.calculate$MedianRootMedianSE( control$path.in.base
-                                                  ,scenario
-                                                  ,response
-                                                  ,predictorsForm
-                                                  ,ndays
-                                                  )
-        }
-        line <- sprintf( data.format
-                        ,scenario
-                        ,response
-                        ,predictorsForm
-                        ,MedianRMSE(30)
-                        ,MedianRMSE(60)
-                        ,MedianRMSE(90)
-                        ,MedianRMSE(120)
-                        ,MedianRMSE(150)
-                        ,MedianRMSE(180)
-                        ,MedianRMSE(210)
-                        ,MedianRMSE(240)
-                        ,MedianRMSE(270)
-                        ,MedianRMSE(300)
-                        ,MedianRMSE(330)
-                        ,MedianRMSE(360)
-                        )
-        line
-    }
-
-    # BODY STARTS HERE
-
-    lines$Append(TableHeader())
-
-    lines$Append(DataHeaders())
-
-    # append data records
-    for (scenario in my.control$possible$scenario) {
-        if (scenario == 'avm' ||
-            scenario == 'mortgage') {
-            for (response in my.control$possible$response) {
-                for (predictorsForm in my.control$possible$predictorsForm) {
-                    cat('case', scenario, response, predictorsForm, '\n')
-                    data.record <- DataRecord(scenario, response, predictorsForm)
-                    lines$Append(data.record)
-                }
-            }
-        }
-    }
-    
-    file.names.read <- read.and.calculate$GetFileNamesRead()
-    dependencies <- MakeDependencies(control, file.names.read)
-
-    # return the accumulated lines
-    result <- list( text = lines$Get()
-                   ,dependencies = dependencies
-                   )
-    result
-}
-Chart1 <- function(my.control) {
-    Chart.1.2(my.control = my.control, predictorsName = 'always')
-}
-Chart2 <- function(my.control) {
-    Chart.1.2(my.control = my.control, predictorsName = 'alwaysNoAssessment')
-}
-ChartsOLD <- function(my.control) {
-    browser()
-    # produce all the charts
-    #cat('starting Charts\n'); browser()
-
-    if (!my.control$testing) {
-    chart1 <- Chart1(my.control)
-
-    writeLines( text = chart1$text
-               ,con = my.control$path.out.chart1.content
-               )
-    writeLines( text = chart1$dependencies
-               ,con = my.control$path.out.chart1.dependencies
-               )
-    }
-
-    chart2 <- Chart2(my.control)
-    writeLines( text = chart2$text
-               ,con = my.control$path.out.chart2.content
-               )
-    writeLines( text = chart2$dependencies
-               ,con = my.control$path.out.chart2.dependencies
-               )
-    return()
-
-
-    # OLD BELOW ME
-
-    # recover cetain values from the predictions
-    cv.result <- NULL
-    model.name <- NULL
-    loaded <- load(file = my.control$path.in)
-    str(loaded)  # NOTE: control has been replaced
-    stopifnot(!is.null(cv.result))
-    stopifnot(!is.null(model.name))
-
-    charts <- CrossValidateCharts(control, cv.result, model.name)
-
-    writeLines( text = charts$chart1
-               ,con = my.control$path.out.chart1
-               )
-
-    writeLines( text = charts$chart2
-               ,con = my.control$path.out.chart2
-               )
-
-    pdf( file = my.control$path.out.chart3
-        ,width = my.control$chart.width
-        ,height = my.control$chart.height
-        )
-    print(charts$chart3)
-    dev.off()
-
-    pdf( file = my.control$path.out.chart4
-        ,width = my.control$chart.width
-        ,height = my.control$chart.height
-        )
-    print(charts$chart4)
-    dev.off()
-    
-    pdf( file = my.control$path.out.chart5
-        ,width = my.control$chart.width
-        ,height = my.control$chart.height
-        )
-    print(charts$chart5)
-    dev.off()
-    
-    pdf( file = my.control$path.out.chart6
-        ,width = my.control$chart.width
-        ,height = my.control$chart.height
-        )
-    print(charts$chart6)
-    dev.off()
-}
-MedianRootMedianSE <- function(scenario, response, predictorsForm, ndays, my.control) {
-    # read file and perform calculation
-}
-Chart.1.2.New <- function(my.control, predictorsName) {
     # class object
     # methods
     # $FileDependencies()
@@ -594,8 +323,8 @@ Charts <- function(control) {
     # WORKING/e-cv-chart_chart1.txt
     # WORKING/e-cv-chart_chart2.txt
     
-    chart1 <- Chart.1.2.New(control, 'always')
-    chart2 <- Chart.1.2.New(control, 'alwaysNoAssessment')
+    chart1 <- Chart.1.2(control, 'always')
+    chart2 <- Chart.1.2(control, 'alwaysNoAssessment')
 
     chart.1.txt <- chart1$Txt()
     writeLines( text = chart.1.txt
@@ -606,6 +335,16 @@ Charts <- function(control) {
     writeLines( text = chart.2.txt
                ,con = control$path.out.chart.2
                )
+
+    return()
+    
+    # example of creating a pdf
+    pdf( file = my.control$path.out.chart3
+        ,width = my.control$chart.width
+        ,height = my.control$chart.height
+        )
+    print(charts$chart3)
+    dev.off()
 
 }
 Main <- function(control) {
