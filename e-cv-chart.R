@@ -2,9 +2,12 @@
 # main program
 # Produce charts using input files e-cv_SCOPE_MODEL_TIMEPERIOD_SCENARIO_RESPONSE_PREDICTORSFORM_PREDICTORS_NAME_NDAYS_QUERY_C_NTREE_MTRY.RData
 # output files have these names
-# e-cv-chart_SOMETHING.SUFFIX
+# WORKING/e-cv-chart_SOMETHING.SUFFIX
+# e-cv-chart.makefile
+#   describes all file dependencies for each chart
 #
-# Command line arguments: None
+# Command line arguments:
+# --makefile: FLAG, if present only create file e-cv-chart.makefile
 
 source('Directory.R')
 source('Libraries.R')
@@ -18,9 +21,9 @@ library(optparse)
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
-#    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
-#                            ,default.args
-#                            )
+    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
+                            ,default.args
+                            )
 
     me <- 'e-cv-chart' 
 
@@ -36,30 +39,32 @@ Control <- function(default.args) {
                 ,'e-cv'
                 )
 
+
     control <- list( path.in.base = paste0(working, in.base)
                     ,path.out.log = paste0(log, out.base, '.log')
-                    ,path.out.chart1.content = 
-                        paste0(working, out.base, '_chart1_global_linear_2009_always.txt')
-                    ,path.out.chart1.dependencies = 
-                        paste0(out.base, '_chart1_dependencies.makefile')
+                    ,path.out.makefile = paste0(me, '-generated.makefile')
+                    ,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
+                    ,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = FALSE
+                    ,testing = TRUE
                     ,debug = FALSE
                     ,possible = CvPossible()
+                    ,opt = opt
+                    ,me = me
                     )
     control
 }
 ParseCommandArgs <- function(command.args, default.args) {
     # return name list of values from the command args
-    opt.query <- make_option( opt_str = c('--query')
-                             ,action = 'store'
-                             ,type = 'double'
-                             ,default = default.args$query
-                             ,help = 'fraction of samples used as queries'
-                             )
-    option.list <- list( opt.query
+    flag.makefile <- make_option( opt_str = c('--makefile')
+                                 ,action = 'store_true'
+                                 ,type = 'logical'
+                                 ,default = default.args$makefile
+                                 ,help = 'if present, only produce the makefile'
+                                 )
+    option.list <- list( flag.makefile
                         )
     opt <- parse_args( object = OptionParser(option_list = option.list)
                       ,args = command.args
@@ -88,7 +93,7 @@ Lines <- function(max.size = 1000) {
 }
 MedianRMSE <- function(a.cv.result) {
     # there is only one model in the file
-    nfolds <- length(a.cv.result)  # this is where something is wrong; examine the cv.result structure to fix
+    nfolds <- length(a.cv.result)
     stopifnot(nfolds == 10)
     rMedianSE.values <- sapply(1 : nfolds,
                                function(fold.index) {
@@ -99,7 +104,7 @@ MedianRMSE <- function(a.cv.result) {
     result <- median(rMedianSE.values)
     result
 }
-ReadAndCalculate <- function() {
+ReadAndCalculate <- function(predictorsName, actually.read) {
     # keep track of input files read and perform Median RMSE calculations
     file.names.read <- Lines()
     
@@ -110,7 +115,7 @@ ReadAndCalculate <- function() {
                           ,'_2009'
                           ,'_', scenario
                           ,'_', response
-                          ,'_always'
+                          ,'_', predictorsName
                           ,'_', predictorsForm
                           ,'_', ndays
                           ,'_1'
@@ -120,16 +125,20 @@ ReadAndCalculate <- function() {
                           ,'.RData'
                           )
         file.names.read$Append(path.in)
-        loaded <- load(path.in)
-        stopifnot(!is.null(control))
-        stopifnot(!is.null(cv.result))
-        stopifnot(!is.null(model.name))
+        if (actually.read) {
+            loaded <- load(path.in)
+            stopifnot(!is.null(control))
+            stopifnot(!is.null(cv.result))
+            stopifnot(!is.null(model.name))
 
-        # check for just one model in file
-        stopifnot(length(model.name) == 1)
-        stopifnot(length(cv.result) == 1)
+            # check for just one model in file
+            stopifnot(length(model.name) == 1)
+            stopifnot(length(cv.result) == 1)
 
-        median.RMSE <- MedianRMSE(cv.result[[1]])
+            median.RMSE <- MedianRMSE(cv.result[[1]])
+        } else {
+            median.RMSE <- NA
+        }
     }
 
     GetFileNamesRead <- function() {
@@ -140,7 +149,7 @@ ReadAndCalculate <- function() {
          ,GetFileNamesRead = GetFileNamesRead
          )
 }
-MakeDependencies <- function(control, file.names.read) {
+MakeDependenciesOLD <- function(control, file.names.read) {
     # return makefile lines for chart1 dependencies
     # this is a dependency only rule (without a recipe)
     lines <- Lines()
@@ -153,14 +162,16 @@ MakeDependencies <- function(control, file.names.read) {
         lines$Append(line)
     }
     result <- lines$Get()
-    browser()
     result
 }
-Chart1 <- function(my.control) {
+Chart.1.2 <- function(my.control, predictorsName) {
     # produce summary txt chart for global linear 2009 always
     # Do not include the assessor scenario
     # return list $text $dependencies
 
+    stopifnot(predictorsName == 'always' |
+              predictorsName == 'alwaysNoAssessment'
+              )
     # these format lines must be edited as a group (15 columns)
     # line fields: scenario / response / predictorsForm / 12 x ndays
     case   <- '%8s %8s %5s'
@@ -175,6 +186,11 @@ Chart1 <- function(my.control) {
         lines$Append('For global linear model')
         lines$Append('Data from late 2008 and 2009')
         lines$Append('Features Present in Every Transaction')
+        lines$Append(switch( predictorsName
+                            ,always = 'Using Assessments'
+                            ,alwaysNoAssessment = 'Not Using Assessments'
+                            )
+        )
         lines$Append(' ')
     }
     DataHeaders <- function() {
@@ -216,8 +232,7 @@ Chart1 <- function(my.control) {
                              )
         )
     }
-    browser()
-    read.and.calculate <- ReadAndCalculate()
+    read.and.calculate <- ReadAndCalculate(predictorsName, !my.control$testing)
     DataRecord <- function(scenario, response, predictorsForm) {
         # return one data record
         MedianRMSE <-function(ndays) {
@@ -268,28 +283,43 @@ Chart1 <- function(my.control) {
         }
     }
     
-    browser()
     file.names.read <- read.and.calculate$GetFileNamesRead()
     dependencies <- MakeDependencies(control, file.names.read)
 
     # return the accumulated lines
-    browser()
     result <- list( text = lines$Get()
                    ,dependencies = dependencies
                    )
     result
 }
-Charts <- function(my.control) {
+Chart1 <- function(my.control) {
+    Chart.1.2(my.control = my.control, predictorsName = 'always')
+}
+Chart2 <- function(my.control) {
+    Chart.1.2(my.control = my.control, predictorsName = 'alwaysNoAssessment')
+}
+ChartsOLD <- function(my.control) {
+    browser()
     # produce all the charts
     #cat('starting Charts\n'); browser()
 
+    if (!my.control$testing) {
     chart1 <- Chart1(my.control)
-    browser()
+
     writeLines( text = chart1$text
                ,con = my.control$path.out.chart1.content
                )
     writeLines( text = chart1$dependencies
                ,con = my.control$path.out.chart1.dependencies
+               )
+    }
+
+    chart2 <- Chart2(my.control)
+    writeLines( text = chart2$text
+               ,con = my.control$path.out.chart2.content
+               )
+    writeLines( text = chart2$dependencies
+               ,con = my.control$path.out.chart2.dependencies
                )
     return()
 
@@ -342,19 +372,264 @@ Charts <- function(my.control) {
     print(charts$chart6)
     dev.off()
 }
+MedianRootMedianSE <- function(scenario, response, predictorsForm, ndays, my.control) {
+    # read file and perform calculation
+}
+Chart.1.2.New <- function(my.control, predictorsName) {
+    # class object
+    # methods
+    # $FileDependencies()
+    # $Txt()
+
+    # these format lines must be edited as a group (15 columns)
+    # line fields: scenario / response / predictorsForm / 12 x ndays
+    case   <- '%8s %8s %5s'
+    header.format <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
+    data.format   <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
+
+    ndays.range <- c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
+
+    PathIn <- function(scenario, response, predictorsForm, ndays) {
+        path.in <- paste0( my.control$path.in.base
+                          ,'_global'
+                          ,'_linear'
+                          ,'_2009'
+                          ,'_', scenario
+                          ,'_', response
+                          ,'_', predictorsName
+                          ,'_', predictorsForm
+                          ,'_', ndays
+                          ,'_1'
+                          ,'_0'
+                          ,'_0'
+                          ,'_0'
+                          ,'.RData'
+                          )
+        path.in
+    }
+
+    FileDependencies <- function() {
+        files <- Lines()
+        for (scenario in my.control$possible$scenario) {
+            if (scenario == 'avm' ||
+                scenario == 'mortgage') {
+                for (response in my.control$possible$response) {
+                    for (predictorsForm in my.control$possible$predictorsForm) {
+                        for (ndays in ndays.range) {
+                            path.in <- PathIn( scenario = scenario
+                                              ,response = response
+                                              ,predictorsForm = predictorsForm
+                                              ,ndays = ndays
+                                              )
+                            files$Append(path.in)
+                        }
+                    }
+                }
+            }
+        }
+        result <- files$Get()
+        result
+    }
+
+    DataRecords <- function() {
+        data.records <- Lines()
+        for (scenario in my.control$possible$scenario) {
+            if (scenario == 'avm' ||
+                scenario == 'mortgage') {
+                for (response in my.control$possible$response) {
+                    for (predictorsForm in my.control$possible$predictorsForm) {
+                        data.records$Append(DataRecord(scenario, response, predictorsForm))
+                    }
+                }
+            }
+        }
+        result <- data.records$Get()
+        result
+    }
+
+    DataRecord <- function(scenario, response, predictorsForm) {
+        M_RMSE <- function(ndays) {
+            path.in <- PathIn( scenario = scenario
+                              ,response = response
+                              ,predictorsForm = predictorsForm
+                              ,ndays = ndays
+                              )
+            load(path.in)
+            stopifnot(!is.null(cv.result))
+            stopifnot(length(cv.result) == 1)
+            median.RMSE <- MedianRMSE(cv.result[[1]])
+            median.RMSE
+
+        }
+        line <- sprintf( data.format
+                        ,scenario
+                        ,response
+                        ,predictorsForm
+                        ,M_RMSE(30)
+                        ,M_RMSE(60)
+                        ,M_RMSE(90)
+                        ,M_RMSE(120)
+                        ,M_RMSE(150)
+                        ,M_RMSE(180)
+                        ,M_RMSE(210)
+                        ,M_RMSE(240)
+                        ,M_RMSE(270)
+                        ,M_RMSE(300)
+                        ,M_RMSE(330)
+                        ,M_RMSE(360)
+                        )
+        line
+    }
+
+    HeaderRecords <- function() {
+        lines <- Lines()
+        lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
+        lines$Append('For global linear model')
+        lines$Append('Data from late 2008 and 2009')
+        lines$Append('Features Present in Every Transaction')
+        lines$Append(switch( predictorsName
+                            ,always = 'Using Assessments'
+                            ,alwaysNoAssessment = 'Not Using Assessment'
+                            ,stop('bad predictorsName')
+                            )
+        )
+        lines$Append(' ')
+        lines$Append(sprintf( header.format
+                             ,' '
+                             ,' '
+                             ,'preds'  # abbreviate 'predictors' to fit into 6 columns
+                             ,'ndays'
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             )
+        )
+        lines$Append(sprintf( header.format
+                             ,'scenario'
+                             ,'response'
+                             ,'Form'
+                             ,'30'
+                             ,'60'
+                             ,'90'
+                             ,'120'
+                             ,'150'
+                             ,'180'
+                             ,'210'
+                             ,'240'
+                             ,'270'
+                             ,'300'
+                             ,'330'
+                             ,'360'
+                             )
+        )
+        result <- lines$Get()
+        result
+    }
+
+    Txt <- function() {
+        lines <- Lines()
+
+        for (line in HeaderRecords()) {
+            lines$Append(line)
+        }
+
+        for (line in DataRecords()) {
+            lines$Append(line)
+        }
+
+        result <- lines$Get()
+        result
+    }
+
+
+
+    list( Txt = Txt
+         ,FileDependencies = FileDependencies
+         )
+}
+MakeMakefile <- function(control) {
+    # return Lines object with makefile content
+
+    chart1 <- Chart.1.2.New(control, 'always')
+    chart2 <- Chart.1.2.New(control, 'alwaysNoAssessment')
+
+    AppendDependencies <- function(target.file.name, dependency.file.names, lines) {
+        # append to lines
+        lines$Append(paste0(target.file.name, ': \\'))
+        last.index <- length(dependency.file.names)
+        for (index in 1:last.index) {
+            dependency.file.name <- dependency.file.names[[index]]
+            lines$Append(paste0( ' '
+                                ,dependency.file.name
+                                ,if (index == last.index) ' ' else ' \\'
+                                )
+            )
+        }
+        result <- lines
+        result
+    }
+
+    lines.1 <- AppendDependencies( target.file.name = control$path.out.chart1
+                                  ,dependency.file.names = chart1$FileDependencies()
+                                  ,lines = Lines()
+                                  )
+    lines.2 <- AppendDependencies( target.file.name = control$path.out.chart2
+                                  ,dependency.file.names = chart2$FileDependencies()
+                                  ,lines = lines.1
+                                  )
+    result <- lines.2$Get()
+    result
+}
+Charts <- function(control) {
+    browser()
+    # write chart files:
+    # WORKING/e-cv-chart_chart1.txt
+    # WORKING/e-cv-chart_chart2.txt
+    
+    chart1 <- Chart.1.2.New(control, 'always')
+    chart2 <- Chart.1.2.New(control, 'alwaysNoAssessment')
+
+    chart.1.txt <- chart1$Txt()
+    writeLines( text = chart.1.txt
+               ,con = control$path.out.chart.1
+               )
+
+    chart.2.txt <- chart2$Txt()
+    writeLines( text = chart.2.txt
+               ,con = control$path.out.chart.2
+               )
+
+}
 Main <- function(control) {
     browser()
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    Charts(control)
+    # either produce the makefile or create the charts
+    if (control$opt$makefile) {
+        makefile <- MakeMakefile(control)
+        writeLines( text = makefile
+                   ,con = control$path.out.makefile
+                   )
+    } else {
+        Charts(control)
+    }
+
     str(control)
 }
 
 
 ### Execution starts here
 
-default.args <- NULL  # for now, no command line
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
