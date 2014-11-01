@@ -737,6 +737,27 @@ $(working)/e-training-period--%-0.010000.txt \
 : $(e-training-period-dependencies)
 	Rscript e-training-period.R --testSampleFraction 0.010000
 
+# E-VERIFY-ASSESSMENT
+
+$(working)/e-verify-assessment.RData : e-verify-assessment.R
+	Rscript e-verify-assessment.R
+
+e-verify-assessment-data += $(dependencies.identification)
+e-verify-assessment-data += $(splits)/total.assessment.RData
+e-verify-assessment-data += $(splits)/price.RData
+
+e-verify-assessment.R: \
+  Directory.R Libraries.R Predictors2.R ReadTransactionSplits.R $(e-verify-assessment-data)
+
+# E-VERIFY-ASSESSMENT-CHART
+
+$(working)/e-verify-assessment-chart_chart1.pdf \
+: \
+e-verify-assessment-chart.R
+	Rscript e-verify-assessment-chart.R
+
+e-verify-assessment-chart.R : \
+	Directory.R Libraries.R ChartCleveland01.R $(working)/e-verify-assessment.RData
 
 
 # PDF files (and accompanying tex files)
@@ -783,7 +804,8 @@ $(working)/e-cv-chart_chart1.txt \
 $(working)/e-cv-chart_chart2.txt \
 $(working)/e-cv-chart_chart3.txt \
 $(working)/e-price-chart_chart1.pdf \
-$(working)/e-price-chart_chart2.pdf
+$(working)/e-price-chart_chart2.pdf \
+$(working)/e-verify-assessment-chart_chart1.pdf
 
 
 
