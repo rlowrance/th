@@ -59,26 +59,25 @@ Control <- function(default.args) {
     # validate each command arg
 
     stopifnot(opt$ndays > 0)
-    stopifnot(  opt$predictorsName == 'always'
-              ||opt$predicrors == 'alwaysNoAssessment'
+    stopifnot( opt$predictorsName == 'always'
+              |opt$predictorsName == 'alwaysNoAssessment'
               )
-    stopifnot(  opt$predictorsForm == 'level'
-              ||opt$predictorsForm == 'log'
+    stopifnot( opt$predictorsForm == 'level'
+              |opt$predictorsForm == 'log'
               )
     stopifnot(opt$query > 0)
-    stopifnot(  opt$scenario == 'assessor'
-              ||opt$scenario == 'avm'
-              ||opt$scenario == 'mortgage'
+    stopifnot( opt$scenario == 'assessor'
+              |opt$scenario == 'avm'
+              |opt$scenario == 'mortgage'
               )
-    stopifnot(  opt$response == 'logprice'
-              ||opt$response == 'price'
+    stopifnot( opt$response == 'logprice'
+              |opt$response == 'price'
               )
-    stopifnot(  opt$timePeriod == '2003'
-              ||opt$timePeriod == '2009'
+    stopifnot( opt$timePeriod == '2003'
+              |opt$timePeriod == '2009'
               )
 
     # define splits we use
-    stopifnot(opt$predictorsName == 'always')  # for now, just handle these predictors
     predictors <- Predictors2( predictors.name = opt$predictorsName
                               ,predictors.form = opt$predictorsForm
                               )
@@ -250,8 +249,6 @@ MakeFormula <- function(data, scope, response, predictorsForm, predictorsName, c
     # --predictorsName {always|alwaysNoAssessment}
     # NOTE: if non-informative features are not dropped, lm() works and predict() fails
 
-    # for now, just implement predictorsName == always
-    stopifnot(predictorsName == 'always')
 
     # an informative predictor has more than one value
     all.predictors.with.year<- Predictors2( predictors.name = predictorsName
@@ -643,7 +640,7 @@ default.args <-
          ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
-         ,predictorsName = 'always'
+         ,predictorsName = 'alwaysNoAssessment'
          ,ndays          = '120'
          ,query          = '1'
          ,c              = '0'
