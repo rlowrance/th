@@ -18,7 +18,7 @@ Control <- function(default.args) {
                     ,path.out.log = paste0(log, me, '.log')
                     ,path.out.chart1 = paste0(working, me, '_chart1.pdf')
                     ,path.out.chart2 = paste0(working, me, '_chart2.pdf')
-                    ,show.chart = TRUE
+                    ,show.chart = FALSE
                     ,write.chart = TRUE
                     ,chart.width  = 14  # inches
                     ,chart.height = 10  # inches
@@ -59,11 +59,11 @@ Chart1 <- function(control, data) {
             }
         }
     }
-    chart <- Cleveland( labels = sapply(labels, function(x) x)
-                       ,values = sapply(values, function(x) x)
-                       ,label.axis = 'year-month'
-                       ,value.axis = 'fraction of transactions with (price - assessment) = 0'
-                       )
+    chart <- ChartCleveland01( labels = sapply(labels, function(x) x)
+                              ,values = sapply(values, function(x) x)
+                              ,label.axis = 'year-month'
+                              ,value.axis = 'fraction of transactions with (price - assessment) = 0'
+                              )
                        
     chart
 }
