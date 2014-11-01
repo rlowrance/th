@@ -4,6 +4,8 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('ChartCleveland01.R')
+
 library(ggplot2)
 
 Control <- function(default.args) {
@@ -38,35 +40,6 @@ ReadData <- function(my.control) {
                    )
     result
 }
-Cleveland <- function(labels, values, label.axis.name, value.axis.name) {
-    # return ggplot2 object, a Cleveland Dot plot
-    # df$value: num, the plot point
-    # df$label: chr name for the plot point
-    # ref: R Graphics Cookbook p.42 and following
-    y.factor <- factor( labels
-                       ,levels = sort(labels, decreasing = TRUE)
-                       )
-    df <- data.frame( x = values
-                     ,y = y.factor
-                     )
-    gg <- ggplot( df
-                 ,aes( x = x
-                      ,y = y
-                      )
-                 )
-    g <-
-        gg +
-        geom_point(size = 3) +
-        xlim(0, max(df$x)) +
-        xlab(value.axis.name) +
-        ylab(label.axis.name) +
-        theme_bw() +
-        theme( panel.grid.major.x = element_blank()
-              ,panel.grid.minor.y = element_blank()
-              ,panel.grid.major.x = element_blank()
-              )
-    g
-}
 Chart1 <- function(control, data) {
     # Cleveland plot by year 1984 - 2009
     #cat('Chart1\n'); browser()
@@ -78,11 +51,11 @@ Chart1 <- function(control, data) {
     chart.data <- data$by.year[in.chart,]
 
     # produce the chart
-    chart <- Cleveland( labels = sprintf('%4d', chart.data$year)
-                       ,values = chart.data$median.price
-                       ,label.axis = 'year'
-                       ,value.axis = 'median price'
-                       )
+    chart <- ChartCleveland01( labels = sprintf('%4d', chart.data$year)
+                              ,values = chart.data$median.price
+                              ,label.axis = 'year'
+                              ,value.axis = 'median price'
+                              )
                        
     chart
 }
@@ -108,11 +81,11 @@ Chart2 <- function(control, data) {
     }
 
     # produce the chart
-    chart <- Cleveland( labels = sapply(labels, function(x) x)
-                       ,values = sapply(values, function(x) x)
-                       ,label.axis = 'year-month'
-                       ,value.axis = 'median price'
-                       )
+    chart <- ChartCleveland01( labels = sapply(labels, function(x) x)
+                              ,values = sapply(values, function(x) x)
+                              ,label.axis = 'year-month'
+                              ,value.axis = 'median price'
+                              )
                        
     chart
 }
