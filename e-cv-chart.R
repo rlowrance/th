@@ -47,7 +47,7 @@ Control <- function(default.args) {
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = TRUE
+                    ,testing = FALSE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
