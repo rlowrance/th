@@ -326,9 +326,12 @@ e-cv-chart-generated.makefile: e-cv-chart.R
 
 include e-cv-chart-generated.makefile
 
+e-cv-chart.R: Directory.R Libraries.R
+
 # stem is .
 $(working)/e-cv-chart_chart1%txt \
 $(working)/e-cv-chart_chart2%txt \
+$(working)/e-cv-chart_chart3%txt \
 : \
 e-cv-chart.R
 	Rscript e-cv-chart.R
@@ -757,8 +760,9 @@ $(working)/deeds-al-g.RData \
 $(working)/parcels-sfr.RData
 
 thesis-chapter-using-the-2008-assessment.Rnw : \
-$(working)/e-cv-chart_chart1_global_linear_2009_always.txt \
-$(working)/e-cv-chart_chart2_global_linear_2009_alwaysNoAssessment.txt
+$(working)/e-cv-chart_chart1.txt \
+$(working)/e-cv-chart_chart2.txt \
+$(working)/e-cv-chart_chart3.txt
 
 
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
