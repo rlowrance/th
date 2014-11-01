@@ -94,14 +94,14 @@ Chart2 <- function(control, data) {
     labels <- list()
     values <- list()
     index <- 0
-    for (year in 2007:2009) {
+    for (year in 2006:2009) {
         for (month in 1:12) {
             median.price <- data$by.month[data$by.month$year == year &
                                           data$by.month$month == month,
                                           ]$median.price
             if (!is.na(median.price)) {
                 index <- index + 1
-                labels[[index]] <- sprintf('%4d-%2d', year, month)
+                labels[[index]] <- sprintf('%4d-%02d', year, month)
                 values[[index]] <- median.price
             }
         }
