@@ -544,6 +544,25 @@ e-penalized-regression-dependencies += $(splits)/saleDate.RData
 
 # TODO: add for all splits (above is for chopra's splits)
 
+# E-PRICE
+
+$(working)/e-price.RData : e-price.R
+	Rscript e-price.R
+
+e-price.R : Directory.R Libraries.R ReadTransactionsSubset1.R $(working)/transactions-subset1.RData
+
+# E-PRICE-CHART
+
+# stem is .
+$(working)/e-price-chart_chart1%pdf \
+$(working)/e-price-chart_chart2%pdf \
+: \
+e-price-chart.R 
+	Rscript e-price-chart.R
+	
+e-price-chart.R : Directory.R Libraries.R $(working)/e-price.RData
+
+
 # E-RANDOM-FORESTS-GLOBAL 
 
 $(working)/e-random-forests-global--hpset-a--year-2003-month-jan.RData \
@@ -762,7 +781,10 @@ $(working)/parcels-sfr.RData
 thesis-chapter-using-the-2008-assessment.Rnw : \
 $(working)/e-cv-chart_chart1.txt \
 $(working)/e-cv-chart_chart2.txt \
-$(working)/e-cv-chart_chart3.txt
+$(working)/e-cv-chart_chart3.txt \
+$(working)/e-price-chart_chart1.pdf \
+$(working)/e-price-chart_chart2.pdf
+
 
 
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
