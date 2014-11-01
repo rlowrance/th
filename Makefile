@@ -739,25 +739,37 @@ $(working)/e-training-period--%-0.010000.txt \
 
 # E-VERIFY-ASSESSMENT
 
-$(working)/e-verify-assessment.RData : e-verify-assessment.R
-	Rscript e-verify-assessment.R
-
 e-verify-assessment-data += $(dependencies.identification)
 e-verify-assessment-data += $(splits)/total.assessment.RData
 e-verify-assessment-data += $(splits)/price.RData
 
-e-verify-assessment.R: \
-  Directory.R Libraries.R Predictors2.R ReadTransactionSplits.R $(e-verify-assessment-data)
+e-verify-assessment-source += e-verify-assessment.R
+e-verify-assessment-source += Directory.R
+e-verify-assessment-source += Predictors2.R
+e-verify-assessment-source += ReadTransactionSplits.R
+
+$(working)/e-verify-assessment.RData : $(e-verify-assessment-source) $(e-verify-assessment-data)
+	Rscript e-verify-assessment.R
+
 
 # E-VERIFY-ASSESSMENT-CHART
 
+e-verify-assessment-chart-data += $(working)/e-verify-assessment.RData
+
+e-verify-assessment-chart-source += e-verify-assessment-chart.R
+e-verify-assessment-chart-source += Directory.R
+e-verify-assessment-chart-source += Libraries.R
+e-verify-assessment-chart-source += ChartCleveland01.R
+
 $(working)/e-verify-assessment-chart_chart1.pdf \
 : \
-e-verify-assessment-chart.R
+$(e-verify-assessment-chart-source) \
+$(e-verify-assessment-chart-data)
 	Rscript e-verify-assessment-chart.R
 
-e-verify-assessment-chart.R : \
-	Directory.R Libraries.R ChartCleveland01.R $(working)/e-verify-assessment.RData
+
+#e-verify-assessment-chart.R : \
+#	Directory.R Libraries.R ChartCleveland01.R $(working)/e-verify-assessment.RData
 
 
 # PDF files (and accompanying tex files)
@@ -779,35 +791,33 @@ e-verify-assessment-chart.R : \
 .PHONY: thesis
 thesis: $(working)/thesis.pdf
 
-$(working)/thesis.pdf : \
-thesis.Rnw \
-thesis-chapter-introduction.Rnw \
-thesis-chapter-literature-review.tex \
-thesis-chapter-data-munging.Rnw \
-thesis-chapter-taxonomy.Rnw \
-thesis-chapter-using-the-2008-assessment.Rnw 
+thesis-chapters += thesis-chapter-introduction.Rnw
+thesis-chapters += thesis-chapter-literature-review.tex
+thesis-chapters += thesis-chapter-data-munging.Rnw
+thesis-chapters += thesis-chapter-taxonomy.Rnw
+thesis-chapters += thesis-chapter-using-the-2008-assessment.Rnw
+
+thesis-data-data-munging += $(working)/transactions.RData
+thesis-data-data-munging += $(working)/transactions-subset1.RData
+thesis-data-data-munging += $(working)/deeds-al-g.RData
+thesis-data-data-munging += $(working)/parcels-sfr.RData
+
+thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart1.txt
+thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart2.txt
+thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart3.txt
+thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart1.pdf
+thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart2.pdf
+thesis-data-using-the-2008-assessment += $(working)/e-verify-assessment-chart_chart1.pdf
+
+thesis-data += $(thesis-data-data-munging)
+thesis-data += $(thesis-data-using-the-2008-assessment)
+
+$(working)/thesis.pdf : thesis.Rnw $(thesis-chapters) $(thesis-data)
 	Rscript -e "library('knitr'); knit('thesis.Rnw')"
 	pdflatex thesis.tex
 	mv thesis.pdf $(working)/
 	mv thesis.tex $(tex)/
 	
-
-# data dependencies for thesis chapters
-thesis-chapter-data-munging.Rnw : \
-$(working)/transactions.RData \
-$(working)/transactions-subset1.RData \
-$(working)/deeds-al-g.RData \
-$(working)/parcels-sfr.RData
-
-thesis-chapter-using-the-2008-assessment.Rnw : \
-$(working)/e-cv-chart_chart1.txt \
-$(working)/e-cv-chart_chart2.txt \
-$(working)/e-cv-chart_chart3.txt \
-$(working)/e-price-chart_chart1.pdf \
-$(working)/e-price-chart_chart2.pdf \
-$(working)/e-verify-assessment-chart_chart1.pdf
-
-
 
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
 
