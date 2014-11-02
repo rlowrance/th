@@ -524,7 +524,7 @@ if (!exists('transaction.data')) {
                                               ,split.names = control$split.names
                                               )
     # add sale year and sale month
-    splitDate <- SplitDate(transaction.data$saleDate)
+    splitDate <- SplitDate(transaction.data$recordingDate)
     data <- data.frame( sale.year = splitDate$year
                        ,sale.month = splitDate$month
                        ,price = transaction.data$price
