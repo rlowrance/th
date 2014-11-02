@@ -314,6 +314,9 @@ e-cv-data += $(predictors2.prices)
 
 e-cv-source += Directory.R
 e-cv-source += Libraries.R
+e-cv-source += PredictLinear.R
+e-cv-source += PredictLinearReg.R
+e-cv-source += PredictRandomForest.R
 e-cv-source += Predictors2.R
 e-cv-source += ReadTransactionSplits.R
 e-cv-source += Directory.R
