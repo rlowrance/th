@@ -73,8 +73,8 @@ Control <- function(default.args) {
     stopifnot( opt$response == 'logprice'
               |opt$response == 'price'
               )
-    stopifnot( opt$timePeriod == '2003'
-              |opt$timePeriod == '2009'
+    stopifnot( opt$timePeriod == '2003on'
+              |opt$timePeriod == '2008'
               )
 
     # define splits we use
@@ -143,7 +143,7 @@ ParseCommandArgs <- function(command.args, default.args) {
     option.list <-
         list( OptionChr('scope',          'one of {global, submarket, submarketIndicator}')
              ,OptionChr('model',          'one of {linear, linearReg, randomForest}')
-             ,OptionChr('timePeriod',     'one of {2003|2009}')
+             ,OptionChr('timePeriod',     'one of {2003on|2008}')
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
              ,OptionChr('response',       'one of {logprice|price}')
              ,OptionChr('predictorsForm', 'one of {level|log}')
@@ -494,15 +494,24 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                         ,control) {
     # Return evaluation of the specified model on the given training and test data
     # Reduce over timePeriod
-    first.date <-
-        switch( timePeriod
-               ,'2009' = as.Date('2008-11-01')
-               ,'2003' = as.Date('2003-01-01')
-               ,stop('unimplemented opt$timePeriod')
-               )
-
-    is.training <- data.training$saleDate >= first.date
-    is.testing <- data.testing$saleDate >= first.date
+    if (timePeriod == '2008') {
+        # just year 2008
+        first.date <- as.Date('2008-01-01')
+        last.date  <- as.Date('2008-12-31')
+        is.training <- 
+            data.training$saleDate >= first.date &
+            data.training$saleDate <= last.date
+        is.testing <- 
+            data.testing$saleDate >= first.date &
+            data.testing$saleDate <= last.date
+    } else if (timePeriod == '2003on') {
+        # after Jan 1 2003
+        first.date <- as.Date('2003-01-01')
+        is.training <- data.training$saleDate >= first.date
+        is.testing  <- data.testing$saleDate  >= first.date
+    } else {
+        stop('bad timePeriod')
+    }
 
     result <- Evaluate_11( scope = scope
                           ,model = model
@@ -636,7 +645,7 @@ clock <- Clock()
 default.args <-
     list( scope          = 'global'
          ,model          = 'linear'
-         ,timePeriod     = '2009'
+         ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
