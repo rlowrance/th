@@ -9,7 +9,7 @@
 
 %%%%%%%%%%%%%%%%%%% PREAMBLE
 
-\documentclass[12pt]{amsbook}  
+\documentclass[12pt,onesided]{amsbook}  
 %\documentclass[12pt,draft]{amsbook}  
 % draft ==> print slug in margin if line too wide and boxes for figures
 
@@ -26,6 +26,9 @@
 \usepackage{setspace}  % ref: Gratzer p 99
 \doublespacing
 
+% ref: tex.stackexchange.com/questions/44427/rotate-picture-with-caption
+\usepackage{rotating}
+\usepackage{rotfloat}
 
 %\usepackage[all]{xy}   %xy-pic
 
@@ -194,7 +197,7 @@ About <- function(x) {
 %\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
 \chapter{Data Munging} Dummy text.
 
-\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
+%\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
 \Sexpr{knit_child('thesis-chapter-using-the-2008-assessment.Rnw')}
 %\Sexpr{knit_child('thesis-chapter-how-valuable-is-the-2008-assessment.Rnw')}
 \chapter{How Valuables is the Year 2000 Census?}
@@ -210,7 +213,7 @@ Models?}
 \appendix
 \chapter{First Appendix Title}
 
-\bibliographystyle{amsplain}
+\bibliographystyle{amsalpha}
 \bibliography{../../roy-bib/roy-bib}
 
 \end{document}
