@@ -152,6 +152,12 @@ These two axis results in six feature sets.
   \item Non-size features: effective year built, year built, whether
   there is a pool, whether the house is newly consructure; whether the
   five-digit zip code has a park, retal stores, a school, and industry.
+  When constructing the models, the year and effective year built
+  features are converted to age, age squared, effective age, and
+  effective age squared using the sale date from the query transaction.
+  This conversion is made because using age and age squared as features
+  is popular in the literature. The idea is that older houses should
+  depreciate for a while and then gain in value as they become classics.
   \end{itemize}
 
 \end{itemize}
@@ -193,7 +199,11 @@ respone variable linearly with a percentage change in the predictor
 variable or with a unit change in the predictor variable. When the
 percent change model is true, transforming the feature the the log
 domain is appropriate. Otherwise, keeping the feature in its natural
-units is appropriate.
+units is appropriate. Computationally, the size variables are
+partitioned into those that may be zero and those that are always
+positive. Those that may be zero are transformed into the log domain by
+adding one and taking the log. The positive variables are transformed by
+taking the log.
 
 \item Number of days of training data. Prices were moving rapidly
 downward in 2007. With linear models, using a longer period for the
