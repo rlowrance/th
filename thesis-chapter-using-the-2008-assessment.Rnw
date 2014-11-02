@@ -3,113 +3,301 @@
 % vim: foldmethod=manual
 
 <<Assessment2008>>=
+working <- control$working
+path.cv <- paste0(working, 'e-cv-chart_chart3.txt')
+path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
+path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
 @
 
-The 2008 assessment for Los Angeles Country was issued November 1, 2008.
-Because of the way California real estate assessment work, the
-assessment is an upper bound on the value of the property for some
-vaguely-defined date between November 1, 2007 and October 31, 2008. If
-the property sold at arms length during this vague period, the
-assessment is the price.
+Intro goes here
 
-The assessor provides an estimate of the maximum value of the land and
-the maximum value of the improvements on the land. We are interested in
-comparing the performance of parts of the real estate model taxonomy. We
-start with estimating prices for houses that transacted after the
-assessment was available, that is, starting November 1, 2008 and running
-until October 31, 2009.
+\section{Understanding the Real Estate Tax Assessment}
 
-For now, all of the models are linear and all of the models use all
-the features available in all the transactions in subset 1.
 
-The features available in all transactions in subset 1 can be broken
-into three groups: features from the assessment, features of the
-location of the property, and features of the property itself. This work
-did not use latitude and longitude as features.
+% including a pdf
+\begin{figure}[h]
+\caption{
+Fraction of Property Sales for Exactly Their 2008 Assessments //
+By Month of Recording Date
+}
+\label{figure:AssessmentExactlyEqual}
+\centering\includegraphics[scale=.4]{\Sexpr{path.verify}}
+\end{figure}
 
-The features from the assessment are the land value and the improvement
-value. 
+In the United States, local government is often financed in part through
+real estate taxes \cite{wiki-14-property-tax}. The taxing authority,
+often a county, creates a Tax Assessor who values the land and the
+improvements on the land. The resulting assessed values are used to
+determine the assessment, the amount of taxes due. For example, the
+assessment may be calculated as a fraction of the total assessed value
+of the land and its improvements.  The assessed value may be the market
+value or a stated fraction of the market value or, as in California,
+have some other relationship to market values.  How often the
+assessments are carried out depends on the taxing authority.
 
-The features of the location can be broken into two groups. One group is
-features derived from the U.S. decinial census. These features are:
+The tax assessment is possibly a useful feature to know when creating
+real estate valuation models. Figure \ref{figure:AssessmentExactlyEqual}
+depicts the fraction of residential properties recorded in certain
+months in Los Angles Country relative to what is called the 2008 tax
+assessment.  We see that in the period July, 2007 through December,
+2007, many of the properties, about 90 percent, sold for exactly their
+assessed values. This did not happen in other periods. How did this
+happen?
+
+The answers lies in the nature of the property tax system in Los Angeles
+County. According to the website of the Los Angeles Country Office of
+the Assessor \cite{lac-14-real-property-assessments}, the Assessor
+determines the assessed value for property, the Auditor-Controller
+applies the appropriate tax rate for the property, and the Treasurer \&
+Tax Collector mails out the bills and collect the money.
+
+California Proposition 13 \cite{californiataxdata-14-prop13}, passed in
+1978, changed the relationship between market values and assessed
+values. Assessments were reset to their 1976 levels.  Increases from the
+1976 level were limited to two percent per year, unless the property
+sold (with a few exceptions). Properties that sold were assessed at
+their selling prices.
+
+%Our focus is on the assessed value. In
+%this section, we further focus on the total assessed value, the sum of
+%the assessed values for the land and any improvements (buildings and
+%structures) on the land. California law defines the assessed value using
+%the market value as a starting point. Several major cases are recognized (minor cases
+%are not documented here):
+%\begin{itemize}
+%\item The property sold or was inherited. The assessed value becomes the
+%market value. There are exceptions for transfers between husband and
+%wife and domestic partners and a few other situations. The date for the
+%adjustment is the recording date, not the sale date.
+%\item New construction was completed on the property. The improvement
+%value is increased to reflect the value of the new construction. The
+%value of the improvement comes from construction permits.
+%\item The property neither sold nor had completed new construction. This
+%is the most interesting case. The previous assessed value is adjusted to
+%reflect movement in market values, however the adjustment is never more
+%than two percent per annum, no matter the rate of inflation.
+%\end{itemize}
+
+
+The net effect is the that Assessor's total assessed value is below the
+market value in periods with inflation of more than two percent for
+homes that did not sell in the previous year.
+
+In addition, California Proposition 8, also passed in 1978
+\cite{caboe-14-prop8} provides for a temporary reduction in assessed
+values when the value of a property falls. The effect is to reinforce
+that total assessed values can be below market values.
+
+One final note on timing. The tax bills are mailed between October 1 and
+October 31 \cite{lac-14-important-dates-for-homeowners} with initial
+payment due on November 1. The fiscal year for Los Angeles Country
+begins July 1.
+
+Now we have the background to hypothesize an explanation for the many
+zero-error points in the second half of 2007 in Figure
+\ref{figure:AssessmentExactlyEqual}. The Assessor sets the assessment
+for 2008 equal to the transaction prices for properties transacted in
+2007 starting in July. Because property values were changing rapidly in
+around the time that the tax bills were sent out, properties transacting
+before July in 2007 were assessed at some value other than market value. The figure
+reflects recording dates, which tend to lag sales dates by a few months.
+Thus the properties reported as transacting in November and December in
+many cases would have transacted a few months early, say ending in
+roughly October. The last day for publishing tax assessment is October
+31.
+
+\section{Testing the Predictive Value of the Assessment}
+
+We turn now to a key question: to what extent is the assessed value
+useful in predicting real estate prices when using linear models?
+
+To answer this question, we compare two linear models that are otherwise
+identical except for the feature sets used. One model uses the tax data,
+one does not. In order to assess which of the two models is better, we
+estimate the generalization error from each model using 10-fold cross
+validation.
+
+The common feature set across each model contains all the features that
+were present in every transaction of subset 1. The structures were
+structured into six groups along two axis. The first axis is the source
+of the feature: from the tax bills, from the U.S.
+Census Bureau, from the deeds file. The second axis is whether the
+feature describes the size of the property: yes or no.
+
+% ref: Predictors2.R
+These two axis results in six feature sets.
 \begin{itemize}
-\item the average commute time in minutes
-\item whether the census tract has any parcels that are for industry
-\item whether the census tract has a park
-\item whether the census tract has any retail stores
-\item whether the census tract has a school
-\item the fraction of houses that are owner occupied
-\item the median household income
+
+\item From the tax bills presented in late 2007.
+  \begin{itemize}
+  \item Property size features: improvement value, land value.
+  \item Non-size features: fraction improvement value (ratio of the
+  improvement value to the sum of the improvement and land values).
+  \end{itemize}
+
+\item From the U.S. Census Bureau decennial census in year 2000.
+  \begin{itemize}
+  \item Property size features: there are no such features.
+  \item Non-size features: average commute time; fraction of houses that
+  are owned by the occupants; median houshold income; whether the census
+  tract has a park, retail stores, a school, and industry.
+  \end{itemize}
+
+\item From the deeds file from the years 1984 through 2009.
+  \begin{itemize}
+  \item Property size features: land square footage, living area,
+  basement square feet, number of bathrooms, number of bedrooms, number
+  of fireplaces, number of parking spaces, number of stories, and number
+  of rooms.
+  \item Non-size features: effective year built, year built, whether
+  there is a pool, whether the house is newly consructure; whether the
+  five-digit zip code has a park, retal stores, a school, and industry.
+  \end{itemize}
+
 \end{itemize}
 
-The other group of features that are location specific are derived from
-the zip 5 codes. These features are:
+In addition to varying the feature set, we varied other design choices
+in linear models:
 \begin{itemize}
-\item whether the zip code has any parcels that are for industry
-\item whether the zip code has a park
-\item whether the zip code has any retail stores
-\item whether the census tract has a school
+
+\item Business scenario for the model. We tested by the AVM and mortgage
+scenarios. In the AVM scenario, the goal is to predict the price in the
+next day and the training data is all the data before the query date of
+the transaction. In the mortgage scenario,the goal is to predict the
+value at some date in the past and the training data is all the data
+excluding the query transaction and hence including transactions after
+the query date. One application for the mortgage scenario is to
+determine the value of a house on every day as input to a mortgage
+default prediction model. The training data for a default prediction
+model may include the value of the house and the value of the mortgage
+on specific dates.
+
+\item Response variable. One can choose to predict the price of the
+house or the logarithm of the price. One might choose to predict the
+logarithm in order to reduce the range of outcomes to be predicted.
+House prices in Los Angeles County are not uniformly distributed across
+a range. The log transformation hopes to put the prediction variable on
+a more compressed scale and hopes that the training regime results in
+better predictions on average by reducing the importance of errors for
+very expensive properties.
+
+\item Prediction variable forms. One can choose to predict using the
+natural units for the predictor features or by transforming some of
+those features into the log domain. At least three ideas might lead one to
+transform features into the log domain. One idea is simply to compress a
+range of larger values into smaller values. A second idea would be to
+transform the input features into a distribution that allowed one to
+more easily calculate error bars on resulting predictions. A third idea
+is to reflect a hypothetical data generating process: it may be that the
+respone variable linearly with a percentage change in the predictor
+variable or with a unit change in the predictor variable. When the
+percent change model is true, transforming the feature the the log
+domain is appropriate. Otherwise, keeping the feature in its natural
+units is appropriate.
+
+\item Number of days of training data. Prices were moving rapidly
+downward in 2007. With linear models, using a longer period for the
+training data runs the risk of irrelevance of the training data to the
+query date. If prices were stable, more training data could provide a
+more accurate average price.
+
 \end{itemize}
 
-Features of the property itself are these:
-\begin{itemize}
-\item the kind of air conditioning
-\item square feet in the basement (possibly 0)
-\item number of bathrooms
-\item number of bedrooms
-\item the condition of the property
-\item the effective year built (last year of major remodeling)
-\item the kind of exterior walls
-\item the kind of foundation
-\item the kind of heating
-\item whether the house is new at the time of its sale
-\item the kind of parking
-\item the kind of roof
-\item whether there is any fireplace
-\item the number of fireplaces
-\item the type of foundation
-\item the type of garage
-\item square feet in the garage
-\item the kind of heating
-\item square footage of the land
-\item square footage of the living area
-\item number of parking spaces
-\item the kind of parking (TODO: Did I use this twice?)
-\item the kind of pool
-\item the quality code
-\item the kind of roof cover
-\item the kind of sewer
-\item number of stories
-\item number of rooms
-\item the kind of water
-\item year built
-\end{itemize}
+% rotated tex
+% ref: tex.stackexchange/com/questions/44427/rotate-picture-with-caption
+
+% attempt to rotate: prints outside of margins
+%\begin{sidewaysfigure}[ht]
+%\caption{Caption for txt}
+%\label{figure:AssessmentTxt1}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv}}
+%\end{sidewaysfigure}
+
+% attempt to rotate: prints outside of margins
+%\begin{sidewaystable}[ht]
+%\begin{centering}
+%\caption{Rotation attempt 2}
+%\label{figure:AssessmentTxt1}
+%\tiny
+%%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv}}
+%\end{centering}
+%\end{sidewaystable}
+
+% attempt to rotate: works (though with small text)
+\begin{figure}[ht]
+\begin{sideways}
+\begin{minipage}{7in}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv}}
+\end{minipage}
+\end{sideways}
+\caption{Estimated Generalization Errors With and Without the Assessed
+Value}
+\label{figure:CvAssessment}
+\end{figure}
+
+% unrotated file: prints outside of margins
+%\begin{figure}[ht]
+%\caption{Caption for txt}
+%\label{figure:AssessmentTxt1}
+%%\tiny
+%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv}}
+%\end{figure}
+
+Figure \ref{figure:CvAssessment} contains the result from the cross
+validation study comparing a linear model with all combinations of the
+design choices. Column one names the scenario: AVM or mortgage. Column
+two tells whether the model predicted price or the logarithm of price.
+Column three tell whether the size features were transformed into the
+log domain (``log'') or left in their natural unit (``level''). Column
+five states whether the 2008 assessment features were used or not. The
+remaining columns vary the number of days in the training period from 30
+up to 360 days. Each data cell contains the median of the RMSE values
+from 10-fold cross validation. Here RMSE means the square root of the
+median square errors.
+
+The models used in the cross validation study are local to each possible
+query point. This means that a separate model is built and trained for
+every query point.
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Fraction of Property Sales for Exactly Their 2008 Assessments \\
+By Month of Recording Date
+}
+\label{figure:PricesByMonth2006On}
+\centering\includegraphics[scale=.4]{\Sexpr{path.price.chart2}}
+\end{figure}
+
+The key conclusion from the figure is that using the 2008 tax assessment
+as a feature never reduced the estimated generalization error. Examining
+Figure \ref{figure:PricesByMonth2006On} shows why: median prices in 2008
+fell every month, so that the assessed values became increasingly
+obsolete.
+
+Thus we reach an unexpected conclusion: the assessed values are not
+necessarily useful in linear models. One reason is that in California,
+Proposition 13 biases the assessed values to be less than market values.
+Another reason is that the assessment may become obsolete if market
+values are either increasing or decreasingly rapidly.
 
 
-As seen in Figure CREATE FIGURE, prices were not stable during the test
-period (November 1, 2008 through October 31, 2009. The instability of
-the prices raises questions about the most appropriate training period.
-A longer training period has more data over which to generate average
-prices for features. However, the longer period has more opportunity for
-value of features to change.
 
 
 
 
-TODO: Create chart with median prices in 2007 through end of data.
 
 
 
-We use all the features that are available in all the transactions in
-subset1. There are: GENERATE A CHART.
 
-We investigate these design choices:
-\begin{itemize}
-\item Model form: the model could be of form level-level, level-log,
-log-level, or log-log.
-\item The data for the  training period could be shorter or longer. We
-investigate 30, 60, 90, 120, 150, and 180 days.
-\item The business scenario could be the assessor's scenario, the AVM
-scenario, or the mortgage scenario.
-\end{itemize}
 
