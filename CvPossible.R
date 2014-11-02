@@ -4,7 +4,7 @@ CvPossible <- function() {
     result <-
         list( scope = c('global', 'submarket', 'submarketIndicator')
              ,model = c('linear', 'linearReg', 'randomForest')
-             ,timePeriod = c('2003', '2009')
+             ,timePeriod = c('2003on', '2008')
              ,scenario = c('assessor', 'avm', 'mortgage')
              ,response = c('price', 'logprice')
              ,predictorsForm = c('level', 'log')
