@@ -26,7 +26,7 @@
 # --scenario {assessor|avm|mortgage}
 # --response  {logprice|price}
 # --predictorsForm {level|log}
-# --predictorsName {always|alwaysNoAssessment}
+# --predictorsName {always|alwaysNoAssessment|alwaysNoCensus}
 # --ndays INT
 # --query INT: 1 / INT fraction of query transactions in a fold that are used
 # --c     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
@@ -45,6 +45,7 @@ library(memoise)
 library(optparse)
 
 Control <- function(default.args) {
+    browser()
     # parse command line arguments in command.args
     opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
                             ,default.args = default.args
@@ -61,6 +62,7 @@ Control <- function(default.args) {
     stopifnot(opt$ndays > 0)
     stopifnot( opt$predictorsName == 'always'
               |opt$predictorsName == 'alwaysNoAssessment'
+              |opt$predictorsName == 'alwaysNoCensus'
               )
     stopifnot( opt$predictorsForm == 'level'
               |opt$predictorsForm == 'log'
@@ -147,7 +149,7 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
              ,OptionChr('response',       'one of {logprice|price}')
              ,OptionChr('predictorsForm', 'one of {level|log}')
-             ,OptionChr('predictorsName', 'name of predictor set')
+             ,OptionChr('predictorsName', 'one of {always|alwaysNoAssessment|alwaysNoCensus')
              ,OptionInt('ndays',          'number of days in training period')
              ,OptionInt('query',          ' 1 / <fraction of test sample used as queries>')
              ,OptionInt('c',              '(1/lamdda) for regularized regression')
@@ -312,10 +314,10 @@ ConvertYearFeatures <- function(data, saleDate) {
     data.2 <- Replace('effective.year.built', 'effective.age', 'effective.age2', data.1)
     data.2
 }
-PredictLinear <- function(scenario, ndays, data.training, queries
+PredictLinear <- function(scenario, ndays, data.training, query.transactions
                           ,scope, response, predictorsForm, predictorsName, control) {
     # Return evaluation of the specified model on the given training and test data
-    # Return vector of predictions for the queries using a local model
+    # Return vector of predictions for the query.transactions using a local model
 
     verbose <- FALSE
 
@@ -357,10 +359,10 @@ PredictLinear <- function(scenario, ndays, data.training, queries
             list(ok = FALSE, problem = paste0('Fit: ', maybe.fitted))
     }
     FitMemoised <- memoise(Fit)
-    Predict <- function(fitted, query) {
+    Predict <- function(fitted, query.transaction) {
         # return list $ok $value (maybe) $problem (maybe)
         maybe.predict <-
-            tryCatch( predict(object = fitted, newdata = query)
+            tryCatch( predict(object = fitted, newdata = query.transaction)
                      ,warning = function(w) w
                      ,error = function(e) e
                      )
@@ -369,14 +371,14 @@ PredictLinear <- function(scenario, ndays, data.training, queries
         else
             list(ok = FALSE, problem = paste0('Predict: ', maybe.predict))
     }
-    FitPredict <- function(query) {
-        saleDate <- query$saleDate
+    FitPredict <- function(query.transaction) {
+        saleDate <- query.transaction$saleDate
         maybe.fitted <- FitMemoised(saleDate)
         if (maybe.fitted$ok) {
             maybe.prediction <- Predict( fitted = maybe.fitted$value
-                                        ,query = ConvertYearFeatures( data = query
-                                                                     ,saleDate = saleDate
-                                                                     )
+                                        ,query.transaction = ConvertYearFeatures( data = query.transaction
+                                                                                 ,saleDate = saleDate
+                                                                                 )
                                         )
             return(maybe.prediction)
         } else {
@@ -384,9 +386,9 @@ PredictLinear <- function(scenario, ndays, data.training, queries
         }
     }
 
-    predictions <- as.double(rep(NA), nrow(queries))
-    for (query.index in 1:nrow(queries)) {
-        maybe.prediction <- FitPredict(queries[query.index,])
+    predictions <- as.double(rep(NA), nrow(query.transactions))
+    for (query.index in 1:nrow(query.transactions)) {
+        maybe.prediction <- FitPredict(query.transactions[query.index,])
         if (maybe.prediction$ok) {
             if (verbose) 
                 Printf('prediction query.index %d value %f\n', query.index, maybe.prediction$value)
@@ -403,7 +405,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                        ,predictorsForm, predictorsName, ndays
                        ,c, ntree, mtry
                        ,data.training
-                       ,queries
+                       ,query.transactions
                        ,control
                        ) {
     # Return evaluation of the specified model on the given training and test data
@@ -414,7 +416,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                ,linear       = PredictLinear      ( scenario = scenario
                                                    ,ndays = ndays
                                                    ,data.training = data.training
-                                                   ,queries = queries
+                                                   ,query.transactions = query.transactions
                                                    ,scope = scope
                                                    ,response = response
                                                    ,predictorsForm = predictorsForm
@@ -423,7 +425,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                                    )
                ,linearReg    = PredictLinearReg   ( scenario = scenario
                                                    ,ndays = ndays
-                                                   ,queries = queries
+                                                   ,query.transactions = query.transactions
                                                    ,c = c
                                                    ,data.training = data.training
                                                    ,scope = scope
@@ -434,6 +436,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                                    )
                ,randomForest = PredictRandomForest( scenario = scenario
                                                    ,ndays = ndays
+                                                   ,query.transactions = query.transactions
                                                    ,scope = scope
                                                    ,ntree = ntree
                                                    ,mtry = mtry
@@ -448,8 +451,8 @@ Evaluate_10 <- function(scope, model, scenario, response
                )
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
 
-    actuals <- queries$price
-    result <- EvaluatePredictions(prediction = predictions
+    actuals <- query.transactions$price
+    result <- EvaluatePredictions( prediction = predictions
                                   ,actual = actuals
                                   )
     result
@@ -469,8 +472,8 @@ Evaluate_11 <- function(scope, model, scenario, response
                              ,size = num.test.transactions
                              ,replace = FALSE
                              )
-    queries <- data.testing[which.test,]
-    Printf('will sample %d of %d test transactions\n', nrow(queries), nrow(data.testing))
+    query.transactions <- data.testing[which.test,]
+    Printf('will sample %d of %d test transactions\n', nrow(query.transactions), nrow(data.testing))
     result <- Evaluate_10( scope = scope
                           ,model = model
                           ,scenario = scenario
@@ -482,7 +485,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                           ,ntree = ntree
                           ,mtry = mtry
                           ,data.training = data.training
-                          ,queries = queries
+                          ,query.transactions = query.transactions
                           ,control = control
                           )
     result
@@ -649,9 +652,9 @@ default.args <-
          ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
-         ,predictorsName = 'alwaysNoAssessment'
+         ,predictorsName = 'alwaysNoCensus'
          ,ndays          = '120'
-         ,query          = '1'
+         ,query          = '100'
          ,c              = '0'
          ,ntree          = '0'
          ,mtry           = '0'
