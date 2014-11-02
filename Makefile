@@ -331,25 +331,18 @@ include e-cv-generate.makefile
 e-cv-chart-generated.makefile: e-cv-chart.R
 	Rscript e-cv-chart.R --makefile
 
+# define symbols e-cv-chart_chart3_data
+#                e-cv-chart_chart4_data
 include e-cv-chart-generated.makefile
 
 e-cv-chart-source += Directory.R
 e-cv-chart-source += Libraries.R
 
-$(working)/e-cv-chart_chart3.txt: $(e-cv-chart_chart3-data) e-cv-chart.R $(e-cv-chart-source)
+# stem is .
+$(working)/e-cv-chart_chart3%txt \
+$(working)/e-cv-chart_chart4%txt \
+: $(e-cv-chart_chart3-data) e-cv-chart.R $(e-cv-chart-source)
 	Rscript e-cv-chart.R
-
-#e-cv-chart-data   += $(working)/e-cv.RData
-#
-## stem is .
-#$(working)/e-cv-chart_chart1%txt \
-#$(working)/e-cv-chart_chart2%txt \
-#$(working)/e-cv-chart_chart3%txt \
-#: \
-#e-cv-chart.R \
-#$(e-cv-chart-source) \
-#$(e-cv-chart-data)
-#	Rscript e-cv-chart.R
 
 # E-FEATURES-LCV
 
@@ -820,6 +813,7 @@ thesis-data-data-munging += $(working)/parcels-sfr.RData
 #thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart1.txt
 #thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart2.txt
 thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart3.txt
+thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart4.txt
 thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart1.pdf
 thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart2.pdf
 thesis-data-using-the-2008-assessment += $(working)/e-verify-assessment-chart_chart1.pdf
