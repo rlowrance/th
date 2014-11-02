@@ -85,6 +85,7 @@ Predictors2 <- function(predictors.name, predictors.form) {
         sapply(v, function(name) sprintf('%s.log1p', name))
     }
 
+    #cat('Predictors2 args:', predictors.name, predictors.form, '\n')
     result.named <-
         if (predictors.name == 'price') {
             price
@@ -124,6 +125,18 @@ Predictors2 <- function(predictors.name, predictors.form) {
               ,always.location.census
               ,always.location.zip
               )
+        } else if (predictors.name == 'alwaysNoCensus' && predictors.form == 'level') {
+            c( always.house.not.assessment.size.positive
+              ,always.house.not.assessment.size.non.negative
+              ,always.house.not.assessment.not.size
+              ,always.location.zip
+              )
+        } else if (predictors.name == 'alwaysNoCensus' && predictors.form == 'log') {
+            c( Log(always.house.not.assessment.size.positive)
+              ,Log1p(always.house.not.assessment.size.non.negative)
+              ,always.house.not.assessment.not.size
+              ,always.location.zip
+              )
         } else {
             print(predictors.name)
             print(predictors.form)
@@ -136,11 +149,30 @@ Predictors2 <- function(predictors.name, predictors.form) {
 Predictors2Test <- function() {
     # unit test
     # for now, simply test that everything runs to completion
-    Predictors2('identification')
-    Predictors2('always', 'level')
-    Predictors2('always', 'log')
-    Predictors2('alwaysNoAssessment', 'level')
-    Predictors2('alwaysNoAssessment', 'log')
+    verbose <- FALSE
+    Test <- function(predictors.name, predictors.form = NULL) {
+        value <- Predictors2(predictors.name, predictors.form)
+        if (verbose) {
+            cat(predictors.name, predictors.form, '\n')
+            cat(sprintf( 'predictors.name %s predictors.form %s\n'
+                        ,predictors.name
+                        ,as.character(predictors.form)
+                        )
+            )
+            print(value)
+            cat('number of features:', length(value), '\n')
+            cat('\n')
+            browser()
+        }
+    }
+    Test('price')
+    Test('identification')
+    Test('always', 'level')
+    Test('always', 'log')
+    Test('alwaysNoAssessment', 'level')
+    Test('alwaysNoAssessment', 'log')
+    Test('alwaysNoCensus', 'level')
+    Test('alwaysNoCensus', 'log')
 }
 
 Predictors2Test()
