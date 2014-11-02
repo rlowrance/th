@@ -803,25 +803,30 @@ thesis-chapters += thesis-chapter-introduction.Rnw
 thesis-chapters += thesis-chapter-literature-review.tex
 thesis-chapters += thesis-chapter-data-munging.Rnw
 thesis-chapters += thesis-chapter-taxonomy.Rnw
-thesis-chapters += thesis-chapter-using-the-2008-assessment.Rnw
+thesis-chapters += thesis-chapter-selection.Rnw
 
 thesis-data-data-munging += $(working)/transactions.RData
 thesis-data-data-munging += $(working)/transactions-subset1.RData
 thesis-data-data-munging += $(working)/deeds-al-g.RData
 thesis-data-data-munging += $(working)/parcels-sfr.RData
 
-#thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart1.txt
-#thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart2.txt
-thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart3.txt
-thesis-data-using-the-2008-assessment += $(working)/e-cv-chart_chart4.txt
-thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart1.pdf
-thesis-data-using-the-2008-assessment += $(working)/e-price-chart_chart2.pdf
-thesis-data-using-the-2008-assessment += $(working)/e-verify-assessment-chart_chart1.pdf
+thesis-data-data-selection += $(working)/e-cv-chart_chart3.txt
+thesis-data-data-selection += $(working)/e-cv-chart_chart4.txt
+thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
+thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
+thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
 
 thesis-data += $(thesis-data-data-munging)
-thesis-data += $(thesis-data-using-the-2008-assessment)
+thesis-data += $(thesis-data-data-selection)
 
 $(working)/thesis.pdf : thesis.Rnw $(thesis-chapters) $(thesis-data)
+	Rscript -e "library('knitr'); knit('thesis.Rnw')"
+	pdflatex thesis.tex
+	mv thesis.pdf $(working)/
+	cp thesis.tex $(tex)/
+	
+.PHONY: thesis-only
+thesis-only:
 	Rscript -e "library('knitr'); knit('thesis.Rnw')"
 	pdflatex thesis.tex
 	mv thesis.pdf $(working)/
