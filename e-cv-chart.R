@@ -3,7 +3,7 @@
 # Produce charts using input files e-cv_SCOPE_MODEL_TIMEPERIOD_SCENARIO_RESPONSE_PREDICTORSFORM_PREDICTORS_NAME_NDAYS_QUERY_C_NTREE_MTRY.RData
 # output files have these names
 # WORKING/e-cv-chart_SOMETHING.SUFFIX
-# e-cv-chart.makefile
+# e-cv-chart-generated.makefile
 #   describes all file dependencies for each chart
 #
 # Command line arguments:
@@ -38,11 +38,12 @@ Control <- function(default.args) {
                 )
 
 
+    # for now, create only chart 3
     control <- list( path.in.base = paste0(working, in.base)
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.makefile = paste0(me, '-generated.makefile')
-                    ,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
-                    ,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
+                    #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
+                    #,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
                     ,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -302,7 +303,7 @@ Chart.3 <- function(my.control) {
         path.in <- paste0( my.control$path.in.base
                           ,'_global'
                           ,'_linear'
-                          ,'_2009'
+                          ,'_2008'
                           ,'_', scenario
                           ,'_', response
                           ,'_', predictorsName
@@ -360,6 +361,7 @@ Chart.3 <- function(my.control) {
         DataRecord <- function(scenario, response, predictorsName, predictorsForm, accumulator) {
             #cat('DataRecord', scenario, response, predictorsName, predictorsForm, '\n'); browser()
             M_RMSE <- function(ndays) {
+                browser()
                 path.in <- PathIn( scenario = scenario
                                   ,response = response
                                   ,predictorsName = predictorsName
@@ -407,17 +409,15 @@ Chart.3 <- function(my.control) {
         lines <- Lines()
         lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
         lines$Append('For global linear model')
-        lines$Append('Data from late 2008 and 2009')
+        lines$Append('Data from 2008')
         lines$Append('Features Present in Every Transaction')
-        lines$Append('Comparing with and without the Tax Assessor Assessment')
-        lines$Append('Column Tax Amt: with assessment    ==> yes')
-        lines$Append('Column Tax Amt: without assessment ==> no')
+        lines$Append('With and Without Tax Assessment Features')
         lines$Append(' ')
         lines$Append(sprintf( header.format
                              ,' '
                              ,' '
                              ,'preds'  # abbreviate 'predictors' to fit into 6 columns
-                             ,'Tax'
+                             ,'Use'
                              ,'ndays'
                              ,' '
                              ,' '
@@ -436,7 +436,7 @@ Chart.3 <- function(my.control) {
                              ,'scenario'
                              ,'response'
                              ,'Form'
-                             ,'Amt'
+                             ,'Tax'
                              ,'30'
                              ,'60'
                              ,'90'
@@ -456,6 +456,7 @@ Chart.3 <- function(my.control) {
     }
 
     Txt <- function() {
+        browser()
         lines <- Lines()
 
         for (line in HeaderRecords()) {
@@ -476,20 +477,18 @@ Chart.3 <- function(my.control) {
 }
 MakeMakefile <- function(control) {
     # return Lines object with makefile content
+    # for now, only create Chart3  
 
-    chart.1 <- Chart.1.2(control)
-    chart.2 <- Chart.1.2(control)
+#    chart.1 <- Chart.1.2(control)
+#    chart.2 <- Chart.1.2(control)
     chart.3 <- Chart.3(control)
 
     AppendDependencies <- function(target.file.name, dependency.file.names, lines) {
         # append to lines
-        lines$Append(paste0(target.file.name, ': \\'))
-        last.index <- length(dependency.file.names)
-        for (index in 1:last.index) {
-            dependency.file.name <- dependency.file.names[[index]]
-            lines$Append(paste0( ' '
+        for (dependency.file.name in dependency.file.names) {
+            lines$Append(paste0( target.file.name
+                                ,' += '
                                 ,dependency.file.name
-                                ,if (index == last.index) ' ' else ' \\'
                                 )
             )
         }
@@ -497,15 +496,15 @@ MakeMakefile <- function(control) {
     }
 
     lines <- Lines()
-    AppendDependencies( target.file.name = control$path.out.chart.1
-                       ,dependency.file.names = chart.1$FileDependencies('always')
-                       ,lines = lines
-                       )
-    AppendDependencies( target.file.name = control$path.out.chart.2
-                       ,dependency.file.names = chart.2$FileDependencies('alwaysNoAssessment')
-                       ,lines = lines
-                       )
-    AppendDependencies( target.file.name = control$path.out.chart.3
+#    AppendDependencies( target.file.name = control$path.out.chart.1
+#                       ,dependency.file.names = chart.1$FileDependencies('always')
+#                       ,lines = lines
+#                       )
+#    AppendDependencies( target.file.name = control$path.out.chart.2
+#                       ,dependency.file.names = chart.2$FileDependencies('alwaysNoAssessment')
+#                       ,lines = lines
+#                       )
+    AppendDependencies( target.file.name = 'e-cv-chart_chart3-data'
                        ,dependency.file.names = chart.3$FileDependencies()
                        ,lines = lines
                        )
@@ -515,21 +514,20 @@ MakeMakefile <- function(control) {
 }
 Charts <- function(control) {
     # write chart files:
-    # WORKING/e-cv-chart_chart1.txt
-    # WORKING/e-cv-chart_chart2.txt
+    # for now, only create chart3
     
 
-    chart1 <- Chart.1.2(control)
-    chart.1.txt <- chart1$Txt(predictorsName = 'always')
-    writeLines( text = chart.1.txt
-               ,con = control$path.out.chart.1
-               )
-
-    chart2 <- Chart.1.2(control)
-    chart.2.txt <- chart2$Txt(predictorsName = 'alwaysNoAssessment')
-    writeLines( text = chart.2.txt
-               ,con = control$path.out.chart.2
-               )
+#    chart1 <- Chart.1.2(control)
+#    chart.1.txt <- chart1$Txt(predictorsName = 'always')
+#    writeLines( text = chart.1.txt
+#               ,con = control$path.out.chart.1
+#               )
+#
+#    chart2 <- Chart.1.2(control)
+#    chart.2.txt <- chart2$Txt(predictorsName = 'alwaysNoAssessment')
+#    writeLines( text = chart.2.txt
+#               ,con = control$path.out.chart.2
+#               )
 
     chart3 <- Chart.3(control)
     chart.3.txt <- chart3$Txt()
@@ -555,7 +553,6 @@ Main <- function(control) {
     # either produce the makefile or create the charts
     if (control$opt$makefile) {
         makefile <- MakeMakefile(control)
-        browser()
         writeLines( text = makefile
                    ,con = control$path.out.makefile
                    )
