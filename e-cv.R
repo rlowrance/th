@@ -573,7 +573,7 @@ default.args <-
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'price'
-         ,predictorsForm = 'level'
+         ,predictorsForm = 'log'
          ,predictorsName = 'alwaysNoCensus'
          ,ndays          = '120'
          ,query          = '100'
