@@ -1,4 +1,4 @@
-\chapter{Using the 2008 Assessment}
+\chapter{Data Selection}
 % vim: textwidth=72
 % vim: foldmethod=manual
 
@@ -9,7 +9,35 @@ path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
 path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
 @
 
-Intro goes here
+We'd like to investigate a range of real estate price prediction
+models over as many years as possible. Most academic studies of real
+estate prices cover just one year of transactions. Unfortunately, the
+overlap in time periods for our data is small.
+\begin{itemize}
+\item The deeds file contains deeds for 1984 through the first part of
+2009. Deeds from a few bonus years before 1984 are thrown in.
+\item The taxroll file is for 2008. It was created in late 2007. It
+contains property descriptions as well as the tax assessor's estimated
+value for the house. It also contains the census tract number for the
+house.
+\item The census file contains data from the decennial census file in
+year 2000. It became available to the public sometime in 2002.
+\end{itemize}
+
+Thus, the common time period is starting in 2008 and extending into a
+few months in 2009.
+
+This time period can be extended to earlier time periods if we can
+concluded that the tax assessment does not carry much predictive value.
+If that is so, we can simply not use features derived from the tax
+assessment, and extend the analysis back to 2003, when the year 2000
+census data became available.
+
+Furthermore, we can extend the time period back before 2003, if the
+census data are also not valuable for predictive purposes.
+
+The next few sections explore the value of the assessment and census
+data.
 
 \section{Understanding the Real Estate Tax Assessment}
 
@@ -17,8 +45,8 @@ Intro goes here
 % including a pdf
 \begin{figure}[h]
 \caption{
-Fraction of Property Sales for Exactly Their 2008 Assessments //
-By Month of Recording Date
+Fraction of Property Sales for Exactly Their 2008 Assessments \\
+By Recording Date Month
 }
 \label{figure:AssessmentExactlyEqual}
 \centering\includegraphics[scale=.4]{\Sexpr{path.verify}}
@@ -26,7 +54,7 @@ By Month of Recording Date
 
 In the United States, local government is often financed in part through
 real estate taxes \cite{wiki-14-property-tax}. The taxing authority,
-often a county, creates a Tax Assessor who values the land and the
+often a county, creates a tax assessor who values the land and the
 improvements on the land. The resulting assessed values are used to
 determine the assessment, the amount of taxes due. For example, the
 assessment may be calculated as a fraction of the total assessed value
@@ -49,7 +77,7 @@ County. According to the website of the Los Angeles Country Office of
 the Assessor \cite{lac-14-real-property-assessments}, the Assessor
 determines the assessed value for property, the Auditor-Controller
 applies the appropriate tax rate for the property, and the Treasurer \&
-Tax Collector mails out the bills and collect the money.
+Tax Collector mails out the bills and collects the money.
 
 California Proposition 13 \cite{californiataxdata-14-prop13}, passed in
 1978, changed the relationship between market values and assessed
@@ -118,7 +146,7 @@ estimate the generalization error from each model using 10-fold cross
 validation.
 
 The common feature set across each model contains all the features that
-were present in every transaction of subset 1. The structures were
+were present in every transaction of subset 1. The features were
 structured into six groups along two axis. The first axis is the source
 of the feature: from the tax bills, from the U.S.
 Census Bureau, from the deeds file. The second axis is whether the
@@ -130,14 +158,14 @@ These two axis results in six feature sets.
 
 \item From the tax bills presented in late 2007.
   \begin{itemize}
-  \item Property size features: improvement value, land value.
+  \item Size features: improvement value, land value.
   \item Non-size features: fraction improvement value (ratio of the
   improvement value to the sum of the improvement and land values).
   \end{itemize}
 
 \item From the U.S. Census Bureau decennial census in year 2000.
   \begin{itemize}
-  \item Property size features: there are no such features.
+  \item Size features: there are no such features.
   \item Non-size features: average commute time; fraction of houses that
   are owned by the occupants; median houshold income; whether the census
   tract has a park, retail stores, a school, and industry.
@@ -145,19 +173,19 @@ These two axis results in six feature sets.
 
 \item From the deeds file from the years 1984 through 2009.
   \begin{itemize}
-  \item Property size features: land square footage, living area,
+  \item Size features: land square footage, living area,
   basement square feet, number of bathrooms, number of bedrooms, number
   of fireplaces, number of parking spaces, number of stories, and number
   of rooms.
   \item Non-size features: effective year built, year built, whether
-  there is a pool, whether the house is newly consructure; whether the
-  five-digit zip code has a park, retal stores, a school, and industry.
+  there is a pool, whether the house is newly constructed; whether the
+  five-digit zip code has a park, retail stores, a school, and industry.
   When constructing the models, the year and effective year built
   features are converted to age, age squared, effective age, and
   effective age squared using the sale date from the query transaction.
-  This conversion is made because using age and age squared as features
-  is popular in the literature. The idea is that older houses should
-  depreciate for a while and then gain in value as they become classics.
+  This conversion is made because age and age squared are popular
+  features in the literature. The idea is that houses should depreciate
+  for a while and then gain in value as they become classics.
   \end{itemize}
 
 \end{itemize}
@@ -166,17 +194,17 @@ In addition to varying the feature set, we varied other design choices
 in linear models:
 \begin{itemize}
 
-\item Business scenario for the model. We tested by the AVM and mortgage
-scenarios. In the AVM scenario, the goal is to predict the price in the
-next day and the training data is all the data before the query date of
-the transaction. In the mortgage scenario,the goal is to predict the
-value at some date in the past and the training data is all the data
-excluding the query transaction and hence including transactions after
-the query date. One application for the mortgage scenario is to
-determine the value of a house on every day as input to a mortgage
-default prediction model. The training data for a default prediction
-model may include the value of the house and the value of the mortgage
-on specific dates.
+\item Business scenario for the model. We tested both the AVM and
+mortgage scenarios. In the AVM scenario, the goal is to predict the
+price on the next day and the training data is all the data before the
+query date of the transaction. In the mortgage scenario,the goal is to
+predict the value at some date in the past and the training data is all
+the data excluding the query transaction and hence including
+transactions after the query date. One application for the mortgage
+scenario is to determine the value of a house on every day as input to a
+mortgage default prediction model. The training data for a default
+prediction model may include the value of the house and the value of the
+mortgage on specific dates.
 
 \item Response variable. One can choose to predict the price of the
 house or the logarithm of the price. One might choose to predict the
@@ -195,9 +223,9 @@ range of larger values into smaller values. A second idea would be to
 transform the input features into a distribution that allowed one to
 more easily calculate error bars on resulting predictions. A third idea
 is to reflect a hypothetical data generating process: it may be that the
-respone variable linearly with a percentage change in the predictor
+response variable linearly with a percentage change in the predictor
 variable or with a unit change in the predictor variable. When the
-percent change model is true, transforming the feature the the log
+percent-change model is true, transforming the feature the the log
 domain is appropriate. Otherwise, keeping the feature in its natural
 units is appropriate. Computationally, the size variables are
 partitioned into those that may be zero and those that are always
@@ -267,9 +295,9 @@ Figure \ref{figure:CvAssessment} contains the result from the cross
 validation study comparing a linear model with all combinations of the
 design choices. Column one names the scenario: AVM or mortgage. Column
 two tells whether the model predicted price or the logarithm of price.
-Column three tell whether the size features were transformed into the
-log domain (``log'') or left in their natural unit (``level''). Column
-five states whether the 2008 assessment features were used or not. The
+Column three tells whether the size features were transformed into the
+log domain (``log'') or left in their natural units (``level''). Column
+four states whether the 2008 assessment features were used or not. The
 remaining columns vary the number of days in the training period from 30
 up to 360 days. Each data cell contains the median of the RMSE values
 from 10-fold cross validation. Here RMSE means the square root of the
@@ -277,7 +305,9 @@ median square errors.
 
 The models used in the cross validation study are local to each possible
 query point. This means that a separate model is built and trained for
-every query point.
+every query point. The implementation optimizes the computation by
+memoising the fitting process based on the sale date. Thus at most one
+model is fit for every sale date.
 
 % including a pdf
 \begin{figure}[h]
@@ -301,7 +331,67 @@ Proposition 13 biases the assessed values to be less than market values.
 Another reason is that the assessment may become obsolete if market
 values are either increasing or decreasingly rapidly.
 
+\section{Understanding the Census Data}
 
+The United States Census Bureau conducts
+\cite{census-bureau-14-website} a decennial census every 10 years. The
+year 2000 census (\cite{census-bureau-12-measuring} page 140) began in
+March 2000 to survey all 98 million households. The survey technique was
+to mail surveys and follow up with non-respondents by sending
+``enumerators'' to the household. 
+
+Two survey forms were used in 2000.
+\begin{itemize}
+\item Short-form: Most households (83 percent) received a questionnaire
+asking for information on ``name, sex, age, relationship, Hispanic origin,
+and race.''
+\item Long-form: Some houesholds (17 percent) received a questionnaire
+that asked for both the short-form information and an additional ``52
+questions requesting \ldots information about housing, social, and
+economic characteristics of the household.''
+\end{itemize}
+
+Data are captured for each household and then aggregated for reporting
+purposes. The lowest level of aggregation is the census block. Data from
+census blocks are futher aggregated into several hierarchies
+(\cite{census-bureau-10-geodiagram}). The hierarchy of interest to this
+work has these levels: nation, region, divisions, states, counties,
+census tracts, block groups, and census blocks. All of the census data
+we use are from the 2000 census for Los Angeles Country and are at the
+census tract level.
+
+Unfortunately, boundaries between census tracts in Los Angeles changed
+between the 2000 and 2010 censuses (\cite{proximityone-14-tracts}).
+That's because census tracts are designed to contain about 4,000 people:
+as populations grow and shrink, census tracts need to be redefined.
+Indeed, an analysis of Los Angeles Country census data at the census
+tract level for years 1990 and 2000 shows an increase in the number of
+census tracts in Los Angeles County.
+
+Unfortunately, the census tract numbers for properties are contained in
+the taxroll, which we have only for 2008. Thus we cannot easily
+determine census tract numbers for parcels for the 1980 nor 1990
+censuses. The impliciation is that the earliest date we can use the
+census data we have is for the date when it first became available.
+Rather than determine that date exactly, we have assumed that
+transactions on or after January 1, 2003 properly reflect census data
+from the year 2000.
+
+\section{Assessing the Predictive Power of the Census Data}
+
+THE SECTION WILL BE SIMILAR TO THE ANALYSIS OF THE ASSESSMENT DATA: same
+charts, different conclusions.
+
+\section{Discarding Assessments and Keeping Census Data}
+
+Because the assessment data were not valuable for the time period for
+which they were relevant, namely the year 2008, we decided to discard all
+features derived from the assessment. This reduces our available feature
+set and allows use to use transactions before and after 2008.
+
+Because the census data were valuable for the time period in which they
+were relevant, namely beginning in 2003, we decided to keep these
+features and restrict the analysis to year beginning in 2003.
 
 
 
