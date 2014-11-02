@@ -43,22 +43,22 @@ Control <- function(default.args) {
                     )
     control
 }
-ParseCommandArgs <- function(command.args, default.args) {
-    # return name list of values from the command args
-    opt.query <- make_option( opt_str = c('--query')
-                             ,action = 'store'
-                             ,type = 'double'
-                             ,default = default.args$query
-                             ,help = 'fraction of samples used as queries'
-                             )
-    option.list <- list( opt.query
-                        )
-    opt <- parse_args( object = OptionParser(option_list = option.list)
-                      ,args = command.args
-                      ,positional_arguments = FALSE
-                      )
-    opt
-}
+#ParseCommandArgs <- function(command.args, default.args) {
+#    # return name list of values from the command args
+#    opt.query <- make_option( opt_str = c('--query')
+#                             ,action = 'store'
+#                             ,type = 'double'
+#                             ,default = default.args$query
+#                             ,help = 'fraction of samples used as queries'
+#                             )
+#    option.list <- list( opt.query
+#                        )
+#    opt <- parse_args( object = OptionParser(option_list = option.list)
+#                      ,args = command.args
+#                      ,positional_arguments = FALSE
+#                      )
+#    opt
+#}
 Lines <- function(max.size = 1000) {
     # class object: list of lines
     lines <- rep('', max.size)
