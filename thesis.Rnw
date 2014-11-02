@@ -198,8 +198,8 @@ About <- function(x) {
 \chapter{Data Munging} Dummy text.
 
 %\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
-\Sexpr{knit_child('thesis-chapter-using-the-2008-assessment.Rnw')}
-%\Sexpr{knit_child('thesis-chapter-how-valuable-is-the-2008-assessment.Rnw')}
+
+\Sexpr{knit_child('thesis-chapter-data-selection.Rnw')}
 \chapter{How Valuables is the Year 2000 Census?}
 \chapter{Selecting Linear Models Using the 2000 Census Features}
 \chapter{To What Extent are Non-Linear Models An Improvement over Linear
