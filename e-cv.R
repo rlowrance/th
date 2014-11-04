@@ -123,6 +123,7 @@ Control <- function(default.args) {
                     ,testing = testing
                     ,debug = FALSE
                     ,verbose.CrossValidate = TRUE
+                    ,me = me
                     )
     control
 }
@@ -570,13 +571,13 @@ clock <- Clock()
 default.args <-
     list( scope          = 'global'
          ,model          = 'linear'
-         ,timePeriod     = '2003on'
+         ,timePeriod     = '2008'
          ,scenario       = 'avm'
          ,response       = 'price'
-         ,predictorsForm = 'log'
+         ,predictorsForm = 'level'
          ,predictorsName = 'alwaysNoCensus'
-         ,ndays          = '120'
-         ,query          = '100'
+         ,ndays          = '30'
+         ,query          = '1'
          ,c              = '0'
          ,ntree          = '0'
          ,mtry           = '0'
@@ -584,15 +585,17 @@ default.args <-
 control <- Control(default.args)
 
 # cache transaction.data
-if (!exists('transaction.data')) {
-    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
-                                              ,split.names = control$split.names
+if (!exists('e-cv-transaction.data')) {
+    e.cv.transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
+                                                   ,split.names = control$split.names
                                               )
-    stopifnot(AllAlwaysPresent(transaction.data))
-    stopifnot(AllInformative(transaction.data))
+    stopifnot(AllAlwaysPresent(e.cv.transaction.data))
+    stopifnot(AllInformative(e.cv.transaction.data))
 }
 
-Main(control, transaction.data)
+Main( control = control
+     ,transaction.data.all.years = e.cv.transaction.data
+     )
 if (control$testing)
     cat('TESTING: DISCARD RESULTS\n')
 Printf('took %f CPU minutes\n', clock$Cpu() / 60)
