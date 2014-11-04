@@ -1,4 +1,5 @@
-# e-cv-chart.R
+# e-cv-chart.R  
+# vim: foldmethod=manual
 # main program
 # Produce charts using input files e-cv_SCOPE_MODEL_TIMEPERIOD_SCENARIO_RESPONSE_PREDICTORSFORM_PREDICTORS_NAME_NDAYS_QUERY_C_NTREE_MTRY.RData
 # output files have these names
@@ -13,6 +14,7 @@ source('Directory.R')
 source('Libraries.R')
 
 #source('CrossValidateCharts.R')
+source('CvApplyAllPossibilities.R')
 
 library(ggplot2)
 library(optparse)
@@ -27,6 +29,7 @@ Control <- function(default.args) {
 
     log <- Directory('log')
     working <- Directory('working')
+    cells <- paste0(working, 'e-cv-cells/')
 
     out.base <-
         sprintf('%s'
@@ -37,19 +40,22 @@ Control <- function(default.args) {
                 ,'e-cv'
                 )
 
-
-    # for now, create only chart 3
     control <- list( path.in.base = paste0(working, in.base)
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.makefile = paste0(me, '-generated.makefile')
                     #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
                     #,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
-                    ,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
-                    ,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
+                    #,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
+                    #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
+                    ,path.out.chart.5 = paste0(working, out.base, '_chart5.txt')
+                    ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
+                    ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
+                    ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
+                    ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = TRUE
+                    ,testing = FALSE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
@@ -664,28 +670,290 @@ Chart.4 <- function(my.control) {
          ,FileDependencies = FileDependencies
          )
 }
-MakeMakefile <- function(control) {
-    # return Lines object with makefile content
-    # for now, only create Chart3  
+FileName <- function(base, arg) {
+    # return file name as a chr
+    file.name <- paste0( base
+                        ,arg$scope
+                        ,'_', arg$model
+                        ,'_', arg$timePeriod
+                        ,'_', arg$scenario
+                        ,'_', arg$response
+                        ,'_', arg$predictorsName
+                        ,'_', arg$predictorsForm
+                        ,'_', arg$ndays
+                        ,'_', arg$query
+                        ,'_', arg$c
+                        ,'_', arg$ntree
+                        ,'_', arg$mtry
+                        ,'.RData'
+                        )
+    file.name
+}
+Chart.5.6.FileDependencies <- function(my.control, possible) {
+    file.names <- Lines()
+    AccumulateDependentFileNames <- function(arg) {
+        file.name <- FileName( my.control$path.cells
+                              ,arg = arg
+                              )
+        file.names$Append(file.name)
+    }
+
+
+    CvApplyAllPossibilities( F = AccumulateDependentFileNames
+                            ,possible = possible
+                            ,one.arg = TRUE
+                            )
+    result <- file.names$Get()
+    result
+}
+Chart.5.Possible <- function() {
+    # return possible list for Chart 5
+    possible <-
+        list( scope = 'global'
+             ,model = 'linear'
+             ,timePeriod = '2008'
+             ,scenario = 'avm'
+             ,response = c('price', 'logprice')
+             ,predictorsName = c('always', 'alwaysNoAssessment')
+             ,predictorsForm = c('level', 'log')
+             ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
+             ,query = '1'
+             ,c = '0'
+             ,ntree = '0'
+             ,mtry = '0'
+             )
+    possible
+}
+Chart.5.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 5 
+    # predictorsName in {always, alwaysNoAssesment}
+    # timePeriod 2008
+
+    result <- Chart.5.6.FileDependencies( my.control = my.control
+                                         ,possible = Chart.5.Possible()
+                                         )
+    result
+}
+Chart.6.Possible <- function() {
+    # return possible list for chart 6
+    possible <-
+        list( scope = 'global'
+             ,model = 'linear'
+             ,timePeriod = '2003on'
+             ,scenario = 'avm'
+             ,response = c('price', 'logprice')
+             ,predictorsName = c('alwaysNoAssessment', 'alwaysNoCensus')
+             ,predictorsForm = c('level', 'log')
+             ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
+             ,query = '1'
+             ,c = '0'
+             ,ntree = '0'
+             ,mtry = '0'
+             )
+    possible
+}
+Chart.6.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 5 
+    # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
+    # timePeriod 2003on
+
+    result <- Chart.5.6.FileDependencies( my.control = my.control
+                                         ,possible = Chart.6.Possible()
+                                         )
+    result
+}
+Chart.5.6 <- function(header, possible) {
+    stop('write me')
+}
+Table <- function() {
+    # return table function object $Header1() $Header2() $Detail()
+    case   <- '%8s %8s %5s %3s'
+    header.format <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
+    data.format   <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
+
+    lines <- Lines()
+    Header1 <- function(col3, col4, col5) {
+        # append a header record with mostly blank columns
+        line <- sprintf(header.format, 
+                        ' ', ' ',           # cols 1 - 2
+                        col3, col4, col5,   # cols 3 - 5
+                        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' # cols 6 - 16
+                        )
+        lines$Append(line)
+    }
+
+    Header2 <- function(col1, col2, col3, col4, col5, col6, col7, col8,
+                        col9, col10, col11, col12, col13, col14, col15, col16) {
+        line <- sprintf(header.format,
+                         col1, col2, col3, col4, col5, col6, col7, col8,
+                         col9, col10, col11, col12, col13, col14, col15, col16
+                         )
+        lines$Append(line)
+    }
+    
+    Blank <- function() {
+        lines$Append(' ')
+    }
+
+    Detail <- function(col1, col2, col3, col4, col5, col6, col7, col8,
+                       col9, col10, col11, col12, col13, col14, col15, col16) {
+        browser()
+        line <- sprintf(data.format,
+                        col1, col2, col3, col4, col5, col6, col7, col8,
+                        col9, col10, col11, col12, col13, col14, col15, col16
+                        )
+        lines$Append(line)
+    }
+
+    Formatted <- function(additional.lines) {
+        # append already-formatted lines (usually in the header)
+        for (line in additional.lines) {
+            lines$Append(line)
+        }
+    }
+
+    Get <- function() {
+       lines$Get()
+    }
+
+    list( Header1   = Header1
+         ,Header2   = Header2
+         ,Blank     = Blank
+         ,Detail    = Detail
+         ,Formatted = Formatted
+         ,Get       = Get
+         )
+}
+Chart.5 <- function(my.control) {
+    browser()
+    Header <- function() {
+        lines <- Lines()
+        lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
+        lines$Append('For global linear model')
+        lines$Append('Data from 2008')
+        lines$Append('Features Present in Every Transaction')
+        lines$Append('With and Without Tax Assessment Features (Column Use Tax)')
+        result <- lines$Get()
+        result
+    }
+
+    table <- Table()
+    table$Formatted(Header())
+    table$Blank()
+    table$Header1('preds', 'Use', 'ndays')
+    table$Header2('scenario', 'respose', 'Form', 'Tax',
+                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+                  )
+
+    DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
+        M <- function(ndays) {
+            browser()
+            path.in <- FileName( base = my.control$path.cells
+                                ,arg = list( scope = 'global'
+                                            ,timePeriod = '2008'
+                                            ,scenario = scenario
+                                            ,respone = response
+                                            ,predictorsName = predictorsName
+                                            ,predictorsForm = predictorsForm
+                                            ,ndays = ndays
+                                            ,query = '1'
+                                            ,c = '0'
+                                            ,ntree = '0'
+                                            ,mtry = '0'
+                                            )
+                                )
+            load(path.in)
+            stopifnot(!is.null(cv.result))
+            stopifnot(length(cv.result) == 1)
+            median.RMSE <- MedianRMSE(cv.result[[1]])
+            median.RMSE
+
+        }
+        browser()
+        use.assessment <- switch(predictorsName, always = 'yes', alwaysNoAssessment = 'no')
+        table$Detail(scenario, response, predictorsForm, use.assessment,
+                     M(30), M(60), M(90), M(120), M(150), M(180),
+                     M(210), M(240), M(270), M(300), M(330), M(360)
+                     )
+    }
+
+
+    for (scenario in c('avm')) {
+        for (response in c('price', 'logprice')) {
+            for (predictorsForm in c('level', 'log')) {
+                for (predictorsName in c('always', 'alwaysNoAssessment')) {
+                    DetailLine( scenario = scenario
+                               ,response = response
+                               ,predictorsName = predictorsName
+                               ,predictorsForm = predictorsForm
+                               )
+                }
+            }
+        }
+    }
+
+    file.names <- Lines()
+    AccumulateDependentFileNames <- function(arg) {
+        file.name <- FileName( my.control$path.cells
+                              ,arg = arg
+                              )
+        file.names$Append(file.name)
+    }
+
+
+    CvApplyAllPossibilities( F = AccumulateDependentFileNames
+                            ,possible = possible
+                            ,one.arg = TRUE
+                            )
+    result <- file.names$Get()
+    result
+}
+Chart.6 <- function(my.control) {
+    # return txt lines for chart 6
+    Header <- function() {
+        lines <- Lines()
+        lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
+        lines$Append('For global linear model')
+        lines$Append('Data from 2003 Onward')
+        lines$Append('Non Tax Assessment Features Present in Every Transaction')
+        lines$Append('With and Without Census Tract Features (Column Use Cen)')
+        result <- lines$Get()
+        result
+    }
+
+
+
+    result <- Chart.5.6( header = HeaderRecords,
+                        ,possible = Chart.6.Possible()
+                        )
+    result
+}
+MakeMakefiles <- function(control) {
+    # write one makefile for each chart that is being created
 
 #    chart.1 <- Chart.1.2(control)
 #    chart.2 <- Chart.1.2(control)
-    chart.3 <- Chart.3(control)
-    chart.4 <- Chart.4(control)
+#    chart.3 <- Chart.3(control)
+#    chart.4 <- Chart.4(control)
 
-    AppendDependencies <- function(target.file.name, dependency.file.names, lines) {
+    MakeMakefile <- function(variable.name, dependency.file.names, path.out) {
+        # create generated makefile that defines the variable
         # append to lines
+        lines <- Lines()
         for (dependency.file.name in dependency.file.names) {
-            lines$Append(paste0( target.file.name
+            lines$Append(paste0( variable.name
                                 ,' += '
                                 ,dependency.file.name
                                 )
             )
         }
+        writeLines( text = lines$Get()
+                   ,con = path.out
+                   )
+        
         # return nothing
     }
 
-    lines <- Lines()
 #    AppendDependencies( target.file.name = control$path.out.chart.1
 #                       ,dependency.file.names = chart.1$FileDependencies('always')
 #                       ,lines = lines
@@ -694,18 +962,22 @@ MakeMakefile <- function(control) {
 #                       ,dependency.file.names = chart.2$FileDependencies('alwaysNoAssessment')
 #                       ,lines = lines
 #                       )
-    AppendDependencies( target.file.name = 'e-cv-chart_chart3-data'
-                       ,dependency.file.names = chart.3$FileDependencies()
-                       ,lines = lines
-                       )
-    AppendDependencies( target.file.name = 'e-cv-chart_chart4-data'
-                       ,dependency.file.names = chart.4$FileDependencies()
-                       ,lines = lines
-                       )
-    
-
-    result <- lines$Get()
-    result
+#    AppendDependencies( target.file.name = 'e-cv-chart_chart3-data'
+#                       ,dependency.file.names = chart.3$FileDependencies()
+#                       ,lines = lines
+#                       )
+#    AppendDependencies( target.file.name = 'e-cv-chart_chart4-data'
+#                       ,dependency.file.names = chart.4$FileDependencies()
+#                       ,lines = lines
+#                       )
+    MakeMakefile( variable.name = 'e-cv-chart-chart5'
+                 ,dependency.file.names = Chart.5.FileDependencies(control)
+                 ,path.out = control$path.out.chart.5.generated.makefile
+                 )
+    MakeMakefile( variable.name = 'e-cv-chart-chart6'
+                 ,dependency.file.names = Chart.6.FileDependencies(control)
+                 ,path.out = control$path.out.chart.6.generated.makefile
+                 )
 }
 Charts <- function(control) {
     # write chart files:
@@ -724,16 +996,26 @@ Charts <- function(control) {
 #               ,con = control$path.out.chart.2
 #               )
 
-    chart3 <- Chart.3(control)
-    chart.3.txt <- chart3$Txt()
-    writeLines( text = chart.3.txt
-               ,con = control$path.out.chart.3
+#    chart3 <- Chart.3(control)
+#    chart.3.txt <- chart3$Txt()
+#    writeLines( text = chart.3.txt
+#               ,con = control$path.out.chart.3
+#               )
+#
+#    chart4 <- Chart.4(control)
+#    chart.4.txt <- chart4$Txt()
+#    writeLines( text = chart.4.txt
+#               ,con = control$path.out.chart.4
+#               )
+
+    chart.5.txt <- Chart.5(control)
+    writeLines( text = chart.5.txt
+               ,con = control$path.out.chart.5
                )
 
-    chart4 <- Chart.4(control)
-    chart.4.txt <- chart4$Txt()
-    writeLines( text = chart.4.txt
-               ,con = control$path.out.chart.4
+    chart.6.txt <- Chart.6(control)
+    writeLines( text = chart.6.txt
+               ,con = control$path.out.chart.5
                )
 
     return()
@@ -753,10 +1035,7 @@ Main <- function(control) {
 
     # either produce the makefile or create the charts
     if (control$opt$makefile) {
-        makefile <- MakeMakefile(control)
-        writeLines( text = makefile
-                   ,con = control$path.out.makefile
-                   )
+        MakeMakefiles(control)  # write several generated makefiles
     } else {
         Charts(control)
     }
@@ -768,7 +1047,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-default.args <- list( makefile = FALSE) 
+#default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
