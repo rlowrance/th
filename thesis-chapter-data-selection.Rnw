@@ -66,7 +66,7 @@ assessments are carried out depends on the taxing authority.
 The tax assessment is possibly a useful feature to know when creating
 real estate valuation models. Figure \ref{figure:AssessmentExactlyEqual}
 depicts the fraction of residential properties recorded in certain
-months in Los Angles Country relative to what is called the 2008 tax
+months in Los Angles County relative to what is called the 2008 tax
 assessment.  We see that in the period July, 2007 through December,
 2007, many of the properties, about 90 percent, sold for exactly their
 assessed values. This did not happen in other periods. How did this
@@ -149,7 +149,7 @@ The common feature set across each model contains all the features that
 were present in every transaction of subset 1. The features were
 structured into six groups along two axis. The first axis is the source
 of the feature: from the tax bills, from the U.S.
-Census Bureau, from the deeds file. The second axis is whether the
+Census Bureau, or from the deeds file. The second axis is whether the
 feature describes the size of the property: yes or no.
 
 % ref: Predictors2.R
@@ -225,7 +225,7 @@ more easily calculate error bars on resulting predictions. A third idea
 is to reflect a hypothetical data generating process: it may be that the
 response variable linearly with a percentage change in the predictor
 variable or with a unit change in the predictor variable. When the
-percent-change model is true, transforming the feature the the log
+percent-change model is true, transforming the feature into the log
 domain is appropriate. Otherwise, keeping the feature in its natural
 units is appropriate. Computationally, the size variables are
 partitioned into those that may be zero and those that are always
@@ -312,8 +312,8 @@ model is fit for every sale date.
 % including a pdf
 \begin{figure}[h]
 \caption{
-Fraction of Property Sales for Exactly Their 2008 Assessments \\
-By Month of Recording Date
+Median Price by Month \\
+2006 - 2009
 }
 \label{figure:PricesByMonth2006On}
 \centering\includegraphics[scale=.4]{\Sexpr{path.price.chart2}}
@@ -347,7 +347,7 @@ asking for information on ``name, sex, age, relationship, Hispanic origin,
 and race.''
 \item Long-form: Some houesholds (17 percent) received a questionnaire
 that asked for both the short-form information and an additional ``52
-questions requesting \ldots information about housing, social, and
+questions requesting \dots information about housing, social, and
 economic characteristics of the household.''
 \end{itemize}
 
@@ -371,7 +371,7 @@ census tracts in Los Angeles County.
 Unfortunately, the census tract numbers for properties are contained in
 the taxroll, which we have only for 2008. Thus we cannot easily
 determine census tract numbers for parcels for the 1980 nor 1990
-censuses. The impliciation is that the earliest date we can use the
+censuses. The implication is that the earliest date we can use the
 census data we have is for the date when it first became available.
 Rather than determine that date exactly, we have assumed that
 transactions on or after January 1, 2003 properly reflect census data
@@ -391,7 +391,7 @@ set and allows use to use transactions before and after 2008.
 
 Because the census data were valuable for the time period in which they
 were relevant, namely beginning in 2003, we decided to keep these
-features and restrict the analysis to year beginning in 2003.
+features and restrict the analysis year 2003 and later.
 
 
 
