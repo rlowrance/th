@@ -92,9 +92,8 @@ Control <- function(default.args) {
     testing <- FALSE
     #testing <- TRUE
 
-    out.base <-
-        sprintf( '%s_%s_%s_%s_%s_%s_%s_%s_%d_%d_%d_%d_%d'
-                ,me
+    out.options <-
+        sprintf( '%s_%s_%s_%s_%s_%s_%s_%d_%d_%d_%d_%d'
                 ,opt$scope
                 ,opt$model
                 ,opt$timePeriod
@@ -108,10 +107,11 @@ Control <- function(default.args) {
                 ,opt$ntree
                 ,opt$mtry
                 )
+    out.base <- 'e-cv-cells/'
 
     control <- list( path.in.splits = splits
-                    ,path.out.log = paste0(log, out.base, '.log')
-                    ,path.out.rdata = paste0(working, out.base, '.RData')
+                    ,path.out.log = paste0(log, out.base, out.options, '.log')
+                    ,path.out.rdata = paste0(working, out.base, out.options, '.RData')
                     ,opt = opt
                     ,model.name = out.base
                     ,nfolds = if (testing) 2 else 10
@@ -575,7 +575,7 @@ default.args <-
          ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
-         ,predictorsName = 'alwaysNoCensus'
+         ,predictorsName = 'always'
          ,ndays          = '30'
          ,query          = '1'
          ,c              = '0'
@@ -600,4 +600,5 @@ if (control$testing)
     cat('TESTING: DISCARD RESULTS\n')
 Printf('took %f CPU minutes\n', clock$Cpu() / 60)
 Printf('took %f wallclock minutes\n', clock$Wallclock() / 60)
+Printf('finished at %s\n', as.character(Sys.time()))
 cat('done\n')
