@@ -45,10 +45,16 @@
 
 \usepackage{layout}
 
+% space between paragraphs rather than indentation
+% ref: tex.stackexchange.com/questions/74170/...
+\usepackage[parfill]{parskip}
+
+
 % don't indent first list of a paragraph
 %\setlength{\parindent}{0pt}   
 % increase spacing between paragraphs
 %\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
+
 % don't align right margin
 \raggedright
 
@@ -191,8 +197,8 @@ About <- function(x) {
 %%%%%%%%%%%%%%%%% chapters
 
 \Sexpr{knit_child('thesis-chapter-introduction.Rnw')}
-\chapter{Literature Review}
-%\include{thesis-chapter-literature-review}
+
+\Sexpr{knit_child('thesis-chapter-literature-review.Rnw')}
 
 %\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
 \chapter{Data Munging} Dummy text.
@@ -200,10 +206,12 @@ About <- function(x) {
 %\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
 
 \Sexpr{knit_child('thesis-chapter-data-selection.Rnw')}
-\chapter{How Valuables is the Year 2000 Census?}
+
 \chapter{Selecting Linear Models Using the 2000 Census Features}
+
 \chapter{To What Extent are Non-Linear Models An Improvement over Linear
 Models?}
+
 \chapter{Future Work}
 
 
