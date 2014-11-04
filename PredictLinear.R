@@ -73,16 +73,17 @@ PredictLinear <- function(scenario, ndays, data.training, query.transactions
 
     predictions <- as.double(rep(NA), nrow(query.transactions))
     for (query.index in 1:nrow(query.transactions)) {
-        maybe.prediction <- FitPredict(query.transactions[query.index,])
-        if (maybe.prediction$ok) {
-            if (verbose) 
-                Printf('prediction query.index %d value %f\n', query.index, maybe.prediction$value)
-            predictions[[query.index]] <- maybe.prediction$value
-        } else {
-            Printf( 'prediction query.index %d failed: %s\n'
-                   ,query.index
-                   ,as.character(maybe.prediction$problem))
-        }
+      maybe.prediction <- FitPredict(query.transactions[query.index,])
+      if (maybe.prediction$ok) {
+        if (verbose) 
+          Printf('prediction query.index %d value %f\n', query.index, maybe.prediction$value)
+        predictions[[query.index]] <- maybe.prediction$value
+      } else {
+        Printf( 'prediction query.index %d sale date %s failed: %s\n'
+               ,query.index
+               ,as.character(query.transactions[query.index,]$saleDate)
+               ,as.character(maybe.prediction$problem))
+      }
     }
     predictions
 }
