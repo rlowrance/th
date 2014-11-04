@@ -207,10 +207,10 @@ About <- function(x) {
 
 \Sexpr{knit_child('thesis-chapter-data-selection.Rnw')}
 
-\chapter{Selecting Linear Models Using the 2000 Census Features}
+\Sexpr{knit_child('thesis-chapter-best-linear.Rnw')}
 
-\chapter{To What Extent are Non-Linear Models An Improvement over Linear
-Models?}
+\Sexpr{knit_child('thesis-chapter-non-linear.Rnw')}
+
 
 \chapter{Future Work}
 
