@@ -331,22 +331,38 @@ include e-cv-generated.makefile
 # E-CV-CHART
 # for now, all charts are produced by one program
 
-# create and include make file to state dependencies in e-cv-chart output files
-e-cv-chart-generated.makefile: e-cv-chart.R
-	Rscript e-cv-chart.R --makefile
-
-# define symbols e-cv-chart_chart3_data
-#                e-cv-chart_chart4_data
-include e-cv-chart-generated.makefile
+## create and include make file to state dependencies in e-cv-chart output files
+#e-cv-chart-generated.makefile: e-cv-chart.R
+#	Rscript e-cv-chart.R --makefile
+#
+## define symbols e-cv-chart_chart5_data
+##                e-cv-chart_chart6_data
+##include e-cv-chart-generated.makefile
 
 e-cv-chart-source += Directory.R
 e-cv-chart-source += Libraries.R
+e-cv-chart-source += CvApplyAllPossibilities.R
+
+e-cv-chart-chart5-generated%makefile \
+e-cv-chart-chart6-generated%makefile \
+: $(e-cv-chart-source)
+	Rscript e-cv-chart.R --makefile
+
+include e-cv-chart-chart5-generated.makefile  # define variable e-cv-chart-chart5
+include e-cv-chart-chart6-generated.makefile  # define variable e-cv-chart-chart6
+
+$(warning e-cv-chart-chart5 is $(e-cv-chart-chart5))
 
 # stem is .
-$(working)/e-cv-chart_chart3%txt \
-$(working)/e-cv-chart_chart4%txt \
-: $(e-cv-chart_chart3-data) $(e-cv-chart_chart4-data) e-cv-chart.R $(e-cv-chart-source)
+$(working)/e-cv-chart_chart5%txt $(working)/e-cv-chart_chart6%txt \
+: $(e-cv-chart-chart5) $(e-cv-chart-chart6) e-cv-chart.R $(e-cv-chart-source)
 	Rscript e-cv-chart.R
+
+#$(working)/e-cv-chart_chart5.txt: e-cv-chart.R
+#	Rscript e-cv-chart.R
+#
+#$(working)/e-cv-chart_chart6.txt: e-cv-chart.R
+#	Rscript e-cv-chart.R
 
 # E-FEATURES-LCV
 
@@ -814,8 +830,8 @@ thesis-data-data-munging += $(working)/transactions-subset1.RData
 thesis-data-data-munging += $(working)/deeds-al-g.RData
 thesis-data-data-munging += $(working)/parcels-sfr.RData
 
-thesis-data-data-selection += $(working)/e-cv-chart_chart3.txt
-thesis-data-data-selection += $(working)/e-cv-chart_chart4.txt
+thesis-data-data-selection += $(working)/e-cv-chart_chart5.txt
+thesis-data-data-selection += $(working)/e-cv-chart_chart6.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
