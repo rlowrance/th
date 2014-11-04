@@ -549,9 +549,8 @@ Chart.4 <- function(my.control) {
     }
 
     DataRecords <- function() {
-        browser()
         DataRecord <- function(scenario, response, predictorsName, predictorsForm, accumulator) {
-            cat('DataRecord', scenario, response, predictorsName, predictorsForm, '\n'); browser()
+            #cat('DataRecord', scenario, response, predictorsName, predictorsForm, '\n'); browser()
             M_RMSE <- function(ndays) {
                 path.in <- PathIn( scenario = scenario
                                   ,response = response
@@ -647,7 +646,6 @@ Chart.4 <- function(my.control) {
     }
 
     Txt <- function() {
-        browser()
         lines <- Lines()
 
         for (line in HeaderRecords()) {
@@ -700,7 +698,6 @@ MakeMakefile <- function(control) {
                        ,dependency.file.names = chart.3$FileDependencies()
                        ,lines = lines
                        )
-    browser()
     AppendDependencies( target.file.name = 'e-cv-chart_chart4-data'
                        ,dependency.file.names = chart.4$FileDependencies()
                        ,lines = lines
@@ -711,7 +708,6 @@ MakeMakefile <- function(control) {
     result
 }
 Charts <- function(control) {
-    browser()
     # write chart files:
     # for now, only create chart3
     
