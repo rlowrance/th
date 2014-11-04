@@ -362,7 +362,6 @@ Chart.3 <- function(my.control) {
         DataRecord <- function(scenario, response, predictorsName, predictorsForm, accumulator) {
             #cat('DataRecord', scenario, response, predictorsName, predictorsForm, '\n'); browser()
             M_RMSE <- function(ndays) {
-                browser()
                 path.in <- PathIn( scenario = scenario
                                   ,response = response
                                   ,predictorsName = predictorsName
@@ -412,7 +411,7 @@ Chart.3 <- function(my.control) {
         lines$Append('For global linear model')
         lines$Append('Data from 2008')
         lines$Append('Features Present in Every Transaction')
-        lines$Append('With and Without Tax Assessment Features')
+        lines$Append('With and Without Tax Assessment Features (Column Use Tax)')
         lines$Append(' ')
         lines$Append(sprintf( header.format
                              ,' '
@@ -533,7 +532,7 @@ Chart.4 <- function(my.control) {
 
     FileDependencies <- function() {
         FileDependency <- function(scenario, response, predictorsName, predictorsForm, accumulator) {
-            #cat('FileDependency', scenario, response, predictorsName, predictorsForm, '\n'); browser()
+            cat('FileDependency', scenario, response, predictorsName, predictorsForm, '\n'); browser()
             for (ndays in ndays.range) {
                 line <- PathIn( scenario = scenario
                                ,response = response
@@ -554,7 +553,6 @@ Chart.4 <- function(my.control) {
         DataRecord <- function(scenario, response, predictorsName, predictorsForm, accumulator) {
             cat('DataRecord', scenario, response, predictorsName, predictorsForm, '\n'); browser()
             M_RMSE <- function(ndays) {
-                browser()
                 path.in <- PathIn( scenario = scenario
                                   ,response = response
                                   ,predictorsName = predictorsName
@@ -604,7 +602,7 @@ Chart.4 <- function(my.control) {
         lines$Append('For global linear model')
         lines$Append('Data from 2003 Onward')
         lines$Append('Non Tax Assessment Features Present in Every Transaction')
-        lines$Append('With and Without Census Tract Features')
+        lines$Append('With and Without Census Tract Features (Column Use Cen)')
         lines$Append(' ')
         lines$Append(sprintf( header.format
                              ,' '
@@ -702,6 +700,7 @@ MakeMakefile <- function(control) {
                        ,dependency.file.names = chart.3$FileDependencies()
                        ,lines = lines
                        )
+    browser()
     AppendDependencies( target.file.name = 'e-cv-chart_chart4-data'
                        ,dependency.file.names = chart.4$FileDependencies()
                        ,lines = lines
@@ -712,6 +711,7 @@ MakeMakefile <- function(control) {
     result
 }
 Charts <- function(control) {
+    browser()
     # write chart files:
     # for now, only create chart3
     
@@ -772,7 +772,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
