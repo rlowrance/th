@@ -1,9 +1,9 @@
-# e-cv-generate.R
-# main program to produce file e-cv-generate.makefile 
-# the file e-cv-generate.makefile contains rules and recipes to build every possible output
+# e-cv-generated.R
+# main program to produce file e-cv-generated.makefile 
+# the file e-cv-generated.makefile contains rules and recipes to build every possible output
 # from e-cv.R
 
-# upon execution of make -f e-cv-generate.makefile, files of with these names are generated
+# upon execution of make -f e-cv-generated.makefile, files of with these names are generated
 # WORKING/e-cv_global_linear_2009_SCENARIO_RESPONSE_always_PREDICTORSFORM_NDAYS_0_0_0.RData
 #
 # Command line arguments: None
@@ -29,7 +29,7 @@ Control <- function(default.args) {
 #                            ,default.args
 #                            )
 
-    me <- 'e-cv-generate' 
+    me <- 'e-cv-generated' 
 
     log <- Directory('log')
     working <- Directory('working')
@@ -40,6 +40,7 @@ Control <- function(default.args) {
                     ,debug = FALSE
                     ,possible = CvPossible()
                     ,working = working
+                    ,me = me
                     )
     control
 }
