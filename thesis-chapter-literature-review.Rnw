@@ -1,0 +1,44 @@
+\chapter{Literature Review}
+% vim: textwidth=72
+% vim: foldmethod=manual
+
+
+In \cite{bourassa-10-predicting}, authors Steven C. Bourassa, Evan Cantoni, and
+Martin Hoesli compare hedonic methods for predicting residential real
+estate price. The data are 13,000 single-family house sales in the year 
+1999 in Louisville, Kentucky. Data came from the Property Valuation
+Administrator for Jefferson Country, which contains Louisville. Census
+data at the census block level were used. The regressor was the log of
+the price.  Predictors included the house's age and age squared and the
+lot size and size squared. Factors were included for quarterly time
+periods.
+
+These models were compared:
+\begin{itemize}
+\item An OLS model.
+\item A two-stage OLS model. The first stage is used to calculate
+residuals. The second stage uses the average residual of the ten nearest
+neighbors as features.
+\item A geostatistical model, an approach that models the covariance
+matrix of residuals from a first-stage model.
+\item A trend surface method, defined by FLM (cite this).
+\end{itemize}
+
+Most models were fit once for the entire market, and several times for
+submarkets. The submarket models were sometimes defined by indicator variables
+for submarket and sometimes by models trained for entire submarkets.
+Submarkets were defined in several ways, including starting with census
+blocks and building up neighborhoods by merging census blocks with
+similar house values.
+
+The comparison approach was to train models on 74 percent of the date
+and determine the errors on the remaining 26 percent of the data. This
+procedure was repeated 100 times for different random draws. 
+
+The key error metrics used were the fraction of the test transactions
+within 10 and 20 percent of the known true values.
+
+The study claims that accuracy is improved by including submarkets, but
+reached no conclusion on whether the indicator variable or entire
+submarket approach was more accurate. The most accurate model was a
+geostatistical model with indicator variables for submarkets.
