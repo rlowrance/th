@@ -785,28 +785,6 @@ Chart.6.FileDependencies <- function(my.control) {
                                          )
     result
 }
-CvFilename <- function( scope, model, timePeriod, scenario
-                       ,response, predictorsName, predictorsForm, ndays
-                       ,query, c, ntree, mtry
-                       ,control) {
-    # return file name for a cell produced by program e-cv.R
-    result <- paste0( control$path.cells
-                     ,scope
-                     ,'_', model
-                     ,'_', timePeriod
-                     ,'_', scenario
-                     ,'_', response
-                     ,'_', predictorsName
-                     ,'_', predictorsForm
-                     ,'_', ndays
-                     ,'_', query
-                     ,'_', c
-                     ,'_', ntree
-                     ,'_', mtry
-                     ,'.RData'
-                     )
-    result
-}
 Chart.7.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 7 
 
@@ -819,24 +797,20 @@ Chart.7.FileDependencies <- function(my.control) {
                         for (predictorsName in 'alwaysNoAssessment') {
                             for (predictorsForm in c('level', 'log')) {
                                 for (ndays in my.control$ndays.range) {
-                                    query <- '100'
-                                    c <- '0'
-                                    ntree <- '0'
-                                    mtry <- '0'
-                                    file.name <- CvFilename( scope = scope
-                                                            ,model = model
-                                                            ,timePeriod = timePeriod
-                                                            ,scenario = scenario
-                                                            ,response = response
-                                                            ,predictorsName = predictorsName
-                                                            ,predictorsForm = predictorsForm
-                                                            ,ndays = ndays
-                                                            ,query = query
-                                                            ,c = c
-                                                            ,ntree = ntree
-                                                            ,mtry = mtry
-                                                            ,control = my.control
-                                                            )
+                                    file.name <- Filename( my.control$base
+                                                          ,arg = list( scope = scope
+                                                                      ,model = model
+                                                                      ,timePeriod = timePeriod
+                                                                      ,response = response
+                                                                      ,predictorsName = predictorsName
+                                                                      ,predictorsForm = predictorsForm
+                                                                      ,ndays = ndays
+                                                                      ,query = '100'
+                                                                      ,c = '0'
+                                                                      ,ntree = '0'
+                                                                      ,mtry = '0'
+                                                                      )
+                                                          )
                                     file.names$Append(file.name)
                                 }
                             }
