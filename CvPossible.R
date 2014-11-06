@@ -10,10 +10,10 @@ CvPossible <- function() {
              ,predictorsForm = c('level', 'log')
              ,predictorsName = c('always', 'alwaysNoAssessment', 'alwaysNoCensus')
              ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
-             ,query = c(1)
-             ,c = c(0)
-             ,ntree = c(0)
-             ,mtry = c(0)
+             ,query = c('1', '100')
+             ,c = c('0')
+             ,ntree = c('0')
+             ,mtry = c('0')
              )
     result
 }
