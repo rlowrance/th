@@ -708,6 +708,7 @@ Chart.5.6.FileDependencies <- function(my.control, possible) {
 }
 Chart.5.Possible <- function() {
     # return possible list for Chart 5
+    # NOTE: 100% sample of possible queries
     possible <-
         list( scope = 'global'
              ,model = 'linear'
@@ -736,6 +737,7 @@ Chart.5.FileDependencies <- function(my.control) {
 }
 Chart.6.Possible <- function() {
     # return possible list for chart 6
+    # NOTE: 1% sample of possible queries
     possible <-
         list( scope = 'global'
              ,model = 'linear'
@@ -745,7 +747,7 @@ Chart.6.Possible <- function() {
              ,predictorsName = c('alwaysNoAssessment', 'alwaysNoCensus')
              ,predictorsForm = c('level', 'log')
              ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
-             ,query = '1'
+             ,query = '100'
              ,c = '0'
              ,ntree = '0'
              ,mtry = '0'
