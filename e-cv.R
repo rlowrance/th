@@ -47,6 +47,37 @@ source('ReadTransactionSplits.R')
 library(lubridate)
 library(memoise)
 library(optparse)
+library(pryr)
+
+Counter <- function(initial.value = 0) {
+    current.value <- initial.value
+
+    Increment <- function() {
+        current.value <<- current.value + 1
+    }
+
+    Get <- function() {
+        current.value
+    }
+
+    list( Increment = Increment
+         ,Get       = Get
+         )
+}
+
+ReportMemoryUsage <- function(msg = '') {
+    mem.used <- mem_used()
+    Printf( '%s mem_used %f GB\n'
+           ,msg
+           ,as.numeric(mem.used) / 1e9
+           )
+}
+
+MaybeReportMemoryUsage <- function(msg = '') {
+    maybe <- TRUE
+    if (maybe)
+        ReportMemoryUsage(msg)
+}
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
@@ -113,7 +144,7 @@ Control <- function(default.args) {
                     ,path.out.log = paste0(log, out.base, out.options, '.log')
                     ,path.out.rdata = paste0(working, out.base, out.options, '.RData')
                     ,opt = opt
-                    ,model.name = out.base
+                    ,model.name = out.options
                     ,nfolds = if (testing) 2 else 10
                     ,split.names = unique(c( predictors
                                             ,identification
@@ -123,6 +154,8 @@ Control <- function(default.args) {
                     ,testing = testing
                     ,debug = FALSE
                     ,verbose.CrossValidate = TRUE
+                    ,trace.memory.usage = TRUE
+                    ,fold.counter = Counter()
                     ,me = me
                     )
     control
@@ -325,6 +358,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                        ,query.transactions
                        ,control
                        ) {
+    MaybeReportMemoryUsage('start Evaluate_10')
     # Return evaluation of the specified model on the given training and test data
     # reduce over model
 
@@ -378,6 +412,7 @@ Evaluate_10 <- function(scope, model, scenario, response
     result <- EvaluatePredictions( prediction = predictions
                                   ,actual = actuals
                                   )
+    MaybeReportMemoryUsage('start Evaluate_10')
     result
 }
 Evaluate_11 <- function(scope, model, scenario, response
@@ -385,6 +420,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                        ,c, ntree, mtry
                        ,data.training, data.testing
                        ,control) {
+    MaybeReportMemoryUsage('start Evaluate_11')
     # Return evaluation of the specified model on the given training and test data
     # Reduce over query
 
@@ -411,6 +447,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                           ,query.transactions = query.transactions
                           ,control = control
                           )
+    MaybeReportMemoryUsage('end Evaluate_11')
     result
 }
 Evaluate_12 <- function(scope, model, timePeriod, scenario, response
@@ -418,23 +455,30 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                         ,c, ntree, mtry
                         ,data.training, data.testing
                         ,control) {
+    MaybeReportMemoryUsage('start Evaluate_12')
     # Return evaluation of the specified model on the given training and test data
     # Reduce over timePeriod
+
+    # eliminate data not know in timePeriod; Either:
+    # - transaction not occurring in this time period; OR
+    # - transactions with year.built or effective.year.built before the start of the time period
     if (timePeriod == '2008') {
         # just year 2008
         first.date <- as.Date('2008-01-01')
         last.date  <- as.Date('2008-12-31')
         is.training <- 
             data.training$saleDate >= first.date &
-            data.training$saleDate <= last.date
+            data.training$saleDate <= last.date 
         is.testing <- 
             data.testing$saleDate >= first.date &
-            data.testing$saleDate <= last.date
+            data.testing$saleDate <= last.date 
     } else if (timePeriod == '2003on') {
         # after Jan 1 2003
         first.date <- as.Date('2003-01-01')
-        is.training <- data.training$saleDate >= first.date
-        is.testing  <- data.testing$saleDate  >= first.date
+        is.training <- 
+            data.training$saleDate >= first.date 
+        is.testing  <- 
+            data.testing$saleDate  >= first.date 
     } else {
         stop('bad timePeriod')
     }
@@ -454,16 +498,26 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                           ,data.testing = data.testing[is.testing,]
                           ,control = control
                           )
+    MaybeReportMemoryUsage('end Evaluate_12')
     result
 }
 EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
     # Return evaluation of the model specified in the hyperparameters using
     # the specified training and test data.
+
+    clock <- Clock()
+    MaybeReportMemoryUsage(sprintf( 'start EvaluatModelHp fold %d'
+                                   ,{control$fold.counter$Increment(); control$fold.counter$Get()}
+                                   )
+    )
     
     # split the data into training and test folds
+    # also discard transactions with houses built after date of taxroll
 
-    data.training.fold <- data[is.training,]
+    data.training.fold <- data[is.training, ]
     data.testing.fold <- data[is.testing, ]
+
+    # eliminate house built or modified after the date of the taxroll
 
     result <- Evaluate_12( scope = hp$scope
                 ,model = hp$model
@@ -481,11 +535,27 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                 ,data.testing = data.testing.fold
                 ,control = control
                 )
+    MaybeReportMemoryUsage('end EvaluateModelHp')
+    Printf( 'time for  fold %d:  %f CPU minutes %f elapsed minutes\n'
+           ,control$fold.counter$Get()
+           ,clock$Cpu() / 60
+           ,clock$Wallclock() / 60
+           )
+    Printf(' model %s\n', control$model.name)
     result
 }
 Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
+
+    # drop data the taxroll doesn't know about
+    # NOTE: no observations are eliminated by this procedure
+    # because the largest year.built and effective.year.built are 2008
+    taxroll.year <- 2008
+    is.known.to.taxroll <-
+        transaction.data.all.years$year.built <= taxroll.year &
+        transaction.data.all.years$effective.year.built <= taxroll.year
+    data <-  transaction.data.all.years[is.known.to.taxroll, ]
 
     # build list of hyperparameters to be used in defining the models for CrossValidate
     # here there is only one model and the hyperparameters are from the command line options
@@ -520,7 +590,7 @@ Main <- function(control, transaction.data.all.years) {
 
     model.name = control$model.name
 
-    cv.result <- CrossValidate( data = transaction.data.all.years
+    cv.result <- CrossValidate( data = data
                                ,nfolds = control$nfolds
                                ,EvaluateModel = EvaluateModel
                                ,model.name = model.name
@@ -571,13 +641,13 @@ clock <- Clock()
 default.args <-
     list( scope          = 'global'
          ,model          = 'linear'
-         ,timePeriod     = '2008'
+         ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'price'
          ,predictorsForm = 'level'
-         ,predictorsName = 'always'
-         ,ndays          = '30'
-         ,query          = '1'
+         ,predictorsName = 'alwaysNoAssessment'
+         ,ndays          = '330'
+         ,query          = '100'
          ,c              = '0'
          ,ntree          = '0'
          ,mtry           = '0'
