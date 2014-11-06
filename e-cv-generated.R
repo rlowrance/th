@@ -1,17 +1,24 @@
 # e-cv-generated.R
+# vim: filetype=R
 # main program to produce file e-cv-generated.makefile 
-# the file e-cv-generated.makefile contains rules and recipes to build every possible output
-# from e-cv.R
-
-# upon execution of make -f e-cv-generated.makefile, files of with these names are generated
-# WORKING/e-cv_global_linear_2009_SCENARIO_RESPONSE_always_PREDICTORSFORM_NDAYS_0_0_0.RData
+# this makefile has rules for every file in WORKING/e-cv-cells/ that is
+# actually used (Hence not all files)
+# 
+# Usage:
+# - include in a bigger makefile
+# - make -f e-cv-generated.makefile -j 8 part1
+#   to generate all files in part1 using 8 CPUs
+# - make -f e-cv-generated.makefile -j 8 part3
+#   to generate all files in part2 using 8 CPUs
+# - make -f e-cv-generated.makefile -j 8 parts-all
+#   to generate all the files actuall needed
 #
+# the rules are of the form;
+# WORKING/e-cv-cells/SCOPE_MODEL_TIMEPERIOD ... .RData:
+#   Rscript e-cv.R --scope SCOPE --model MODEL --timePeriod ...
+
 # Command line arguments: None
 #
-# TODO:
-# generate multiple targets to allow resulting script to be started on multiple systems via
-# (on system 1) : make -f e-cv-generate.makefile targets.1.of.6 -j 7
-# (on system 2) : make -f e-cv-generate.makefile targets.2.of.6 -j 7
 
 source('Directory.R')
 source('Libraries.R')
@@ -40,7 +47,6 @@ Control <- function(default.args) {
                     ,dir.cells = cells
                     ,testing = FALSE
                     ,debug = FALSE
-                    ,possible = CvPossible()
                     ,working = working
                     ,me = me
                     )
@@ -80,96 +86,98 @@ Lines <- function(max.size = 1000) {
          ,Get = Get
          )
 }
-FileNamesCommands <- function(working) {
-    # class object: list of filenames and commands
-    # ARG working: path to working directory in file system
-    file.names <- Lines()
-    commands <- Lines()
-
-    Accumulate <- function(scope, model, timePeriod, scenario, response
-                           ,predictorsName, predictorsForm, ndays
-                           ,query, c, ntree, mtry) {
-        # accumulate file names and command for interesting scope, model, timePeriod, predictorsName
-        # mutate state
-        # return nothing
-            
-        file.name <- paste0( working 
-                            ,'e-cv-cells/', scope
-                            ,'_', model
-                            ,'_', timePeriod
-                            ,'_', scenario
-                            ,'_', response
-                            ,'_', predictorsName
-                            ,'_', predictorsForm
-                            ,'_', ndays
-                            ,'_', query
-                            ,'_', c
-                            ,'_', ntree
-                            ,'_', mtry
-                            ,'.RData'
-                            )
-        file.names$Append(file.name)
-        command <- paste( 'Rscript'
-                         ,'e-cv.R'
-                         ,'--scope', scope
-                         ,'--model', model
-                         ,'--timePeriod', timePeriod
-                         ,'--scenario', scenario
-                         ,'--response', response
-                         ,'--predictorsName', predictorsName
-                         ,'--predictorsForm', predictorsForm
-                         ,'--ndays', ndays
-                         ,'--query', '1'
-                         ,'--c', '0'
-                         ,'--ntree', '0'
-                         ,'--mtry', '0'
-                         )
-        commands$Append(command)
-    }
-
-    Get <- function() {
-        list( file.names = file.names$Get()
-             ,commands = commands$Get()
-             )
-    }
-
-    list( Accumulate = Accumulate
-         ,Get = Get
-         )
-}
 DetermineFileNamesAndCommands <- function(control) {
     # return list $file.names $commands
-    file.names.commands <- FileNamesCommands(control$working)
-    CvApplyAllPossibilities( FUN = file.names.commands$Accumulate
-                            ,possible = control$possible
-                            )
-    fnc <- file.names.commands$Get()
-    fnc
+    Filename <- function(scope, model, timePeriod, scenario, response
+                         ,predictorsForm, predictorsName
+                         ,ndays, query, c, ntree, mtry) {
+      file.name <- paste0( control$working
+                          ,'e-cv-cells/'
+                          ,scope
+                          ,'_', model
+                          ,'_', timePeriod
+                          ,'_', scenario
+                          ,'_', response
+                          ,'_', predictorsName
+                          ,'_', predictorsForm
+                          ,'_', ndays
+                          ,'_', query
+                          ,'_', c
+                          ,'_', ntree
+                          ,'_', mtry
+                          ,'.RData'
+                          )
+      file.name
+    }
+    Command   <- function(scope, model, timePeriod, scenario, response
+                         ,predictorsForm, predictorsName
+                         ,ndays, query, c, ntree, mtry) {
+      command <- paste( 'Rscript'
+                       ,'e-cv.R'
+                       ,'--scope', scope
+                       ,'--model', model
+                       ,'--timePeriod', timePeriod
+                       ,'--scenario', scenario
+                       ,'--response', response
+                       ,'--predictorsName', predictorsName
+                       ,'--predictorsForm', predictorsForm
+                       ,'--ndays', ndays
+                       ,'--query', query
+                       ,'--c', c
+                       ,'--ntree', ntree
+                       ,'--mtry', mtry
+                       )
+      command
+    }
+
+    file.names <- Lines()
+    commands <- Lines()
+    for (scope in 'global') {
+      for (model in 'linear') {
+        for (timePeriod in c('2003on', '2008')) {
+          for (scenario in 'avm') {
+            for (response in c('price', 'logprice')) {
+              for (predictorsForm in c('level', 'log')) {
+                for (predictorsName in c( 'always'
+                                         ,'alwaysNoAssessment'
+                                         ,'alwaysNoCensus'
+                                         )) {
+                  for (ndays in c( '30', '60', '90', '120', '150',
+                                  '180', '210', '240', '270', '300',
+                                  '330', '360')) {
+                    query <- if (timePeriod == '2003on') '100' else '1'
+                    c <- '0'
+                    ntree <- '0'
+                    mtry <- '0'
+                    file.names$Append(Filename(scope, model, timePeriod, scenario, response,
+                                               predictorsForm ,predictorsName, ndays
+                                               ,query, c, ntree, mtry))
+                    commands  $Append(Command (scope, model, timePeriod, scenario, response,
+                                               predictorsForm ,predictorsName, ndays
+                                               ,query, c, ntree, mtry))
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    result <- list( file.names = file.names$Get()
+                   ,commands = commands$Get()
+                   )
+    result
 }
 GenerateMakefile <- function(file.names, commands, control) { 
-  browser()
     # general the make file lines
     lines <- Lines()
-#    GenerateTargets <- function(file.names) {
-#        # accumulate targets definitions into lines
-#        for (file.name in file.names) {
-#            line <- paste( 'targets +='
-#                          ,file.name
-#                          )
-#            lines$Append(line)
-#        }
-#    }
-#
-#    GenerateTargets(file.names)
-#
-#    lines$Append('.PHONY: all')
-#    lines$Append('all: $(targets)')
 
     lines$Append('# this makefile generated by program e-cv-generated.R')
     lines$Append(sprintf('# e-cv-generated.R was run at %s', Sys.time()))
     lines$Append('#')
 
-    GenerateRulesAndRecipes <- function(file.names, commands) {
+    GenerateRulesAndRecipes <- function(file.names, commands, lines) {
         # accumulate rules into lines
         stopifnot(length(file.names) == length(commands))
         for (index in 1:length(file.names)) {
@@ -183,7 +191,39 @@ GenerateMakefile <- function(file.names, commands, control) {
         }
     }
 
-    GenerateRulesAndRecipes(file.names, commands)
+    GenerateAll1All2 <- function(file.names, lines) {
+      # all1 += file.name[[1]]
+      # all2 += file.name[[2]]
+      # all1 += file.name[[3]]
+      # all2 += file.name[[4]]
+      # ...
+      # .PHONY: all
+      # all: all1 all2
+      # .PHONY: all1
+      # all1: $(all1)
+      # .PHONY: all2
+      # all2: $(all2)
+
+      n <- 0
+      for (file.name in file.names) {
+        n <- if (n == 2) 1 else (n + 1)
+        line <- sprintf('all%d += %s', n, file.name)
+        lines$Append(line)
+      }
+
+      lines$Append('.PHONY: all')
+      lines$Append('all1: all1 all2')
+
+      lines$Append('.PHONY: all1')
+      lines$Append('all1: $(all1)')
+
+      lines$Append('.PHONY: all2')
+      lines$Append('all2: $(all2)')
+    }
+
+    GenerateRulesAndRecipes(file.names, commands, lines)
+    GenerateAll1All2(file.names, lines)
+
     result <- lines$Get()
     result
 }
@@ -197,8 +237,10 @@ Main <- function(control) {
     fnc <- DetermineFileNamesAndCommands(control)
     file.names <- fnc$file.names
     commands <- fnc$commands
+    Printf('created rule for %d files\n', length(file.names))
 
     makefile.lines <- GenerateMakefile(file.names, commands, control)
+    browser()
 
     # write the file
     writeLines( text = makefile.lines
