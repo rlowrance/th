@@ -345,13 +345,17 @@ e-cv-chart-source += CvApplyAllPossibilities.R
 
 e-cv-chart-chart5-generated%makefile \
 e-cv-chart-chart6-generated%makefile \
+e-cv-chart-chart7-generated%makefile \
 : $(e-cv-chart-source)
 	Rscript e-cv-chart.R --makefile
 
-include e-cv-chart-chart5-generated.makefile  # define variable e-cv-chart-chart5
-include e-cv-chart-chart6-generated.makefile  # define variable e-cv-chart-chart6
+# define variables e-cv-chart-chartN
+# define targets   e-cv-chart-chartN-target
+include e-cv-chart-chart5-generated.makefile  
+include e-cv-chart-chart6-generated.makefile 
+include e-cv-chart-chart7-generated.makefile
 
-$(warning e-cv-chart-chart5 is $(e-cv-chart-chart5))
+#$(warning e-cv-chart-chart5 is $(e-cv-chart-chart5))
 
 # stem is .
 $(working)/e-cv-chart_chart5%txt $(working)/e-cv-chart_chart6%txt \
