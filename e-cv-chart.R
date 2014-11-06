@@ -18,6 +18,7 @@ source('CvApplyAllPossibilities.R')
 
 library(ggplot2)
 library(optparse)
+library(memoise)
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
@@ -48,9 +49,11 @@ Control <- function(default.args) {
                     #,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
                     #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
                     ,path.out.chart.5 = paste0(working, out.base, '_chart5.txt')
+                    ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
+                    ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
-                    ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
+                    ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -59,6 +62,9 @@ Control <- function(default.args) {
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
+                    ,ndays.range = c(  '30',  '60',  '90', '120', '150', '180'
+                                     ,'210', '240', '270', '300', '330', '360'
+                                     )
                     )
     control
 }
@@ -98,16 +104,31 @@ Lines <- function(max.size = 1000) {
          )
 }
 MedianRMSE <- function(a.cv.result) {
-    # there is only one model in the file
+    # return median of the rootMedianSquaredError values in the folds
     nfolds <- length(a.cv.result)
     stopifnot(nfolds == 10)
-    rMedianSE.values <- sapply(1 : nfolds,
-                               function(fold.index) {
-                                   evaluation <- a.cv.result[[fold.index]]
-                                   evaluation$rootMedianSquaredError
-                               }
+    rootMedianSquaredError.values <- 
+        sapply(1 : nfolds,
+               function(fold.index) {
+                   evaluation <- a.cv.result[[fold.index]]
+                   evaluation$rootMedianSquaredError
+               }
+               )
+    result <- median(rootMedianSquaredError.values)
+    result
+}
+MeanWithin10 <- function(a.cv.result) {
+    # return mean of the fraction.within.10.percent values in the folds
+    nfolds <- length(a.cv.result)
+    stopifnot(nfolds == 10)
+    fraction.within.10.percent.values <- 
+        sapply(1 : nfolds,
+               function(fold.index) {
+                   evaluation <- a.cv.result[[fold.index]]
+                   evaluation$fraction.within.10.percent
+               }
                                )
-    result <- median(rMedianSE.values)
+    result <- mean(fraction.within.10.percent.values)
     result
 }
 Chart.1.2 <- function(my.control) {
@@ -670,7 +691,7 @@ Chart.4 <- function(my.control) {
          ,FileDependencies = FileDependencies
          )
 }
-FileName <- function(base, arg) {
+Filename <- function(base, arg) {
     # return file name as a chr
     file.name <- paste0( base
                         ,arg$scope
@@ -755,7 +776,7 @@ Chart.6.Possible <- function() {
     possible
 }
 Chart.6.FileDependencies <- function(my.control) {
-    # return list of file names used to construct chart 5 
+    # return list of file names used to construct chart 6
     # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
     # timePeriod 2003on
 
@@ -764,11 +785,75 @@ Chart.6.FileDependencies <- function(my.control) {
                                          )
     result
 }
+CvFilename <- function( scope, model, timePeriod, scenario
+                       ,response, predictorsName, predictorsForm, ndays
+                       ,query, c, ntree, mtry
+                       ,control) {
+    # return file name for a cell produced by program e-cv.R
+    result <- paste0( control$path.cells
+                     ,scope
+                     ,'_', model
+                     ,'_', timePeriod
+                     ,'_', scenario
+                     ,'_', response
+                     ,'_', predictorsName
+                     ,'_', predictorsForm
+                     ,'_', ndays
+                     ,'_', query
+                     ,'_', c
+                     ,'_', ntree
+                     ,'_', mtry
+                     ,'.RData'
+                     )
+    result
+}
+Chart.7.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 7 
+
+    file.names <- Lines()
+    for (scope in 'global') {
+        for (model in 'linear') {
+            for (timePeriod in '2003on') {
+                for (scenario in 'avm') {
+                    for (response in c('price', 'logprice')) {
+                        for (predictorsName in 'alwaysNoAssessment') {
+                            for (predictorsForm in c('level', 'log')) {
+                                for (ndays in my.control$ndays.range) {
+                                    query <- '100'
+                                    c <- '0'
+                                    ntree <- '0'
+                                    mtry <- '0'
+                                    file.name <- CvFilename( scope = scope
+                                                            ,model = model
+                                                            ,timePeriod = timePeriod
+                                                            ,scenario = scenario
+                                                            ,response = response
+                                                            ,predictorsName = predictorsName
+                                                            ,predictorsForm = predictorsForm
+                                                            ,ndays = ndays
+                                                            ,query = query
+                                                            ,c = c
+                                                            ,ntree = ntree
+                                                            ,mtry = mtry
+                                                            ,control = my.control
+                                                            )
+                                    file.names$Append(file.name)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    result <- file.names$Get()
+    result
+}
 Chart.5.6 <- function(header, possible) {
     stop('write me')
 }
-Table <- function() {
-    # return table function object $Header1() $Header2() $Detail()
+Table.5.6 <- function() {
+    # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
     case   <- '%8s %8s %5s %3s'
     header.format <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
     data.format   <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
@@ -799,7 +884,6 @@ Table <- function() {
 
     Detail <- function(col1, col2, col3, col4, col5, col6, col7, col8,
                        col9, col10, col11, col12, col13, col14, col15, col16) {
-        browser()
         line <- sprintf(data.format,
                         col1, col2, col3, col4, col5, col6, col7, col8,
                         col9, col10, col11, col12, col13, col14, col15, col16
@@ -827,7 +911,7 @@ Table <- function() {
          )
 }
 Chart.5 <- function(my.control) {
-    browser()
+    # return list of lines, the txt table for chart 5
     Header <- function() {
         lines <- Lines()
         lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
@@ -839,22 +923,22 @@ Chart.5 <- function(my.control) {
         result
     }
 
-    table <- Table()
+    table <- Table.5.6()
     table$Formatted(Header())
     table$Blank()
     table$Header1('preds', 'Use', 'ndays')
-    table$Header2('scenario', 'respose', 'Form', 'Tax',
+    table$Header2('scenario', 'response', 'Form', 'Tax',
                   '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
                   )
 
     DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
         M <- function(ndays) {
-            browser()
-            path.in <- FileName( base = my.control$path.cells
+            path.in <- Filename( base = my.control$path.cells
                                 ,arg = list( scope = 'global'
+                                            ,model = 'linear'
                                             ,timePeriod = '2008'
                                             ,scenario = scenario
-                                            ,respone = response
+                                            ,response = response
                                             ,predictorsName = predictorsName
                                             ,predictorsForm = predictorsForm
                                             ,ndays = ndays
@@ -869,16 +953,17 @@ Chart.5 <- function(my.control) {
             stopifnot(length(cv.result) == 1)
             median.RMSE <- MedianRMSE(cv.result[[1]])
             median.RMSE
-
         }
-        browser()
-        use.assessment <- switch(predictorsName, always = 'yes', alwaysNoAssessment = 'no')
-        table$Detail(scenario, response, predictorsForm, use.assessment,
-                     M(30), M(60), M(90), M(120), M(150), M(180),
-                     M(210), M(240), M(270), M(300), M(330), M(360)
+
+        use.assessment <- switch( predictorsName
+                                 ,always = 'yes'
+                                 ,alwaysNoAssessment = 'no'
+                                 )
+        table$Detail( scenario, response, predictorsForm, use.assessment
+                     ,M(30), M(60), M(90), M(120), M(150), M(180)
+                     ,M(210), M(240), M(270), M(300), M(330), M(360)
                      )
     }
-
 
     for (scenario in c('avm')) {
         for (response in c('price', 'logprice')) {
@@ -894,20 +979,7 @@ Chart.5 <- function(my.control) {
         }
     }
 
-    file.names <- Lines()
-    AccumulateDependentFileNames <- function(arg) {
-        file.name <- FileName( my.control$path.cells
-                              ,arg = arg
-                              )
-        file.names$Append(file.name)
-    }
-
-
-    CvApplyAllPossibilities( F = AccumulateDependentFileNames
-                            ,possible = possible
-                            ,one.arg = TRUE
-                            )
-    result <- file.names$Get()
+    result <- table$Get()
     result
 }
 Chart.6 <- function(my.control) {
@@ -923,11 +995,246 @@ Chart.6 <- function(my.control) {
         result
     }
 
+    table <- Table.5.6()
+    table$Formatted(Header())
+    table$Blank()
+    table$Header1('preds', 'Use', 'ndays')
+    table$Header2('scenario', 'response', 'Form', 'Cen',
+                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+                  )
 
+    DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
+        M <- function(ndays) {
+            path.in <- Filename( base = my.control$path.cells
+                                ,arg = list( scope = 'global'
+                                            ,model = 'linear'
+                                            ,timePeriod = '2008'
+                                            ,scenario = scenario
+                                            ,response = response
+                                            ,predictorsName = predictorsName
+                                            ,predictorsForm = predictorsForm
+                                            ,ndays = ndays
+                                            ,query = '1'
+                                            ,c = '0'
+                                            ,ntree = '0'
+                                            ,mtry = '0'
+                                            )
+                                )
+            load(path.in)
+            stopifnot(!is.null(cv.result))
+            stopifnot(length(cv.result) == 1)
+            median.RMSE <- MedianRMSE(cv.result[[1]])
+            median.RMSE
+        }
 
-    result <- Chart.5.6( header = HeaderRecords,
-                        ,possible = Chart.6.Possible()
+        use.assessment <- switch( predictorsName
+                                 ,alwaysNoAssessment = 'yes'
+                                 ,alwaysNoCensus = 'no'
+                                 ,stop('bad predictorsName')
+                                 )
+        table$Detail( scenario, response, predictorsForm, use.assessment
+                     ,M(30), M(60), M(90), M(120), M(150), M(180)
+                     ,M(210), M(240), M(270), M(300), M(330), M(360)
+                     )
+    }
+
+    for (scenario in c('avm')) {
+        for (response in c('price', 'logprice')) {
+            for (predictorsForm in c('level', 'log')) {
+                for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
+                    DetailLine( scenario = scenario
+                               ,response = response
+                               ,predictorsName = predictorsName
+                               ,predictorsForm = predictorsForm
+                               )
+                }
+            }
+        }
+    }
+
+    result <- table$Get()
+    result
+}
+Table.7 <- function() {
+    # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
+    case   <- '%8s %8s %8s'
+    header.format             <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
+    data.format.whole.numbers <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
+    data.format.fractions     <- paste0(case, paste0(rep(' %6.3f', 12), collapse = ''))
+
+    lines <- Lines()
+    Header1 <- function(predictorsForm, ndays30) {
+        # append a header record with mostly blank columns
+        Header2( response = ' '
+                ,predictorsForm = predictorsForm
+                ,metric = ' '
+                ,ndays30 = ndays30
+                ,ndays60 = ' '
+                ,ndays90 = ' '
+                ,ndays120 = ' '
+                ,ndays150 = ' '
+                ,ndays180 =  ' '
+                ,ndays210 = ' '
+                ,ndays240 = ' '
+                ,ndays270 =  ' '
+                ,ndays300 = ' '
+                ,ndays330 =  ' '
+                ,ndays360 = ' '
+                )
+    }
+
+    Header2 <- function( response, predictorsForm, metric
+                        ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                        ) {
+        line <- sprintf( header.format
+                        ,response, predictorsForm, metric
+                        ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
                         )
+        lines$Append(line)
+    }
+    
+    Blank <- function() {
+        lines$Append(' ')
+    }
+
+    Detail <- function( response, predictorsForm, metricName
+                       ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                       ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                       ,data.format
+                       ) {
+        line <- sprintf( data.format
+                        ,response, predictorsForm, metricName
+                        ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                        )
+        lines$Append(line)
+    }
+
+    DetailWholeNumbers <- function( response, predictorsForm, metricName
+                       ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                       ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                       ) {
+        Detail( response, predictorsForm, metricName
+               ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+               ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+               ,data.format.whole.numbers
+               )
+    }
+
+    DetailFractions <- function( response, predictorsForm, metricName
+                                ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                                ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                                ) {
+        Detail( response, predictorsForm, metricName
+               ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+               ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+               ,data.format.fractions
+               )
+    }
+
+
+    Formatted <- function(additional.lines) {
+        # append already-formatted lines (usually in the header)
+        for (line in additional.lines) {
+            lines$Append(line)
+        }
+    }
+
+    Get <- function() {
+       lines$Get()
+    }
+
+    list( Header1            = Header1
+         ,Header2            = Header2
+         ,Blank              = Blank
+         ,DetailWholeNumbers = DetailWholeNumbers
+         ,DetailFractions    = DetailFractions
+         ,Formatted          = Formatted
+         ,Get                = Get
+         )
+}
+Chart.7 <- function(my.control) {
+    # return txt lines for chart 7
+    Header <- function() {
+        lines <- Lines()
+        lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
+        lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
+        lines$Append('Mean of Fraction of Predictions Within 10 Percent of Actual Values (fctWI10)')
+        lines$Append('For global linear model')
+        lines$Append('Data from 2003 Onward')
+        lines$Append('AVM scenario')
+        lines$Append('Using random 1 percent sample from each validation fold')
+        result <- lines$Get()
+        result
+    }
+
+    table <- Table.7()
+    table$Formatted(Header())
+    table$Blank()
+    table$Header1('preds', 'ndays')
+    table$Header2('response', 'form', 'Metric',
+                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+                  )
+
+    DetailLine <- function(response, predictorsForm, metricName) {
+        CvResult <- function(ndays) {
+            # return the single cv.result in the e-cv-cell for ndays
+            path.in <- Filename( base = my.control$path.cells
+                                ,arg = list( scope = 'global'
+                                            ,model = 'linear'
+                                            ,timePeriod = '2003on'
+                                            ,scenario = 'avm'
+                                            ,response = response
+                                            ,predictorsName = 'alwaysNoAssessment'
+                                            ,predictorsForm = predictorsForm
+                                            ,ndays = ndays
+                                            ,query = '100'  # use 1% sample
+                                            ,c = '0'
+                                            ,ntree = '0'
+                                            ,mtry = '0'
+                                            )
+                                )
+            load(path.in)
+            stopifnot(!is.null(cv.result))
+            stopifnot(length(cv.result) == 1)
+            a.cv.result <- cv.result[[1]]
+            a.cv.result
+        }
+        CvResultMemoised <- memoise(CvResult)
+        Value <- function(ndays) {
+            result <-
+                switch( metricName
+                       ,medRMSE = MedianRMSE(CvResult(ndays))
+                       ,fctWI10 = MeanWithin10(CvResult(ndays))
+                       ,stop('bad metricName')
+                       )
+            result
+        }
+        Detail <- switch( metricName
+                         ,medRMSE = table$DetailWholeNumbers
+                         ,fctWI10 = table$DetailFractions
+                         )
+
+        Detail( response, predictorsForm, metricName
+               ,Value(30),   Value(60),  Value(90), Value(120), Value(150), Value(180)
+               ,Value(210), Value(240), Value(270), Value(300), Value(330), Value(360)
+               )
+    }
+
+    for (response in c('price', 'logprice')) {
+        for (predictorsForm in c('level', 'log')) {
+            for (metricName in c('medRMSE', 'fctWI10')) {
+                DetailLine( response = response
+                           ,predictorsForm = predictorsForm
+                           ,metricName = metricName
+                           )
+            }
+        }
+    }
+
+    result <- table$Get()
     result
 }
 MakeMakefiles <- function(control) {
@@ -939,8 +1246,7 @@ MakeMakefiles <- function(control) {
 #    chart.4 <- Chart.4(control)
 
     MakeMakefile <- function(variable.name, dependency.file.names, path.out) {
-        # create generated makefile that defines the variable
-        # append to lines
+        # create generated makefile that defines the variable and a target for the files
         lines <- Lines()
         for (dependency.file.name in dependency.file.names) {
             lines$Append(paste0( variable.name
@@ -949,6 +1255,9 @@ MakeMakefiles <- function(control) {
                                 )
             )
         }
+        target.name <- paste0(variable.name, '-target')
+        lines$Append(sprintf('.PHONY: %s', target.name))
+        lines$Append(sprintf('%s: $(%s)', target.name, variable.name))
         writeLines( text = lines$Get()
                    ,con = path.out
                    )
@@ -956,22 +1265,6 @@ MakeMakefiles <- function(control) {
         # return nothing
     }
 
-#    AppendDependencies( target.file.name = control$path.out.chart.1
-#                       ,dependency.file.names = chart.1$FileDependencies('always')
-#                       ,lines = lines
-#                       )
-#    AppendDependencies( target.file.name = control$path.out.chart.2
-#                       ,dependency.file.names = chart.2$FileDependencies('alwaysNoAssessment')
-#                       ,lines = lines
-#                       )
-#    AppendDependencies( target.file.name = 'e-cv-chart_chart3-data'
-#                       ,dependency.file.names = chart.3$FileDependencies()
-#                       ,lines = lines
-#                       )
-#    AppendDependencies( target.file.name = 'e-cv-chart_chart4-data'
-#                       ,dependency.file.names = chart.4$FileDependencies()
-#                       ,lines = lines
-#                       )
     MakeMakefile( variable.name = 'e-cv-chart-chart5'
                  ,dependency.file.names = Chart.5.FileDependencies(control)
                  ,path.out = control$path.out.chart.5.generated.makefile
@@ -980,35 +1273,13 @@ MakeMakefiles <- function(control) {
                  ,dependency.file.names = Chart.6.FileDependencies(control)
                  ,path.out = control$path.out.chart.6.generated.makefile
                  )
+    MakeMakefile( variable.name = 'e-cv-chart-chart7'
+                 ,dependency.file.names = Chart.7.FileDependencies(control)
+                 ,path.out = control$path.out.chart.7.generated.makefile
+                 )
 }
 Charts <- function(control) {
     # write chart files:
-    # for now, only create chart3
-    
-
-#    chart1 <- Chart.1.2(control)
-#    chart.1.txt <- chart1$Txt(predictorsName = 'always')
-#    writeLines( text = chart.1.txt
-#               ,con = control$path.out.chart.1
-#               )
-#
-#    chart2 <- Chart.1.2(control)
-#    chart.2.txt <- chart2$Txt(predictorsName = 'alwaysNoAssessment')
-#    writeLines( text = chart.2.txt
-#               ,con = control$path.out.chart.2
-#               )
-
-#    chart3 <- Chart.3(control)
-#    chart.3.txt <- chart3$Txt()
-#    writeLines( text = chart.3.txt
-#               ,con = control$path.out.chart.3
-#               )
-#
-#    chart4 <- Chart.4(control)
-#    chart.4.txt <- chart4$Txt()
-#    writeLines( text = chart.4.txt
-#               ,con = control$path.out.chart.4
-#               )
 
     chart.5.txt <- Chart.5(control)
     writeLines( text = chart.5.txt
@@ -1017,8 +1288,15 @@ Charts <- function(control) {
 
     chart.6.txt <- Chart.6(control)
     writeLines( text = chart.6.txt
-               ,con = control$path.out.chart.5
+               ,con = control$path.out.chart.6
                )
+
+    chart.7.txt <- Chart.7(control)
+    writeLines( text = chart.7.txt
+               ,con = control$path.out.chart.7
+               )
+
+    
 
     return()
     
@@ -1049,7 +1327,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
