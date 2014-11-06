@@ -4,7 +4,10 @@ PredictLinear <- function(scenario, ndays, data.training, query.transactions
     # Return evaluation of the specified model on the given training and test data
     # Return vector of predictions for the query.transactions using a local model
 
-    verbose <- FALSE
+    verbose.prediction <- FALSE
+    verbose.memory <- FALSE
+
+
 
     Fit <- function(saleDate) {
         # return list $ok $value (maybe) $problem (maybe)
@@ -58,7 +61,8 @@ PredictLinear <- function(scenario, ndays, data.training, query.transactions
     }
     FitPredict <- function(query.transaction) {
         saleDate <- query.transaction$saleDate
-        maybe.fitted <- FitMemoised(saleDate)
+        #maybe.fitted <- FitMemoised(saleDate)
+        maybe.fitted <- Fit(saleDate)
         if (maybe.fitted$ok) {
             maybe.prediction <- Predict( fitted = maybe.fitted$value
                                         ,query.transaction = ConvertYearFeatures( data = query.transaction
@@ -72,18 +76,68 @@ PredictLinear <- function(scenario, ndays, data.training, query.transactions
     }
 
     predictions <- as.double(rep(NA), nrow(query.transactions))
-    for (query.index in 1:nrow(query.transactions)) {
-      maybe.prediction <- FitPredict(query.transactions[query.index,])
-      if (maybe.prediction$ok) {
-        if (verbose) 
-          Printf('prediction query.index %d value %f\n', query.index, maybe.prediction$value)
-        predictions[[query.index]] <- maybe.prediction$value
-      } else {
-        Printf( 'prediction query.index %d sale date %s failed: %s\n'
-               ,query.index
-               ,as.character(query.transactions[query.index,]$saleDate)
-               ,as.character(maybe.prediction$problem))
+
+    # group queries by sale date, and fit one model for each sale date
+    saleDates <- query.transactions$saleDate
+    unique.saleDates <- unique(saleDates)
+    for (saleDate.number in unique.saleDates) {
+      saleDate <- as.Date(saleDate.number, origin = as.Date('1970-01-01'))
+      maybe.fitted <- Fit(saleDate)
+      if (maybe.fitted$ok) {
+        # predict for each query for the sale date
+        query.indices <- which(query.transactions$saleDate == saleDate)
+        for (query.index in query.indices) {
+          query.transaction <- query.transactions[query.index, ]
+          query.transaction.converted <- ConvertYearFeatures( data = query.transaction
+                                                             ,saleDate = saleDate)
+          maybe.prediction <- Predict( fitted = maybe.fitted$value
+                                      ,query.transaction = query.transaction.converted
+                                      )
+          if (maybe.prediction$ok) {
+            if (verbose.prediction) 
+              Printf( 'prediction query.index %d sale date %s value %f\n'
+                     ,query.index
+                     ,as.character(query.transactions[query.index,]$saleDate)
+                     ,maybe.prediction$value
+                     )
+            predictions[[query.index]] <- maybe.prediction$value
+          } else {
+            Printf( 'prediction query.index %d sale date %s failed: %s\n'
+                   ,query.index
+                   ,as.character(query.transactions[query.index,]$saleDate)
+                   ,as.character(maybe.prediction$problem)
+                   )
+          }
+          if (verbose.memory)
+            Printf( 'memory used %f GB prediction size %f GB \n'
+                   ,mem_used() / 1e9
+                   ,object_size(predictions) / 1e9
+                   )
+        }
       }
     }
+#    for (query.index in 1:nrow(query.transactions)) {
+#      maybe.prediction <- FitPredict(query.transactions[query.index,])
+#      if (maybe.prediction$ok) {
+#        if (verbose) 
+#          Printf( 'prediction query.index %d sale date %s value %f\n'
+#                 ,query.index
+#                 ,as.character(query.transactions[query.index,]$saleDate)
+#                 ,maybe.prediction$value
+#                 )
+#        predictions[[query.index]] <- maybe.prediction$value
+#      } else {
+#        Printf( 'prediction query.index %d sale date %s failed: %s\n'
+#               ,query.index
+#               ,as.character(query.transactions[query.index,]$saleDate)
+#               ,as.character(maybe.prediction$problem)
+#               )
+#      }
+#      if (verbose)
+#        Printf( 'memory used %f GB prediction size %f GB \n'
+#               ,mem_used() / 1e9
+#               ,object_size(predictions) / 1e9
+#               )
+#    }
     predictions
 }
