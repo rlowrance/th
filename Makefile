@@ -346,6 +346,8 @@ e-cv-chart-source += CvApplyAllPossibilities.R
 e-cv-chart-chart5-generated%makefile \
 e-cv-chart-chart6-generated%makefile \
 e-cv-chart-chart7-generated%makefile \
+e-cv-chart-chart8-generated%makefile \
+e-cv-chart-chart9-generated%makefile \
 : $(e-cv-chart-source)
 	Rscript e-cv-chart.R --makefile
 
@@ -354,12 +356,24 @@ e-cv-chart-chart7-generated%makefile \
 include e-cv-chart-chart5-generated.makefile  
 include e-cv-chart-chart6-generated.makefile 
 include e-cv-chart-chart7-generated.makefile
+include e-cv-chart-chart8-generated.makefile
+include e-cv-chart-chart9-generated.makefile
 
 #$(warning e-cv-chart-chart5 is $(e-cv-chart-chart5))
 
 # stem is .
-$(working)/e-cv-chart_chart5%txt $(working)/e-cv-chart_chart6%txt \
-: $(e-cv-chart-chart5) $(e-cv-chart-chart6) e-cv-chart.R $(e-cv-chart-source)
+$(working)/e-cv-chart_chart5%txt \
+$(working)/e-cv-chart_chart6%txt \
+$(working)/e-cv-chart_chart7%txt \
+$(working)/e-cv-chart_chart8%txt \
+$(working)/e-cv-chart_chart9%txt \
+: \
+$(e-cv-chart-chart5) \
+$(e-cv-chart-chart6) \
+$(e-cv-chart-chart7) \
+$(e-cv-chart-chart8) \
+$(e-cv-chart-chart9) \
+e-cv-chart.R $(e-cv-chart-source)
 	Rscript e-cv-chart.R
 
 #$(working)/e-cv-chart_chart5.txt: e-cv-chart.R
