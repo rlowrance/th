@@ -1029,14 +1029,14 @@ Chart.6 <- function(my.control) {
     result <- table$Get()
     result
 }
-Table.7 <- function() {
+Table.7.A <- function(lines) {
     # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
+    # each of which appends to Lines object line
     case   <- '%8s %8s %8s'
     header.format             <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
     data.format.whole.numbers <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
     data.format.fractions     <- paste0(case, paste0(rep(' %6.3f', 12), collapse = ''))
 
-    lines <- Lines()
     Header1 <- function(predictorsForm, ndays30) {
         # append a header record with mostly blank columns
         Header2( response = ' '
@@ -1073,6 +1073,84 @@ Table.7 <- function() {
         lines$Append(' ')
     }
 
+    DetailEither <- function( response, predictorsForm, metricName
+                             ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                             ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                             ,data.format
+                             ) {
+        line <- sprintf( data.format
+                        ,response, predictorsForm, metricName
+                        ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                        )
+        lines$Append(line)
+    }
+
+    DetailWholeNumbers <- function( response, predictorsForm, metricName
+                       ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                       ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                       ) {
+        #cat('DetailWholeNumber\n'); browser()
+        DetailEither( response, predictorsForm, metricName
+                     ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                     ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                     ,data.format.whole.numbers
+                     )
+    }
+
+    DetailFractions <- function( response, predictorsForm, metricName
+                                ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                                ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                                ) {
+        #cat('DetailFractions\n'); browser()
+        DetailEither( response, predictorsForm, metricName
+                     ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                     ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                     ,data.format.fractions
+                     )
+    }
+
+    Append <- function(line) {
+        lines$Append(line)
+    }
+
+
+    Get <- function() {
+       lines$Get()
+    }
+
+    list( Header1            = Header1
+         ,Header2            = Header2
+         ,Blank              = Blank
+         ,DetailWholeNumbers = DetailWholeNumbers
+         ,DetailFractions    = DetailFractions
+         ,Append             = Append
+         ,Get                = Get
+         )
+}
+Table.7.B <- function(lines) {
+    # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
+    # each of which appends to Lines object line
+    case   <- '%8s %8s %8s'
+    header.format            <- paste0(case, ' %5s', ' %6s')
+    data.format.whole.number <- paste0(case, ' %5s', ' %6.f')
+    data.format.fraction     <- paste0(case, ' %5s', ' %6.3f')
+
+    Header <- function(response, predictorsForm, metric, ndays, value) {
+        lines$Append(sprintf( header.format
+                             ,response
+                             ,predictorsForm
+                             ,metric
+                             ,ndays
+                             ,value
+                             )
+        )
+    }
+    
+    Blank <- function() {
+        lines$Append(' ')
+    }
+
     Detail <- function( response, predictorsForm, metricName
                        ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
                        ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
@@ -1086,53 +1164,72 @@ Table.7 <- function() {
         lines$Append(line)
     }
 
-    DetailWholeNumbers <- function( response, predictorsForm, metricName
-                       ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
-                       ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-                       ) {
-        Detail( response, predictorsForm, metricName
-               ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
-               ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-               ,data.format.whole.numbers
-               )
+    DetailWholeNumber <- function(response, predictorsForm, metricName, ndays, value) {
+        lines$Append(sprintf( data.format.whole.number
+                             ,response
+                             ,predictorsForm
+                             ,metricName
+                             ,ndays
+                             ,value
+                             )
+        )
     }
 
-    DetailFractions <- function( response, predictorsForm, metricName
-                                ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
-                                ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-                                ) {
-        Detail( response, predictorsForm, metricName
-               ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
-               ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-               ,data.format.fractions
-               )
+    DetailFraction <- function(response, predictorsForm, metricName, ndays, value) {
+        lines$Append(sprintf( data.format.fraction
+                             ,response
+                             ,predictorsForm
+                             ,metricName
+                             ,ndays
+                             ,value
+                             )
+        )
     }
 
-
-    Formatted <- function(additional.lines) {
-        # append already-formatted lines (usually in the header)
-        for (line in additional.lines) {
-            lines$Append(line)
-        }
+    Append <- function(line) {
+        lines$Append(line)
     }
+
 
     Get <- function() {
        lines$Get()
     }
 
-    list( Header1            = Header1
-         ,Header2            = Header2
-         ,Blank              = Blank
-         ,DetailWholeNumbers = DetailWholeNumbers
-         ,DetailFractions    = DetailFractions
-         ,Formatted          = Formatted
+    list( Header            = Header
+         ,Blank             = Blank
+         ,DetailWholeNumber = DetailWholeNumber
+         ,DetailFraction    = DetailFraction
+         ,Append             = Append
          ,Get                = Get
          )
 }
 Chart.7 <- function(my.control) {
     # return txt lines for chart 7
-    Header <- function() {
-        lines <- Lines()
+    CvResult <- function(ndays, response, predictorsForm) {
+        # return the single cv.result in the e-cv-cell for ndays
+        path.in <- Filename( base = my.control$path.cells
+                            ,arg = list( scope = 'global'
+                                        ,model = 'linear'
+                                        ,timePeriod = '2003on'
+                                        ,scenario = 'avm'
+                                        ,response = response
+                                        ,predictorsName = 'alwaysNoAssessment'
+                                        ,predictorsForm = predictorsForm
+                                        ,ndays = ndays
+                                        ,query = '100'  # use 1% sample
+                                        ,c = '0'
+                                        ,ntree = '0'
+                                        ,mtry = '0'
+                                        )
+                            )
+        load(path.in)
+        stopifnot(!is.null(cv.result))
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+        a.cv.result
+    }
+    Header <- function(lines) {
+        # mutate lines by appending the header
         lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
         lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
         lines$Append('Mean of Fraction of Predictions Within 10 Percent of Actual Values (fctWI10)')
@@ -1140,75 +1237,125 @@ Chart.7 <- function(my.control) {
         lines$Append('Data from 2003 Onward')
         lines$Append('AVM scenario')
         lines$Append('Using random 1 percent sample from each validation fold')
-        result <- lines$Get()
-        result
     }
+    PartA <- function(lines) {
+        table <- Table.7.A(lines)
+        table$Append('Part A: All Results')
+        table$Append(' ')
+        table$Header1('preds', 'ndays')
+        table$Header2('response', 'form', 'Metric',
+                      '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+                      )
 
-    table <- Table.7()
-    table$Formatted(Header())
-    table$Blank()
-    table$Header1('preds', 'ndays')
-    table$Header2('response', 'form', 'Metric',
-                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
-                  )
-
-    DetailLine <- function(response, predictorsForm, metricName) {
-        CvResult <- function(ndays) {
-            # return the single cv.result in the e-cv-cell for ndays
-            path.in <- Filename( base = my.control$path.cells
-                                ,arg = list( scope = 'global'
-                                            ,model = 'linear'
-                                            ,timePeriod = '2003on'
-                                            ,scenario = 'avm'
-                                            ,response = response
-                                            ,predictorsName = 'alwaysNoAssessment'
-                                            ,predictorsForm = predictorsForm
-                                            ,ndays = ndays
-                                            ,query = '100'  # use 1% sample
-                                            ,c = '0'
-                                            ,ntree = '0'
-                                            ,mtry = '0'
-                                            )
-                                )
-            load(path.in)
-            stopifnot(!is.null(cv.result))
-            stopifnot(length(cv.result) == 1)
-            a.cv.result <- cv.result[[1]]
-            a.cv.result
-        }
-        CvResultMemoised <- memoise(CvResult)
-        Value <- function(ndays) {
-            result <-
-                switch( metricName
-                       ,medRMSE = MedianRMSE(CvResult(ndays))
-                       ,fctWI10 = MeanWithin10(CvResult(ndays))
-                       ,stop('bad metricName')
-                       )
-            result
-        }
-        Detail <- switch( metricName
-                         ,medRMSE = table$DetailWholeNumbers
-                         ,fctWI10 = table$DetailFractions
-                         )
-
-        Detail( response, predictorsForm, metricName
-               ,Value(30),   Value(60),  Value(90), Value(120), Value(150), Value(180)
-               ,Value(210), Value(240), Value(270), Value(300), Value(330), Value(360)
-               )
-    }
-
-    for (response in c('price', 'logprice')) {
-        for (predictorsForm in c('level', 'log')) {
-            for (metricName in c('medRMSE', 'fctWI10')) {
-                DetailLine( response = response
-                           ,predictorsForm = predictorsForm
-                           ,metricName = metricName
+        DetailLine <- function(response, predictorsForm, metricName) {
+            Value <- function(ndays) {
+                cv.result <- CvResult( ndays = ndays
+                                      ,response = response
+                                      ,predictorsForm = predictorsForm
+                                      )
+                result <-
+                    switch( metricName
+                           ,medRMSE = MedianRMSE(cv.result)
+                           ,fctWI10 = MeanWithin10(cv.result)
+                           ,stop('bad metricName')
                            )
+                result
+            }
+
+            Detail <- switch( metricName
+                             ,medRMSE = table$DetailWholeNumbers
+                             ,fctWI10 = table$DetailFractions
+                             )
+
+            Detail( response, predictorsForm, metricName
+                   ,Value(30),   Value(60),  Value(90), Value(120), Value(150), Value(180)
+                   ,Value(210), Value(240), Value(270), Value(300), Value(330), Value(360)
+                   )
+        }
+
+        for (response in c('price', 'logprice')) {
+            for (predictorsForm in c('level', 'log')) {
+                for (metricName in c('medRMSE', 'fctWI10')) {
+                    DetailLine( response = response
+                               ,predictorsForm = predictorsForm
+                               ,metricName = metricName
+                               )
+                }
+            }
+        }
+    }
+    PartB <- function(lines) {
+        table <- Table.7.B(lines)
+        table$Append('Part B: Best result')
+        table$Append(' ')
+        table$Header(       ' ', 'pred',      ' ', 'Best',   'Best')
+        table$Header('response', 'form', 'metric', 'ndays', 'value')
+
+        DetailLine <- function(response, predictorsForm, metricName, table) {
+            Value <- function(ndays) {
+                cv.result <- CvResult( ndays = ndays
+                                      ,response = response
+                                      ,predictorsForm = predictorsForm
+                                      )
+                result <-
+                    switch( metricName
+                           ,medRMSE = MedianRMSE(cv.result)
+                           ,fctWI10 = MeanWithin10(cv.result)
+                           ,stop('bad metricName')
+                           )
+                result
+            }
+            DetailLineMedRMSE <- function() {
+                values <- c( Value('30'), Value('60'), Value('90')
+                            ,Value('120'), Value('150'), Value('180')
+                            ,Value('210'), Value('240'), Value('270')
+                            ,Value('300'), Value('330'), Value('360'))
+                best.value <- min(values)
+                best.index <- which.min(values)
+                table$DetailWholeNumber( response, predictorsForm, metricName
+                                        ,30 * best.index, best.value
+                                        )
+            }
+            DetailLineFctWI10 <- function() {
+                values <- c( Value('30'), Value('60'), Value('90')
+                            ,Value('120'), Value('150'), Value('180')
+                            ,Value('210'), Value('240'), Value('270')
+                            ,Value('300'), Value('330'), Value('360'))
+                best.value <- max(values)
+                best.index <- which.max(values)
+                table$DetailFraction( response, predictorsForm, metricName
+                                     ,30 * best.index, best.value
+                                     )
+            }
+            switch( metricName
+                   ,medRMSE = DetailLineMedRMSE()
+                   ,fctWI10 = DetailLineFctWI10()
+                   ,stop('bad metricName')
+                   )
+        }
+
+        for (metricName in c('medRMSE', 'fctWI10')) {
+            for (response in c('price', 'logprice')) {
+                for (predictorsForm in c('level', 'log')) {
+                    DetailLine( response = response
+                               ,predictorsForm = predictorsForm
+                               ,metricName = metricName
+                               ,table = table
+                               )
+                }
             }
         }
     }
 
-    result <- table$Get()
+
+    lines <- Lines()
+    Header(lines)
+    lines$Append(' ')
+    PartA(lines)
+    lines$Append(' ')
+    PartB(lines)
+
+    result <- lines$Get()
     result
 }
 MakeMakefiles <- function(control) {
