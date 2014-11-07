@@ -51,9 +51,11 @@ Control <- function(default.args) {
                     ,path.out.chart.5 = paste0(working, out.base, '_chart5.txt')
                     ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
                     ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
+                    ,path.out.chart.8 = paste0(working, out.base, '_chart8.txt')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
+                    ,path.out.chart.8.generated.makefile = 'e-cv-chart-chart8-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -712,15 +714,15 @@ Filename <- function(base, arg) {
 }
 Chart.5.6.FileDependencies <- function(my.control, possible) {
     file.names <- Lines()
-    AccumulateDependentFileNames <- function(arg) {
-        file.name <- FileName( my.control$path.cells
+    AccumulateDependentFilenames <- function(arg) {
+        file.name <- Filename( my.control$path.cells
                               ,arg = arg
                               )
         file.names$Append(file.name)
     }
 
 
-    CvApplyAllPossibilities( F = AccumulateDependentFileNames
+    CvApplyAllPossibilities( F = AccumulateDependentFilenames
                             ,possible = possible
                             ,one.arg = TRUE
                             )
@@ -821,6 +823,10 @@ Chart.7.FileDependencies <- function(my.control) {
         }
     }
     result <- file.names$Get()
+    result
+}
+Chart.8.FileDependencies <- function(my.control) {
+    result <- Chart.7.FileDependencies(my.control)
     result
 }
 Chart.5.6 <- function(header, possible) {
@@ -1358,6 +1364,135 @@ Chart.7 <- function(my.control) {
     result <- lines$Get()
     result
 }
+Table.8 <- function(lines) {
+    # return function object $Header1() $Header2() $Detail() $Get()
+    header.format <- '%8s %8s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s'
+    data.format   <- '%8s %8s %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f'
+
+    Header1 <- function(predictorsForm, ndays30) {
+        Header2( predictorsForm = predictorsForm
+                ,ndays30 = ndays30
+                )
+    }
+    Header2 <- function( response = ' ', predictorsForm = ' '
+                        ,ndays30 = ' ', ndays60 = ' ', ndays90 = ' '
+                        ,ndays120 = ' ', ndays150 = ' ', ndays180 = ' '
+                        ,ndays210 = ' ', ndays240 = ' ', ndays270 = ' '
+                        ,ndays300 = ' ', ndays330 = ' ', ndays360 = ' ') {
+        line <- sprintf( header.format
+                        ,response, predictorsForm
+                        ,ndays30, ndays60, ndays90
+                        ,ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270
+                        ,ndays300, ndays330, ndays360
+                        )
+        lines$Append(line)
+    }
+    Detail <- function( response, predictorsForm
+                       ,ndays30, ndays60, ndays90
+                       ,ndays120, ndays150, ndays180
+                       ,ndays210, ndays240, ndays270
+                       ,ndays300, ndays330, ndays360
+                       ) {
+        line <- sprintf( data.format
+                        ,response, predictorsForm
+                        ,ndays30, ndays60, ndays90
+                        ,ndays120, ndays150, ndays180
+                        ,ndays210, ndays240, ndays270
+                        ,ndays300, ndays330, ndays360
+                        )
+        lines$Append(line)
+    }
+    Get <- function() {
+        lines$Get()
+    }
+    list( Header1 = Header1
+         ,Header2 = Header2
+         ,Detail  = Detail
+         ,Get     = Get
+         )
+}
+Chart.8 <- function(my.control) {
+    # return txt lines for chart 8
+    ACvResult <- function(ndays, response, predictorsForm) {
+        # return the single cv.result in the e-cv-cell for ndays
+        path.in <- Filename( base = my.control$path.cells
+                            ,arg = list( scope = 'global'
+                                        ,model = 'linear'
+                                        ,timePeriod = '2003on'
+                                        ,scenario = 'avm'
+                                        ,response = response
+                                        ,predictorsName = 'alwaysNoAssessment'
+                                        ,predictorsForm = predictorsForm
+                                        ,ndays = ndays
+                                        ,query = '100'  # use 1% sample
+                                        ,c = '0'
+                                        ,ntree = '0'
+                                        ,mtry = '0'
+                                        )
+                            )
+        load(path.in)
+        stopifnot(!is.null(cv.result))
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+        a.cv.result
+    }
+    Header <- function(lines) {
+        # mutate lines by appending the header
+        lines$Append('Comparison of Estimated Generalization Errors From from 10 Fold Cross Validation')
+        lines$Append('Model form and Length of Training Period')
+        lines$Append('For global linear model')
+        lines$Append('Data from 2003 Onward')
+        lines$Append('AVM scenario')
+        lines$Append('Using random 1 percent sample from each validation fold')
+        lines$Append('Metric = median of rMedianSE values from folds')
+        lines$Append('Predictors: All Except Assessment')
+    }
+    Table <- function(lines) {
+        # append lines for Table 8 to Lines object lines
+        table <- Table.8(lines)
+        table$Header1('pred', 'ndays')
+        table$Header2( 'response', 'form'
+                      ,'30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+                      )
+
+        DetailLine <- function(response, predictorsForm) {
+            Value <- function(ndays) {
+                a.cv.result <- ACvResult( ndays = ndays
+                                         ,response = response
+                                         ,predictorsForm = predictorsForm
+                                         )
+                result <- MedianRMSE(a.cv.result)
+                result
+            }
+            table$Detail( response, predictorsForm
+                         ,Value(30),   Value(60),  Value(90), Value(120), Value(150), Value(180)
+                         ,Value(210), Value(240), Value(270), Value(300), Value(330), Value(360)
+                         )
+        }
+
+
+        # generate each detail line
+        for (response in c('price', 'logprice')) {
+            for (predictorsForm in c('level', 'log')) {
+                DetailLine( response = response
+                           ,predictorsForm = predictorsForm
+                           )
+            }
+        }
+    }
+
+    # body starts here
+    lines <- Lines()
+    Header(lines)
+
+    lines$Append(' ')
+    Table(lines)
+
+    browser()
+    result <- lines$Get()
+    result
+}
 MakeMakefiles <- function(control) {
     # write one makefile for each chart that is being created
 
@@ -1398,8 +1533,12 @@ MakeMakefiles <- function(control) {
                  ,dependency.file.names = Chart.7.FileDependencies(control)
                  ,path.out = control$path.out.chart.7.generated.makefile
                  )
+    MakeMakefile( variable.name = 'e-cv-chart-chart8'
+                 ,dependency.file.names = Chart.8.FileDependencies(control)
+                 ,path.out = control$path.out.chart.8.generated.makefile
+                 )
 }
-Charts <- function(control) {
+MakeCharts <- function(control) {
     # write chart files:
 
     chart.5.txt <- Chart.5(control)
@@ -1415,6 +1554,11 @@ Charts <- function(control) {
     chart.7.txt <- Chart.7(control)
     writeLines( text = chart.7.txt
                ,con = control$path.out.chart.7
+               )
+
+    chart.8.txt <- Chart.8(control)
+    writeLines( text = chart.8.txt
+               ,con = control$path.out.chart.8
                )
 
     
@@ -1438,7 +1582,7 @@ Main <- function(control) {
     if (control$opt$makefile) {
         MakeMakefiles(control)  # write several generated makefiles
     } else {
-        Charts(control)
+        MakeCharts(control)
     }
 
     str(control)
