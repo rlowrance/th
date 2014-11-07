@@ -396,6 +396,22 @@ e-features-lcv-chart.R \
 $(working)/e-features-lcv--query-100.RData
 	Rscript e-features-lcv-chart.R --query 100
 
+# E-FEATURES-LCV2
+
+e-features-lcv2.R: Directory.R Libraries.R Predictors.R ReadTransactionSplits.R
+
+e-features-lcv2-data += $(predictors.always.level)
+e-features-lcv2-data += $(predictors.identification)
+e-features-lcv2-data += $(predictors.price)
+
+$(working)/e-features-lcv2.txt: e-features-lcv2.R $(e-features-lcv2-data)
+	Rscript e-features-lcv2.R
+
+e-featues-lcv2-chart.R : Directory.R Libraries.R Lines.R
+
+$(working)/e-features-lcv2-chart_1.txt : e-features-lcv2-chart.R $(working)/e-features-lcv2.txt
+	Rscript e-features-lcv2-chart.R
+
 # E-FEATURES-PCA
 
 $(working)/e-features-pca.RData \
@@ -828,6 +844,7 @@ thesis-chapters += thesis-chapter-literature-review.Rnw
 thesis-chapters += thesis-chapter-data-munging.Rnw
 #thesis-chapters += thesis-chapter-taxonomy.Rnw
 thesis-chapters += thesis-chapter-data-selection.Rnw
+thesis-chapters += thesis-chapter-best-linear.Rnw
 
 thesis-data-data-munging += $(working)/transactions.RData
 thesis-data-data-munging += $(working)/transactions-subset1.RData
@@ -840,8 +857,11 @@ thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
 
+thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
+
 thesis-data += $(thesis-data-data-munging)
 thesis-data += $(thesis-data-data-selection)
+thesis-data += $(thesis-data-best-linear)
 
 $(working)/thesis.pdf : thesis.Rnw $(thesis-chapters) $(thesis-data)
 	Rscript -e "library('knitr'); knit('thesis.Rnw')"
