@@ -2,9 +2,10 @@
 % vim: textwidth=72
 % vim: foldmethod=manual
 
-<<Assessment2008>>=
+<<DataSelection>>=
 working <- control$working
-path.cv <- paste0(working, 'e-cv-chart_chart3.txt')
+path.cv.assessment <- paste0(working, 'e-cv-chart_chart5.txt')
+path.cv.census <- paste0(working, 'e-cv-chart_chart6.txt')
 path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
 path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
 @
@@ -273,7 +274,7 @@ more accurate average price.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.cv}}
+\verbatiminput{\Sexpr{path.cv.assessment}}
 \end{minipage}
 \end{sideways}
 \caption{Estimated Generalization Errors With and Without the Assessed
@@ -378,6 +379,19 @@ transactions on or after January 1, 2003 properly reflect census data
 from the year 2000.
 
 \section{Assessing the Predictive Power of the Census Data}
+
+\begin{figure}[ht]
+\begin{sideways}
+\begin{minipage}{7in}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv.census}}
+\end{minipage}
+\end{sideways}
+\caption{Estimated Generalization Errors With and Without Census Data}
+\label{figure:EGEMeasurement}
+\end{figure}
 
 THE SECTION WILL BE SIMILAR TO THE ANALYSIS OF THE ASSESSMENT DATA: same
 charts, different conclusions.
