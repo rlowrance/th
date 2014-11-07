@@ -42,6 +42,7 @@ Control <- function(default.args) {
                 )
 
     control <- list( path.in.base = paste0(working, in.base)
+                    ,path.in.chart9.features = paste0(working, 'e-features-lcv2.txt')
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.makefile = paste0(me, '-generated.makefile')
                     #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
@@ -56,6 +57,7 @@ Control <- function(default.args) {
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
                     ,path.out.chart.8.generated.makefile = 'e-cv-chart-chart8-generated.makefile'
+                    ,path.out.chart.9.generated.makefile = 'e-cv-chart-chart9-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -829,6 +831,57 @@ Chart.8.FileDependencies <- function(my.control) {
     result <- Chart.7.FileDependencies(my.control)
     result
 }
+Chart.9.PredictorNames <- function(control) {
+    # return list of predictor names for chart 9
+    # these have the form best01, best02, ..., best24
+    ordered.features <- readLines(con = control$path.in.chart9.features)
+    predictorNames <- sapply( 1:length(ordered.features)
+                             ,function(n) 
+                                 sprintf('best%02d', n)
+                             )
+    predictorNames
+}
+Chart.9.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 9
+    # this is just for the best form and ndays
+    # best for is log-level
+    # best ndays is 60 
+
+    file.names <- Lines()
+    for (scope in 'global') {
+        for (model in 'linear') {
+            for (timePeriod in '2003on') {
+                for (scenario in 'avm') {
+                    for (response in 'logprice') {
+                        for (predictorsName in Chart.9.PredictorNames(my.control)) {
+                            for (predictorsForm in 'level') {
+                                for (ndays in '60') {
+                                    file.name <- Filename( my.control$base
+                                                          ,arg = list( scope = scope
+                                                                      ,model = model
+                                                                      ,timePeriod = timePeriod
+                                                                      ,response = response
+                                                                      ,predictorsName = predictorsName
+                                                                      ,predictorsForm = predictorsForm
+                                                                      ,ndays = ndays
+                                                                      ,query = '100'
+                                                                      ,c = '0'
+                                                                      ,ntree = '0'
+                                                                      ,mtry = '0'
+                                                                      )
+                                                          )
+                                    file.names$Append(file.name)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    result <- file.names$Get()
+    result
+}
 Chart.5.6 <- function(header, possible) {
     stop('write me')
 }
@@ -1537,6 +1590,10 @@ MakeMakefiles <- function(control) {
                  ,dependency.file.names = Chart.8.FileDependencies(control)
                  ,path.out = control$path.out.chart.8.generated.makefile
                  )
+    MakeMakefile( variable.name = 'e-cv-chart-chart9'
+                 ,dependency.file.names = Chart.9.FileDependencies(control)
+                 ,path.out = control$path.out.chart.9.generated.makefile
+                 )
 }
 MakeCharts <- function(control) {
     # write chart files:
@@ -1592,7 +1649,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-default.args <- list( makefile = FALSE) 
+#default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
