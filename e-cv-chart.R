@@ -14,7 +14,10 @@ source('Directory.R')
 source('Libraries.R')
 
 #source('CrossValidateCharts.R')
-source('CvApplyAllPossibilities.R')
+#source('CvApplyAllPossibilities.R')
+source('CvCell.R')
+source('Lines.R')
+
 
 library(ggplot2)
 library(optparse)
@@ -53,6 +56,7 @@ Control <- function(default.args) {
                     ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
                     ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
                     ,path.out.chart.8 = paste0(working, out.base, '_chart8.txt')
+                    ,path.out.chart.9 = paste0(working, out.base, '_chart9.txt')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
@@ -87,25 +91,6 @@ ParseCommandArgs <- function(command.args, default.args) {
                       ,positional_arguments = FALSE
                       )
     opt
-}
-Lines <- function(max.size = 1000) {
-    # list of lines
-    lines <- rep('', max.size)
-    last.index <- 0
-
-    Append <- function(line, debug = FALSE) {
-        if (debug) browser()
-        last.index <<- last.index + 1
-        lines[[last.index]] <<- line
-    }
-
-    Get <- function() {
-        lines[1:last.index]
-    }
-
-    list( Append = Append
-         ,Get = Get
-         )
 }
 MedianRMSE <- function(a.cv.result) {
     # return median of the rootMedianSquaredError values in the folds
@@ -695,135 +680,102 @@ Chart.4 <- function(my.control) {
          ,FileDependencies = FileDependencies
          )
 }
-Filename <- function(base, arg) {
-    # return file name as a chr
-    file.name <- paste0( base
-                        ,arg$scope
-                        ,'_', arg$model
-                        ,'_', arg$timePeriod
-                        ,'_', arg$scenario
-                        ,'_', arg$response
-                        ,'_', arg$predictorsName
-                        ,'_', arg$predictorsForm
-                        ,'_', arg$ndays
-                        ,'_', arg$query
-                        ,'_', arg$c
-                        ,'_', arg$ntree
-                        ,'_', arg$mtry
-                        ,'.RData'
-                        )
-    file.name
-}
-Chart.5.6.FileDependencies <- function(my.control, possible) {
-    file.names <- Lines()
-    AccumulateDependentFilenames <- function(arg) {
-        file.name <- Filename( my.control$path.cells
-                              ,arg = arg
-                              )
-        file.names$Append(file.name)
-    }
-
-
-    CvApplyAllPossibilities( F = AccumulateDependentFilenames
-                            ,possible = possible
-                            ,one.arg = TRUE
-                            )
-    result <- file.names$Get()
-    result
-}
-Chart.5.Possible <- function() {
-    # return possible list for Chart 5
-    # NOTE: 100% sample of possible queries
-    possible <-
-        list( scope = 'global'
-             ,model = 'linear'
-             ,timePeriod = '2008'
-             ,scenario = 'avm'
-             ,response = c('price', 'logprice')
-             ,predictorsName = c('always', 'alwaysNoAssessment')
-             ,predictorsForm = c('level', 'log')
-             ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
-             ,query = '1'
-             ,c = '0'
-             ,ntree = '0'
-             ,mtry = '0'
-             )
-    possible
-}
 Chart.5.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 5 
     # predictorsName in {always, alwaysNoAssesment}
     # timePeriod 2008
 
-    result <- Chart.5.6.FileDependencies( my.control = my.control
-                                         ,possible = Chart.5.Possible()
-                                         )
+    Path <- CvCell()$Path
+    file.dependencies <- Lines()
+    for (response in c('price', 'logprice')) {
+        for (predictorsName in c('always', 'alwaysNoAssessment')) {
+            for (predictorsForm in c('level', 'log')) {
+                for (ndays in CvCell()$Possible.Ndays()) {
+                    path <- 
+                        Path( scope = 'global'
+                             ,model = 'linear'
+                             ,timePeriod = '2008'
+                             ,scenario = 'avm'
+                             ,response = response
+                             ,predictorsName = predictorsName
+                             ,predictorsForm = predictorsForm
+                             ,ndays = ndays
+                             ,query = '1'
+                             ,c = '0'
+                             ,ntree = '0'
+                             ,mtry = '0'
+                             )
+                    file.dependencies$Append(path)
+                }
+            }
+        }
+    }
+
+    result <- file.dependencies$Get()
     result
-}
-Chart.6.Possible <- function() {
-    # return possible list for chart 6
-    # NOTE: 1% sample of possible queries
-    possible <-
-        list( scope = 'global'
-             ,model = 'linear'
-             ,timePeriod = '2003on'
-             ,scenario = 'avm'
-             ,response = c('price', 'logprice')
-             ,predictorsName = c('alwaysNoAssessment', 'alwaysNoCensus')
-             ,predictorsForm = c('level', 'log')
-             ,ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
-             ,query = '100'
-             ,c = '0'
-             ,ntree = '0'
-             ,mtry = '0'
-             )
-    possible
 }
 Chart.6.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 6
     # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
     # timePeriod 2003on
 
-    result <- Chart.5.6.FileDependencies( my.control = my.control
-                                         ,possible = Chart.6.Possible()
-                                         )
+    Path <- CvCell()$Path
+    file.dependencies <- Lines()
+    for (response in c('price', 'logprice')) {
+        for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
+            for (predictorsForm in c('level', 'log')) {
+                for (ndays in CvCell()$Possible.Ndays()) {
+                    path <- 
+                        Path( scope = 'global'
+                             ,model = 'linear'
+                             ,timePeriod = '2003on'
+                             ,scenario = 'avm'
+                             ,response = response
+                             ,predictorsName = predictorsName
+                             ,predictorsForm = predictorsForm
+                             ,ndays = ndays
+                             ,query = '100'
+                             ,c = '0'
+                             ,ntree = '0'
+                             ,mtry = '0'
+                             )
+                    file.dependencies$Append(path)
+                }
+            }
+        }
+    }
+
+    result <- file.dependencies$Get()
     result
 }
 Chart.7.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 7 
 
+    Path <- CvCell()$Path
     file.names <- Lines()
-    for (scope in 'global') {
-        for (model in 'linear') {
-            for (timePeriod in '2003on') {
-                for (scenario in 'avm') {
-                    for (response in c('price', 'logprice')) {
-                        for (predictorsName in 'alwaysNoAssessment') {
-                            for (predictorsForm in c('level', 'log')) {
-                                for (ndays in my.control$ndays.range) {
-                                    file.name <- Filename( my.control$base
-                                                          ,arg = list( scope = scope
-                                                                      ,model = model
-                                                                      ,timePeriod = timePeriod
-                                                                      ,response = response
-                                                                      ,predictorsName = predictorsName
-                                                                      ,predictorsForm = predictorsForm
-                                                                      ,ndays = ndays
-                                                                      ,query = '100'
-                                                                      ,c = '0'
-                                                                      ,ntree = '0'
-                                                                      ,mtry = '0'
-                                                                      )
-                                                          )
-                                    file.names$Append(file.name)
-                                }
-                            }
-                        }
-                    }
+    for (response in c('price', 'logprice')) {
+        for (predictorsName in 'alwaysNoAssessment') {
+            for (predictorsForm in c('level', 'log')) {
+                for (ndays in CvCell()$Possible.Ndays()) {
+                    path <- Path( scope = 'global'
+                                 ,model = 'linear'
+                                 ,timePeriod = '2003on'
+                                 ,scenario = 'avm'
+                                 ,response = response
+                                 ,predictorsName = predictorsName
+                                 ,predictorsForm = predictorsForm
+                                 ,ndays = ndays
+                                 ,query = '100'
+                                 ,c = '0'
+                                 ,ntree = '0'
+                                 ,mtry = '0'
+                                 )
+                    file.names$Append(path)
                 }
             }
         }
     }
+
     result <- file.names$Get()
     result
 }
@@ -831,15 +783,21 @@ Chart.8.FileDependencies <- function(my.control) {
     result <- Chart.7.FileDependencies(my.control)
     result
 }
-Chart.9.PredictorNames <- function(control) {
+Chart.9.PredictorsNames <- function(control) {
     # return list of predictor names for chart 9
     # these have the form best01, best02, ..., best24
     ordered.features <- readLines(con = control$path.in.chart9.features)
-    predictorNames <- sapply( 1:length(ordered.features)
+    cvcell.predictors.names <- CvCell()$Possible.PredictorsNames()
+    stopifnot(length(ordered.features) != length(cvcell.predictors.names))
+    predictorsNames <- sapply( 1:length(ordered.features)
                              ,function(n) 
                                  sprintf('best%02d', n)
                              )
-    predictorNames
+    # verify that each of the predictors was expected
+    lapply( predictorsNames
+           ,function(predictorsName) is.element(predictorsName, cvcell.predictors.names)
+           )
+    predictorsNames
 }
 Chart.9.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 9
@@ -847,43 +805,27 @@ Chart.9.FileDependencies <- function(my.control) {
     # best for is log-level
     # best ndays is 60 
 
+    Path <- CvCell()$Path
     file.names <- Lines()
-    for (scope in 'global') {
-        for (model in 'linear') {
-            for (timePeriod in '2003on') {
-                for (scenario in 'avm') {
-                    for (response in 'logprice') {
-                        for (predictorsName in Chart.9.PredictorNames(my.control)) {
-                            for (predictorsForm in 'level') {
-                                for (ndays in '60') {
-                                    file.name <- Filename( my.control$base
-                                                          ,arg = list( scope = scope
-                                                                      ,model = model
-                                                                      ,timePeriod = timePeriod
-                                                                      ,response = response
-                                                                      ,predictorsName = predictorsName
-                                                                      ,predictorsForm = predictorsForm
-                                                                      ,ndays = ndays
-                                                                      ,query = '100'
-                                                                      ,c = '0'
-                                                                      ,ntree = '0'
-                                                                      ,mtry = '0'
-                                                                      )
-                                                          )
-                                    file.names$Append(file.name)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    for (predictorsName in Chart.9.PredictorsNames(my.control)) {
+        path <- 
+            Path( scope = 'global'
+                 ,model = 'linear'
+                 ,timePeriod = '2003on'
+                 ,scenario = 'avm'
+                 ,response = 'logprice'
+                 ,predictorsName = predictorsName
+                 ,predictorsForm = 'level'
+                 ,ndays = '60'
+                 ,query = '100'
+                 ,c = '0'
+                 ,ntree = '0'
+                 ,mtry = '0'
+                 )
+        file.names$Append(path)
     }
     result <- file.names$Get()
     result
-}
-Chart.5.6 <- function(header, possible) {
-    stop('write me')
 }
 Table.5.6 <- function() {
     # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
@@ -1618,6 +1560,15 @@ MakeCharts <- function(control) {
                ,con = control$path.out.chart.8
                )
 
+    Chart.9 <- function(control) {
+        'TODO: replace me with the real chart 9'
+    }
+
+    chart.9.txt <- Chart.9(control)
+    writeLines( text = chart.9.txt
+               ,con = control$path.out.chart.9
+               )
+
     
 
     return()
@@ -1654,6 +1605,8 @@ default.args <- list( makefile = TRUE)
 control <- Control(default.args)
 
 Main(control)
+if (default.args$makefile)
+    stop('FIX DEFAULT ARGS SO THAT PROGRAM PRODUCES CHARTS')
 if (control$testing)
     cat('DISCARD RESULTS: TESTING\n')
 cat('done\n')
