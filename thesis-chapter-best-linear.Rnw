@@ -1,0 +1,98 @@
+\chapter{Finding the Best Linear Model}
+% vim: textwidth=72
+% vim: foldmethod=manual
+
+<<BestLinearModel>>=
+working <- control$working
+path.cv.criterion <- paste0(working, 'e-cv-chart_chart7.txt')
+path.cv.form.ndays <- paste0(working, 'e-cv-chart_chart8.txt')
+path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
+@ 
+
+Linear models predict the price as a linear function of features:
+
+\[ y = \beta_0 + \beta_1 x_1 + \ldots + \beta_n x_n. \]
+
+From this simple idea, a huge variety of models can be generated. Which
+linear models are most accurate for predicting the prices of houses?
+
+We answer this question by examining data from 2003 and later using the
+decennial census from the year 2000 but not the tax assessment for 2008.
+Our interest is in estimating the generalization error for unseen
+transactions. For this, we use 10-fold cross validation on the training
+portion of the subset1 data.
+
+Property descriptions come from the taxroll for the year 2008. The
+taxroll contains property descriptions as of December 31, 2007. We
+need to exclude from out data any houses built or modified after that
+date. An analysis shows that there are no such houses.
+
+The plan of attack is EXPLAIN THE SECTIONS.
+
+\section{Criterion}
+
+The literature often compares models using the fraction of estimates
+within 10 percent of the known values in training data.
+
+Compare RMSE to fraction within 10 percent.
+
+% attempt to rotate: works (though with small text)
+\begin{figure}[ht]
+\begin{sideways}
+\begin{minipage}{7in}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv.criterion}}
+\end{minipage}
+\end{sideways}
+\caption{Estimated Generalization Errors\\Measurement Approaches Compared }
+\label{figure:EGEMeasurement}
+\end{figure}
+
+Figure \ref{figure:EGEMeasurement}
+
+\section{Whole-market Models}
+
+\subsection{Model form and ndays}
+
+% attempt to rotate: works (though with small text)
+\begin{figure}[ht]
+\begin{sideways}
+\begin{minipage}{7in}
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv.form.ndays}}
+\end{minipage}
+\end{sideways}
+\caption{Estimated Generalization Errors\\Across Model Forms and Training
+Period}
+\label{figure:EGEFormNdays}
+\end{figure}
+
+Figure \ref{figure:EGEFormNDays}
+
+\subsection{Feature selection}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.lcv2}}
+\caption{Most Important Features}
+\label{figure:LCV}
+\end{figure}
+
+Figure \ref{figure:LCV}
+
+\subsection{Regularization}
+
+\section{Submarket Models}
+
+\subsection{Zip vs. Census vs. City}
+
+\subsection{Regularization}
+
+\section{The best linear model is \dots}
