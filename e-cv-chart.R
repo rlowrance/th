@@ -19,6 +19,7 @@ source('CvCell.R')
 source('Lines.R')
 
 
+library(boot)
 library(ggplot2)
 library(optparse)
 library(memoise)
@@ -105,6 +106,63 @@ MedianRMSE <- function(a.cv.result) {
                )
     result <- median(rootMedianSquaredError.values)
     result
+}
+#SEMedians2 <- function(values) {
+#    browser()
+#    ordered.values <- order(values)
+#    n <- length(values)
+#    m <- round(n / 2)
+#    med.value <- if (n % 2 == 0) ordered.values[[n/2]] else (ordered
+#}
+#SEMedians.test <- function() {
+#    # unit test
+#    # ref: epilab.ich.ucl.ac.uk/coursematerial/non-parametric/confidence-interval.html
+#    browser()
+#    values <- c(-1.4, -0.6, -0.2, -0.9, -3.2, -3.2, -2.4, -0.7, -5.5, 0.1, -0.1, -0.3)
+#    med.values <- median(values)
+#    sd.values <- sd(values)
+#}
+CIMedian <- function(values) {
+    # return 95% confidence interval for the median of the vector of values
+    # ref: R Cookbook, p 184
+    browser()
+    num.resamples <- 100  # TODO: set to 10,000
+    medians <- numeric(length = num.resamples)  # preallocate for speed
+    lapply(1:num.resamples, f(index) medians[[index]] <- median(sample(values, replace = TRUE)))
+    confidence.interval <- quantile( x = medians
+                                    ,probs = c(0.025, 0.975)
+                                    )
+    result <- list( lowest = confidence.interval[[1]]
+                   ,highest = confidence.interval[[2]]
+                   )
+    result
+}
+SeMedianRMSE <- function(a.cv.result) {
+    # return standard error of the rootMedianSquaredError values in the folds
+    # ref: Wikipedia
+    # se := standard deviation of some sampling statistics
+    browser()
+    nfolds <- length(a.cv.result)
+    stopifnot(nfolds == 10)
+    rootMedianSquaredError.values <- 
+        sapply(1 : nfolds,
+               function(fold.index) {
+                   evaluation <- a.cv.result[[fold.index]]
+                   evaluation$rootMedianSquaredError
+               }
+               )
+    standard.error <- sd(rootMedianSquaredError.values)  # NOTE: uses denominator n - 1
+
+    # now use bootstap
+    Median <- function(values, indices) {
+        browser()
+        median(values[indices])
+    }
+    booted <- boot( data = rootMedianSquaredError.values
+                   ,statistic = Median
+                   ,R = 100  # TODO: use 10000
+                   )
+    standard.error
 }
 MeanWithin10 <- function(a.cv.result) {
     # return mean of the fraction.within.10.percent values in the folds
@@ -908,21 +966,19 @@ Chart.5 <- function(my.control) {
 
     DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
         M <- function(ndays) {
-            path.in <- Filename( base = my.control$path.cells
-                                ,arg = list( scope = 'global'
-                                            ,model = 'linear'
-                                            ,timePeriod = '2008'
-                                            ,scenario = scenario
-                                            ,response = response
-                                            ,predictorsName = predictorsName
-                                            ,predictorsForm = predictorsForm
-                                            ,ndays = ndays
-                                            ,query = '1'
-                                            ,c = '0'
-                                            ,ntree = '0'
-                                            ,mtry = '0'
-                                            )
-                                )
+            path.in <- CvCell()$Path( scope = 'global'
+                                     ,model = 'linear'
+                                     ,timePeriod = '2008'
+                                     ,scenario = scenario
+                                     ,response = response
+                                     ,predictorsName = predictorsName
+                                     ,predictorsForm = predictorsForm
+                                     ,ndays = ndays
+                                     ,query = '1'
+                                     ,c = '0'
+                                     ,ntree = '0'
+                                     ,mtry = '0'
+                                     )
             load(path.in)
             stopifnot(!is.null(cv.result))
             stopifnot(length(cv.result) == 1)
@@ -978,23 +1034,22 @@ Chart.6 <- function(my.control) {
                   '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
                   )
 
+    Path <- CvCell()$Path
     DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
         M <- function(ndays) {
-            path.in <- Filename( base = my.control$path.cells
-                                ,arg = list( scope = 'global'
-                                            ,model = 'linear'
-                                            ,timePeriod = '2008'
-                                            ,scenario = scenario
-                                            ,response = response
-                                            ,predictorsName = predictorsName
-                                            ,predictorsForm = predictorsForm
-                                            ,ndays = ndays
-                                            ,query = '1'
-                                            ,c = '0'
-                                            ,ntree = '0'
-                                            ,mtry = '0'
-                                            )
-                                )
+            path.in <- Path( scope = 'global'
+                             ,model = 'linear'
+                             ,timePeriod = '2008'
+                             ,scenario = scenario
+                             ,response = response
+                             ,predictorsName = predictorsName
+                             ,predictorsForm = predictorsForm
+                             ,nday = ndays
+                             ,query = '1'
+                             ,c = '0'
+                             ,ntree = '0'
+                             ,mtry = '0'
+                             )
             load(path.in)
             stopifnot(!is.null(cv.result))
             stopifnot(length(cv.result) == 1)
@@ -1206,23 +1261,22 @@ Table.7.B <- function(lines) {
 }
 Chart.7 <- function(my.control) {
     # return txt lines for chart 7
+    Path <- CvCell()$Path
     CvResult <- function(ndays, response, predictorsForm) {
         # return the single cv.result in the e-cv-cell for ndays
-        path.in <- Filename( base = my.control$path.cells
-                            ,arg = list( scope = 'global'
-                                        ,model = 'linear'
-                                        ,timePeriod = '2003on'
-                                        ,scenario = 'avm'
-                                        ,response = response
-                                        ,predictorsName = 'alwaysNoAssessment'
-                                        ,predictorsForm = predictorsForm
-                                        ,ndays = ndays
-                                        ,query = '100'  # use 1% sample
-                                        ,c = '0'
-                                        ,ntree = '0'
-                                        ,mtry = '0'
-                                        )
-                            )
+        path.in <- Path( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = response
+                        ,predictorsName = 'alwaysNoAssessment'
+                        ,predictorsForm = predictorsForm
+                        ,ndays = ndays
+                        ,query = '100'  # use 1% sample
+                        ,c = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
         load(path.in)
         stopifnot(!is.null(cv.result))
         stopifnot(length(cv.result) == 1)
@@ -1409,23 +1463,22 @@ Table.8 <- function(lines) {
 }
 Chart.8 <- function(my.control) {
     # return txt lines for chart 8
+    Path <- CvCell()$Path
     ACvResult <- function(ndays, response, predictorsForm) {
         # return the single cv.result in the e-cv-cell for ndays
-        path.in <- Filename( base = my.control$path.cells
-                            ,arg = list( scope = 'global'
-                                        ,model = 'linear'
-                                        ,timePeriod = '2003on'
-                                        ,scenario = 'avm'
-                                        ,response = response
-                                        ,predictorsName = 'alwaysNoAssessment'
-                                        ,predictorsForm = predictorsForm
-                                        ,ndays = ndays
-                                        ,query = '100'  # use 1% sample
-                                        ,c = '0'
-                                        ,ntree = '0'
-                                        ,mtry = '0'
-                                        )
-                            )
+        path.in <- Path( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = response
+                        ,predictorsName = 'alwaysNoAssessment'
+                        ,predictorsForm = predictorsForm
+                        ,ndays = ndays
+                        ,query = '100'  # use 1% sample
+                        ,c = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
         load(path.in)
         stopifnot(!is.null(cv.result))
         stopifnot(length(cv.result) == 1)
@@ -1481,6 +1534,84 @@ Chart.8 <- function(my.control) {
     lines <- Lines()
     Header(lines)
 
+    lines$Append(' ')
+    Table(lines)
+
+    result <- lines$Get()
+    result
+}
+Table.9 <- function(lines) {
+    # append to Lines object lines
+    header.format <- '%15s %15s %15s'
+    data.format   <- '%15.0f %15.0f %15.0f'
+
+    Header <- function(num.features, median, se) {
+        line <- sprintf(header.format, num.features, median, se)
+        lines$Append(line)
+    }
+
+    Detail <- function(num.features, median, se) {
+        line <- sprintf(data.format, num.features, median, se)
+        lines$Append(line)
+    }
+
+    list( Header = Header
+         ,Detail = Detail
+         )
+}
+Chart.9 <- function(my.control) {
+    # for now, produce text
+    # later, produce a ggplot graphic
+    Path <- CvCell()$Path
+    ACvResult <- function(num.features) {
+        browser()
+        predictorsName <- sprintf('best%02d', num.features)
+        path.in <- Path( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,c = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        load(path.in)
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result
+        a.cv.result
+    }
+    Header <- function(lines) {
+        lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
+        lines$Append('Model Form: log-linear')
+        lines$Append('Training Period: 60 days')
+        lines$Append('AVM Scenario')
+        lines$Append('Metric: Median across folds of Root Median Squared Errors')
+    }
+    Table <- function(lines) {
+        browser()
+        table <- Table.9(lines)
+        table$Header('num features', 'median RMSE', 'SE')
+        lines$Append(' ')
+
+        DetailLine <- function(num.features) {
+            browser()
+            a.cv.result <- ACvResult(num.features)
+            median <- MedianRMSE(a.cv.result)
+            se <- SEMedianRMSE(a.cv.result)
+            table$Detail(num.features, median, se)
+        }
+
+        for (num.features in 1:24) {
+            DetailLine(num.features)
+        }
+    }
+
+    lines <- Lines()
+    Header(lines)
     lines$Append(' ')
     Table(lines)
 
@@ -1560,16 +1691,10 @@ MakeCharts <- function(control) {
                ,con = control$path.out.chart.8
                )
 
-    Chart.9 <- function(control) {
-        'TODO: replace me with the real chart 9'
-    }
-
     chart.9.txt <- Chart.9(control)
     writeLines( text = chart.9.txt
                ,con = control$path.out.chart.9
                )
-
-    
 
     return()
     
@@ -1600,7 +1725,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
