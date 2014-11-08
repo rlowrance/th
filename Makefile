@@ -873,6 +873,9 @@ thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
 
 thesis-data-best-linear += $(working)/e-cv-chart_chart7.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
+thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
+thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt
 thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
 
 thesis-data += $(thesis-data-data-munging)
