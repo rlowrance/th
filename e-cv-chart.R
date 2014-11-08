@@ -63,12 +63,15 @@ Control <- function(default.args) {
                     ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
                     ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
                     ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
+                    ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
+                    ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
                     ,path.out.chart.8.generated.makefile = 'e-cv-chart-chart8-generated.makefile'
                     ,path.out.chart.9.generated.makefile = 'e-cv-chart-chart9-generated.makefile'
                     ,path.out.chart.10.generated.makefile = 'e-cv-chart-chart10-generated.makefile'
+                    ,path.out.chart.11.generated.makefile = 'e-cv-chart-chart11-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -888,12 +891,52 @@ Chart.10.PredictorsNames <- function() {
     result
 }
 Chart.10.FileDependencies <- function(my.control) {
-    # return list of file names used to construct chart 9
+    # return list of file names used to construct chart 10
 
     Path <- CvCell()$Path
     #debug(Path)
     file.names <- Lines()
     possible <- Chart.10.PredictorsNames()
+    for (predictorsName in possible) {
+        path <- 
+            Path( scope = 'global'
+                 ,model = 'linear'
+                 ,timePeriod = '2003on'
+                 ,scenario = 'avm'
+                 ,response = 'logprice'
+                 ,predictorsName = predictorsName
+                 ,predictorsForm = 'level'
+                 ,ndays = '60'
+                 ,query = '100'
+                 ,c = '0'
+                 ,ntree = '0'
+                 ,mtry = '0'
+                 )
+        file.names$Append(path)
+    }
+    result <- file.names$Get()
+    result
+}
+Chart.11.PredictorsNames <- function() {
+    # return vector of predictor names used in chart 10
+    result <- c( 'best08'
+                ,'best19'
+                ,'best20'
+                ,'best24'
+                ,'pca01'
+                ,'pca02'
+                ,'pca03'
+                ,'pca04'
+                )
+    result
+}
+Chart.11.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 11
+
+    Path <- CvCell()$Path
+    #debug(Path)
+    file.names <- Lines()
+    possible <- Chart.11.PredictorsNames()
     for (predictorsName in possible) {
         path <- 
             Path( scope = 'global'
@@ -1740,6 +1783,69 @@ Chart.10 <- function(my.control) {
                          )
     result
 }
+Chart.11 <- function(my.control) {
+    # return 2 gg charts
+
+    Path <- CvCell()$Path
+    ACvResult <- function(predictorsName) {
+        path.in <- Path( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,c = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        load(path.in)
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+        a.cv.result
+    }
+    Summarize <- function() {
+        # return list $predictors.name $median.value $ci.lowest $ci.highest
+        predictors.names <- Chart.11.PredictorsNames()
+        n <- length(predictors.names)
+        median.value <- double(n)
+        ci.lowest <- double(n)
+        ci.highest <- double(n)
+        for (index in 1:n) {
+            predictors.name <- predictors.names[[index]]
+            a.cv.result <- ACvResult(predictors.name)
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            ci <- CIMedian(rmse.values)
+            median.value[[index]] <- median(rmse.values)
+            ci.lowest[[index]] <- ci$lowest
+            ci.highest[[index]] <- ci$highest
+        }
+        result <- list( predictors.names = predictors.names
+                       ,median.value  = median.value
+                       ,ci.lowest     = ci.lowest
+                       ,ci.highest    = ci.highest
+                       )
+        result
+    }
+    GraphChart <- function(summary, show.zero.value) {
+        gg <- CI.Chart( axis.values = 'median rMedianSE across folds'
+                       ,axis.names = 'predictor feature set names'
+                       ,values = summary$median.value
+                       ,values.low = summary$ci.lowest
+                       ,values.high = summary$ci.highest
+                       ,names = summary$predictors.names
+                       ,show.zero.value = show.zero.value
+                       )
+        gg
+    }
+    summary <- Summarize()
+    result <- list( gg1 = GraphChart(summary, show.zero.value = TRUE)
+                   ,gg2 = GraphChart(summary, show.zero.value = FALSE)
+                   )
+    result
+}
 MakeMakefiles <- function(control) {
     # write one makefile for each chart that is being created
 
@@ -1791,6 +1897,10 @@ MakeMakefiles <- function(control) {
     MakeMakefile( variable.name = 'e-cv-chart-chart10'
                  ,dependency.file.names = Chart.10.FileDependencies(control)
                  ,path.out = control$path.out.chart.10.generated.makefile
+                 )
+    MakeMakefile( variable.name = 'e-cv-chart-chart11'
+                 ,dependency.file.names = Chart.11.FileDependencies(control)
+                 ,path.out = control$path.out.chart.11.generated.makefile
                  )
 }
 MakeCharts <- function(control) {
@@ -1854,6 +1964,26 @@ MakeCharts <- function(control) {
         ,height = control$chart.height
         )
     print(chart.10$gg2)
+    dev.off()
+
+    # Chart.11 returns list $txt $gg1 $gg2 (same charts as for chart 9)
+    chart.11 <- Chart.11(control)
+#    writeLines( text = chart.11$txt
+#               ,con = control$path.out.chart.11.txt
+#               )
+
+    pdf( file = control$path.out.chart.11.gg1
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.11$gg1)
+    dev.off()
+
+    pdf( file = control$path.out.chart.11.gg2
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.11$gg2)
     dev.off()
 
     return()
