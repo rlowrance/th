@@ -17,7 +17,7 @@ source('Libraries.R')
 #source('CvApplyAllPossibilities.R')
 source('CvCell.R')
 source('Lines.R')
-
+source('Predictors2.R')
 
 library(boot)
 library(ggplot2)
@@ -60,6 +60,9 @@ Control <- function(default.args) {
                     ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
                     ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
                     ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
+                    ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
+                    ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
+                    ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
@@ -1617,12 +1620,16 @@ Table.9 <- function(lines) {
          ,Detail = Detail
          )
 }
-Chart.9 <- function(my.control) {
-    # for now, produce text
-    # later, produce a ggplot graphic
+Chart.9.10 <- function(my.control, feature.names, predictors.names) {
+    # produce 3 charts for chart 9 and 10
+    # ARGS
+    # feature.names: chr vector of names of features
+    # predictors.names: chr vector of names of predictors 
+    #  (ex: best01, best02, ..., best24)
+    #  (ex: pca01, pca02, ..., pca04)
     Path <- CvCell()$Path
     ACvResult <- function(num.features) {
-        predictorsName <- sprintf('best%02d', num.features)
+        predictorsName <- predictors.names[[num.features]]
         path.in <- Path( scope = 'global'
                         ,model = 'linear'
                         ,timePeriod = '2003on'
@@ -1643,8 +1650,7 @@ Chart.9 <- function(my.control) {
     }
     Summarize <- function() {
         # return list $feature.name $median.value $ci.lowest $ci.highest
-        feature.name <- readLines(con = paste0(my.control$working, 'e-features-lcv2.txt'))
-        n <- length(feature.name)
+        n <- length(feature.names)
         median.value <- double(n)
         ci.lowest <- double(n)
         ci.highest <- double(n)
@@ -1656,10 +1662,10 @@ Chart.9 <- function(my.control) {
             ci.lowest[[feature.num]] <- ci$lowest
             ci.highest[[feature.num]] <- ci$highest
         }
-        result <- list( feature.name = feature.name
-                       ,median.value = median.value
-                       ,ci.lowest    = ci.lowest
-                       ,ci.highest   = ci.highest
+        result <- list( feature.names = feature.names
+                       ,median.value  = median.value
+                       ,ci.lowest     = ci.lowest
+                       ,ci.highest    = ci.highest
                        )
         result
         }
@@ -1711,6 +1717,27 @@ Chart.9 <- function(my.control) {
                    ,gg1 = GraphChart(summary, show.zero.value = TRUE)
                    ,gg2 = GraphChart(summary, show.zero.value = FALSE)
                    )
+    result
+}
+Chart.9 <- function(my.control) {
+    # return 3 results for chart 9
+    feature.names <- readLines(con = paste0(my.control$working, 'e-features-lcv2.txt'))
+    predictors.names <- sprintf('best%02d', 1:24)
+    result <- Chart.9.10( my.control = my.control
+                         ,feature.names = feature.names
+                         ,predictors.names = predictors.names
+                         )
+    result
+}
+Chart.10 <- function(my.control) {
+    feature.names <- Predictors2( predictors.name = 'pca04'  # get all the features in order
+                                 ,predictors.form = 'level'
+                                 )
+    predictors.names <- sprintf('pca%02d', 1:4)
+    result <- Chart.9.10( my.control = my.control
+                         ,feature.names = feature.names
+                         ,predictors.names = predictors.names
+                         )
     result
 }
 MakeMakefiles <- function(control) {
@@ -1790,7 +1817,6 @@ MakeCharts <- function(control) {
                )
 
     # Chart.9 returns list $txt $gg1 $gg2
-    browser()
     chart.9 <- Chart.9(control)
     writeLines( text = chart.9$txt
                ,con = control$path.out.chart.9.txt
@@ -1808,6 +1834,26 @@ MakeCharts <- function(control) {
         ,height = control$chart.height
         )
     print(chart.9$gg2)
+    dev.off()
+
+    # Chart.10 returns list $txt $gg1 $gg2 (same charts as for chart 9)
+    chart.10 <- Chart.10(control)
+    writeLines( text = chart.10$txt
+               ,con = control$path.out.chart.10.txt
+               )
+
+    pdf( file = control$path.out.chart.10.gg1
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.10$gg1)
+    dev.off()
+
+    pdf( file = control$path.out.chart.10.gg2
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.10$gg2)
     dev.off()
 
     return()
@@ -1839,7 +1885,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
