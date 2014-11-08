@@ -10,6 +10,10 @@ path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
 path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
 path.9.gg1 <- paste0(working, 'e-cv-chart_chart9_1.pdf')
 path.9.gg2 <- paste0(working, 'e-cv-chart_chart9_2.pdf')
+path.pca.1 <- paste0(working, 'e-features-pca-chart_1.txt')
+path.pca.2.01 <- paste0(working, 'e-features-pca-chart_2_01.txt')
+path.pca.2.02 <- paste0(working, 'e-features-pca-chart_2_02.txt')
+path.pca.2.03 <- paste0(working, 'e-features-pca-chart_2_03.txt')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -78,6 +82,8 @@ Figure \ref{figure:EGEFormNDays}
 
 \subsection{Feature selection}
 
+\subsubsection{LCV Heuristic}
+
 % non-rotated txt chart
 \begin{figure}[ht]
 \tiny
@@ -125,6 +131,56 @@ Not Showing Origin
 \end{figure}
 
 Figure \ref{figure:MedianGraph2}
+
+\subsubsection{PCA}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.pca.1}}
+\caption{Principal Components\\Cumulative Variance}
+\label{figure:PCA1}
+\end{figure}
+
+Figure \ref{figure:PCA1}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.pca.2.01}}
+\caption{Principal Components\\Component 1}
+\label{figure:PCA201}
+\end{figure}
+
+Figure \ref{figure:PCA201}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.pca.2.02}}
+\caption{Principal Components\\Component 2}
+\label{figure:PCA202}
+\end{figure}
+
+Figure \ref{figure:PCA202}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.pca.2.03}}
+\caption{Principal Components\\Component 3}
+\label{figure:PCA203}
+\end{figure}
+
+Figure \ref{figure:PCA203}
 
 \subsection{Regularization}
 
