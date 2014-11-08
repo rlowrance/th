@@ -97,6 +97,7 @@ Control <- function(default.args) {
     stopifnot( opt$predictorsName == 'always'
               |opt$predictorsName == 'alwaysNoAssessment'
               |opt$predictorsName == 'alwaysNoCensus'
+              |substr(opt$predictorsName, 1, 4) == 'best'
               )
     stopifnot( opt$predictorsForm == 'level'
               |opt$predictorsForm == 'log'
@@ -119,6 +120,7 @@ Control <- function(default.args) {
                               )
     identification <- Predictors2('identification')
     prices <- c('price.log', 'price')
+    years <- c('year.built', 'effective.year.built')
 
     testing <- FALSE
     #testing <- TRUE
@@ -149,6 +151,7 @@ Control <- function(default.args) {
                     ,split.names = unique(c( predictors
                                             ,identification
                                             ,prices
+                                            ,years
                                             )
                     )
                     ,testing = testing
@@ -556,6 +559,7 @@ Main <- function(control, transaction.data.all.years) {
         transaction.data.all.years$year.built <= taxroll.year &
         transaction.data.all.years$effective.year.built <= taxroll.year
     data <-  transaction.data.all.years[is.known.to.taxroll, ]
+    stopifnot(nrow(data) == nrow(transaction.data.all.years)) # no post-2008 transations should exist
 
     # build list of hyperparameters to be used in defining the models for CrossValidate
     # here there is only one model and the hyperparameters are from the command line options
@@ -597,6 +601,8 @@ Main <- function(control, transaction.data.all.years) {
                                ,control = control
                                ,verbose = control$verbose.CrossValidate
                                )
+
+    cat('examine cv.result\n'); browser()
 
     save( control
          ,cv.result
@@ -643,10 +649,10 @@ default.args <-
          ,model          = 'linear'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
-         ,response       = 'price'
+         ,response       = 'logprice'
          ,predictorsForm = 'level'
-         ,predictorsName = 'alwaysNoAssessment'
-         ,ndays          = '330'
+         ,predictorsName = 'best01'
+         ,ndays          = '60'
          ,query          = '100'
          ,c              = '0'
          ,ntree          = '0'
