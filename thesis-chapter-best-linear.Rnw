@@ -14,6 +14,9 @@ path.pca.1 <- paste0(working, 'e-features-pca-chart_1.txt')
 path.pca.2.01 <- paste0(working, 'e-features-pca-chart_2_01.txt')
 path.pca.2.02 <- paste0(working, 'e-features-pca-chart_2_02.txt')
 path.pca.2.03 <- paste0(working, 'e-features-pca-chart_2_03.txt')
+path.10.txt <- paste0(working, 'e-cv-chart_chart10.txt')
+path.10.gg1 <- paste0(working, 'e-cv-chart_chart10_1.pdf')
+path.10.gg2 <- paste0(working, 'e-cv-chart_chart10_2.pdf')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -181,6 +184,42 @@ Figure \ref{figure:PCA202}
 \end{figure}
 
 Figure \ref{figure:PCA203}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.10.txt}}
+\caption{Median rMedianSE Table}
+\label{figure:MedianTable10}
+\end{figure}
+
+Figure \ref{figure:MedianTable10}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Median rMedianSE\\
+Showing Origin
+}
+\label{figure:MedianGraph102}
+\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
+\end{figure}
+
+Figure \ref{figure:MedianGraph101}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Median rMedianSE\\
+Not Showing Origin
+}
+\label{figure:MedianGraph102}
+\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
+\end{figure}
+
+Figure \ref{figure:MedianGraph102}
 
 \subsection{Regularization}
 
