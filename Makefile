@@ -350,6 +350,7 @@ e-cv-chart-chart7-generated%makefile \
 e-cv-chart-chart8-generated%makefile \
 e-cv-chart-chart9-generated%makefile \
 e-cv-chart-chart10-generated%makefile \
+e-cv-chart-chart11-generated%makefile \
 : e-cv-chart.R $(e-cv-chart-source)
 	Rscript e-cv-chart.R --makefile
 
@@ -361,6 +362,7 @@ include e-cv-chart-chart7-generated.makefile
 include e-cv-chart-chart8-generated.makefile
 include e-cv-chart-chart9-generated.makefile
 include e-cv-chart-chart10-generated.makefile
+include e-cv-chart-chart11-generated.makefile
 
 #$(warning e-cv-chart-chart5 is $(e-cv-chart-chart5))
 
