@@ -65,6 +65,7 @@ Control <- function(default.args) {
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
                     ,path.out.chart.8.generated.makefile = 'e-cv-chart-chart8-generated.makefile'
                     ,path.out.chart.9.generated.makefile = 'e-cv-chart-chart9-generated.makefile'
+                    ,path.out.chart.10.generated.makefile = 'e-cv-chart-chart10-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -859,6 +860,38 @@ Chart.9.FileDependencies <- function(my.control) {
     Path <- CvCell()$Path
     file.names <- Lines()
     for (predictorsName in Chart.9.PredictorsNames(my.control)) {
+        path <- 
+            Path( scope = 'global'
+                 ,model = 'linear'
+                 ,timePeriod = '2003on'
+                 ,scenario = 'avm'
+                 ,response = 'logprice'
+                 ,predictorsName = predictorsName
+                 ,predictorsForm = 'level'
+                 ,ndays = '60'
+                 ,query = '100'
+                 ,c = '0'
+                 ,ntree = '0'
+                 ,mtry = '0'
+                 )
+        file.names$Append(path)
+    }
+    result <- file.names$Get()
+    result
+}
+Chart.10.PredictorsNames <- function() {
+    # return vector of predictor names used in chart 10
+    result <- sprintf('pca%02d', 1:4)
+    result
+}
+Chart.10.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 9
+
+    Path <- CvCell()$Path
+    #debug(Path)
+    file.names <- Lines()
+    possible <- Chart.10.PredictorsNames()
+    for (predictorsName in possible) {
         path <- 
             Path( scope = 'global'
                  ,model = 'linear'
@@ -1728,6 +1761,10 @@ MakeMakefiles <- function(control) {
                  ,dependency.file.names = Chart.9.FileDependencies(control)
                  ,path.out = control$path.out.chart.9.generated.makefile
                  )
+    MakeMakefile( variable.name = 'e-cv-chart-chart10'
+                 ,dependency.file.names = Chart.10.FileDependencies(control)
+                 ,path.out = control$path.out.chart.10.generated.makefile
+                 )
 }
 MakeCharts <- function(control) {
     # write chart files:
@@ -1802,7 +1839,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-default.args <- list( makefile = FALSE) 
+#default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
