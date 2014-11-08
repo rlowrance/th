@@ -1,3 +1,4 @@
+source('Directory.R')
 Predictors2 <- function(predictors.name, predictors.form) {
     # return character vector of predictor names
     # predictor.name : chr, of one always | alwaysNoassessment
@@ -19,6 +20,9 @@ Predictors2 <- function(predictors.name, predictors.form) {
     # - not size
 
     # always := the feature is present in every transaction in subset1
+
+    path.best.features <- paste0(Directory('working'), 'e-features-lcv2.txt')
+    best.features <- readLines(con = path.best.features)
 
     always.house.assessment.size.positive <- 
         c( 'improvement.value'
@@ -137,6 +141,11 @@ Predictors2 <- function(predictors.name, predictors.form) {
               ,always.house.not.assessment.not.size
               ,always.location.zip
               )
+        } else if (substr(predictors.name, 1, 4) == 'best' && predictors.form == 'level') {
+            #cat(predictors.name, predictors.form, '\n'); browser()
+            n <- as.integer(substr(predictors.name, 5, 6))
+            result <- best.features[1:n]
+            result
         } else {
             print(predictors.name)
             print(predictors.form)
