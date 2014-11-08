@@ -438,23 +438,6 @@ $(predictors.prices)
 
 
 # E-FEATURES-PCA-CHART stem is _
-
-#$(working)/e-features-pca-chart%1.txt \
-#$(working)/e-features-pca-chart%2_01.txt \
-#$(working)/e-features-pca-chart%2_02.txt \
-#$(working)/e-features-pca-chart%2_03.txt \
-#$(working)/e-features-pca-chart%2_04.txt \
-#$(working)/e-features-pca-chart%2_05.txt \
-#$(working)/e-features-pca-chart%2_06.txt \
-#$(working)/e-features-pca-chart%2_07.txt \
-#$(working)/e-features-pca-chart%2_08.txt \
-#$(working)/e-features-pca-chart%2_09.txt \
-#$(working)/e-features-pca-chart%2_10.txt \
-#: \
-#e-features-pca-chart.R \
-#$(working)/e-features-pca.RData
-#	Rscript e-features-pca-chart.R
-
 $(working)/e-features-pca-chart%1.txt \
 $(working)/e-features-pca-chart%2_01.txt \
 $(working)/e-features-pca-chart%2_02.txt \
@@ -877,6 +860,10 @@ thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt
 thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
+thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
+thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
+thesis-data-best-linear += $(working)/e-features-pca-chart_2_02.txt
+thesis-data-best-linear += $(working)/e-features-pca-chart_2_03.txt
 
 thesis-data += $(thesis-data-data-munging)
 thesis-data += $(thesis-data-data-selection)
