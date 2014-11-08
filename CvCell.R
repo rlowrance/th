@@ -15,24 +15,39 @@ CvCell <- function() {
   Is.Valid.Ntree <- function(s)          s %in% c('0')
   Is.Valid.Mtry <- function(s)           s %in% c('0')
 
+  
+  Command <- function( scope, model, timePeriod, scenario
+                      ,response, predictorsName, predictorsForm, ndays
+                      ,query, c, ntree, mtry) {
+    # return command to build a particular cell
+    Validate.Cell.Specifiers( scope, model, timePeriod, scenario
+                             ,response, predictorsName, predictorsForm, ndays
+                             ,query, c, ntree, mtry)
+    command <- paste0( 'Rscript e-cv.R'
+                      ,' --scope ', scope
+                      ,' --model ', model
+                      ,' --timePeriod ', timePeriod
+                      ,' --scenario ', scenario
+                      ,' --response ', response
+                      ,' --predictorsName ', predictorsName
+                      ,' --predictorsForm ', predictorsForm
+                      ,' --ndays ', ndays
+                      ,' --query ', query
+                      ,' --c ', c
+                      ,' --ntree ', ntree
+                      ,' --mtry ', mtry
+                      )
+    command
+  }
 
   Path <- function( scope, model, timePeriod, scenario
                    ,response, predictorsName, predictorsForm, ndays
                    ,query, c, ntree, mtry) {
     # return path in file system to a particular cell
 
-    stopifnot(Is.Valid.Scope(scope))
-    stopifnot(Is.Valid.Model(model))
-    stopifnot(Is.Valid.TimePeriod(timePeriod))
-    stopifnot(Is.Valid.Scenario(scenario))
-    stopifnot(Is.Valid.Response(response))
-    stopifnot(Is.Valid.PredictorsName(predictorsName))
-    stopifnot(Is.Valid.PredictorsForm(predictorsForm))
-    stopifnot(Is.Valid.Ndays(ndays))
-    stopifnot(Is.Valid.Query(query))
-    stopifnot(Is.Valid.C(c))
-    stopifnot(Is.Valid.Ntree(ntree))
-    stopifnot(Is.Valid.Mtry(mtry))
+    Validate.Cell.Specifiers( scope, model, timePeriod, scenario
+                             ,response, predictorsName, predictorsForm, ndays
+                             ,query, c, ntree, mtry)
 
     path <- paste0( Directory('working')
                    ,'e-cv-cells/' ,scope
@@ -65,12 +80,33 @@ CvCell <- function() {
                           ,'best07', 'best08', 'best09', 'best10', 'best11', 'best12'
                           ,'best13', 'best14', 'best15', 'best16', 'best17', 'best18'
                           ,'best19', 'best20', 'best21', 'best22', 'best23', 'best24'
+                          ,'pca01',  'pca02',  'pca03',  'pca04'
                           )
     predictors.names
   }
+
+  Validate.Cell.Specifiers <- function( scope, model, timePeriod, scenario
+                                       ,response, predictorsName, predictorsForm, ndays
+                                       ,query, c, ntree, mtry) {
+    # stop if any cell specifier is invalide
+
+    stopifnot(Is.Valid.Scope(scope))
+    stopifnot(Is.Valid.Model(model))
+    stopifnot(Is.Valid.TimePeriod(timePeriod))
+    stopifnot(Is.Valid.Scenario(scenario))
+    stopifnot(Is.Valid.Response(response))
+    stopifnot(Is.Valid.PredictorsName(predictorsName))
+    stopifnot(Is.Valid.PredictorsForm(predictorsForm))
+    stopifnot(Is.Valid.Ndays(ndays))
+    stopifnot(Is.Valid.Query(query))
+    stopifnot(Is.Valid.C(c))
+    stopifnot(Is.Valid.Ntree(ntree))
+    stopifnot(Is.Valid.Mtry(mtry))
+  }
                           
 
-  list( Path                     = Path
+  list( Command                  = Command
+       ,Path                     = Path
        ,Possible.Ndays           = Possible.Ndays
        ,Possible.PredictorsNames = Possible.PredictorsNames
        )
