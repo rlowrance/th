@@ -11,10 +11,7 @@ source('Libraries.R')
 
 library(optparse)
 
-Control <- function(command.args) {
-    # parse command line arguments in command.args
-    opt <- ParseCommandArgs(command.args)
-
+Control <- function() {
     me <- 'e-features-pca-chart' 
 
     log <- Directory('log')
@@ -145,7 +142,7 @@ PCACharts <- function(my.control) {
     print(chart2s[[2]])
 
 }
-Main <- function(control, transaction.data) {
+Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
@@ -157,12 +154,7 @@ Main <- function(control, transaction.data) {
     
 }
 
-#debug(Control)
-default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--predictors', 'always')
-
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
-control <- Control(command.args)
+control <- Control()
 
 #debug(Main)
 Main(control)
