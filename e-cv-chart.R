@@ -95,6 +95,11 @@ ParseCommandArgs <- function(command.args, default.args) {
 }
 MedianRMSE <- function(a.cv.result) {
     # return median of the rootMedianSquaredError values in the folds
+    result <- median(RootMedianSquaredErrors(a.cv.result))
+    result
+}
+RootMedianSquaredErrors <- function(a.cv.result) {
+    # return vector of the root median squared values from each fold
     nfolds <- length(a.cv.result)
     stopifnot(nfolds == 10)
     rootMedianSquaredError.values <- 
@@ -104,31 +109,17 @@ MedianRMSE <- function(a.cv.result) {
                    evaluation$rootMedianSquaredError
                }
                )
-    result <- median(rootMedianSquaredError.values)
-    result
+    rootMedianSquaredError.values
 }
-#SEMedians2 <- function(values) {
-#    browser()
-#    ordered.values <- order(values)
-#    n <- length(values)
-#    m <- round(n / 2)
-#    med.value <- if (n % 2 == 0) ordered.values[[n/2]] else (ordered
-#}
-#SEMedians.test <- function() {
-#    # unit test
-#    # ref: epilab.ich.ucl.ac.uk/coursematerial/non-parametric/confidence-interval.html
-#    browser()
-#    values <- c(-1.4, -0.6, -0.2, -0.9, -3.2, -3.2, -2.4, -0.7, -5.5, 0.1, -0.1, -0.3)
-#    med.values <- median(values)
-#    sd.values <- sd(values)
-#}
 CIMedian <- function(values) {
     # return 95% confidence interval for the median of the vector of values
     # ref: R Cookbook, p 184
-    browser()
     num.resamples <- 100  # TODO: set to 10,000
+    num.resamples <- 10000
     medians <- numeric(length = num.resamples)  # preallocate for speed
-    lapply(1:num.resamples, f(index) medians[[index]] <- median(sample(values, replace = TRUE)))
+    lapply( 1:num.resamples
+           ,function(index) medians[[index]] <<- median(sample(values, replace = TRUE))
+           )
     confidence.interval <- quantile( x = medians
                                     ,probs = c(0.025, 0.975)
                                     )
@@ -1543,15 +1534,15 @@ Chart.8 <- function(my.control) {
 Table.9 <- function(lines) {
     # append to Lines object lines
     header.format <- '%15s %15s %15s'
-    data.format   <- '%15.0f %15.0f %15.0f'
+    data.format   <- '%15.0f %15.0f [%6.0f,%6.0f]'
 
     Header <- function(num.features, median, se) {
         line <- sprintf(header.format, num.features, median, se)
         lines$Append(line)
     }
 
-    Detail <- function(num.features, median, se) {
-        line <- sprintf(data.format, num.features, median, se)
+    Detail <- function(num.features, median, ci.low, ci.high) {
+        line <- sprintf(data.format, num.features, median, ci.low, ci.high)
         lines$Append(line)
     }
 
@@ -1564,7 +1555,6 @@ Chart.9 <- function(my.control) {
     # later, produce a ggplot graphic
     Path <- CvCell()$Path
     ACvResult <- function(num.features) {
-        browser()
         predictorsName <- sprintf('best%02d', num.features)
         path.in <- Path( scope = 'global'
                         ,model = 'linear'
@@ -1581,7 +1571,7 @@ Chart.9 <- function(my.control) {
                         )
         load(path.in)
         stopifnot(length(cv.result) == 1)
-        a.cv.result <- cv.result
+        a.cv.result <- cv.result[[1]]
         a.cv.result
     }
     Header <- function(lines) {
@@ -1592,17 +1582,20 @@ Chart.9 <- function(my.control) {
         lines$Append('Metric: Median across folds of Root Median Squared Errors')
     }
     Table <- function(lines) {
-        browser()
         table <- Table.9(lines)
-        table$Header('num features', 'median RMSE', 'SE')
+        table$Header('num features', 'median RMSE', '95% confidence interval')
         lines$Append(' ')
 
         DetailLine <- function(num.features) {
-            browser()
             a.cv.result <- ACvResult(num.features)
-            median <- MedianRMSE(a.cv.result)
-            se <- SEMedianRMSE(a.cv.result)
-            table$Detail(num.features, median, se)
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            ci <- CIMedian(rmse.values)
+            table$Detail(num.features
+                         ,median(rmse.values)
+                         ,ci$lowest
+                         ,ci$highest
+                         )
+
         }
 
         for (num.features in 1:24) {
