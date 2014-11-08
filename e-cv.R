@@ -98,6 +98,7 @@ Control <- function(default.args) {
               |opt$predictorsName == 'alwaysNoAssessment'
               |opt$predictorsName == 'alwaysNoCensus'
               |substr(opt$predictorsName, 1, 4) == 'best'
+              |substr(opt$predictorsName, 1, 3) == 'pca'
               )
     stopifnot( opt$predictorsForm == 'level'
               |opt$predictorsForm == 'log'
@@ -602,7 +603,7 @@ Main <- function(control, transaction.data.all.years) {
                                ,verbose = control$verbose.CrossValidate
                                )
 
-    cat('examine cv.result\n'); browser()
+    c#at('examine cv.result\n'); browser()
 
     save( control
          ,cv.result
@@ -651,7 +652,7 @@ default.args <-
          ,scenario       = 'avm'
          ,response       = 'logprice'
          ,predictorsForm = 'level'
-         ,predictorsName = 'best01'
+         ,predictorsName = 'pca04'
          ,ndays          = '60'
          ,query          = '100'
          ,c              = '0'
