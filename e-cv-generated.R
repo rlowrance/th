@@ -1,5 +1,4 @@
 # e-cv-generated.R
-# vim: filetype=R
 # main program to produce file e-cv-generated.makefile 
 # this makefile has rules for every file in WORKING/e-cv-cells/ that is
 # actually used (Hence not all files)
@@ -25,7 +24,9 @@ source('Libraries.R')
 
 source('CrossValidateCharts.R')
 source('CVApplyAllPossibilities.R')
+source('CvCell.R')
 source('CvPossible.R')
+source('Lines.R')
 
 library(ggplot2)
 library(optparse)
@@ -68,67 +69,11 @@ Control <- function(default.args) {
 #                      )
 #    opt
 #}
-Lines <- function(max.size = 1000) {
-    # class object: list of lines
-    lines <- rep('', max.size)
-    last.index <- 0
-
-    Append <- function(line) {
-        last.index <<- last.index + 1
-        lines[[last.index]] <<- line
-    }
-
-    Get <- function() {
-        lines[1:last.index]
-    }
-
-    list( Append = Append
-         ,Get = Get
-         )
-}
 DetermineFileNamesAndCommands <- function(control) {
     # return list $file.names $commands
-    Filename <- function( scope, model, timePeriod, scenario, response
-                         ,predictorsForm, predictorsName
-                         ,ndays, query, c, ntree, mtry) {
-      file.name <- paste0( control$working
-                          ,'e-cv-cells/'
-                          ,scope
-                          ,'_', model
-                          ,'_', timePeriod
-                          ,'_', scenario
-                          ,'_', response
-                          ,'_', predictorsName
-                          ,'_', predictorsForm
-                          ,'_', ndays
-                          ,'_', query
-                          ,'_', c
-                          ,'_', ntree
-                          ,'_', mtry
-                          ,'.RData'
-                          )
-      file.name
-    }
-    Command   <- function( scope, model, timePeriod, scenario, response
-                          ,predictorsForm, predictorsName
-                          ,ndays, query, c, ntree, mtry) {
-      command <- paste( 'Rscript'
-                       ,'e-cv.R'
-                       ,'--scope', scope
-                       ,'--model', model
-                       ,'--timePeriod', timePeriod
-                       ,'--scenario', scenario
-                       ,'--response', response
-                       ,'--predictorsName', predictorsName
-                       ,'--predictorsForm', predictorsForm
-                       ,'--ndays', ndays
-                       ,'--query', query
-                       ,'--c', c
-                       ,'--ntree', ntree
-                       ,'--mtry', mtry
-                       )
-      command
-    }
+    Path <- CvCell()$Path
+    Command <- CvCell()$Command
+  
 
     file.names <- Lines()
     commands <- Lines()
@@ -148,22 +93,19 @@ DetermineFileNamesAndCommands <- function(control) {
                                   '180', '210', '240', '270', '300',
                                   '330', '360')) {
                     query <- if (timePeriod == '2003on') '100' else '1'
-                    c <- '0'
-                    ntree <- '0'
-                    mtry <- '0'
-                    file.name <- Filename( scope = scope
-                                          ,model = model
-                                          ,timePeriod = timePeriod
-                                          ,scenario = scenario
-                                          ,response = response
-                                          ,predictorsForm = predictorsForm
-                                          ,predictorsName = predictorsName
-                                          ,ndays = ndays
-                                          ,query = query
-                                          ,c = c
-                                          ,ntree = ntree
-                                          ,mtry = mtry
-                                          )
+                    file.name <- Path( scope = scope
+                                      ,model = model
+                                      ,timePeriod = timePeriod
+                                      ,scenario = scenario
+                                      ,response = response
+                                      ,predictorsForm = predictorsForm
+                                      ,predictorsName = predictorsName
+                                      ,ndays = ndays
+                                      ,query = query
+                                      ,c = '0'
+                                      ,ntree = '0'
+                                      ,mtry = '0'
+                                      )
                     file.names$Append(file.name)
                     command <- Command( scope = scope
                                        ,model = model
@@ -174,9 +116,9 @@ DetermineFileNamesAndCommands <- function(control) {
                                        ,predictorsName = predictorsName
                                        ,ndays = ndays
                                        ,query = query
-                                       ,c = c
-                                       ,ntree = ntree
-                                       ,mtry = mtry
+                                       ,c = '0'
+                                       ,ntree = '0'
+                                       ,mtry = '0'
                                        )
                     commands$Append(command)
                   }
@@ -188,60 +130,41 @@ DetermineFileNamesAndCommands <- function(control) {
       }
     }
 
-    # append more entries for the best features analysis
+    # append more entries for the best features analysis 
+    # and for the pca features analysis
     best.predictors.names <- sapply(1:24, function(n) sprintf('best%02d', n))
+    pca.predictors.names <- sapply(1:4, function(n) sprintf('pca%02d', n))
     print(best.predictors.names)
-    for (scope in 'global') {
-      for (model in 'linear') {
-        for (timePeriod in '2003on') {
-          for (scenario in 'avm') {
-            for (response in 'logprice') {
-              for (predictorsName in best.predictors.names) {
-                for (predictorsForm in 'level') {
-                  for (ndays in '60') {
-                    for (query in '100') {
-                      for (c in '0') {
-                        for (ntree in '0') {
-                          for (mtry in '0') {
-                            file.name <- Filename( scope = scope
-                                                  ,model = model
-                                                  ,timePeriod = timePeriod
-                                                  ,scenario = scenario
-                                                  ,response = response
-                                                  ,predictorsForm = predictorsForm
-                                                  ,predictorsName = predictorsName
-                                                  ,ndays = ndays
-                                                  ,query = query
-                                                  ,c = c
-                                                  ,ntree = ntree
-                                                  ,mtry = mtry
-                                                  )
-                            file.names$Append(file.name)
-                            command <- Command( scope = scope
-                                               ,model = model
-                                               ,timePeriod = timePeriod
-                                               ,scenario = scenario
-                                               ,response = response
-                                               ,predictorsForm = predictorsForm
-                                               ,predictorsName = predictorsName
-                                               ,ndays = ndays
-                                               ,query = query
-                                               ,c = c
-                                               ,ntree = ntree
-                                               ,mtry = mtry
-                                               )
-                            commands$Append(command)
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    print(pca.predictors.names)
+    for (predictorsName in c(best.predictors.names, pca.predictors.names)) {
+      file.name <- Path( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsForm = 'level'
+                        ,predictorsName = predictorsName
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,c = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+      file.names$Append(file.name)
+      command <- Command( scope = 'global'
+                         ,model = 'linear'
+                         ,timePeriod = '2003on'
+                         ,scenario = 'avm'
+                         ,response = 'logprice'
+                         ,predictorsForm = 'level'
+                         ,predictorsName = predictorsName
+                         ,ndays = '60'
+                         ,query = '100'
+                         ,c = '0'
+                         ,ntree = '0'
+                         ,mtry = '0'
+                         )
+      commands$Append(command)
     }
 
     result <- list( file.names = file.names$Get()
