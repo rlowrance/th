@@ -7,17 +7,12 @@
 source('Directory.R')
 source('Libraries.R')
 
-source('After2002.R')
 source('Predictors.R')
 source('ReadTransactionSplits.R')
 
-library(memoise)
 library(optparse)
 
-Control <- function(command.args) {
-    # parse command line arguments in command.args
-    opt <- ParseCommandArgs(command.args)
-
+Control <- function() {
     me <- 'e-features-pca' 
 
     log <- Directory('log')
@@ -45,8 +40,6 @@ Control <- function(command.args) {
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.rdata = paste0(working, out.base, '.RData')
-                    ,query.fraction = opt$query.fraction
-                    ,num.training.days = 90
                     ,predictors = predictors
                     ,response = response
                     ,formula = formula
@@ -56,20 +49,6 @@ Control <- function(command.args) {
                     ,debug = FALSE
                     )
     control
-}
-ParseCommandArgs <- function(command.args) {
-    # return name list of values from the command args
-    opt.predictors <- make_option( opt_str = c('--predictors')
-                                  ,action = 'store'
-                                  ,type = 'character'
-                                  ,help = 'name of feature set to use'
-                                  )
-    option.list <- list( opt.predictors
-                        )
-    opt <- parse_args( object = OptionParser(option_list = option.list)
-                      ,args = command.args
-                      ,positional_arguments = FALSE
-                      )
 }
 PCAAnalysis <- function(control, data) {
     # use principle components analysis to determine most important features
@@ -112,9 +91,14 @@ PCAAnalysis <- function(control, data) {
          ,file = control$path.out.rdata
          )
 }
-Main <- function(control, transaction.data) {
+Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
+
+    # use only transaction from 2003 on
+    first.date <- as.Date('2003-01-01')
+    is.starting.2003 <- transaction.data.all.years$saleDate >= first.date
+    transaction.data <- transaction.data.all.years[is.starting.2003, ]
 
     PCAAnalysis(control, transaction.data)
 
@@ -124,21 +108,27 @@ Main <- function(control, transaction.data) {
     
 }
 
-#debug(Control)
-default.args <- NULL  # synthesize the command line that will be used in the Makefile
-#default.args <- list('--predictors', 'always')
+############## EXECUTION START HERE
 
-command.args <- if (is.null(default.args)) commandArgs(trailingOnly = TRUE) else default.args
-control <- Control(command.args)
+clock <- Clock()
+
+control <- Control()
 
 
 # cache transaction.data
-if (!exists('transaction.data')) {
-    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in.splits
-                                              ,split.names = control$split.names
-                                              )
+if (!exists('e.features.pca.transaction.data')) {
+    e.features.pca.transaction.data <- 
+        ReadTransactionSplits( path.in.base = control$path.in.splits
+                              ,split.names = control$split.names
+                              )
 }
 
-Main(control, transaction.data)
+Main(control, e.features.pca.transaction.data)
+if (control$testing)
+    cat('DISCARD RESULTS: TESTING\n')
+
+Printf('took %f CPU minutes\n', clock$Cpu() / 60)
+Printf('took %f wallclock minutes\n', clock$Wallclock() / 60)
+Printf('finished at %s\n', as.character(Sys.time()))
 
 cat('done\n')
