@@ -23,6 +23,11 @@ Predictors2 <- function(predictors.name, predictors.form) {
 
     path.best.features <- paste0(Directory('working'), 'e-features-lcv2.txt')
     best.features <- readLines(con = path.best.features)
+    pca.features <- c( 'median.household.income'  # the order matters
+                      ,'land.square.footage'
+                      ,'living.area'
+                      ,'basement.square.feet'
+                      )
 
     always.house.assessment.size.positive <- 
         c( 'improvement.value'
@@ -145,6 +150,10 @@ Predictors2 <- function(predictors.name, predictors.form) {
             #cat(predictors.name, predictors.form, '\n'); browser()
             n <- as.integer(substr(predictors.name, 5, 6))
             result <- best.features[1:n]
+            result
+        } else if (substr(predictors.name, 1, 3) == 'pca' && predictors.form == 'level') {
+            n <- as.integer(substr(predictors.name, 4, 6))
+            result <- pca.features[1:n]
             result
         } else {
             print(predictors.name)
