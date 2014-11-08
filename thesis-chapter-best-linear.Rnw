@@ -7,6 +7,9 @@ working <- control$working
 path.cv.criterion <- paste0(working, 'e-cv-chart_chart7.txt')
 path.cv.form.ndays <- paste0(working, 'e-cv-chart_chart8.txt')
 path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
+path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
+path.9.gg1 <- paste0(working, 'e-cv-chart_chart9_1.pdf')
+path.9.gg2 <- paste0(working, 'e-cv-chart_chart9_2.pdf')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -86,6 +89,42 @@ Figure \ref{figure:EGEFormNDays}
 \end{figure}
 
 Figure \ref{figure:LCV}
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.9.txt}}
+\caption{Median rMedianSE Table}
+\label{figure:MedianTable}
+\end{figure}
+
+Figure \ref{figure:MedianTable}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Median rMedianSE\\
+Showing Origin
+}
+\label{figure:MedianGraph1}
+\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg1}}
+\end{figure}
+
+Figure \ref{figure:MedianGraph1}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Median rMedianSE\\
+Not Showing Origin
+}
+\label{figure:MedianGraph2}
+\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg2}}
+\end{figure}
+
+Figure \ref{figure:MedianGraph2}
 
 \subsection{Regularization}
 
