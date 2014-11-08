@@ -1,3 +1,0 @@
-PredictLinearReg <- function() {
-    stop('STUB')
-}
