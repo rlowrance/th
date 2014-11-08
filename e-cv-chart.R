@@ -57,7 +57,9 @@ Control <- function(default.args) {
                     ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
                     ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
                     ,path.out.chart.8 = paste0(working, out.base, '_chart8.txt')
-                    ,path.out.chart.9 = paste0(working, out.base, '_chart9.txt')
+                    ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
+                    ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
+                    ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
                     ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
                     ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
                     ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
@@ -1531,18 +1533,50 @@ Chart.8 <- function(my.control) {
     result <- lines$Get()
     result
 }
+CI.Chart <- function(axis.names, axis.values, names, values, values.low, values.high
+                     ,show.zero.value) {
+    # Cleveland dot plot showing confidence intervals
+    # ref: G Graphics Cookbook, p 42 and following
+    df <- data.frame( stringsAsFactors = FALSE
+                     ,names = names
+                     ,values = values
+                     ,values.low = values.low
+                     ,values.high = values.high
+                     )
+    gg <- ggplot( df
+                 ,aes( x = values
+                      ,y = reorder(names, length(names):1)
+                      )
+                 )
+    g1 <-
+        gg +
+        xlab(axis.values) +
+        ylab(axis.names) +
+        geom_point(aes(x = values), size = 3) +
+        geom_point(aes(x = values.low), size = 2) +
+        geom_point(aes(x = values.high), size = 2) +
+        theme_bw() +
+        theme( panel.grid.major.x = element_blank()
+              ,panel.grid.minor.x = element_blank()
+              ,panel.grid.major.y = element_line( colour = 'grey60'
+                                                 ,linetype = 'dashed'
+                                                 )
+              )
+    g <- if (show.zero.value) g1 + coord_cartesian(xlim = c(0, 1.1 * max(values.high))) else g1 
+    g
+}
 Table.9 <- function(lines) {
     # append to Lines object lines
-    header.format <- '%15s %15s %15s'
-    data.format   <- '%15.0f %15.0f [%6.0f,%6.0f]'
+    header.format <- '%15s %30s %15s  %15s'
+    data.format   <- '%15.0f %30s %15.0f  [%6.0f,%6.0f]'
 
-    Header <- function(num.features, median, se) {
-        line <- sprintf(header.format, num.features, median, se)
+    Header <- function(num.features, name, median, ci) {
+        line <- sprintf(header.format, num.features, name, median, ci)
         lines$Append(line)
     }
 
-    Detail <- function(num.features, median, ci.low, ci.high) {
-        line <- sprintf(data.format, num.features, median, ci.low, ci.high)
+    Detail <- function(num.features, name, median, ci.low, ci.high) {
+        line <- sprintf(data.format, num.features, name, median, ci.low, ci.high)
         lines$Append(line)
     }
 
@@ -1574,42 +1608,76 @@ Chart.9 <- function(my.control) {
         a.cv.result <- cv.result[[1]]
         a.cv.result
     }
-    Header <- function(lines) {
-        lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
-        lines$Append('Model Form: log-linear')
-        lines$Append('Training Period: 60 days')
-        lines$Append('AVM Scenario')
-        lines$Append('Metric: Median across folds of Root Median Squared Errors')
-    }
-    Table <- function(lines) {
-        table <- Table.9(lines)
-        table$Header('num features', 'median RMSE', '95% confidence interval')
-        lines$Append(' ')
-
-        DetailLine <- function(num.features) {
-            a.cv.result <- ACvResult(num.features)
+    Summarize <- function() {
+        # return list $feature.name $median.value $ci.lowest $ci.highest
+        feature.name <- readLines(con = paste0(my.control$working, 'e-features-lcv2.txt'))
+        n <- length(feature.name)
+        median.value <- double(n)
+        ci.lowest <- double(n)
+        ci.highest <- double(n)
+        for (feature.num in 1:n) {
+            a.cv.result <- ACvResult(feature.num)
             rmse.values <- RootMedianSquaredErrors(a.cv.result)
             ci <- CIMedian(rmse.values)
-            table$Detail(num.features
-                         ,median(rmse.values)
-                         ,ci$lowest
-                         ,ci$highest
-                         )
+            median.value[[feature.num]] <- median(rmse.values)
+            ci.lowest[[feature.num]] <- ci$lowest
+            ci.highest[[feature.num]] <- ci$highest
+        }
+        result <- list( feature.name = feature.name
+                       ,median.value = median.value
+                       ,ci.lowest    = ci.lowest
+                       ,ci.highest   = ci.highest
+                       )
+        result
+        }
+    GraphChart <- function(summary, show.zero.value) {
+        gg <- CI.Chart( axis.values = 'median rMedianSE across folds'
+                       ,axis.names = 'cumulative feature names'
+                       ,values = summary$median.value
+                       ,values.low = summary$ci.lowest
+                       ,values.high = summary$ci.highest
+                       ,names = summary$feature.name
+                       ,show.zero.value = show.zero.value
+                       )
+        gg
+    }
+    TextChart <- function(summary) {
+        Header <- function(lines) {
+            lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
+            lines$Append('Model Form: log-linear')
+            lines$Append('Training Period: 60 days')
+            lines$Append('AVM Scenario')
+            lines$Append('Metric: Median across folds of Root Median Squared Errors')
+        }
+        Body <- function(lines) {
+            table <- Table.9(lines)
+            table$Header('num features', 'nth feature name', 'median RMSE', '95% confidence interval')
+            lines$Append(' ')
 
+            for (num.features in 1:length(summary$feature.name)) {
+                table$Detail( num.features
+                             ,summary$feature.name[[num.features]]
+                             ,summary$median.value[[num.features]]
+                             ,summary$ci.lowest[[num.features]]
+                             ,summary$ci.highest[[num.features]]
+                             )
+            }
         }
 
-        for (num.features in 1:24) {
-            DetailLine(num.features)
-        }
+        # execution starts here
+        lines <- Lines()
+        Header(lines)
+        lines$Append(' ')
+        Body(lines)
+        result <- lines$Get()
+        result
     }
 
-    lines <- Lines()
-    Header(lines)
-    lines$Append(' ')
-    Table(lines)
-
-    browser()
-    result <- lines$Get()
+    summary <- Summarize()
+    result <- list( txt = TextChart(summary)
+                   ,gg1 = GraphChart(summary, show.zero.value = TRUE)
+                   ,gg2 = GraphChart(summary, show.zero.value = FALSE)
+                   )
     result
 }
 MakeMakefiles <- function(control) {
@@ -1684,10 +1752,26 @@ MakeCharts <- function(control) {
                ,con = control$path.out.chart.8
                )
 
-    chart.9.txt <- Chart.9(control)
-    writeLines( text = chart.9.txt
-               ,con = control$path.out.chart.9
+    # Chart.9 returns list $txt $gg1 $gg2
+    browser()
+    chart.9 <- Chart.9(control)
+    writeLines( text = chart.9$txt
+               ,con = control$path.out.chart.9.txt
                )
+
+    pdf( file = control$path.out.chart.9.gg1
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.9$gg1)
+    dev.off()
+
+    pdf( file = control$path.out.chart.9.gg2
+        ,width = control$chart.width
+        ,height = control$chart.height
+        )
+    print(chart.9$gg2)
+    dev.off()
 
     return()
     
