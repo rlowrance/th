@@ -19,6 +19,9 @@ path.10.gg1 <- paste0(working, 'e-cv-chart_chart10_1.pdf')
 path.10.gg2 <- paste0(working, 'e-cv-chart_chart10_2.pdf')
 path.11.gg1 <- paste0(working, 'e-cv-chart_chart11_1.pdf')
 path.11.gg2 <- paste0(working, 'e-cv-chart_chart11_2.pdf')
+path.12.gg1 <- paste0(working, 'e-cv-chart_chart12_1.pdf')
+path.12.gg2 <- paste0(working, 'e-cv-chart_chart12_2.pdf')
+path.12.txt <- paste0(working, 'e-cv-chart_chart12_3.txt')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -223,7 +226,8 @@ Not Showing Origin
 
 Figure \ref{figure:MedianGraph102}
 
-\subsubsection{Reduced Feature Models}
+\subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % including a pdf
 \begin{figure}[h]
@@ -249,7 +253,45 @@ Not Showing Origin
 
 Figure \ref{figure:MedianGraph112}
 
-\subsection{Regularization}
+\subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.12.txt}}
+\caption{Estimated Generalization Error from L2 Regularization}
+\label{figure:Regularize3}
+\end{figure}
+
+Figure \ref{figure:Regularize3}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Estimated Generalization Error from L2 Regularization
+\\
+Showing Origin
+}
+\label{figure:Regularization1}
+\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg1}}
+\end{figure}
+
+Figure \ref{figure:Regularization1}
+
+% including a pdf
+\begin{figure}[h]
+\caption{
+Estimated Generalization Error from L2 Regularization
+\\
+Not Showing Origin
+}
+\label{figure:Regularization2}
+\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
+\end{figure}
+
+Figure \ref{figure:Regularization2}
 
 \section{Submarket Models}
 
