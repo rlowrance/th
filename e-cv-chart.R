@@ -72,6 +72,7 @@ Control <- function(default.args) {
                     ,path.out.chart.9.generated.makefile = 'e-cv-chart-chart9-generated.makefile'
                     ,path.out.chart.10.generated.makefile = 'e-cv-chart-chart10-generated.makefile'
                     ,path.out.chart.11.generated.makefile = 'e-cv-chart-chart11-generated.makefile'
+                    ,path.out.chart.12.generated.makefile = 'e-cv-chart-chart12-generated.makefile'
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -934,7 +935,6 @@ Chart.11.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
 
     Path <- CvCell()$Path
-    #debug(Path)
     file.names <- Lines()
     possible <- Chart.11.PredictorsNames()
     for (predictorsName in possible) {
@@ -949,6 +949,40 @@ Chart.11.FileDependencies <- function(my.control) {
                  ,ndays = '60'
                  ,query = '100'
                  ,c = '0'
+                 ,ntree = '0'
+                 ,mtry = '0'
+                 )
+        file.names$Append(path)
+    }
+    result <- file.names$Get()
+    result
+}
+Chart.12.C.Values <- function() {
+    # return vector of lambda values that are used for regularization
+    # lambda := C / 100
+    lambda <- c( 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+    c.values <- round(100 * ifelse(lambda == 0, 0 , 1 / lambda))
+    c.values
+}
+Chart.12.FileDependencies <- function(my.control) {
+    # return list of file names used to construct chart 11
+
+    Path <- CvCell()$Path
+    Possible.C.Values <- CvCell()$Possible.C.Values
+    file.names <- Lines()
+    c.values <- Possible.C.Values()
+    for (c.value in c.values) {
+        path <- 
+            Path( scope = 'global'
+                 ,model = 'linL2'
+                 ,timePeriod = '2003on'
+                 ,scenario = 'avm'
+                 ,response = 'logprice'
+                 ,predictorsName = 'best20'
+                 ,predictorsForm = 'level'
+                 ,ndays = '60'
+                 ,query = '100'
+                 ,c = as.character(c.value)
                  ,ntree = '0'
                  ,mtry = '0'
                  )
@@ -1901,6 +1935,10 @@ MakeMakefiles <- function(control) {
     MakeMakefile( variable.name = 'e-cv-chart-chart11'
                  ,dependency.file.names = Chart.11.FileDependencies(control)
                  ,path.out = control$path.out.chart.11.generated.makefile
+                 )
+    MakeMakefile( variable.name = 'e-cv-chart-chart12'
+                 ,dependency.file.names = Chart.12.FileDependencies(control)
+                 ,path.out = control$path.out.chart.12.generated.makefile
                  )
 }
 MakeCharts <- function(control) {
