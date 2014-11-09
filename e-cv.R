@@ -29,18 +29,15 @@
 # --predictorsName {always|alwaysNoAssessment|alwaysNoCensus}
 # --ndays INT
 # --query INT: 1 / INT fraction of query transactions in a fold that are used
-# --c     INT: (1 / lamba) if regularizing, C == 0 ==> no regularizer
+# --lambda INT: (100 * lamba), the weight of the L2 regularizer
 # --ntree INT
 # --mtry  INT
 
 source('Directory.R')
 source('Libraries.R')
 
-# local models of various forms
-source('PredictLocal.R')
-#source('PredictLinear.R')
-#source('PredictLinL2.R')
-#source('PredictRandomForest.R')
+source('CvCell.R')        # machinery to manipule the e-cv-cells directory
+source('PredictLocal.R')  # all local models
 
 source('Predictors2.R') 
 source('ReadTransactionSplits.R')
@@ -74,7 +71,7 @@ ReportMemoryUsage <- function(msg = '') {
            )
 }
 MaybeReportMemoryUsage <- function(msg = '') {
-    maybe <- TRUE
+    maybe <- FALSE
     if (maybe)
         ReportMemoryUsage(msg)
 }
@@ -136,7 +133,7 @@ Control <- function(default.args) {
                 ,opt$predictorsForm
                 ,opt$ndays
                 ,opt$query
-                ,opt$c
+                ,opt$lambda
                 ,opt$ntree
                 ,opt$mtry
                 )
@@ -192,7 +189,7 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionChr('predictorsName', 'one of {always|alwaysNoAssessment|alwaysNoCensus')
              ,OptionInt('ndays',          'number of days in training period')
              ,OptionInt('query',          ' 1 / <fraction of test sample used as queries>')
-             ,OptionInt('c',              '(1/lamdda) for regularized regression')
+             ,OptionInt('lambda',         '(100 * lamdda) for regularized regression')
              ,OptionInt('ntree',          'number of trees (for randomForest)')
              ,OptionInt('mtry',           'number of features samples when growing tree (for randomForest)')
              )
@@ -356,7 +353,7 @@ ConvertYearFeatures <- function(data, saleDate) {
 }
 Evaluate_10 <- function(scope, model, scenario, response
                        ,predictorsForm, predictorsName, ndays
-                       ,c, ntree, mtry
+                       ,lambda, ntree, mtry
                        ,data.training
                        ,query.transactions
                        ,control
@@ -382,10 +379,11 @@ Evaluate_10 <- function(scope, model, scenario, response
 
     # ridge regression (L2 regularizer)
     ModelLinL2.Fit <- function(formula, data, fit.model.data) {
-        #browser()
+        # the lambda value is from the command line
+        # it is 100x too big
         result <- lm.ridge( formula = formula
                            ,data = data
-                           ,lambda = fit.model.data$lambda
+                           ,lambda = (fit.model.data$lambda / 100)
                            )
         result
     }
@@ -443,7 +441,7 @@ Evaluate_10 <- function(scope, model, scenario, response
                                         )
                      ,fit.model.data = switch( model
                                               ,linear = NULL
-                                              ,linL2 = list(lambda = 1 / as.numeric(c))
+                                              ,linL2 = list(lambda = lambda)
                                               ,randomForest = list( ntree = as.numeric(ntree)
                                                                    ,mtry = as.numeric(mtry)
                                                                    )
@@ -455,49 +453,6 @@ Evaluate_10 <- function(scope, model, scenario, response
                                             )
                      )
 
-#        switch( model
-#               ,linear       = PredictLinear      ( scenario = scenario
-#                                                   ,ndays = ndays
-#                                                   ,data.training = data.training
-#                                                   ,query.transactions = query.transactions
-#                                                   ,scope = scope
-#                                                   ,response = response
-#                                                   ,predictorsForm = predictorsForm
-#                                                   ,predictorsName = predictorsName
-#                                                   ,control = control
-#                                                   ,TrainingData = TrainingData
-#                                                   ,MakeFormula = MakeFormula
-#                                                   )
-#               ,linL2       = PredictLinL2        ( scenario = scenario
-#                                                   ,ndays = ndays
-#                                                   ,query.transactions = query.transactions
-#                                                   ,c = c
-#                                                   ,data.training = data.training
-#                                                   ,scope = scope
-#                                                   ,response = response
-#                                                   ,predictorsForm = predictorsForm
-#                                                   ,predictorsName = predictorsName
-#                                                   ,control = control
-#                                                   ,TrainingData = TrainingData
-#                                                   ,MakeFormula = MakeFormula
-#                                                   )
-#               ,randomForest = PredictRandomForest( scenario = scenario
-#                                                   ,ndays = ndays
-#                                                   ,query.transactions = query.transactions
-#                                                   ,scope = scope
-#                                                   ,ntree = ntree
-#                                                   ,mtry = mtry
-#                                                   ,data.training = data.training
-#                                                   ,scope = scope
-#                                                   ,response = response
-#                                                   ,predictorsForm = predictorsForm
-#                                                   ,predictorsName = predictorsName
-#                                                   ,control= control
-#                                                   ,TrainingData = TrainingData
-#                                                   ,MakeFormula = MakeFormula
-#                                                   )
-#               ,stop('bad model')
-#               )
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
 
     actuals <- query.transactions$price
@@ -509,7 +464,7 @@ Evaluate_10 <- function(scope, model, scenario, response
 }
 Evaluate_11 <- function(scope, model, scenario, response
                        ,predictorsForm, predictorsName, ndays, query
-                       ,c, ntree, mtry
+                       ,lambda, ntree, mtry
                        ,data.training, data.testing
                        ,control) {
     MaybeReportMemoryUsage('start Evaluate_11')
@@ -532,7 +487,7 @@ Evaluate_11 <- function(scope, model, scenario, response
                           ,predictorsForm = predictorsForm
                           ,predictorsName = predictorsName
                           ,ndays = ndays
-                          ,c = c
+                          ,lambda = lambda
                           ,ntree = ntree
                           ,mtry = mtry
                           ,data.training = data.training
@@ -544,7 +499,7 @@ Evaluate_11 <- function(scope, model, scenario, response
 }
 Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                         ,predictorsForm, predictorsName, ndays, query
-                        ,c, ntree, mtry
+                        ,lambda, ntree, mtry
                         ,data.training, data.testing
                         ,control) {
     MaybeReportMemoryUsage('start Evaluate_12')
@@ -583,7 +538,7 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                           ,predictorsName = predictorsName
                           ,ndays = ndays
                           ,query = query
-                          ,c = c
+                          ,lambda = lambda
                           ,ntree = ntree
                           ,mtry = mtry
                           ,data.training = data.training[is.training,]
@@ -620,7 +575,7 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                 ,predictorsName = hp$predictorsName
                 ,ndays = hp$ndays
                 ,query =  hp$query
-                ,c = hp$c
+                ,lambda = hp$lambda
                 ,ntree = hp$ntree
                 ,mtry = hp$mtry
                 ,data.training = data.training.fold
@@ -661,7 +616,7 @@ Main <- function(control, transaction.data.all.years) {
                      ,predictorsName = control$opt$predictorsName
                      ,ndays          = control$opt$ndays
                      ,query          = control$opt$query
-                     ,c              = control$opt$c
+                     ,lambda         = control$opt$lambda
                      ,ntree          = control$opt$ntree
                      ,mtry           = control$opt$mtry
                      )
@@ -735,8 +690,8 @@ clock <- Clock()
 
 default.args <-
     list( scope          = 'global'
-         ,model          = 'linear'
-         #,model          = 'linL2'
+         #,model          = 'linear'
+         ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
@@ -744,7 +699,7 @@ default.args <-
          ,predictorsName = 'best20'
          ,ndays          = '60'
          ,query          = '100'
-         ,c              = '100'
+         ,lambda         = '100'
          ,ntree          = '0'
          ,mtry           = '0'
          )
