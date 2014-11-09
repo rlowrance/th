@@ -37,14 +37,16 @@ source('Directory.R')
 source('Libraries.R')
 
 # local models of various forms
-source('PredictLinear.R')
-source('PredictLinearReg.R')
-source('PredictRandomForest.R')
+source('PredictLocal.R')
+#source('PredictLinear.R')
+#source('PredictLinL2.R')
+#source('PredictRandomForest.R')
 
 source('Predictors2.R') 
 source('ReadTransactionSplits.R')
 
 library(lubridate)
+library(MASS)
 library(memoise)
 library(optparse)
 library(pryr)
@@ -185,7 +187,7 @@ ParseCommandArgs <- function(command.args, default.args) {
 
     option.list <-
         list( OptionChr('scope',          'one of {global, submarket, submarketIndicator}')
-             ,OptionChr('model',          'one of {linear, linearReg, randomForest}')
+             ,OptionChr('model',          'one of {linear, linL2, randomForest}')
              ,OptionChr('timePeriod',     'one of {2003on|2008}')
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
              ,OptionChr('response',       'one of {logprice|price}')
@@ -366,50 +368,140 @@ Evaluate_10 <- function(scope, model, scenario, response
     # Return evaluation of the specified model on the given training and test data
     # reduce over model
 
+    ModelLinear.Fit <- function(formula, data, fit.model.data) {
+        browser()
+        stopifnot(is.null(fit.model.data))
+        result <- lm( formula = formula
+                     ,data = data
+                     )
+        result
+    }
+    ModelLinear.Predict <- function(object, newdata) {
+        browser()
+        result <- predict( object = object
+                          ,newdata = newdata
+                          )
+        result
+    }
+
+    ModelLinL2.Fit <- function(formula, data, fit.model.data) {
+        # ridge regression
+        #browser()
+        result <- lm.ridge( formula = formula
+                           ,data = data
+                           ,lambda = fit.model.data$lambda
+                           )
+        result
+    }
+
+    ModelLinL2.Predict <- function(object, newdata) {
+        EndsWithTRUE <- function(s) {
+            nc <- nchar(s)
+            substr(s, nc - 3, nc) == 'TRUE'
+        }
+        Truncated <- function(s) {
+            nc <- nchar(s)
+            substr(s, 1, nc - 4)
+        }
+
+        #cat('in ModelLinL2.Predict\n'); browser()
+        coe <- coef(object)
+        Coef <- function(name) {
+            if (name == '')
+                coe[[1]]
+            else
+                coe[[name]]
+        }
+        QueryValue <- function(name) {
+            if (name == '')
+                1
+            else if (EndsWithTRUE(name))
+                newdata[[Truncated(name)]] == TRUE
+            else
+                newdata[[name]]
+        }
+        terms <- sapply( names(coe)
+                        ,function(name)
+                            Coef(name) * QueryValue(name)
+                        )
+        ridge.predict <- sum(unname(terms))
+        ridge.predict
+    }
+
     predictions.raw <- 
-        switch( model
-               ,linear       = PredictLinear      ( scenario = scenario
-                                                   ,ndays = ndays
-                                                   ,data.training = data.training
-                                                   ,query.transactions = query.transactions
-                                                   ,scope = scope
-                                                   ,response = response
-                                                   ,predictorsForm = predictorsForm
-                                                   ,predictorsName = predictorsName
-                                                   ,control = control
-                                                   ,TrainingData = TrainingData
-                                                   ,MakeFormula = MakeFormula
-                                                   )
-               ,linearReg    = PredictLinearReg   ( scenario = scenario
-                                                   ,ndays = ndays
-                                                   ,query.transactions = query.transactions
-                                                   ,c = c
-                                                   ,data.training = data.training
-                                                   ,scope = scope
-                                                   ,response = response
-                                                   ,predictorsForm = predictorsForm
-                                                   ,predictorsName = predictorsName
-                                                   ,control = control
-                                                   ,TrainingData = TrainingData
-                                                   ,MakeFormula = MakeFormula
-                                                   )
-               ,randomForest = PredictRandomForest( scenario = scenario
-                                                   ,ndays = ndays
-                                                   ,query.transactions = query.transactions
-                                                   ,scope = scope
-                                                   ,ntree = ntree
-                                                   ,mtry = mtry
-                                                   ,data.training = data.training
-                                                   ,scope = scope
-                                                   ,response = response
-                                                   ,predictorsForm = predictorsForm
-                                                   ,predictorsName = predictorsName
-                                                   ,control= control
-                                                   ,TrainingData = TrainingData
-                                                   ,MakeFormula = MakeFormula
-                                                   )
-               ,stop('bad model')
-               )
+        PredictLocal( scenario = scenario
+                     ,ndays = ndays
+                     ,data.training = data.training
+                     ,query.transactions = query.transactions
+                     ,scope = scope
+                     ,response = response
+                     ,predictorsForm = predictorsForm
+                     ,predictorsName = predictorsName
+                     ,control = control
+                     ,TrainingData = TrainingData
+                     ,MakeFormula = MakeFormula
+                     ,FitModel = switch( model
+                                        ,linear = ModelLinear.Fit
+                                        ,linL2  = ModelLinL2.Fit
+                                        ,randomForest = ModelRandomForest.Fit
+                                        )
+                     ,fit.model.data = switch( model
+                                              ,linear = NULL
+                                              ,linL2 = list(lambda = 1 / as.numeric(c))
+                                              ,randomForest = list( ntree = as.numeric(ntree)
+                                                                   ,mtry = as.numeric(mtry)
+                                                                   )
+                                              )
+                     ,PredictModel = switch( model
+                                            ,linear = ModelLinear.Predict
+                                            ,linL2  = ModelLinL2.Predict
+                                            ,randomForest = ModelRandomForest.Fit
+                                            )
+                     )
+
+#        switch( model
+#               ,linear       = PredictLinear      ( scenario = scenario
+#                                                   ,ndays = ndays
+#                                                   ,data.training = data.training
+#                                                   ,query.transactions = query.transactions
+#                                                   ,scope = scope
+#                                                   ,response = response
+#                                                   ,predictorsForm = predictorsForm
+#                                                   ,predictorsName = predictorsName
+#                                                   ,control = control
+#                                                   ,TrainingData = TrainingData
+#                                                   ,MakeFormula = MakeFormula
+#                                                   )
+#               ,linL2       = PredictLinL2        ( scenario = scenario
+#                                                   ,ndays = ndays
+#                                                   ,query.transactions = query.transactions
+#                                                   ,c = c
+#                                                   ,data.training = data.training
+#                                                   ,scope = scope
+#                                                   ,response = response
+#                                                   ,predictorsForm = predictorsForm
+#                                                   ,predictorsName = predictorsName
+#                                                   ,control = control
+#                                                   ,TrainingData = TrainingData
+#                                                   ,MakeFormula = MakeFormula
+#                                                   )
+#               ,randomForest = PredictRandomForest( scenario = scenario
+#                                                   ,ndays = ndays
+#                                                   ,query.transactions = query.transactions
+#                                                   ,scope = scope
+#                                                   ,ntree = ntree
+#                                                   ,mtry = mtry
+#                                                   ,data.training = data.training
+#                                                   ,scope = scope
+#                                                   ,response = response
+#                                                   ,predictorsForm = predictorsForm
+#                                                   ,predictorsName = predictorsName
+#                                                   ,control= control
+#                                                   ,TrainingData = TrainingData
+#                                                   ,MakeFormula = MakeFormula
+#                                                   )
+#               ,stop('bad model')
+#               )
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
 
     actuals <- query.transactions$price
@@ -647,15 +739,15 @@ clock <- Clock()
 
 default.args <-
     list( scope          = 'global'
-         ,model          = 'linear'
+         ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
          ,predictorsForm = 'level'
-         ,predictorsName = 'pca04'
+         ,predictorsName = 'best20'
          ,ndays          = '60'
          ,query          = '100'
-         ,c              = '0'
+         ,c              = '100'
          ,ntree          = '0'
          ,mtry           = '0'
          )
