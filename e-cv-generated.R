@@ -167,6 +167,39 @@ DetermineFileNamesAndCommands <- function(control) {
       commands$Append(command)
     }
 
+    # append more entries for the regularized linear regression analysis
+    possible.c.values <- CvCell()$Possible.C.Values()
+    for (c.value in possible.c.values) {
+      file.name <- Path( scope = 'global'
+                        ,model = 'linL2'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsForm = 'level'
+                        ,predictorsName = 'best20'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,c = c.value
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+      file.names$Append(file.name)
+      command <- Command( scope = 'global'
+                         ,model = 'linL2'
+                         ,timePeriod = '2003on'
+                         ,scenario = 'avm'
+                         ,response = 'logprice'
+                         ,predictorsForm = 'level'
+                         ,predictorsName = 'best20'
+                         ,ndays = '60'
+                         ,query = '100'
+                         ,c = c.value
+                         ,ntree = '0'
+                         ,mtry = '0'
+                         )
+      commands$Append(command)
+    }
+
     result <- list( file.names = file.names$Get()
                    ,commands = commands$Get()
                    )
