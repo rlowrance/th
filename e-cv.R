@@ -66,7 +66,6 @@ Counter <- function(initial.value = 0) {
          ,Get       = Get
          )
 }
-
 ReportMemoryUsage <- function(msg = '') {
     mem.used <- mem_used()
     Printf( '%s mem_used %f GB\n'
@@ -74,13 +73,11 @@ ReportMemoryUsage <- function(msg = '') {
            ,as.numeric(mem.used) / 1e9
            )
 }
-
 MaybeReportMemoryUsage <- function(msg = '') {
     maybe <- TRUE
     if (maybe)
         ReportMemoryUsage(msg)
 }
-
 Control <- function(default.args) {
     # parse command line arguments in command.args
     opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
@@ -368,8 +365,8 @@ Evaluate_10 <- function(scope, model, scenario, response
     # Return evaluation of the specified model on the given training and test data
     # reduce over model
 
+    # linear regression (OLS)
     ModelLinear.Fit <- function(formula, data, fit.model.data) {
-        browser()
         stopifnot(is.null(fit.model.data))
         result <- lm( formula = formula
                      ,data = data
@@ -377,15 +374,14 @@ Evaluate_10 <- function(scope, model, scenario, response
         result
     }
     ModelLinear.Predict <- function(object, newdata) {
-        browser()
         result <- predict( object = object
                           ,newdata = newdata
                           )
         result
     }
 
+    # ridge regression (L2 regularizer)
     ModelLinL2.Fit <- function(formula, data, fit.model.data) {
-        # ridge regression
         #browser()
         result <- lm.ridge( formula = formula
                            ,data = data
@@ -739,7 +735,8 @@ clock <- Clock()
 
 default.args <-
     list( scope          = 'global'
-         ,model          = 'linL2'
+         ,model          = 'linear'
+         #,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
