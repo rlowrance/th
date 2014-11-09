@@ -3,7 +3,7 @@ CvCell <- function() {
   source('Directory.R')
 
   Is.Valid.Scope <- function(s)          s %in% c('global')
-  Is.Valid.Model <- function(s)          s %in% c('linear')
+  Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2')
   Is.Valid.TimePeriod <- function(s)     s %in% c('2003on', '2008')
   Is.Valid.Scenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
   Is.Valid.Response <- function(s)       s %in% c('logprice', 'price')
@@ -11,7 +11,7 @@ CvCell <- function() {
   Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
   Is.Valid.Ndays <- function(s)          s %in% Possible.Ndays()
   Is.Valid.Query <- function(s)          s %in% c('1', '100')
-  Is.Valid.C <- function(s)              s %in% c('0')
+  Is.Valid.C <- function(s)              is.character(s) & as.integer(s) >= 0
   Is.Valid.Ntree <- function(s)          s %in% c('0')
   Is.Valid.Mtry <- function(s)           s %in% c('0')
 
@@ -67,6 +67,14 @@ CvCell <- function() {
     path
   }
 
+  Possible.C.Values <- function() {
+    # return vector of lambda values that are used for regularization
+    # lambda := C / 100
+    lambda <- c( 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+    c.values <- as.character(round(100 * ifelse(lambda == 0, 0 , 1 / lambda)))
+    c.values
+  }
+
   Possible.Ndays <- function() {
     # return vector of all possible values for ndays ('30', '60', ..., '360')
     ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
@@ -107,6 +115,7 @@ CvCell <- function() {
 
   list( Command                  = Command
        ,Path                     = Path
+       ,Possible.C.Values        = Possible.C.Values
        ,Possible.Ndays           = Possible.Ndays
        ,Possible.PredictorsNames = Possible.PredictorsNames
        )
