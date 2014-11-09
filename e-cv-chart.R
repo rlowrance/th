@@ -65,14 +65,9 @@ Control <- function(default.args) {
                     ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
                     ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
                     ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
-                    ,path.out.chart.5.generated.makefile = 'e-cv-chart-chart5-generated.makefile'
-                    ,path.out.chart.6.generated.makefile = 'e-cv-chart-chart6-generated.makefile'
-                    ,path.out.chart.7.generated.makefile = 'e-cv-chart-chart7-generated.makefile'
-                    ,path.out.chart.8.generated.makefile = 'e-cv-chart-chart8-generated.makefile'
-                    ,path.out.chart.9.generated.makefile = 'e-cv-chart-chart9-generated.makefile'
-                    ,path.out.chart.10.generated.makefile = 'e-cv-chart-chart10-generated.makefile'
-                    ,path.out.chart.11.generated.makefile = 'e-cv-chart-chart11-generated.makefile'
-                    ,path.out.chart.12.generated.makefile = 'e-cv-chart-chart12-generated.makefile'
+                    ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
+                    ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
+                    ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -744,33 +739,29 @@ Chart.5.FileDependencies <- function(my.control) {
     # predictorsName in {always, alwaysNoAssesment}
     # timePeriod 2008
 
-    Path <- CvCell()$Path
-    file.dependencies <- Lines()
+    result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('always', 'alwaysNoAssessment')) {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    path <- 
-                        Path( scope = 'global'
-                             ,model = 'linear'
-                             ,timePeriod = '2008'
-                             ,scenario = 'avm'
-                             ,response = response
-                             ,predictorsName = predictorsName
-                             ,predictorsForm = predictorsForm
-                             ,ndays = ndays
-                             ,query = '1'
-                             ,c = '0'
-                             ,ntree = '0'
-                             ,mtry = '0'
-                             )
-                    file.dependencies$Append(path)
+                    element <- list( scope = 'global'
+                                    ,model = 'linear'
+                                    ,timePeriod = '2008'
+                                    ,scenario = 'avm'
+                                    ,response = response
+                                    ,predictorsName = predictorsName
+                                    ,predictorsForm = predictorsForm
+                                    ,ndays = ndays
+                                    ,query = '1'
+                                    ,lambda = '0'
+                                    ,ntree = '0'
+                                    ,mtry = '0'
+                                    )
+                    result[[length(result) + 1]] <- element
                 }
             }
         }
     }
-
-    result <- file.dependencies$Get()
     result
 }
 Chart.6.FileDependencies <- function(my.control) {
@@ -778,64 +769,57 @@ Chart.6.FileDependencies <- function(my.control) {
     # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
     # timePeriod 2003on
 
-    Path <- CvCell()$Path
-    file.dependencies <- Lines()
+    result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    path <- 
-                        Path( scope = 'global'
-                             ,model = 'linear'
-                             ,timePeriod = '2003on'
-                             ,scenario = 'avm'
-                             ,response = response
-                             ,predictorsName = predictorsName
-                             ,predictorsForm = predictorsForm
-                             ,ndays = ndays
-                             ,query = '100'
-                             ,c = '0'
-                             ,ntree = '0'
-                             ,mtry = '0'
-                             )
-                    file.dependencies$Append(path)
+                    element <- list( scope = 'global'
+                                    ,model = 'linear'
+                                    ,timePeriod = '2003on'
+                                    ,scenario = 'avm'
+                                    ,response = response
+                                    ,predictorsName = predictorsName
+                                    ,predictorsForm = predictorsForm
+                                    ,ndays = ndays
+                                    ,query = '100'
+                                    ,lambda = '0'
+                                    ,ntree = '0'
+                                    ,mtry = '0'
+                                    )
+                    result[[length(result) + 1]] <- element
                 }
             }
         }
     }
-
-    result <- file.dependencies$Get()
     result
 }
 Chart.7.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 7 
 
-    Path <- CvCell()$Path
-    file.names <- Lines()
+    result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in 'alwaysNoAssessment') {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    path <- Path( scope = 'global'
-                                 ,model = 'linear'
-                                 ,timePeriod = '2003on'
-                                 ,scenario = 'avm'
-                                 ,response = response
-                                 ,predictorsName = predictorsName
-                                 ,predictorsForm = predictorsForm
-                                 ,ndays = ndays
-                                 ,query = '100'
-                                 ,c = '0'
-                                 ,ntree = '0'
-                                 ,mtry = '0'
-                                 )
-                    file.names$Append(path)
+                    element <- list( scope = 'global'
+                                    ,model = 'linear'
+                                    ,timePeriod = '2003on'
+                                    ,scenario = 'avm'
+                                    ,response = response
+                                    ,predictorsName = predictorsName
+                                    ,predictorsForm = predictorsForm
+                                    ,ndays = ndays
+                                    ,query = '100'
+                                    ,lambda = '0'
+                                    ,ntree = '0'
+                                    ,mtry = '0'
+                                    )
+                    result[[length(result) + 1]] <- element
                 }
             }
         }
     }
-
-    result <- file.names$Get()
     result
 }
 Chart.8.FileDependencies <- function(my.control) {
@@ -864,26 +848,23 @@ Chart.9.FileDependencies <- function(my.control) {
     # best for is log-level
     # best ndays is 60 
 
-    Path <- CvCell()$Path
-    file.names <- Lines()
+    result <- NULL
     for (predictorsName in Chart.9.PredictorsNames(my.control)) {
-        path <- 
-            Path( scope = 'global'
-                 ,model = 'linear'
-                 ,timePeriod = '2003on'
-                 ,scenario = 'avm'
-                 ,response = 'logprice'
-                 ,predictorsName = predictorsName
-                 ,predictorsForm = 'level'
-                 ,ndays = '60'
-                 ,query = '100'
-                 ,c = '0'
-                 ,ntree = '0'
-                 ,mtry = '0'
-                 )
-        file.names$Append(path)
+        element <- list( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,lambda = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        result[[length(result) + 1]] <- element
     }
-    result <- file.names$Get()
     result
 }
 Chart.10.PredictorsNames <- function() {
@@ -894,28 +875,23 @@ Chart.10.PredictorsNames <- function() {
 Chart.10.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 10
 
-    Path <- CvCell()$Path
-    #debug(Path)
-    file.names <- Lines()
-    possible <- Chart.10.PredictorsNames()
-    for (predictorsName in possible) {
-        path <- 
-            Path( scope = 'global'
-                 ,model = 'linear'
-                 ,timePeriod = '2003on'
-                 ,scenario = 'avm'
-                 ,response = 'logprice'
-                 ,predictorsName = predictorsName
-                 ,predictorsForm = 'level'
-                 ,ndays = '60'
-                 ,query = '100'
-                 ,c = '0'
-                 ,ntree = '0'
-                 ,mtry = '0'
-                 )
-        file.names$Append(path)
+    result <- NULL
+    for (predictorsName in Chart.10.PredictorsNames()) {
+        element <- list( scope = 'global'
+                        ,model = 'linear'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,lambda = '0'
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        result[[length(result) + 1]] <- element
     }
-    result <- file.names$Get()
     result
 }
 Chart.11.PredictorsNames <- function() {
@@ -934,12 +910,9 @@ Chart.11.PredictorsNames <- function() {
 Chart.11.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
 
-    Path <- CvCell()$Path
-    file.names <- Lines()
-    possible <- Chart.11.PredictorsNames()
-    for (predictorsName in possible) {
-        path <- 
-            Path( scope = 'global'
+    result <- NULL
+    for (predictorsName in Chart.11.PredictorsNames()) {
+        element <- list( scope = 'global'
                  ,model = 'linear'
                  ,timePeriod = '2003on'
                  ,scenario = 'avm'
@@ -948,47 +921,41 @@ Chart.11.FileDependencies <- function(my.control) {
                  ,predictorsForm = 'level'
                  ,ndays = '60'
                  ,query = '100'
-                 ,c = '0'
+                 ,lambda = '0'
                  ,ntree = '0'
                  ,mtry = '0'
                  )
-        file.names$Append(path)
+        result[[length(result) + 1]] <- element
     }
-    result <- file.names$Get()
     result
 }
-Chart.12.C.Values <- function() {
+Chart.12.Lambda.Values <- function() {
     # return vector of lambda values that are used for regularization
-    # lambda := C / 100
-    lambda <- c( 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
-    c.values <- round(100 * ifelse(lambda == 0, 0 , 1 / lambda))
-    c.values
+    # lambda on command lines is 100 * lambda in regression
+    lambda.in.regression <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30)
+    lambda.on.command.line <- as.character(100 * lambda.in.regression)
+    lambda.on.command.line
 }
 Chart.12.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
 
-    Path <- CvCell()$Path
-    Possible.C.Values <- CvCell()$Possible.C.Values
-    file.names <- Lines()
-    c.values <- Possible.C.Values()
-    for (c.value in c.values) {
-        path <- 
-            Path( scope = 'global'
-                 ,model = 'linL2'
-                 ,timePeriod = '2003on'
-                 ,scenario = 'avm'
-                 ,response = 'logprice'
-                 ,predictorsName = 'best20'
-                 ,predictorsForm = 'level'
-                 ,ndays = '60'
-                 ,query = '100'
-                 ,c = as.character(c.value)
-                 ,ntree = '0'
-                 ,mtry = '0'
-                 )
-        file.names$Append(path)
+    result <- NULL
+    for (lambda in Chart.12.Lambda.Values()) {
+        element <- list( scope = 'global'
+                        ,model = 'linL2'
+                        ,scenario = 'avm'
+                        ,timePeriod = '2003on'
+                        ,response = 'logprice'
+                        ,predictorsName = 'best20'
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,lambda = lambda
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        result[[length(result) + 1]] <- element
     }
-    result <- file.names$Get()
     result
 }
 Table.5.6 <- function() {
@@ -1081,7 +1048,7 @@ Chart.5 <- function(my.control) {
                                      ,predictorsForm = predictorsForm
                                      ,ndays = ndays
                                      ,query = '1'
-                                     ,c = '0'
+                                     ,lambda = '0'
                                      ,ntree = '0'
                                      ,mtry = '0'
                                      )
@@ -1152,7 +1119,7 @@ Chart.6 <- function(my.control) {
                              ,predictorsForm = predictorsForm
                              ,nday = ndays
                              ,query = '1'
-                             ,c = '0'
+                             ,lambda = '0'
                              ,ntree = '0'
                              ,mtry = '0'
                              )
@@ -1379,7 +1346,7 @@ Chart.7 <- function(my.control) {
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
                         ,query = '100'  # use 1% sample
-                        ,c = '0'
+                        ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
                         )
@@ -1581,7 +1548,7 @@ Chart.8 <- function(my.control) {
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
                         ,query = '100'  # use 1% sample
-                        ,c = '0'
+                        ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
                         )
@@ -1643,6 +1610,25 @@ Chart.8 <- function(my.control) {
     lines$Append(' ')
     Table(lines)
 
+    result <- lines$Get()
+    result
+}
+CI.Table <- function(axis.names, axis.values, names, values, values.low, values.high) {
+    # return list of chr, a table
+    format.header <- '%20s %15s %30s'
+    format.data   <- '%20s %15.0f        [%6.0f,%6.0f]'
+    lines <- Lines()
+    lines$Append(axis.values)
+    lines$Append(' ')
+    lines$Append(sprintf(format.header, axis.names, 'median', '95% confidence interval'))
+    lines$Append(' ')
+    for (index in 1:length(values)) {
+        lines$Append(sprintf( format.data
+                             ,names[[index]]
+                             ,values[[index]]
+                             ,values.low[[index]]
+                             ,values.high[[index]]))
+    }
     result <- lines$Get()
     result
 }
@@ -1716,7 +1702,7 @@ Chart.9.10 <- function(my.control, feature.names, predictors.names) {
                         ,predictorsForm = 'level'
                         ,ndays = '60'
                         ,query = '100'
-                        ,c = '0'
+                        ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
                         )
@@ -1831,7 +1817,7 @@ Chart.11 <- function(my.control) {
                         ,predictorsForm = 'level'
                         ,ndays = '60'
                         ,query = '100'
-                        ,c = '0'
+                        ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
                         )
@@ -1880,6 +1866,86 @@ Chart.11 <- function(my.control) {
                    )
     result
 }
+Chart.12 <- function(my.control) {
+    # return 2 gg charts
+
+    cv.cell <- CvCell()
+    Path <- cv.cell$Path
+    C.To.Lambda <- cv.cell$C.To.Lambda
+
+    ACvResult <- function(lambda) {
+        path.in <- Path( scope = 'global'
+                        ,model = 'linL2'
+                        ,timePeriod = '2003on'
+                        ,scenario = 'avm'
+                        ,response = 'logprice'
+                        ,predictorsName = 'best20'
+                        ,predictorsForm = 'level'
+                        ,ndays = '60'
+                        ,query = '100'
+                        ,lambda = lambda
+                        ,ntree = '0'
+                        ,mtry = '0'
+                        )
+        load(path.in)
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+        a.cv.result
+    }
+    Summarize <- function() {
+        # return list $predictors.name $median.value $ci.lowest $ci.highest
+        possible.lambda.values <- Chart.12.Lambda.Values()
+        n <- length(possible.lambda.values)
+        median.value <- double(n)
+        ci.lowest <- double(n)
+        ci.highest <- double(n)
+        c.values <- double(n)
+        lambda.value.name <- character(n)
+        for (index in 1:n) {
+            lambda <- possible.lambda.values[[index]]
+            a.cv.result <- ACvResult(lambda)
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            ci <- CIMedian(rmse.values)
+            median.value[[index]] <- median(rmse.values)
+            ci.lowest[[index]] <- ci$lowest
+            ci.highest[[index]] <- ci$highest
+            lambda.value.name[[index]] <- lambda
+        }
+        result <- list( lambda.value.name = as.character(as.numeric(lambda.value.name) / 100)
+                       ,median.value  = median.value
+                       ,ci.lowest     = ci.lowest
+                       ,ci.highest    = ci.highest
+                       )
+        result
+    }
+    GraphChart <- function(summary, show.zero.value) {
+        gg <- CI.Chart( axis.values = 'median rMedianSE across folds'
+                       ,axis.names = 'L2 regularizer value'
+                       ,values = summary$median.value
+                       ,values.low = summary$ci.lowest
+                       ,values.high = summary$ci.highest
+                       ,names = summary$lambda.value.name
+                       ,show.zero.value = show.zero.value
+                       )
+        gg
+    }
+    TableChart <- function(summary) {
+        txt <- CI.Table( axis.values = 'Median rMedianSE Across Folds'
+                        ,axis.names = 'L2 regularizer value'
+                        ,values = summary$median.value
+                        ,values.low = summary$ci.lowest
+                        ,values.high = summary$ci.highest
+                        ,names = summary$lambda.value.name
+                        )
+        txt
+    }
+    summary <- Summarize()
+    result <- list( gg1 = GraphChart(summary, show.zero.value = TRUE)
+                   ,gg2 = GraphChart(summary, show.zero.value = FALSE)
+                   ,txt = TableChart(summary)
+                   )
+    result
+}
 MakeMakefiles <- function(control) {
     # write one makefile for each chart that is being created
 
@@ -1888,152 +1954,303 @@ MakeMakefiles <- function(control) {
 #    chart.3 <- Chart.3(control)
 #    chart.4 <- Chart.4(control)
 
-    MakeMakefile <- function(variable.name, dependency.file.names, path.out) {
-        # create generated makefile that defines the variable and a target for the files
-        lines <- Lines()
-        for (dependency.file.name in dependency.file.names) {
-            lines$Append(paste0( variable.name
-                                ,' += '
-                                ,dependency.file.name
-                                )
-            )
+    Path <- CvCell()$Path
+    Command <- CvCell()$Command
+    MakeMakefile <- function( target.variable.name
+                             ,dependency.file.names
+                             ,targets.lines
+                             ,rules.lines
+                             ) {
+        # append to define.target.lines and rules.lines
+        for (dfn in dependency.file.names) {
+            path <- Path( scope = dfn$scope
+                         ,model = dfn$model
+                         ,timePeriod = dfn$timePeriod
+                         ,scenario = dfn$scenario
+                         ,response = dfn$response
+                         ,predictorsName = dfn$predictorsName
+                         ,predictorsForm = dfn$predictorsForm
+                         ,ndays = dfn$ndays
+                         ,query = dfn$query
+                         ,lambda = dfn$lambda
+                         ,ntree = dfn$ntree
+                         ,mtry = dfn$mtry
+                         )
+            command <- Command( scope = dfn$scope
+                               ,model = dfn$model
+                               ,timePeriod = dfn$timePeriod
+                               ,scenario = dfn$scenario
+                               ,response = dfn$response
+                               ,predictorsName = dfn$predictorsName
+                               ,predictorsForm = dfn$predictorsForm
+                               ,ndays = dfn$ndays
+                               ,query = dfn$query
+                               ,lambda = dfn$lambda
+                               ,ntree = dfn$ntree
+                               ,mtry = dfn$mtry
+                               )
+            targets.lines$Append(paste0(target.variable.name, ' += ', path))
+            rules.lines$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
+            rules.lines$Append(paste0('\t', command))
         }
-        target.name <- paste0(variable.name, '-target')
-        lines$Append(sprintf('.PHONY: %s', target.name))
-        lines$Append(sprintf('%s: $(%s)', target.name, variable.name))
-        writeLines( text = lines$Get()
-                   ,con = path.out
-                   )
-        
+        target.name <- paste0(target.variable.name, '-target')
+        targets.lines$Append(sprintf('.PHONY: %s', target.name))
+        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
         # return nothing
     }
 
-    MakeMakefile( variable.name = 'e-cv-chart-chart5'
-                 ,dependency.file.names = Chart.5.FileDependencies(control)
-                 ,path.out = control$path.out.chart.5.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart6'
-                 ,dependency.file.names = Chart.6.FileDependencies(control)
-                 ,path.out = control$path.out.chart.6.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart7'
-                 ,dependency.file.names = Chart.7.FileDependencies(control)
-                 ,path.out = control$path.out.chart.7.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart8'
-                 ,dependency.file.names = Chart.8.FileDependencies(control)
-                 ,path.out = control$path.out.chart.8.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart9'
-                 ,dependency.file.names = Chart.9.FileDependencies(control)
-                 ,path.out = control$path.out.chart.9.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart10'
-                 ,dependency.file.names = Chart.10.FileDependencies(control)
-                 ,path.out = control$path.out.chart.10.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart11'
-                 ,dependency.file.names = Chart.11.FileDependencies(control)
-                 ,path.out = control$path.out.chart.11.generated.makefile
-                 )
-    MakeMakefile( variable.name = 'e-cv-chart-chart12'
-                 ,dependency.file.names = Chart.12.FileDependencies(control)
-                 ,path.out = control$path.out.chart.12.generated.makefile
-                 )
+    targets.lines <- Lines()
+    rules.lines <- Lines()
+
+    
+    targets.lines <- Lines()
+    all.dependency.file.names <- NULL
+    M <- function(target.variable.name, dependency.file.names) {
+        # append to all.dependency.file.names
+        # build targets.lines
+        for (dfn in dependency.file.names) {
+            all.dependency.file.names[[length(all.dependency.file.names) + 1]] <<- dfn
+            path <- Path( scope = dfn$scope
+                         ,model = dfn$model
+                         ,timePeriod = dfn$timePeriod
+                         ,scenario = dfn$scenario
+                         ,response = dfn$response
+                         ,predictorsName = dfn$predictorsName
+                         ,predictorsForm = dfn$predictorsForm
+                         ,ndays = dfn$ndays
+                         ,query = dfn$query
+                         ,lambda = dfn$lambda
+                         ,ntree = dfn$ntree
+                         ,mtry = dfn$mtry
+                         )
+            targets.lines$Append(paste0(target.variable.name, ' += ', path))
+        }
+        target.name <- paste0(target.variable.name, '-target')
+        targets.lines$Append(sprintf('.PHONY: %s', target.name))
+        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
+        # return nothing
+    }
+
+    M( target.variable.name = 'e-cv-chart-chart5'
+      ,dependency.file.names = Chart.5.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart6'
+      ,dependency.file.names = Chart.6.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart7'
+      ,dependency.file.names = Chart.7.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart8'
+      ,dependency.file.names = Chart.8.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart9'
+      ,dependency.file.names = Chart.9.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart10'
+      ,dependency.file.names = Chart.10.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart11'
+      ,dependency.file.names = Chart.11.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart12'
+      ,dependency.file.names = Chart.12.FileDependencies(control)
+      )
+
+    RulesRecipes <- function(all.dependency.file.names) {
+        # return Lines object containing unique rules and recipes
+        # NOTE: all.dependency.file.name may contain the same value many times
+        # because the same cell is used in many charts
+        u <- unique(all.dependency.file.names)  # does this work on lists?
+        #print(length(all.dependency.file.names))
+        #print(length(u))
+        stopifnot(length(u) < length(all.dependency.file.names))
+        rules.recipes <- Lines()
+        for (dfn in u) {
+            path <- Path( scope = dfn$scope
+                         ,model = dfn$model
+                         ,timePeriod = dfn$timePeriod
+                         ,scenario = dfn$scenario
+                         ,response = dfn$response
+                         ,predictorsName = dfn$predictorsName
+                         ,predictorsForm = dfn$predictorsForm
+                         ,ndays = dfn$ndays
+                         ,query = dfn$query
+                         ,lambda = dfn$lambda
+                         ,ntree = dfn$ntree
+                         ,mtry = dfn$mtry
+                         )
+            command <- Command( scope = dfn$scope
+                               ,model = dfn$model
+                               ,timePeriod = dfn$timePeriod
+                               ,scenario = dfn$scenario
+                               ,response = dfn$response
+                               ,predictorsName = dfn$predictorsName
+                               ,predictorsForm = dfn$predictorsForm
+                               ,ndays = dfn$ndays
+                               ,query = dfn$query
+                               ,lambda = dfn$lambda
+                               ,ntree = dfn$ntree
+                               ,mtry = dfn$mtry
+                               )
+            rules.recipes$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
+            rules.recipes$Append(paste0('\t', command))
+        }
+        browser()
+        rules.recipes
+    }
+
+    # targets.lines and all.dependency.file.names
+    # now combine them into one makefile
+
+    all.lines <- Lines()
+    # comments for human readers
+    all.lines$Append('# rules and targets to make cv cells needed by charts produced by e-cv-chart.r')
+    all.lines$Append('# to generate files needed for Chart 12, execute')
+    all.lines$Append('#   make -j 12 e-cv-chart-chart12')
+    all.lines$Append(' ')
+    all.lines$Append('# generated by Rscript e-cv-chart.R --makefile')
+    all.lines$Append(paste0('# run ', Sys.time()))
+    
+    # rules and recipes
+    all.lines$Append(' ')
+    all.lines$Append('# rules and recipes')
+    rules.recipes <- RulesRecipes(all.dependency.file.names)
+    lapply(rules.recipes$Get(), function(line) all.lines$Append(line))
+    
+    # targets (to allow data for individual charts to be created and recreated)
+    all.lines$Append(' ')
+    all.lines$Append('# targets')
+    lapply(targets.lines$Get(), function(line) all.lines$Append(line))
+
+    writeLines( text = all.lines$Get()
+               ,con = control$path.out.makefile
+               )
 }
 MakeCharts <- function(control) {
     # write chart files:
 
-    chart.5.txt <- Chart.5(control)
-    writeLines( text = chart.5.txt
-               ,con = control$path.out.chart.5
-               )
+    Make.Chart.5 <- function() {
+        chart.5.txt <- Chart.5(control)
+        writeLines( text = chart.5.txt
+                   ,con = control$path.out.chart.5
+                   )
+    }
+    Make.Chart.6 <- function() {
+        chart.6.txt <- Chart.6(control)
+        writeLines( text = chart.6.txt
+                   ,con = control$path.out.chart.6
+                   )
+    }
+    Make.Chart.7 <- function() {
+        chart.7.txt <- Chart.7(control)
+        writeLines( text = chart.7.txt
+                   ,con = control$path.out.chart.7
+                   )
+    }
+    Make.Chart.8 <- function() {
+        chart.8.txt <- Chart.8(control)
+        writeLines( text = chart.8.txt
+                   ,con = control$path.out.chart.8
+                   )
+    }
+    Make.Chart.9 <- function() {
+        # Chart.9 returns list $txt $gg1 $gg2
+        chart.9 <- Chart.9(control)
+        writeLines( text = chart.9$txt
+                   ,con = control$path.out.chart.9.txt
+                   )
 
-    chart.6.txt <- Chart.6(control)
-    writeLines( text = chart.6.txt
-               ,con = control$path.out.chart.6
-               )
+        pdf( file = control$path.out.chart.9.gg1
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.9$gg1)
+        dev.off()
 
-    chart.7.txt <- Chart.7(control)
-    writeLines( text = chart.7.txt
-               ,con = control$path.out.chart.7
-               )
+        pdf( file = control$path.out.chart.9.gg2
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.9$gg2)
+        dev.off()
+    }
+    Make.Chart.10 <- function() {
+        # Chart.10 returns list $txt $gg1 $gg2 (same charts as for chart 9)
+        chart.10 <- Chart.10(control)
+        writeLines( text = chart.10$txt
+                   ,con = control$path.out.chart.10.txt
+                   )
 
-    chart.8.txt <- Chart.8(control)
-    writeLines( text = chart.8.txt
-               ,con = control$path.out.chart.8
-               )
+        pdf( file = control$path.out.chart.10.gg1
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.10$gg1)
+        dev.off()
 
-    # Chart.9 returns list $txt $gg1 $gg2
-    chart.9 <- Chart.9(control)
-    writeLines( text = chart.9$txt
-               ,con = control$path.out.chart.9.txt
-               )
+        pdf( file = control$path.out.chart.10.gg2
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.10$gg2)
+        dev.off()
+    }
+    Make.Chart.11 <- function() {
+        # Chart.11 returns list $txt $gg1 $gg2 (same charts as for chart 9)
+        chart.11 <- Chart.11(control)
+        #    writeLines( text = chart.11$txt
+        #               ,con = control$path.out.chart.11.txt
+        #               )
 
-    pdf( file = control$path.out.chart.9.gg1
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.9$gg1)
-    dev.off()
+        pdf( file = control$path.out.chart.11.gg1
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.11$gg1)
+        dev.off()
 
-    pdf( file = control$path.out.chart.9.gg2
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.9$gg2)
-    dev.off()
+        pdf( file = control$path.out.chart.11.gg2
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.11$gg2)
+        dev.off()
+    }
+    Make.Chart.12 <- function() {
+        # Chart.12 returns list $txt $gg1 $gg2 (same charts as for chart 9)
+        chart.12 <- Chart.12(control)
+        writeLines( text = chart.12$txt
+                   ,con = control$path.out.chart.12.txt
+                   )
 
-    # Chart.10 returns list $txt $gg1 $gg2 (same charts as for chart 9)
-    chart.10 <- Chart.10(control)
-    writeLines( text = chart.10$txt
-               ,con = control$path.out.chart.10.txt
-               )
+        pdf( file = control$path.out.chart.12.gg1
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.12$gg1)
+        dev.off()
 
-    pdf( file = control$path.out.chart.10.gg1
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.10$gg1)
-    dev.off()
-
-    pdf( file = control$path.out.chart.10.gg2
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.10$gg2)
-    dev.off()
-
-    # Chart.11 returns list $txt $gg1 $gg2 (same charts as for chart 9)
-    chart.11 <- Chart.11(control)
-#    writeLines( text = chart.11$txt
-#               ,con = control$path.out.chart.11.txt
-#               )
-
-    pdf( file = control$path.out.chart.11.gg1
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.11$gg1)
-    dev.off()
-
-    pdf( file = control$path.out.chart.11.gg2
-        ,width = control$chart.width
-        ,height = control$chart.height
-        )
-    print(chart.11$gg2)
-    dev.off()
-
-    return()
-    
-    # example of creating a pdf
-    pdf( file = my.control$path.out.chart3
-        ,width = my.control$chart.width
-        ,height = my.control$chart.height
-        )
-    print(charts$chart3)
-    dev.off()
-
+        pdf( file = control$path.out.chart.12.gg2
+            ,width = control$chart.width
+            ,height = control$chart.height
+            )
+        print(chart.12$gg2)
+        dev.off()
+    }
+    developing <- FALSE
+    if (!developing) {
+        Make.Chart.5()
+        Make.Chart.6()
+        Make.Chart.7()
+        Make.Chart.8()
+        Make.Chart.9()
+        Make.Chart.10()
+        Make.Chart.11()
+        Make.Chart.12()
+    } else {
+        # while developing
+        Make.Chart.12()
+    }
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
