@@ -11,18 +11,18 @@ CvCell <- function() {
   Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
   Is.Valid.Ndays <- function(s)          s %in% Possible.Ndays()
   Is.Valid.Query <- function(s)          s %in% c('1', '100')
-  Is.Valid.C <- function(s)              is.character(s) & as.integer(s) >= 0
+  Is.Valid.Lambda <- function(s)         is.character(s) & as.integer(s) >= 0
   Is.Valid.Ntree <- function(s)          s %in% c('0')
   Is.Valid.Mtry <- function(s)           s %in% c('0')
 
   
   Command <- function( scope, model, timePeriod, scenario
                       ,response, predictorsName, predictorsForm, ndays
-                      ,query, c, ntree, mtry) {
+                      ,query, lambda, ntree, mtry) {
     # return command to build a particular cell
     Validate.Cell.Specifiers( scope, model, timePeriod, scenario
                              ,response, predictorsName, predictorsForm, ndays
-                             ,query, c, ntree, mtry)
+                             ,query, lambda, ntree, mtry)
     command <- paste0( 'Rscript e-cv.R'
                       ,' --scope ', scope
                       ,' --model ', model
@@ -33,7 +33,7 @@ CvCell <- function() {
                       ,' --predictorsForm ', predictorsForm
                       ,' --ndays ', ndays
                       ,' --query ', query
-                      ,' --c ', c
+                      ,' --lambda ', lambda
                       ,' --ntree ', ntree
                       ,' --mtry ', mtry
                       )
@@ -42,12 +42,12 @@ CvCell <- function() {
 
   Path <- function( scope, model, timePeriod, scenario
                    ,response, predictorsName, predictorsForm, ndays
-                   ,query, c, ntree, mtry) {
+                   ,query, lambda, ntree, mtry) {
     # return path in file system to a particular cell
 
     Validate.Cell.Specifiers( scope, model, timePeriod, scenario
                              ,response, predictorsName, predictorsForm, ndays
-                             ,query, c, ntree, mtry)
+                             ,query, lambda, ntree, mtry)
 
     path <- paste0( Directory('working')
                    ,'e-cv-cells/' ,scope
@@ -59,20 +59,12 @@ CvCell <- function() {
                    ,'_', predictorsForm
                    ,'_', ndays
                    ,'_', query
-                   ,'_', c
+                   ,'_', lambda
                    ,'_', ntree
                    ,'_', mtry
                    ,'.RData'
                    )
     path
-  }
-
-  Possible.C.Values <- function() {
-    # return vector of lambda values that are used for regularization
-    # lambda := C / 100
-    lambda <- c( 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
-    c.values <- as.character(round(100 * ifelse(lambda == 0, 0 , 1 / lambda)))
-    c.values
   }
 
   Possible.Ndays <- function() {
@@ -95,7 +87,7 @@ CvCell <- function() {
 
   Validate.Cell.Specifiers <- function( scope, model, timePeriod, scenario
                                        ,response, predictorsName, predictorsForm, ndays
-                                       ,query, c, ntree, mtry) {
+                                       ,query, lambda, ntree, mtry) {
     # stop if any cell specifier is invalide
 
     stopifnot(Is.Valid.Scope(scope))
@@ -107,7 +99,7 @@ CvCell <- function() {
     stopifnot(Is.Valid.PredictorsForm(predictorsForm))
     stopifnot(Is.Valid.Ndays(ndays))
     stopifnot(Is.Valid.Query(query))
-    stopifnot(Is.Valid.C(c))
+    stopifnot(Is.Valid.Lambda(lambda))
     stopifnot(Is.Valid.Ntree(ntree))
     stopifnot(Is.Valid.Mtry(mtry))
   }
@@ -115,7 +107,6 @@ CvCell <- function() {
 
   list( Command                  = Command
        ,Path                     = Path
-       ,Possible.C.Values        = Possible.C.Values
        ,Possible.Ndays           = Possible.Ndays
        ,Possible.PredictorsNames = Possible.PredictorsNames
        )
