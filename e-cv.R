@@ -318,7 +318,7 @@ MakeFormula <- function(data, scope, response, predictorsForm, predictorsName, c
     }
 
     # for now, only handle scope == global
-    # if scope = submarketIndicator, must add indicators
+    # if scope = submarketIndicator, must add indicators  FIXME: comment is wrong
 
     stopifnot(scope == 'global')
 
@@ -377,28 +377,47 @@ Evaluate_10 <- function(scope, model, scenario, response
         result
     }
 
+
     # ridge regression (L2 regularizer)
     ModelLinL2.Fit <- function(formula, data, fit.model.data) {
         # the lambda value is from the command line
         # it is 100x too big
+        #cat('in ModelLinL2.fit\n'); browser()
+
+        lambda <- fit.model.data$lambda / 100
         result <- lm.ridge( formula = formula
                            ,data = data
-                           ,lambda = (fit.model.data$lambda / 100)
+                           ,lambda = lambda
                            )
         result
     }
 
     ModelLinL2.Predict <- function(object, newdata) {
+        #cat('in ModelLinL2.Predict\n'); browser()
+        verbose <- FALSE
+        if (verbose) str(newdata)
+
+        StartsWith <- function(s, p) {
+            # return TRUE iff string s starts with p
+            nc.p <- nchar(p)
+            substr(s, 1, nc.p) == p
+        }
         EndsWithTRUE <- function(s) {
+            # return TRUE iff string s is of form '...TRUE'.
             nc <- nchar(s)
             substr(s, nc - 3, nc) == 'TRUE'
         }
-        Truncated <- function(s) {
+        BeforeTRUE <- function(s) {
+            # assuming s is of form '...TRUE', return the '...' portion
             nc <- nchar(s)
             substr(s, 1, nc - 4)
         }
+        After <- function(s, prefix) {
+            # return portion of string s after the prefix
+            nc.prefix <- nchar(prefix)
+            substr(s, nc.prefix + 1, nchar(s))
+        }
 
-        #cat('in ModelLinL2.Predict\n'); browser()
         coe <- coef(object)
         Coef <- function(name) {
             if (name == '')
@@ -407,12 +426,41 @@ Evaluate_10 <- function(scope, model, scenario, response
                 coe[[name]]
         }
         QueryValue <- function(name) {
-            if (name == '')
-                1
-            else if (EndsWithTRUE(name))
-                newdata[[Truncated(name)]] == TRUE
-            else
-                newdata[[name]]
+            debug <- FALSE
+            if (verbose) cat('in QueryValue name', name, '\n')
+            if (name == '') {
+                # intercept always has value 1
+                result <- 1
+                if (verbose) Printf('intercept result %f\n', result)
+                result
+            } else if (EndsWithTRUE(name)) {
+                result <- newdata[[BeforeTRUE(name)]] == TRUE
+                if (verbose) Printf('end with TRUE %s result %f\n', name, result)
+                #browser()
+                result
+            } else if (StartsWith(name, 'zip5')) {
+                value <- After(name, 'zip5')
+                result <- newdata[['zip5']] == value
+                if (verbose) Printf('starts with zip5 %s value %s result %f\n', name, value, result)
+                if (debug && result == 1) browser()
+                result
+            } else if (StartsWith(name, 'census.tract')) {
+                value <- After(name, 'census.tract')
+                result <- newdata[['census.tract']] == value
+                if (verbose) Printf('starts with census.tract %s value %s result %f\n', name, value, result)
+                if (debug && result == 1) browser()
+                result
+            } else if (StartsWith(name, 'property.city')) {
+                value <- After(name, 'property.city')
+                result <- newdata[['property.city']] == value
+                if (verbose) Printf('starts with property.city %s value %s result %f\n', name, value, result)
+                if (debug && result == 1) browser()
+                result
+            } else {
+                result <- newdata[[name]]
+                if (verbose) Printf('result %f\n', result)
+                result
+            }
         }
         terms <- sapply( names(coe)
                         ,function(name)
@@ -690,16 +738,15 @@ clock <- Clock()
 
 default.args <-
     list( scope          = 'global'
-         #,model          = 'linear'
          ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
          ,predictorsForm = 'level'
-         ,predictorsName = 'best20'
+         ,predictorsName = 'best20zip'
          ,ndays          = '60'
          ,query          = '100'
-         ,lambda         = '100'
+         ,lambda         = '400'
          ,ntree          = '0'
          ,mtry           = '0'
          )
@@ -712,6 +759,12 @@ if (!exists('e-cv-transaction.data')) {
                                               )
     stopifnot(AllAlwaysPresent(e.cv.transaction.data))
     stopifnot(AllInformative(e.cv.transaction.data))
+    # convert some numeric location features into factors
+    zip5.factor <- as.factor(e.cv.transaction.data$zip5)
+    census.tract.factor <- as.factor(e.cv.transaction.data$census.tract)
+    e.cv.transaction.data$zip5 <- zip5.factor
+    e.cv.transaction.data$census.tract <- census.tract.factor
+    stopifnot(is.factor(e.cv.transaction.data$property.city))
 }
 
 Main( control = control
