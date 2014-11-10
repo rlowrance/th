@@ -49,33 +49,6 @@ library(memoise)
 library(optparse)
 library(pryr)
 
-Counter <- function(initial.value = 0) {
-    current.value <- initial.value
-
-    Increment <- function() {
-        current.value <<- current.value + 1
-    }
-
-    Get <- function() {
-        current.value
-    }
-
-    list( Increment = Increment
-         ,Get       = Get
-         )
-}
-ReportMemoryUsage <- function(msg = '') {
-    mem.used <- mem_used()
-    Printf( '%s mem_used %f GB\n'
-           ,msg
-           ,as.numeric(mem.used) / 1e9
-           )
-}
-MaybeReportMemoryUsage <- function(msg = '') {
-    maybe <- FALSE
-    if (maybe)
-        ReportMemoryUsage(msg)
-}
 Control <- function(default.args) {
     # parse command line arguments in command.args
     opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
@@ -198,6 +171,61 @@ ParseCommandArgs <- function(command.args, default.args) {
                       )
     opt
 }
+Counter <- function(initial.value = 0) {
+    current.value <- initial.value
+
+    Increment <- function() {
+        current.value <<- current.value + 1
+    }
+
+    Get <- function() {
+        current.value
+    }
+
+    list( Increment = Increment
+         ,Get       = Get
+         )
+}
+ReportMemoryUsage <- function(msg = '') {
+    mem.used <- mem_used()
+    Printf( '%s mem_used %f GB\n'
+           ,msg
+           ,as.numeric(mem.used) / 1e9
+           )
+}
+MaybeReportMemoryUsage <- function(msg = '') {
+    maybe <- FALSE
+    if (maybe)
+        ReportMemoryUsage(msg)
+}
+AllAlwaysPresent <- function(data) {
+    # return TRUE iff there is no NA in the data frame
+    na.found <- FALSE
+    for (name in names(data)) {
+        v <- data[[name]]
+        na.indices <- is.na(v)
+        if (sum(na.indices) > 0) {
+            Printf('column %s has %d NA values\n', name, sum(na.indices))
+            na.found <- TRUE
+        }
+    }
+    !na.found
+}
+AllInformative <- function(data) {
+    # return TRUE iff every column has more than one unique value
+    found.just.1 <- FALSE
+    for (name in names(data)) {
+        v <- data[[name]]
+        num.unique <- length(unique(v))
+        stopifnot(num.unique > 0)
+        if (num.unique == 1) {
+            Printf('column %s has just 1 unique value\n', name)
+            found.just.1 <- TRUE
+        }
+    }
+    !found.just.1
+}
+
 EvaluatePredictions <- function(prediction, actual) {
     # return list of evaluations
     # ARGS
@@ -704,34 +732,6 @@ Main <- function(control, transaction.data.all.years) {
 
     str(control)
 }
-AllAlwaysPresent <- function(data) {
-    # return TRUE iff there is no NA in the data frame
-    na.found <- FALSE
-    for (name in names(data)) {
-        v <- data[[name]]
-        na.indices <- is.na(v)
-        if (sum(na.indices) > 0) {
-            Printf('column %s has %d NA values\n', name, sum(na.indices))
-            na.found <- TRUE
-        }
-    }
-    !na.found
-}
-AllInformative <- function(data) {
-    # return TRUE iff every column has more than one unique value
-    found.just.1 <- FALSE
-    for (name in names(data)) {
-        v <- data[[name]]
-        num.unique <- length(unique(v))
-        stopifnot(num.unique > 0)
-        if (num.unique == 1) {
-            Printf('column %s has just 1 unique value\n', name)
-            found.just.1 <- TRUE
-        }
-    }
-    !found.just.1
-}
-
 
 ################## EXECUTION STARTS HERE
 clock <- Clock()
