@@ -77,6 +77,7 @@ Predictors2 <- function(predictors.name, predictors.form) {
           ,'apn'
           ,'census.tract'
           ,'zip5'
+          ,'property.city'
           )
     price <- 
         c( 'price'
@@ -146,6 +147,21 @@ Predictors2 <- function(predictors.name, predictors.form) {
               ,always.house.not.assessment.not.size
               ,always.location.zip
               )
+        } else if (predictors.name == 'best20census' && predictors.form == 'level') {
+            result <- c( best.features[1:20]
+                        ,'census.tract'
+                        )
+            result
+        } else if (predictors.name == 'best20city' && predictors.form == 'level') {
+            result <- c( best.features[1:20]
+                        ,'property.city'
+                        )
+            result
+        } else if (predictors.name == 'best20zip' && predictors.form == 'level') {
+            result <- c( best.features[1:20]
+                        ,'zip5'
+                        )
+            result
         } else if (substr(predictors.name, 1, 4) == 'best' && predictors.form == 'level') {
             #cat(predictors.name, predictors.form, '\n'); browser()
             n <- as.integer(substr(predictors.name, 5, 6))
