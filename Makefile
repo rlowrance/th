@@ -107,7 +107,7 @@ include predictors2.makefile
 .PHONY: all
 #all: $(working)/defense.pdf $(working)/experiments.pdf $(working)/thesis.pdf
 #all:  $(working)/experiments.pdf $(working)/thesis.pdf
-all:  $(working)/thesis.pdf
+all:  $(working)/thesis.pdf $(working)/submarkets.RData
 
 # dependencies within this makefile
 predictors2.makefile: Predictors2.R predictors2.makefile.R
@@ -784,6 +784,17 @@ $(e-verify-assessment-chart-data)
 #e-verify-assessment-chart.R : \
 #	Directory.R Libraries.R ChartCleveland01.R $(working)/e-verify-assessment.RData
 
+# SUBMARKETS
+
+submarkets-source += Directory.R
+submarkets-source += Libraries.R
+submarkets-source += Predictors2.R
+submarkets-source += Lines.R
+submarkets-source += ReadTransactionSplits.R
+
+$(working)/submarkets.RData: submarkets.R $(submarkets-source)
+	Rscript submarkets.R
+
 
 # PDF files (and accompanying tex files)
 
@@ -876,7 +887,7 @@ bibtex:
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
 
 .PHONY: experiments
-experiments: $(working)/experiments.pdf
+ReadTransactionSplits: $(working)/experiments.pdf
 
 $(working)/experiments.pdf: experiments.Rnw \
 	$(drawings)/scenarios.pdf \
