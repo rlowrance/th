@@ -20,7 +20,7 @@
 # e-cv-submarketIndicator-randomForest-2003-mortgage-logprice-linear-120-100--1000-2.RData
 # 
 # command line
-# --scope {global, submarket, submarketIndicator}
+# --scope {global, CCCCCC, ZZZZZ, CITYNAME} global/census tract/zip5/property city
 # --model {linear, linearReg, randomForest}
 # --timePeriod {2003|2009}
 # --scenario {assessor|avm|mortgage}
@@ -37,6 +37,7 @@ source('Directory.R')
 source('Libraries.R')
 
 source('CvCell.R')        # machinery to manipule the e-cv-cells directory
+source('Lines.R')
 source('PredictLocal.R')  # all local models
 
 source('Predictors2.R') 
@@ -119,9 +120,6 @@ Control <- function(default.args) {
     prices <- c('price.log', 'price')
     years <- c('year.built', 'effective.year.built')
 
-    testing <- FALSE
-    #testing <- TRUE
-
     out.options <-
         sprintf( '%s_%s_%s_%s_%s_%s_%s_%d_%d_%d_%d_%d'
                 ,opt$scope
@@ -144,14 +142,14 @@ Control <- function(default.args) {
                     ,path.out.rdata = paste0(working, out.base, out.options, '.RData')
                     ,opt = opt
                     ,model.name = out.options
-                    ,nfolds = if (testing) 2 else 10
+                    ,nfolds = 10
                     ,split.names = unique(c( predictors
                                             ,identification
                                             ,prices
                                             ,years
                                             )
                     )
-                    ,testing = testing
+                    ,testing = FALSE
                     ,debug = FALSE
                     ,verbose.CrossValidate = TRUE
                     ,trace.memory.usage = TRUE
@@ -180,7 +178,7 @@ ParseCommandArgs <- function(command.args, default.args) {
     }
 
     option.list <-
-        list( OptionChr('scope',          'one of {global, submarket, submarketIndicator}')
+        list( OptionChr('scope',          'one of {global, CCCCCC, ZZZZZZ, CITYNAME}')
              ,OptionChr('model',          'one of {linear, linL2, randomForest}')
              ,OptionChr('timePeriod',     'one of {2003on|2008}')
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
@@ -643,6 +641,7 @@ Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
+
     # drop data the taxroll doesn't know about
     # NOTE: no observations are eliminated by this procedure
     # because the largest year.built and effective.year.built are 2008
@@ -652,6 +651,8 @@ Main <- function(control, transaction.data.all.years) {
         transaction.data.all.years$effective.year.built <= taxroll.year
     data <-  transaction.data.all.years[is.known.to.taxroll, ]
     stopifnot(nrow(data) == nrow(transaction.data.all.years)) # no post-2008 transations should exist
+
+    # perform cross validation for model in hps and save results
 
     # build list of hyperparameters to be used in defining the models for CrossValidate
     # here there is only one model and the hyperparameters are from the command line options
@@ -669,7 +670,6 @@ Main <- function(control, transaction.data.all.years) {
                      ,mtry           = control$opt$mtry
                      )
     )
-    
 
     EvaluateModel <- sapply( hps
                             ,function(hp) {
@@ -694,7 +694,7 @@ Main <- function(control, transaction.data.all.years) {
                                ,verbose = control$verbose.CrossValidate
                                )
 
-    c#at('examine cv.result\n'); browser()
+    #cat('examine cv.result\n'); browser()
 
     save( control
          ,cv.result
@@ -743,7 +743,7 @@ default.args <-
          ,scenario       = 'avm'
          ,response       = 'logprice'
          ,predictorsForm = 'level'
-         ,predictorsName = 'best20zip'
+         ,predictorsName = 'best20'
          ,ndays          = '60'
          ,query          = '100'
          ,lambda         = '400'
