@@ -72,7 +72,7 @@ Control <- function(default.args) {
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = FALSE
+                    ,testing = TRUE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
@@ -956,6 +956,51 @@ Chart.12.FileDependencies <- function(my.control) {
                         )
         result[[length(result) + 1]] <- element
     }
+    result
+}
+Chart.13.Parameters <- function() {
+    # return list of all combinations
+
+    result <- NULL
+    Generate <- function(predictorsName, scope) {
+        element <-list( scope = scope
+                       ,model = 'linL2'
+                       ,timePeriod = '2003on'
+                       ,scenario = 'avm'
+                       ,response = 'logprice'
+                       ,predictorsName = predictorsName
+                       ,predictorsForm = 'level'
+                       ,ndays = '60'
+                       ,query = '100'
+                       ,lambda = '400'
+                       ,ntree = '0'
+                       ,mtry = '0'
+                       )
+        result[[length(result) + 1]] <<- element
+    }
+
+    # for indicator variable models
+    for (predictorsName in c( 'best20zip'
+                             ,'best20census'
+                             ,'best20city'
+                             )) {
+        Generate( predictorsName = predictorsName
+                 ,scope = 'global'
+                 )
+    }
+
+    # for a separate model for each submarket
+    for (scope in c( 'subzip'
+                    ,'subcensus'
+                    ,'subcity'
+                    )) {
+        Generate( predictorsName = 'best20'
+                 ,scope = scope)
+    }
+    result
+}
+Chart.13.FileDependencies <- function(my.control) {
+    result <- Chart.13.Parameters()
     result
 }
 Table.5.6 <- function() {
@@ -2055,6 +2100,9 @@ MakeMakefiles <- function(control) {
     M( target.variable.name = 'e-cv-chart-chart12'
       ,dependency.file.names = Chart.12.FileDependencies(control)
       )
+    M( target.variable.name = 'e-cv-chart-chart13'
+      ,dependency.file.names = Chart.13.FileDependencies(control)
+      )
 
     RulesRecipes <- function(all.dependency.file.names) {
         # return Lines object containing unique rules and recipes
@@ -2238,7 +2286,7 @@ MakeCharts <- function(control) {
         dev.off()
     }
     developing <- FALSE
-    if (!developing) {
+    if (!control$testing) {
         Make.Chart.5()
         Make.Chart.6()
         Make.Chart.7()
@@ -2249,7 +2297,7 @@ MakeCharts <- function(control) {
         Make.Chart.12()
     } else {
         # while developing
-        Make.Chart.12()
+        Make.Chart.13()
     }
 }
 Main <- function(control) {
