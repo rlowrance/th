@@ -2,7 +2,7 @@ CvCell <- function() {
   # list of functions for working with e-cv-cells
   source('Directory.R')
 
-  Is.Valid.Scope <- function(s)          s %in% c('global')
+  Is.Valid.Scope <- function(s)          s %in% c('global', 'subcensus', 'subcity', 'subzip')
   Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2')
   Is.Valid.TimePeriod <- function(s)     s %in% c('2003on', '2008')
   Is.Valid.Scenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
@@ -81,6 +81,7 @@ CvCell <- function() {
                           ,'best13', 'best14', 'best15', 'best16', 'best17', 'best18'
                           ,'best19', 'best20', 'best21', 'best22', 'best23', 'best24'
                           ,'pca01',  'pca02',  'pca03',  'pca04'
+                          ,'best20census', 'best20city', 'best20zip'
                           )
     predictors.names
   }
