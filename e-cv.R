@@ -48,6 +48,7 @@ library(MASS)
 library(memoise)
 library(optparse)
 library(pryr)
+library(randomForest)
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
@@ -162,7 +163,7 @@ ParseCommandArgs <- function(command.args, default.args) {
 
     option.list <-
         list( OptionChr('scope',          'one of {global, CCCCCC, ZZZZZZ, CITYNAME}')
-             ,OptionChr('model',          'one of {linear, linL2, randomForest}')
+             ,OptionChr('model',          'one of {linear, linL2, rf}')
              ,OptionChr('timePeriod',     'one of {2003on|2008}')
              ,OptionChr('scenario',       'one of {assessor|avm|mortgage}')
              ,OptionChr('response',       'one of {logprice|price}')
@@ -508,6 +509,33 @@ Evaluate_9 <- function( model, scenario, response
         ridge.predict
     }
 
+    # random forests
+    ModelRandomForest.Fit <- function(formula, data, fit.model.data) {
+        # the lambda value is from the command line
+        # it is 100x too big
+        #cat('in ModelRandomForest.Fit\n'); browser()
+
+        ntree <- fit.model.data$ntree
+        mtry <- fit.model.data$mtry
+
+        result <- randomForest( formula = formula
+                               ,data = data
+                               ,ntree = ntree
+                               ,mtry = mtry
+                               )
+        result
+    }
+
+    ModelRandomForest.Predict <- function(object, newdata) {
+        #cat('in ModelRandomForest.Predict\n'); browser()
+        result <- predict( object = object
+                          ,newdata = newdata
+                          )
+        result
+    }
+
+    # EXECUTION STARTS HERE
+
     predictions.raw <- 
         PredictLocal( scenario = scenario
                      ,ndays = ndays
@@ -522,19 +550,19 @@ Evaluate_9 <- function( model, scenario, response
                      ,FitModel = switch( model
                                         ,linear = ModelLinear.Fit
                                         ,linL2  = ModelLinL2.Fit
-                                        ,randomForest = ModelRandomForest.Fit
+                                        ,rf = ModelRandomForest.Fit
                                         )
                      ,fit.model.data = switch( model
                                               ,linear = NULL
                                               ,linL2 = list(lambda = lambda)
-                                              ,randomForest = list( ntree = as.numeric(ntree)
-                                                                   ,mtry = as.numeric(mtry)
-                                                                   )
+                                              ,rf = list( ntree = as.numeric(ntree)
+                                                         ,mtry = as.numeric(mtry)
+                                                         )
                                               )
                      ,PredictModel = switch( model
                                             ,linear = ModelLinear.Predict
                                             ,linL2  = ModelLinL2.Predict
-                                            ,randomForest = ModelRandomForest.Fit
+                                            ,rf = ModelRandomForest.Predict
                                             )
                      )
 
@@ -860,24 +888,25 @@ clock <- Clock()
 # 90808 13834
 # 91767 13882
 default.args <-
-    list(# scope          = 'global'
+    list( scope          = 'global'
          #scope          = '535000'  # census tract 60 observations
-          scope          = '464100'  # census tract 60 observations
+         #scope          = '464100'  # census tract 60 observations
          #scope          = 'LOSANGELES' # property.city 135985 observations
          #scope          = 'WATTS'      # property.city 1 observations
          #scope          = '90013'      # zip5 2 observations
          #scope          = '91767'      # zip5 13882 observations
-         ,model          = 'linL2'
+         #model          = 'linL2'
+         ,model          = 'rf'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
          ,predictorsForm = 'level'
          ,predictorsName = 'best20'
          ,ndays          = '60'
-         ,query          = '1'
+         ,query          = '100'
          ,lambda         = '400'
-         ,ntree          = '0'
-         ,mtry           = '0'
+         ,ntree          = '1'
+         ,mtry           = '2'
          )
 control <- Control(default.args)
 
