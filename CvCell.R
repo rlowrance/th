@@ -2,8 +2,8 @@ CvCell <- function() {
   # list of functions for working with e-cv-cells
   source('Directory.R')
 
-  Is.Valid.Scope <- function(s)          s %in% c('global', 'subcensus', 'subcity', 'subzip')
-  Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2')
+  Is.Valid.Scope <- function(s)          is.character(s)
+  Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2', 'rf')
   Is.Valid.TimePeriod <- function(s)     s %in% c('2003on', '2008')
   Is.Valid.Scenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
   Is.Valid.Response <- function(s)       s %in% c('logprice', 'price')
@@ -11,9 +11,9 @@ CvCell <- function() {
   Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
   Is.Valid.Ndays <- function(s)          s %in% Possible.Ndays()
   Is.Valid.Query <- function(s)          s %in% c('1', '100')
-  Is.Valid.Lambda <- function(s)         is.character(s) & as.integer(s) >= 0
-  Is.Valid.Ntree <- function(s)          s %in% c('0')
-  Is.Valid.Mtry <- function(s)           s %in% c('0')
+  Is.Valid.Lambda <- function(s)         is.character(s) && as.integer(s) >= 0
+  Is.Valid.Ntree <- function(s)          is.character(s) && as.integer(s) >= 0
+  Is.Valid.Mtry <- function(s)           is.character(s) && as.integer(s) >= 0
 
   
   Command <- function( scope, model, timePeriod, scenario

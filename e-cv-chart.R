@@ -1,5 +1,4 @@
 # e-cv-chart.R  
-# vim: foldmethod=manual
 # main program
 # Produce charts using input files e-cv_SCOPE_MODEL_TIMEPERIOD_SCENARIO_RESPONSE_PREDICTORSFORM_PREDICTORS_NAME_NDAYS_QUERY_C_NTREE_MTRY.RData
 # output files have these names
@@ -47,6 +46,7 @@ Control <- function(default.args) {
 
     control <- list( path.in.base = paste0(working, in.base)
                     ,path.in.chart9.features = paste0(working, 'e-features-lcv2.txt')
+                    ,path.in.submarkets = paste0(working, 'submarkets.RData')
                     ,path.out.log = paste0(log, out.base, '.log')
                     ,path.out.makefile = paste0(me, '-generated.makefile')
                     #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
@@ -958,49 +958,89 @@ Chart.12.FileDependencies <- function(my.control) {
     }
     result
 }
-Chart.13.Parameters <- function() {
+Chart.13.Parameters <- function(control) {
     # return list of all combinations
 
     result <- NULL
-    Generate <- function(predictorsName, scope) {
-        element <-list( scope = scope
-                       ,model = 'linL2'
-                       ,timePeriod = '2003on'
-                       ,scenario = 'avm'
-                       ,response = 'logprice'
-                       ,predictorsName = predictorsName
-                       ,predictorsForm = 'level'
-                       ,ndays = '60'
-                       ,query = '100'
-                       ,lambda = '400'
-                       ,ntree = '0'
-                       ,mtry = '0'
-                       )
-        result[[length(result) + 1]] <<- element
+    GenerateIndicatorElements <- function() {
+        for (predictorsName in c( 'best20zip'
+                                 ,'best20census'
+                                 ,'best20city'
+                                 )) {
+            element <-list( scope = 'global'
+                           ,model = 'linL2'
+                           ,timePeriod = '2003on'
+                           ,scenario = 'avm'
+                           ,response = 'logprice'
+                           ,predictorsName = predictorsName
+                           ,predictorsForm = 'level'
+                           ,ndays = '60'
+                           ,query = '100'  # 1 percent sample
+                           ,lambda = '400'
+                           ,ntree = '0'
+                           ,mtry = '0'
+                           )
+            result[[length(result) + 1]] <<- element
+        }
     }
+    GenerateIndicatorElements()
 
-    # for indicator variable models
-    for (predictorsName in c( 'best20zip'
-                             ,'best20census'
-                             ,'best20city'
-                             )) {
-        Generate( predictorsName = predictorsName
-                 ,scope = 'global'
-                 )
+    GenerateSubmarketElements <- function() {
+        loaded <- load(file = control$path.in.submarkets)
+        for (scope in c(codes.census.tract, codes.property.city, codes.zip5)) {
+            element <-list( scope = scope
+                           ,model = 'linL2'
+                           ,timePeriod = '2003on'
+                           ,scenario = 'avm'
+                           ,response = 'logprice'
+                           ,predictorsName = 'best20'
+                           ,predictorsForm = 'level'
+                           ,ndays = '60'
+                           ,query = '1'  # 100 percent sample (each scope tends to be small)
+                           ,lambda = '400'
+                           ,ntree = '0'
+                           ,mtry = '0'
+                           )
+            result[[length(result) + 1]] <<- element
+        }
     }
-
-    # for a separate model for each submarket
-    for (scope in c( 'subzip'
-                    ,'subcensus'
-                    ,'subcity'
-                    )) {
-        Generate( predictorsName = 'best20'
-                 ,scope = scope)
-    }
+    GenerateSubmarketElements()
     result
 }
 Chart.13.FileDependencies <- function(my.control) {
-    result <- Chart.13.Parameters()
+    result <- Chart.13.Parameters(my.control)
+    result
+}
+Chart.14.Parameters <- function(control) {
+    # return list of all combinations
+
+    result <- NULL
+    # generate in order so that the longest to run are specified first
+    # that's because the makefile runs the jobs in parallel, first to last
+    for (predictorsName in c('always', 'best20')) {
+        for (ntree in c('1000', '300', '100', '1')) {
+            for (mtry in c('4', '3', '2', '1')) {
+                element <-list( scope = 'global'
+                               ,model = 'rf'
+                               ,timePeriod = '2003on'
+                               ,scenario = 'avm'
+                               ,response = 'logprice'
+                               ,predictorsName = predictorsName
+                               ,predictorsForm = 'level'
+                               ,ndays = '60'
+                               ,query = '100'  # 1 percent sample
+                               ,lambda = '0'
+                               ,ntree = ntree
+                               ,mtry = mtry
+                               )
+                result[[length(result) + 1]] <- element
+            }
+        }
+    }
+    result
+}
+Chart.14.FileDependencies <- function(my.control) {
+    result <- Chart.14.Parameters(my.control)
     result
 }
 Table.5.6 <- function() {
@@ -2103,6 +2143,9 @@ MakeMakefiles <- function(control) {
     M( target.variable.name = 'e-cv-chart-chart13'
       ,dependency.file.names = Chart.13.FileDependencies(control)
       )
+    M( target.variable.name = 'e-cv-chart-chart14'
+      ,dependency.file.names = Chart.14.FileDependencies(control)
+      )
 
     RulesRecipes <- function(all.dependency.file.names) {
         # return Lines object containing unique rules and recipes
@@ -2143,7 +2186,6 @@ MakeMakefiles <- function(control) {
             rules.recipes$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
             rules.recipes$Append(paste0('\t', command))
         }
-        browser()
         rules.recipes
     }
 
@@ -2318,7 +2360,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-default.args <- list( makefile = FALSE) 
+#default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
