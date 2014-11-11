@@ -1037,7 +1037,6 @@ Chart.14.Parameters <- function(control) {
             }
         }
     }
-    browser()
     result
 }
 Chart.14.FileDependencies <- function(my.control) {
