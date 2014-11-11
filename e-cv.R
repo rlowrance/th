@@ -110,9 +110,19 @@ Control <- function(default.args) {
                 )
     out.base <- 'e-cv-cells/'
 
+    # read in the identifiers for the submarkets
+    loaded <- load(file = paste0(working, 'submarkets.RData'))
+    stopifnot(!is.null(codes.census.tract))
+    stopifnot(!is.null(codes.property.city))
+    stopifnot(!is.null(codes.zip5))
+
+
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, out.options, '.log')
                     ,path.out.rdata = paste0(working, out.base, out.options, '.RData')
+                    ,codes.census.tract = codes.census.tract
+                    ,codes.property.city = codes.property.city
+                    ,codes.zip5 = codes.zip5
                     ,opt = opt
                     ,model.name = out.options
                     ,nfolds = 10
@@ -259,6 +269,8 @@ EvaluatePredictions <- function(prediction, actual) {
                    ,fraction.within.30.percent = Fraction(.30)
                    ,mean.price = mean.price
                    ,median.price = median.price
+                   ,prediction = prediction
+                   ,actual = actual
                    )
     result
 }
@@ -305,7 +317,7 @@ ReplaceXWithY <- function(vec, x, y) {
     else
         vec
 }
-MakeFormula <- function(data, scope, response, predictorsForm, predictorsName, control) {
+MakeFormula <- function(data, response, predictorsForm, predictorsName, control) {
     # return list $ok $value (maybe) $problem (optional)
     # return a formula using predictors that are informative (have more than 1 value)
     # --scope {global, submarket, submarketIndicator}
@@ -343,11 +355,6 @@ MakeFormula <- function(data, scope, response, predictorsForm, predictorsName, c
                                       )
     }
 
-    # for now, only handle scope == global
-    # if scope = submarketIndicator, must add indicators  FIXME: comment is wrong
-
-    stopifnot(scope == 'global')
-
     formula = Formula( response = if (response == 'logprice') 'price.log' else 'price'
                       ,predictors = informative.predictors
                       )
@@ -377,16 +384,21 @@ ConvertYearFeatures <- function(data, saleDate) {
     data.2 <- Replace('effective.year.built', 'effective.age', 'effective.age2', data.1)
     data.2
 }
-Evaluate_10 <- function(scope, model, scenario, response
+Evaluate_9 <- function( model, scenario, response
                        ,predictorsForm, predictorsName, ndays
                        ,lambda, ntree, mtry
                        ,data.training
                        ,query.transactions
                        ,control
                        ) {
-    MaybeReportMemoryUsage('start Evaluate_10')
+    MaybeReportMemoryUsage('start Evaluate_9')
     # Return evaluation of the specified model on the given training and test data
     # reduce over model
+    Printf('model %s nrow(data.training) %d nrow(query.transactions) %d\n'
+           ,model
+           ,nrow(data.training)
+           ,nrow(query.transactions)
+           )
 
     # linear regression (OLS)
     ModelLinear.Fit <- function(formula, data, fit.model.data) {
@@ -501,7 +513,6 @@ Evaluate_10 <- function(scope, model, scenario, response
                      ,ndays = ndays
                      ,data.training = data.training
                      ,query.transactions = query.transactions
-                     ,scope = scope
                      ,response = response
                      ,predictorsForm = predictorsForm
                      ,predictorsName = predictorsName
@@ -533,50 +544,59 @@ Evaluate_10 <- function(scope, model, scenario, response
     result <- EvaluatePredictions( prediction = predictions
                                   ,actual = actuals
                                   )
-    MaybeReportMemoryUsage('start Evaluate_10')
+    MaybeReportMemoryUsage('end Evaluate_9')
     result
 }
-Evaluate_11 <- function(scope, model, scenario, response
-                       ,predictorsForm, predictorsName, ndays, query
-                       ,lambda, ntree, mtry
-                       ,data.training, data.testing
-                       ,control) {
-    MaybeReportMemoryUsage('start Evaluate_11')
+Evaluate_10 <- function( model, scenario, response
+                        ,predictorsForm, predictorsName, ndays, query
+                        ,lambda, ntree, mtry
+                        ,data.training, data.testing
+                        ,control) {
+    MaybeReportMemoryUsage('start Evaluate_10')
     # Return evaluation of the specified model on the given training and test data
     # Reduce over query
 
-    num.test.transactions <- max( 1
-                                 ,round(nrow(data.testing) / query)
-                                 )
+    num.test.transactions <- 
+        if (query == 1)
+            nrow(data.testing)
+        else
+            max( 1
+                ,round(nrow(data.testing) / query)
+                )
+
+    if (num.test.transactions == 0)
+        return(EvaluatePredictions( prediction = NA
+                                   ,actual = NA
+                                   )
+    )
     which.test <- sample.int( n = nrow(data.testing)
                              ,size = num.test.transactions
                              ,replace = FALSE
                              )
     query.transactions <- data.testing[which.test,]
     Printf('will sample %d of %d test transactions\n', nrow(query.transactions), nrow(data.testing))
-    result <- Evaluate_10( scope = scope
-                          ,model = model
-                          ,scenario = scenario
-                          ,response = response
-                          ,predictorsForm = predictorsForm
-                          ,predictorsName = predictorsName
-                          ,ndays = ndays
-                          ,lambda = lambda
-                          ,ntree = ntree
-                          ,mtry = mtry
-                          ,data.training = data.training
-                          ,query.transactions = query.transactions
-                          ,control = control
-                          )
-    MaybeReportMemoryUsage('end Evaluate_11')
+    result <- Evaluate_9( model = model
+                         ,scenario = scenario
+                         ,response = response
+                         ,predictorsForm = predictorsForm
+                         ,predictorsName = predictorsName
+                         ,ndays = ndays
+                         ,lambda = lambda
+                         ,ntree = ntree
+                         ,mtry = mtry
+                         ,data.training = data.training
+                         ,query.transactions = query.transactions
+                         ,control = control
+                         )
+    MaybeReportMemoryUsage('end Evaluate_10')
     result
 }
-Evaluate_12 <- function(scope, model, timePeriod, scenario, response
+Evaluate_11 <- function( model, timePeriod, scenario, response
                         ,predictorsForm, predictorsName, ndays, query
                         ,lambda, ntree, mtry
                         ,data.training, data.testing
                         ,control) {
-    MaybeReportMemoryUsage('start Evaluate_12')
+    MaybeReportMemoryUsage('start Evaluate_11')
     # Return evaluation of the specified model on the given training and test data
     # Reduce over timePeriod
 
@@ -604,8 +624,7 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
         stop('bad timePeriod')
     }
 
-    result <- Evaluate_11( scope = scope
-                          ,model = model
+    result <- Evaluate_10( model = model
                           ,scenario = scenario
                           ,response = response
                           ,predictorsForm = predictorsForm
@@ -617,6 +636,90 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
                           ,mtry = mtry
                           ,data.training = data.training[is.training,]
                           ,data.testing = data.testing[is.testing,]
+                          ,control = control
+                          )
+    MaybeReportMemoryUsage('end Evaluate_11')
+    result
+}
+SqueezeBlanks <- function(s) {
+    # return chr s, but with all blanks removed
+    gsub(' ', '', s)
+}
+Evaluate_12 <- function(scope, model, timePeriod, scenario, response
+                        ,predictorsForm, predictorsName, ndays, query
+                        ,lambda, ntree, mtry
+                        ,data.training, data.testing
+                        ,control) {
+    # reduce over scope
+    # sample values
+    #   census.tract  535000
+    #   property.city WATTS
+    #   zip5          90001
+
+    MaybeReportMemoryUsage('start Evaluate_12')
+
+    if (scope == 'global')  {
+
+        scope.data.training <- data.training
+        scope.data.testing <- data.testing
+
+    } else if (scope %in% control$codes.census.tract) {
+
+        scope.data.training <- data.training[data.training$census.tract == scope, ]
+        scope.data.testing <- data.testing[data.testing$census.tract == scope, ]
+
+    } else if (scope %in% control$codes.property.city) {
+
+        # squeeze out the blanks in property city names
+        # the restatement of the factor levels looses the original factor level "SUN VALLEY"
+        data.training$property.city <- factor(SqueezeBlanks(as.character(data.training$property.city)))
+        # the restatement of the factor levels looses about 20 original factor levels
+        data.testing$property.city <- factor(SqueezeBlanks(as.character(data.testing$property.city)))
+
+        scope.data.training <- data.training[data.training$property.city == scope, ]
+        scope.data.testing <- data.testing[data.testing$property.city == scope, ]
+
+    } else if (scope %in% control$codes.zip5) {
+
+        scope.data.training <- data.training[data.training$zip5 == scope, ]
+        scope.data.testing <- data.testing[data.testing$zip5 == scope, ]
+
+    } else {
+
+        print(scope)
+        stop('bad scope')
+
+    }
+
+    # check that some observations survived
+    n.scope.data.training <- nrow(scope.data.training)
+    n.scope.data.testing  <- nrow(scope.data.testing)
+    Printf('scope %s retained %d testing %d training observations\n'
+           ,scope
+           ,n.scope.data.training
+           ,n.scope.data.testing
+           )
+    if (n.scope.data.training == 0 ||
+        n.scope.data.testing  == 0) {
+        return(EvaluatePredictions( prediction = NA
+                                   ,actual = NA
+                                   )
+        )
+    }
+
+    result <- Evaluate_11( model = model
+                          ,timePeriod = timePeriod
+                          ,scenario = scenario
+                          ,response = response
+                          ,predictorsForm = predictorsForm
+                          ,predictorsName = predictorsName
+                          ,ndays = ndays
+                          ,query = query
+                          ,lambda = lambda
+                          ,ntree = ntree
+                          ,mtry = mtry
+                          ,data.training = scope.data.training
+                          ,data.testing = scope.data.testing
                           ,control = control
                           )
     MaybeReportMemoryUsage('end Evaluate_12')
@@ -641,21 +744,21 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
     # eliminate house built or modified after the date of the taxroll
 
     result <- Evaluate_12( scope = hp$scope
-                ,model = hp$model
-                ,timePeriod = hp$timePeriod
-                ,scenario = hp$scenario
-                ,response = hp$response
-                ,predictorsForm = hp$predictorsForm
-                ,predictorsName = hp$predictorsName
-                ,ndays = hp$ndays
-                ,query =  hp$query
-                ,lambda = hp$lambda
-                ,ntree = hp$ntree
-                ,mtry = hp$mtry
-                ,data.training = data.training.fold
-                ,data.testing = data.testing.fold
-                ,control = control
-                )
+                          ,model = hp$model
+                          ,timePeriod = hp$timePeriod
+                          ,scenario = hp$scenario
+                          ,response = hp$response
+                          ,predictorsForm = hp$predictorsForm
+                          ,predictorsName = hp$predictorsName
+                          ,ndays = hp$ndays
+                          ,query =  hp$query
+                          ,lambda = hp$lambda
+                          ,ntree = hp$ntree
+                          ,mtry = hp$mtry
+                          ,data.training = data.training.fold
+                          ,data.testing = data.testing.fold
+                          ,control = control
+                          )
     MaybeReportMemoryUsage('end EvaluateModelHp')
     Printf( 'time for  fold %d:  %f CPU minutes %f elapsed minutes\n'
            ,control$fold.counter$Get()
@@ -736,8 +839,34 @@ Main <- function(control, transaction.data.all.years) {
 ################## EXECUTION STARTS HERE
 clock <- Clock()
 
+# scope / number occurrences
+# 535000 60
+# 703200 1453
+# 195100 1505
+# 141600 2113
+# 550600 2277
+# 573600 2379
+# 464100 2544
+#
+# LOSANGELES 135985
+# WATTS      1
+# BEVERLYHILLS 2059
+#
+# 90013 2
+# 90022 3029
+# 90032 5141
+# 90042 8207
+# 90650 11367
+# 90808 13834
+# 91767 13882
 default.args <-
-    list( scope          = 'global'
+    list(# scope          = 'global'
+         #scope          = '535000'  # census tract 60 observations
+          scope          = '464100'  # census tract 60 observations
+         #scope          = 'LOSANGELES' # property.city 135985 observations
+         #scope          = 'WATTS'      # property.city 1 observations
+         #scope          = '90013'      # zip5 2 observations
+         #scope          = '91767'      # zip5 13882 observations
          ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
@@ -745,7 +874,7 @@ default.args <-
          ,predictorsForm = 'level'
          ,predictorsName = 'best20'
          ,ndays          = '60'
-         ,query          = '100'
+         ,query          = '1'
          ,lambda         = '400'
          ,ntree          = '0'
          ,mtry           = '0'
