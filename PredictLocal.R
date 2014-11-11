@@ -39,6 +39,7 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                 ,fit.model.data = fit.model.data
                                )
                        )
+        #cat('test maybe.fitted\n'); browser()
         if (!is.null(maybe.fitted$warning)) {
           list(ok = FALSE, problem = paste0('Fit warning: ', maybe.fitted$warning))
         } else if (!is.null(maybe.fitted$error)) {
@@ -48,6 +49,7 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
     }
     Predict <- function(fitted, query.transaction) {
         # return list $ok $value (maybe) $problem (maybe)
+        #cat('starting Predict\n'); browser()
         maybe.predict <- TryCatchWE(PredictModel( object = fitted
                                                  ,newdata = query.transaction
                                                  )
