@@ -31,25 +31,33 @@ Control <- function() {
                     )
     control
 }
-Codes.Number <- function(num) {
-    unique.num <- unique(num)
+Codes.Number <- function(data, name) {
+    values <- data[[name]]
+    unique.values <- unique(values)
+
     lines <- Lines()
-    lapply( unique.num
-           ,function(u) lines$Append(sprintf('%d', u))
+    lapply( unique.values
+           ,function(u) {
+               lines$Append(sprintf('%d', u))
+               Printf('%s code %d occurs %d\n', name, u, sum(values == u))
+           }
            )
     result <- lines$Get()
     result
 }
-Codes.String <- function(s) {
-    unique.s <- unique(s)
+Codes.String <- function(data, name) {
+    values <- gsub( pattern = ' '
+                   ,replacement = ''
+                   ,data[[name]]
+                   )
+    unique.values <- unique(values)
+
     lines <- Lines()
-    lapply( unique.s
-           ,function(s) 
-               lines$Append(sprintf('%s', gsub(pattern = ' '
-                                               ,replacement = ''
-                                               ,x = s
-                                               )
-           ))
+    lapply( unique.values
+           ,function(u) {
+               lines$Append(sprintf('%s', u))
+               Printf('%s code %25s occurs %d\n', name, u, sum(values == u))
+           }
            )
     result <- lines$Get()
     result
@@ -58,16 +66,16 @@ Main <- function(control, data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
-    codes.census.tract <- Codes.Number(data$census.tract)
-    codes.city <- Codes.String(data$property.city)
-    codes.zip5 <- Codes.Number(data$zip5)
+    codes.census.tract <- Codes.Number(data, 'census.tract')
+    codes.property.city <- Codes.String(data, 'property.city')
+    codes.zip5 <- Codes.Number(data, 'zip5')
 
 
     # verify that all the codes are different
     # since the codes are different, they can represent themselves in the file system
-    i1 <- intersect(codes.census.tract, codes.city)
+    i1 <- intersect(codes.census.tract, codes.property.city)
     i2 <- intersect(codes.census.tract, codes.zip5)
-    i3 <- intersect(codes.city, codes.zip5)
+    i3 <- intersect(codes.property.city, codes.zip5)
 
     stopifnot(length(i1) == 0)
     stopifnot(length(i2) == 0)
@@ -75,7 +83,7 @@ Main <- function(control, data) {
 
     save( control
          ,codes.census.tract
-         ,codes.city
+         ,codes.property.city
          ,codes.zip5
          ,file = control$path.out.rdata
          )
