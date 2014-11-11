@@ -1,6 +1,6 @@
 source('TryCatchWE.R')
-PredictLocal <- function(scenario, ndays, data.training, query.transactions
-                         ,scope, response, predictorsForm, predictorsName, control
+PredictLocal <- function( scenario, ndays, data.training, query.transactions
+                         ,response, predictorsForm, predictorsName, control
                          ,TrainingData, MakeFormula
                          ,FitModel, fit.model.data
                          ,PredictModel) {
@@ -20,16 +20,12 @@ PredictLocal <- function(scenario, ndays, data.training, query.transactions
         if (nrow(training.data) == 0) {
             return(list(ok = FALSE, problem = 'no training samples'))
         }
-        # convert year.built to age and age2
-        # convert effective.year.built to effective.age and effective.age2
-#        converted.data <- ConvertYearFeatures( data = training.data
-#                                              ,saleDate = saleDate
-#                                              )
+        if (nrow(training.data) == 1) {
+            return(list(ok = FALSE, problem = '1 training sample'))
+        }
 
-        stopifnot(scope == 'global')  # must take city-sample for submarket scope
         # drop feature that are non-informative; otherwise, lm sets coefficient to NA and predict fails
         maybe.formula <- MakeFormula( data = training.data
-                                     ,scope = scope
                                      ,response = response
                                      ,predictorsForm = predictorsForm
                                      ,predictorsName = predictorsName
@@ -101,17 +97,21 @@ PredictLocal <- function(scenario, ndays, data.training, query.transactions
       saleDate <- as.Date(saleDate.number, origin = as.Date('1970-01-01'))
 
       # derive training data, convert years to ages, remove factors levels with 0 occurences
-      training.data <- TrainingData( data.training = data.training
-                                    ,scenario = scenario
-                                    ,ndays = ndays
-                                    ,saleDate = saleDate)
-      training.data.age <- ConvertYearFeatures( data = training.data
+      training.data.in.period <- TrainingData( data.training = data.training
+                                              ,scenario = scenario
+                                              ,ndays = ndays
+                                              ,saleDate = saleDate)
+      training.data.age <- ConvertYearFeatures( data = training.data.in.period
                                                ,saleDate = saleDate
                                                )
       training.data.factors <- RemoveZeroOccurrenceLevels(training.data.age)
+      Printf('saleDate %s fitting on %d samples\n', saleDate, nrow(training.data.factors))
 
       # attempt to fit using revised training data
-      maybe.fitted <- Fit(saleDate, training.data = training.data.factors)
+      maybe.fitted <- Fit( saleDate = saleDate
+                          ,training.data = training.data.factors
+                          )
+      #cat('just maybe.fitted\n'); browser()
 
       if (maybe.fitted$ok) {
         # predict for each query for the sale date
