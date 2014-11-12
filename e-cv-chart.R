@@ -1121,7 +1121,6 @@ Chart.14.Fixed.Cell.Values <- function() {
 }
 Chart.14.Parameters <- function(control) {
     # return list of all combinations
-    browser()
     fixed <- Chart.14.Fixed.Cell.Values()
 
     result <- NULL
@@ -1397,7 +1396,7 @@ Chart.6 <- function(my.control) {
         Headers.Fixed(fixed, lines)
 
         lines$Append(' ')
-        lines$Append('Column Use Tax (yes ==> use tax assessment)')
+        lines$Append('Column Use Cen (yes ==> use census data)')
         result <- lines$Get()
         result
     }
@@ -1633,6 +1632,7 @@ Table.7.B <- function(lines) {
 }
 Chart.7 <- function(my.control) {
     # return txt lines for chart 7
+    parts.a.and.b <- FALSE
     fixed <- Chart.7.Fixed.Cell.Values()
     Path <- CvCell()$Path
     CvResult <- function(ndays, response, predictorsForm) {
@@ -1672,7 +1672,8 @@ Chart.7 <- function(my.control) {
     }
     PartA <- function(lines) {
         table <- Table.7.A(lines)
-        table$Append('Part A: All Results')
+        if (parts.a.and.b)
+            table$Append('Part A: All Results')
         table$Append(' ')
         table$Header1('preds', 'ndays')
         table$Header2('response', 'form', 'Metric',
@@ -1707,6 +1708,7 @@ Chart.7 <- function(my.control) {
 
         for (response in c('price', 'logprice')) {
             for (predictorsForm in c('level', 'log')) {
+                table$Append(' ')
                 for (metricName in c('medRMSE', 'fctWI10')) {
                     DetailLine( response = response
                                ,predictorsForm = predictorsForm
@@ -1784,8 +1786,10 @@ Chart.7 <- function(my.control) {
     Header(lines)
     lines$Append(' ')
     PartA(lines)
-    lines$Append(' ')
-    PartB(lines)
+    if (parts.a.and.b) {
+        lines$Append(' ')
+        PartB(lines)
+    }
 
     result <- lines$Get()
     result
