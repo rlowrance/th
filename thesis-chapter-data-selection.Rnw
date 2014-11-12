@@ -195,17 +195,17 @@ In addition to varying the feature set, we varied other design choices
 in linear models:
 \begin{itemize}
 
-\item Business scenario for the model. We tested both the AVM and
-mortgage scenarios. In the AVM scenario, the goal is to predict the
-price on the next day and the training data is all the data before the
-query date of the transaction. In the mortgage scenario,the goal is to
-predict the value at some date in the past and the training data is all
-the data excluding the query transaction and hence including
-transactions after the query date. One application for the mortgage
-scenario is to determine the value of a house on every day as input to a
-mortgage default prediction model. The training data for a default
-prediction model may include the value of the house and the value of the
-mortgage on specific dates.
+%\item Business scenario for the model. We tested both the AVM and
+%mortgage scenarios. In the AVM scenario, the goal is to predict the
+%price on the next day and the training data is all the data before the
+%query date of the transaction. In the mortgage scenario,the goal is to
+%predict the value at some date in the past and the training data is all
+%the data excluding the query transaction and hence including
+%transactions after the query date. One application for the mortgage
+%scenario is to determine the value of a house on every day as input to a
+%mortgage default prediction model. The training data for a default
+%prediction model may include the value of the house and the value of the
+%mortgage on specific dates.
 
 \item Response variable. One can choose to predict the price of the
 house or the logarithm of the price. One might choose to predict the
@@ -380,6 +380,38 @@ from the year 2000.
 
 \section{Assessing the Predictive Power of the Census Data}
 
+To assess whether features derived from the year 2000 census were
+valuable, we used 10-fold cross validation to estimate the
+generalization error for a variety of linear models, all trained and
+tested on data from 2003 on. The models varied the same design choices
+as for the experiments to understand the predictive power of features
+derived from the 2008 tax assessment. These choices were:
+
+\begin{itemize}
+\item response variable: predict either the price or the logarithm of
+the price.
+\item prediction variable forms: use as predictors both the natural
+units of the predictors (called ``level'' in the chart) or the logarithm
+of the natural units.
+\item number of training days: vary the training period from 30 days to
+360 in steps of 30 days.
+\end{itemize}
+
+Figure \ref{figure:EGECensus} shows the estimated generalization error
+for each of the design choices, both with and without the features
+derived from the census data. The comparison metric is the median of the
+root median squared errors from the folds. The feature set used was the
+set of features appearing in every transaction. Some observations:
+
+\begin{itemize}
+\item Using the census-derived features always leads to better
+performance than not using the census-derived features.
+\item The best-performing model predicts the log price using the level
+features and training for only 30 days. The relatively short training
+period was a surprise to me. That it is so short suggests that prices
+were changing rapidly since 2003.
+\end{itemize}
+
 \begin{figure}[ht]
 \begin{sideways}
 \begin{minipage}{7in}
@@ -390,18 +422,15 @@ from the year 2000.
 \end{minipage}
 \end{sideways}
 \caption{Estimated Generalization Errors With and Without Census Data}
-\label{figure:EGEMeasurement}
+\label{figure:EGECensus}
 \end{figure}
-
-THE SECTION WILL BE SIMILAR TO THE ANALYSIS OF THE ASSESSMENT DATA: same
-charts, different conclusions.
 
 \section{Discarding Assessments and Keeping Census Data}
 
 Because the assessment data were not valuable for the time period for
 which they were relevant, namely the year 2008, we decided to discard all
 features derived from the assessment. This reduces our available feature
-set and allows use to use transactions before and after 2008.
+set and allows us to use transactions before and after 2008.
 
 Because the census data were valuable for the time period in which they
 were relevant, namely beginning in 2003, we decided to keep these
