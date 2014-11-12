@@ -1251,7 +1251,7 @@ Header.PredictorsName <- function(s) {
            )
 }
 Header.Response <- function(s) {
-    paste0(' Response: '
+    paste0( 'Response: '
            ,switch( s
                    ,price = 'price'
                    ,logprice = 'log(price)'
