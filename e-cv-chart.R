@@ -72,7 +72,7 @@ Control <- function(default.args) {
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = TRUE
+                    ,testing = FALSE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
@@ -734,28 +734,40 @@ Chart.4 <- function(my.control) {
          ,FileDependencies = FileDependencies
          )
 }
+Chart.5.Fixed.Cell.Values <- function() {
+    list( scope = 'global'
+         ,model = 'linear'
+         ,timePeriod = '2008'
+         ,scenario = 'avm'
+         ,query = '1'
+         ,lambda = '0'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
+}
 Chart.5.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 5 
     # predictorsName in {always, alwaysNoAssesment}
     # timePeriod 2008
 
+    fixed <- Chart.5.Fixed.Cell.Values()
     result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('always', 'alwaysNoAssessment')) {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    element <- list( scope = 'global'
-                                    ,model = 'linear'
-                                    ,timePeriod = '2008'
-                                    ,scenario = 'avm'
+                    element <- list( scope = fixed$scope
+                                    ,model = fixed$model
+                                    ,timePeriod = fixed$timePeriod
+                                    ,scenario = fixed$scenario
                                     ,response = response
                                     ,predictorsName = predictorsName
                                     ,predictorsForm = predictorsForm
                                     ,ndays = ndays
-                                    ,query = '1'
-                                    ,lambda = '0'
-                                    ,ntree = '0'
-                                    ,mtry = '0'
+                                    ,query = fixed$query
+                                    ,lambda = fixed$lambda
+                                    ,ntree = fixed$ntree
+                                    ,mtry = fixed$mtry
                                     )
                     result[[length(result) + 1]] <- element
                 }
@@ -763,29 +775,42 @@ Chart.5.FileDependencies <- function(my.control) {
         }
     }
     result
+}
+Chart.6.Fixed.Cell.Values <- function() {
+    # return list of selectors for cells that are fixed in chart 5
+    list( scope = 'global'
+         ,model = 'linear'
+         ,timePeriod = '2003on'
+         ,scenario = 'avm'
+         ,query = '100'
+         ,lambda = '0'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
 }
 Chart.6.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 6
     # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
     # timePeriod 2003on
 
+    fixed <- Chart.6.Fixed.Cell.Values()
     result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    element <- list( scope = 'global'
-                                    ,model = 'linear'
-                                    ,timePeriod = '2003on'
-                                    ,scenario = 'avm'
+                    element <- list( scope = fixed$scope
+                                    ,model = fixed$model
+                                    ,timePeriod = fixed$timePeriod
+                                    ,scenario = fixed$scenario
                                     ,response = response
                                     ,predictorsName = predictorsName
                                     ,predictorsForm = predictorsForm
                                     ,ndays = ndays
-                                    ,query = '100'
-                                    ,lambda = '0'
-                                    ,ntree = '0'
-                                    ,mtry = '0'
+                                    ,query = fixed$query
+                                    ,lambda = fixed$lambda
+                                    ,ntree = fixed$ntree
+                                    ,mtry = fixed$mtry
                                     )
                     result[[length(result) + 1]] <- element
                 }
@@ -794,26 +819,39 @@ Chart.6.FileDependencies <- function(my.control) {
     }
     result
 }
+Chart.7.Fixed.Cell.Values <- function() {
+    list( scope = 'global'
+         ,model = 'linear'
+         ,scenario = 'avm'
+         ,timePeriod = '2003on'
+         ,predictorsName = 'alwaysNoAssessment'
+         ,query = '100'
+         ,lambda = '0'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
+}
 Chart.7.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 7 
+    fixed <- Chart.7.Fixed.Cell.Values()
 
     result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in 'alwaysNoAssessment') {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    element <- list( scope = 'global'
-                                    ,model = 'linear'
-                                    ,timePeriod = '2003on'
-                                    ,scenario = 'avm'
+                    element <- list( scope = fixed$scope
+                                    ,model = fixed$model
+                                    ,timePeriod = fixed$timePeriod
+                                    ,scenario = fixed$scenario
                                     ,response = response
                                     ,predictorsName = predictorsName
                                     ,predictorsForm = predictorsForm
                                     ,ndays = ndays
-                                    ,query = '100'
-                                    ,lambda = '0'
-                                    ,ntree = '0'
-                                    ,mtry = '0'
+                                    ,query = fixed$query
+                                    ,lambda = fixed$lambda
+                                    ,ntree = fixed$ntree
+                                    ,mtry = fixed$mtry
                                     )
                     result[[length(result) + 1]] <- element
                 }
@@ -821,6 +859,12 @@ Chart.7.FileDependencies <- function(my.control) {
         }
     }
     result
+}
+Chart.8.Fixed.Cell.Values <- function() {
+    Chart.7.Fixed.Cell.Values()
+}
+Chart.8.Fixed.Cell.Dependencies <- function() {
+    Chart.7.Fixed.Cell.Dependences()
 }
 Chart.8.FileDependencies <- function(my.control) {
     result <- Chart.7.FileDependencies(my.control)
@@ -842,26 +886,41 @@ Chart.9.PredictorsNames <- function(control) {
            )
     predictorsNames
 }
+Chart.9.Fixed.Cell.Values <- function() {
+    list( scope = 'global'
+         ,model = 'linear'
+         ,timePeriod = '2003on'
+         ,scenario = 'avm'
+         ,response = 'logprice'
+         ,predictorsForm = 'level'
+         ,ndays = '60'
+         ,query = '100'
+         ,lambda = '0'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
+}
 Chart.9.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 9
     # this is just for the best form and ndays
     # best for is log-level
     # best ndays is 60 
+    fixed <- Chart.9.Fixed.Cell.Values()
 
     result <- NULL
     for (predictorsName in Chart.9.PredictorsNames(my.control)) {
-        element <- list( scope = 'global'
-                        ,model = 'linear'
-                        ,timePeriod = '2003on'
-                        ,scenario = 'avm'
-                        ,response = 'logprice'
+        element <- list( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
                         ,predictorsName = predictorsName
-                        ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
-                        ,lambda = '0'
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         result[[length(result) + 1]] <- element
     }
@@ -872,23 +931,27 @@ Chart.10.PredictorsNames <- function() {
     result <- sprintf('pca%02d', 1:4)
     result
 }
+Chart.10.Fixed.Cell.Values <- function() {
+    Chart.9.Fixed.Cell.Values()
+}
 Chart.10.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 10
+    fixed <- Chart.10.Fixed.Cell.Values()
 
     result <- NULL
     for (predictorsName in Chart.10.PredictorsNames()) {
-        element <- list( scope = 'global'
-                        ,model = 'linear'
-                        ,timePeriod = '2003on'
-                        ,scenario = 'avm'
-                        ,response = 'logprice'
+        element <- list( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
                         ,predictorsName = predictorsName
-                        ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
-                        ,lambda = '0'
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         result[[length(result) + 1]] <- element
     }
@@ -907,23 +970,27 @@ Chart.11.PredictorsNames <- function() {
                 )
     result
 }
+Chart.11.Fixed.Cell.Values <- function() {
+    Chart.9.Fixed.Cell.Values()
+}
 Chart.11.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
+    fixed <- Chart.11.Fixed.Cell.Values()
 
     result <- NULL
     for (predictorsName in Chart.11.PredictorsNames()) {
-        element <- list( scope = 'global'
-                 ,model = 'linear'
-                 ,timePeriod = '2003on'
-                 ,scenario = 'avm'
-                 ,response = 'logprice'
-                 ,predictorsName = predictorsName
-                 ,predictorsForm = 'level'
-                 ,ndays = '60'
-                 ,query = '100'
-                 ,lambda = '0'
-                 ,ntree = '0'
-                 ,mtry = '0'
+        element <- list( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                  )
         result[[length(result) + 1]] <- element
     }
@@ -936,30 +1003,59 @@ Chart.12.Lambda.Values <- function() {
     lambda.on.command.line <- as.character(100 * lambda.in.regression)
     lambda.on.command.line
 }
+Chart.12.Fixed.Cell.Values <- function() {
+    list( scope = 'global'
+         ,model = 'linL2'
+         ,timePeriod = '2003on'
+         ,scenario = 'avm'
+         ,response = 'logprice'
+         ,predictorsName = 'best20'
+         ,predictorsForm = 'level'
+         ,ndays = '60'
+         ,query = '100'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
+}
 Chart.12.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
+    fixed <- Chart.12.Fixed.Cell.Values()
 
     result <- NULL
     for (lambda in Chart.12.Lambda.Values()) {
-        element <- list( scope = 'global'
-                        ,model = 'linL2'
-                        ,scenario = 'avm'
-                        ,timePeriod = '2003on'
-                        ,response = 'logprice'
-                        ,predictorsName = 'best20'
-                        ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
+        element <- list( scope = fixed$scope
+                        ,model = fixed$model
+                        ,scenario = fixed$scenario
+                        ,timePeriod = fixed$timePeriod
+                        ,response = fixed$response
+                        ,predictorsName = fixed$predictorsName
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
                         ,lambda = lambda
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         result[[length(result) + 1]] <- element
     }
     result
 }
+Chart.13.Fixed.Cell.Values <- function() {
+    list( model = 'linL2'
+         ,timePeriod = '2003on'
+         ,scenario = 'avm'
+         ,response = 'logprice'
+         ,predictorsForm = 'level'
+         ,query = '100'
+         ,ndays = '60'
+         ,lambda = '400'
+         ,ntree = '0'
+         ,mtry = '0'
+         )
+}
 Chart.13.Parameters <- function(control) {
     # return list of all combinations
+    fixed <- Chart.13.Fixed.Cell.Values()
 
     result <- NULL
     GenerateIndicatorElements <- function() {
@@ -968,17 +1064,17 @@ Chart.13.Parameters <- function(control) {
                                  ,'best20city'
                                  )) {
             element <-list( scope = 'global'
-                           ,model = 'linL2'
-                           ,timePeriod = '2003on'
-                           ,scenario = 'avm'
-                           ,response = 'logprice'
+                           ,model = fixed$model
+                           ,timePeriod = fixed$timePeriod
+                           ,scenario = fixed$scenario
+                           ,response = fixed$response
                            ,predictorsName = predictorsName
-                           ,predictorsForm = 'level'
-                           ,ndays = '60'
-                           ,query = '100'  # 1 percent sample
-                           ,lambda = '400'
-                           ,ntree = '0'
-                           ,mtry = '0'
+                           ,predictorsForm = fixed$predictorsForm
+                           ,ndays = fixed$ndays
+                           ,query = '100'
+                           ,lambda = fixed$lambda
+                           ,ntree = fixed$ntree
+                           ,mtry = fixed$mtry
                            )
             result[[length(result) + 1]] <<- element
         }
@@ -989,17 +1085,17 @@ Chart.13.Parameters <- function(control) {
         loaded <- load(file = control$path.in.submarkets)
         for (scope in c(codes.census.tract, codes.property.city, codes.zip5)) {
             element <-list( scope = scope
-                           ,model = 'linL2'
-                           ,timePeriod = '2003on'
-                           ,scenario = 'avm'
-                           ,response = 'logprice'
+                           ,model = fixed$model
+                           ,timePeriod = fixed$timePeriod
+                           ,scenario = fixed$scenario
+                           ,response = fixed$response
                            ,predictorsName = 'best20'
-                           ,predictorsForm = 'level'
-                           ,ndays = '60'
+                           ,predictorsForm = fixed$predictorsForm
+                           ,ndays = fixed$ndays
                            ,query = '1'  # 100 percent sample (each scope tends to be small)
-                           ,lambda = '400'
-                           ,ntree = '0'
-                           ,mtry = '0'
+                           ,lambda = fixed$lambda
+                           ,ntree = fixed$ntree
+                           ,mtry = fixed$mtry
                            )
             result[[length(result) + 1]] <<- element
         }
@@ -1011,8 +1107,22 @@ Chart.13.FileDependencies <- function(my.control) {
     result <- Chart.13.Parameters(my.control)
     result
 }
+Chart.14.Fixed.Cell.Values <- function() {
+    list( scope = 'global'
+         ,model = 'rf'
+         ,scenario = 'avm'
+         ,timePeriod = '2003on'
+         ,response = 'logprice'
+         ,predictorsForm = 'level'
+         ,ndays = '60'
+         ,query = '100'
+         ,lambda = '0'
+         )
+}
 Chart.14.Parameters <- function(control) {
     # return list of all combinations
+    browser()
+    fixed <- Chart.14.Fixed.Cell.Values()
 
     result <- NULL
     # generate in order so that the longest to run are specified first
@@ -1020,16 +1130,16 @@ Chart.14.Parameters <- function(control) {
     for (predictorsName in c('always', 'best20')) {
         for (ntree in c('1000', '300', '100', '1')) {
             for (mtry in c('4', '3', '2', '1')) {
-                element <-list( scope = 'global'
-                               ,model = 'rf'
-                               ,timePeriod = '2003on'
-                               ,scenario = 'avm'
-                               ,response = 'logprice'
+                element <-list( scope = fixed$scope
+                               ,model = fixed$model
+                               ,scenario = fixed$scenario
+                               ,timePeriod = fixed$timePeriod
+                               ,response = fixed$response
                                ,predictorsName = predictorsName
-                               ,predictorsForm = 'level'
-                               ,ndays = '60'
-                               ,query = '100'  # 1 percent sample
-                               ,lambda = '0'
+                               ,predictorsForm = fixed$predictorsForm
+                               ,ndays = fixed$ndays
+                               ,query = fixed$query
+                               ,lambda = fixed$lambda
                                ,ntree = ntree
                                ,mtry = mtry
                                )
@@ -1045,26 +1155,26 @@ Chart.14.FileDependencies <- function(my.control) {
 }
 Table.5.6 <- function() {
     # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
-    case   <- '%8s %8s %5s %3s'
+    case   <- '%8s %5s %3s'
     header.format <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
     data.format   <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
 
     lines <- Lines()
-    Header1 <- function(col3, col4, col5) {
+    Header1 <- function(col2, col3, col4) {
         # append a header record with mostly blank columns
-        line <- sprintf(header.format, 
-                        ' ', ' ',           # cols 1 - 2
-                        col3, col4, col5,   # cols 3 - 5
-                        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' # cols 6 - 16
+        line <- sprintf( header.format 
+                        ,' '
+                        ,col2, col3, col4   
+                        ,' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' 
                         )
         lines$Append(line)
     }
 
     Header2 <- function(col1, col2, col3, col4, col5, col6, col7, col8,
-                        col9, col10, col11, col12, col13, col14, col15, col16) {
+                        col9, col10, col11, col12, col13, col14, col15) {
         line <- sprintf(header.format,
                          col1, col2, col3, col4, col5, col6, col7, col8,
-                         col9, col10, col11, col12, col13, col14, col15, col16
+                         col9, col10, col11, col12, col13, col14, col15
                          )
         lines$Append(line)
     }
@@ -1074,10 +1184,10 @@ Table.5.6 <- function() {
     }
 
     Detail <- function(col1, col2, col3, col4, col5, col6, col7, col8,
-                       col9, col10, col11, col12, col13, col14, col15, col16) {
+                       col9, col10, col11, col12, col13, col14, col15) {
         line <- sprintf(data.format,
                         col1, col2, col3, col4, col5, col6, col7, col8,
-                        col9, col10, col11, col12, col13, col14, col15, col16
+                        col9, col10, col11, col12, col13, col14, col15
                         )
         lines$Append(line)
     }
@@ -1101,15 +1211,117 @@ Table.5.6 <- function() {
          ,Get       = Get
          )
 }
+Header.Scope <- function(s) {
+    paste0( 'Scope: '
+           ,switch( s
+                   ,global = 'entire market'
+                   ,stop('bad scope')
+                   )
+           )
+}
+Header.Model <- function(s) {
+    paste0( 'Model: '
+           ,switch( s
+                   ,linear = 'linear'
+                   ,linL2  = 'linear with L2 regularizer'
+                   ,rf     = 'random forest'
+                   ,stop('bad model')
+                   )
+           )
+}
+Header.Ndays <- function(s) {
+    paste0( 'Number of days in training period: ', s)
+}
+Header.PredictorsForm <- function(s) {
+    paste0( 'Predictors form: '
+           ,switch(s
+                   ,level = 'level (natural units)'
+                   ,log   = 'log(natural units)'
+                   ,stop('bad predictorsForm')
+                   )
+           )
+}
+Header.PredictorsName <- function(s) {
+    paste0( 'Predictors name: '
+           ,switch(s
+                   ,always = 'always in every transaction'
+                   ,alwaysNoAssessment = 'always in every transaction and not in the tax assessment'
+                   ,alwaysNoCensus = 'always in every transaction and not in the tax assessment or census'
+                   ,stop('bad predictorsName')
+                   )
+           )
+}
+Header.Response <- function(s) {
+    paste0(' Response: '
+           ,switch( s
+                   ,price = 'price'
+                   ,logprice = 'log(price)'
+                   ,stop('bad response')
+                   )
+           )
+}
+Header.TimePeriod <- function(s) {
+    paste0( 'Time period: '
+           ,switch( s
+                   ,'2003on' = '2003 on'
+                   ,'2008'   = '2008'
+                   ,stop('bad time period')
+                   )
+           )
+}
+Header.Query <- function(s) {
+    paste0( 'Percent of queries in each fold that were estimated: '
+           ,switch( s
+                   ,'100' = '1'
+                   ,'1'   = '100'
+                   ,stop('bad query')
+                   )
+           )
+}
+Headers.Fixed <- function(fixed, lines) {
+    # append fixed header to lines
+    lines$Append(' ')
+    for (header.name in names(fixed)) {
+
+        if (header.name == 'scenario') stopifnot(fixed$scenario == 'avm')
+        else if (header.name == 'lambda') stopifnot(fixed$lambda == '0')
+        else if (header.name == 'ntree') stopifnot(fixed$ntree == '0')
+        else if (header.name == 'mtry') stopifnot(fixed$mtry == '0')
+        else {
+            value <- switch( header.name
+                            ,scope = Header.Scope(fixed$scope)
+                            ,model = Header.Model(fixed$model)
+                            ,timePeriod = Header.TimePeriod(fixed$timePeriod)
+                            ,response = Header.Response(fixed$response)
+                            ,predictorsForm = Header.PredictorsForm(fixed$predictorsForm)
+                            ,predictorsName = Header.PredictorsName(fixed$predictorsName)
+                            ,ndays = Header.Ndays(fixed$ndays)
+                            ,query = Header.Query(fixed$query)
+                            ,stop(paste('bad header.name', header.name))
+                            )
+            lines$Append(value)
+        }
+    }
+}
 Chart.5 <- function(my.control) {
     # return list of lines, the txt table for chart 5
+
+    fixed <- Chart.5.Fixed.Cell.Values()
+    Path <- CvCell()$Path
+
     Header <- function() {
         lines <- Lines()
         lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
-        lines$Append('For global linear model')
-        lines$Append('Data from 2008')
-        lines$Append('Features Present in Every Transaction')
-        lines$Append('With and Without Tax Assessment Features (Column Use Tax)')
+
+        stopifnot(fixed$scope == 'global')
+        stopifnot(fixed$model == 'linear')
+        stopifnot(fixed$timePeriod == '2008')
+        stopifnot(fixed$query == '1')
+
+        Headers.Fixed(fixed, lines)
+
+        lines$Append(' ')
+        lines$Append('Column Use Tax (yes ==> use tax assessment)')
         result <- lines$Get()
         result
     }
@@ -1118,25 +1330,25 @@ Chart.5 <- function(my.control) {
     table$Formatted(Header())
     table$Blank()
     table$Header1('preds', 'Use', 'ndays')
-    table$Header2('scenario', 'response', 'Form', 'Tax',
-                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+    table$Header2( 'response', 'Form', 'Tax'
+                  ,'30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
                   )
 
-    DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
+    DetailLine <- function(response, predictorsName, predictorsForm) {
         M <- function(ndays) {
-            path.in <- CvCell()$Path( scope = 'global'
-                                     ,model = 'linear'
-                                     ,timePeriod = '2008'
-                                     ,scenario = scenario
-                                     ,response = response
-                                     ,predictorsName = predictorsName
-                                     ,predictorsForm = predictorsForm
-                                     ,ndays = ndays
-                                     ,query = '1'
-                                     ,lambda = '0'
-                                     ,ntree = '0'
-                                     ,mtry = '0'
-                                     )
+            path.in <- Path( scope = fixed$scope
+                            ,model = fixed$model
+                            ,timePeriod = fixed$timePeriod
+                            ,scenario = fixed$scenario
+                            ,response = response
+                            ,predictorsName = predictorsName
+                            ,predictorsForm = predictorsForm
+                            ,ndays = ndays
+                            ,query = fixed$query
+                            ,lambda = fixed$lambda
+                            ,ntree = fixed$ntree
+                            ,mtry = fixed$mtry
+                            )
             load(path.in)
             stopifnot(!is.null(cv.result))
             stopifnot(length(cv.result) == 1)
@@ -1148,22 +1360,19 @@ Chart.5 <- function(my.control) {
                                  ,always = 'yes'
                                  ,alwaysNoAssessment = 'no'
                                  )
-        table$Detail( scenario, response, predictorsForm, use.assessment
+        table$Detail( response, predictorsForm, use.assessment
                      ,M(30), M(60), M(90), M(120), M(150), M(180)
                      ,M(210), M(240), M(270), M(300), M(330), M(360)
                      )
     }
 
-    for (scenario in c('avm')) {
-        for (response in c('price', 'logprice')) {
-            for (predictorsForm in c('level', 'log')) {
-                for (predictorsName in c('always', 'alwaysNoAssessment')) {
-                    DetailLine( scenario = scenario
-                               ,response = response
-                               ,predictorsName = predictorsName
-                               ,predictorsForm = predictorsForm
-                               )
-                }
+    for (response in c('price', 'logprice')) {
+        for (predictorsForm in c('level', 'log')) {
+            for (predictorsName in c('always', 'alwaysNoAssessment')) {
+                DetailLine( response = response
+                           ,predictorsName = predictorsName
+                           ,predictorsForm = predictorsForm
+                           )
             }
         }
     }
@@ -1173,13 +1382,22 @@ Chart.5 <- function(my.control) {
 }
 Chart.6 <- function(my.control) {
     # return txt lines for chart 6
+    fixed <- Chart.6.Fixed.Cell.Values()
+    Path <- CvCell()$Path
+
     Header <- function() {
         lines <- Lines()
         lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
-        lines$Append('For global linear model')
-        lines$Append('Data from 2003 Onward')
-        lines$Append('Non Tax Assessment Features Present in Every Transaction')
-        lines$Append('With and Without Census Tract Features (Column Use Cen)')
+
+        stopifnot(fixed$scope == 'global')
+        stopifnot(fixed$model == 'linear')
+        stopifnot(fixed$timePeriod == '2003on')
+        stopifnot(fixed$query == '100')
+
+        Headers.Fixed(fixed, lines)
+
+        lines$Append(' ')
+        lines$Append('Column Use Tax (yes ==> use tax assessment)')
         result <- lines$Get()
         result
     }
@@ -1188,26 +1406,25 @@ Chart.6 <- function(my.control) {
     table$Formatted(Header())
     table$Blank()
     table$Header1('preds', 'Use', 'ndays')
-    table$Header2('scenario', 'response', 'Form', 'Cen',
-                  '30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
+    table$Header2( 'response', 'Form', 'Cen'
+                  ,'30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
                   )
 
-    Path <- CvCell()$Path
-    DetailLine <- function(scenario, response, predictorsName, predictorsForm) {
+    DetailLine <- function(response, predictorsName, predictorsForm) {
         M <- function(ndays) {
-            path.in <- Path( scope = 'global'
-                             ,model = 'linear'
-                             ,timePeriod = '2008'
-                             ,scenario = scenario
-                             ,response = response
-                             ,predictorsName = predictorsName
-                             ,predictorsForm = predictorsForm
-                             ,nday = ndays
-                             ,query = '1'
-                             ,lambda = '0'
-                             ,ntree = '0'
-                             ,mtry = '0'
-                             )
+            path.in <- Path( scope = fixed$scope
+                            ,model = fixed$model
+                            ,timePeriod = fixed$timePeriod
+                            ,scenario = fixed$scenario
+                            ,response = response
+                            ,predictorsName = predictorsName
+                            ,predictorsForm = predictorsForm
+                            ,nday = ndays
+                            ,query = fixed$query
+                            ,lambda = fixed$lambda
+                            ,ntree = fixed$ntree
+                            ,mtry = fixed$mtry
+                            )
             load(path.in)
             stopifnot(!is.null(cv.result))
             stopifnot(length(cv.result) == 1)
@@ -1220,22 +1437,19 @@ Chart.6 <- function(my.control) {
                                  ,alwaysNoCensus = 'no'
                                  ,stop('bad predictorsName')
                                  )
-        table$Detail( scenario, response, predictorsForm, use.assessment
+        table$Detail( response, predictorsForm, use.assessment
                      ,M(30), M(60), M(90), M(120), M(150), M(180)
                      ,M(210), M(240), M(270), M(300), M(330), M(360)
                      )
     }
 
-    for (scenario in c('avm')) {
-        for (response in c('price', 'logprice')) {
-            for (predictorsForm in c('level', 'log')) {
-                for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
-                    DetailLine( scenario = scenario
-                               ,response = response
-                               ,predictorsName = predictorsName
-                               ,predictorsForm = predictorsForm
-                               )
-                }
+    for (response in c('price', 'logprice')) {
+        for (predictorsForm in c('level', 'log')) {
+            for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
+                DetailLine( response = response
+                           ,predictorsName = predictorsName
+                           ,predictorsForm = predictorsForm
+                           )
             }
         }
     }
@@ -1419,21 +1633,22 @@ Table.7.B <- function(lines) {
 }
 Chart.7 <- function(my.control) {
     # return txt lines for chart 7
+    fixed <- Chart.7.Fixed.Cell.Values()
     Path <- CvCell()$Path
     CvResult <- function(ndays, response, predictorsForm) {
         # return the single cv.result in the e-cv-cell for ndays
-        path.in <- Path( scope = 'global'
-                        ,model = 'linear'
-                        ,timePeriod = '2003on'
-                        ,scenario = 'avm'
+        path.in <- Path( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
                         ,response = response
-                        ,predictorsName = 'alwaysNoAssessment'
+                        ,predictorsName = fixed$predictorsName
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
-                        ,query = '100'  # use 1% sample
-                        ,lambda = '0'
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         load(path.in)
         stopifnot(!is.null(cv.result))
@@ -1446,10 +1661,14 @@ Chart.7 <- function(my.control) {
         lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
         lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
         lines$Append('Mean of Fraction of Predictions Within 10 Percent of Actual Values (fctWI10)')
-        lines$Append('For global linear model')
-        lines$Append('Data from 2003 Onward')
-        lines$Append('AVM scenario')
-        lines$Append('Using random 1 percent sample from each validation fold')
+
+        stopifnot(fixed$scope == 'global')
+        stopifnot(fixed$model == 'linear')
+        stopifnot(fixed$timePeriod == '2003on')
+        stopifnot(fixed$predictorsName == 'alwaysNoAssessment')
+        stopifnot(fixed$query == '100')
+
+        Headers.Fixed(fixed, lines)
     }
     PartA <- function(lines) {
         table <- Table.7.A(lines)
@@ -1621,6 +1840,7 @@ Table.8 <- function(lines) {
 }
 Chart.8 <- function(my.control) {
     # return txt lines for chart 8
+    fixed <- Chart.8.Fixed.Cell.Values()
     Path <- CvCell()$Path
     ACvResult <- function(ndays, response, predictorsForm) {
         # return the single cv.result in the e-cv-cell for ndays
@@ -1647,12 +1867,14 @@ Chart.8 <- function(my.control) {
         # mutate lines by appending the header
         lines$Append('Comparison of Estimated Generalization Errors From from 10 Fold Cross Validation')
         lines$Append('Model form and Length of Training Period')
-        lines$Append('For global linear model')
-        lines$Append('Data from 2003 Onward')
-        lines$Append('AVM scenario')
-        lines$Append('Using random 1 percent sample from each validation fold')
-        lines$Append('Metric = median of rMedianSE values from folds')
-        lines$Append('Predictors: All Except Assessment')
+
+        stopifnot(fixed$scope == 'global')
+        stopifnot(fixed$model == 'linear')
+        stopifnot(fixed$timePeriod == '2003on')
+        stopifnot(fixed$predictorsName == 'alwaysNoAssessment')
+        stopifnot(fixed$query == '100')
+
+        Headers.Fixed(fixed, lines)
     }
     Table <- function(lines) {
         # append lines for Table 8 to Lines object lines
@@ -1775,6 +1997,7 @@ Chart.9.10 <- function(my.control, feature.names, predictors.names) {
     # predictors.names: chr vector of names of predictors 
     #  (ex: best01, best02, ..., best24)
     #  (ex: pca01, pca02, ..., pca04)
+    fixed <- Chart.9.Fixed.Cell.Values()
     Path <- CvCell()$Path
     ACvResult <- function(num.features) {
         predictorsName <- predictors.names[[num.features]]
@@ -1831,10 +2054,15 @@ Chart.9.10 <- function(my.control, feature.names, predictors.names) {
     TextChart <- function(summary) {
         Header <- function(lines) {
             lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
-            lines$Append('Model Form: log-linear')
-            lines$Append('Training Period: 60 days')
-            lines$Append('AVM Scenario')
-            lines$Append('Metric: Median across folds of Root Median Squared Errors')
+
+            stopifnot(fixed$scope == 'global')
+            stopifnot(fixed$model == 'linear')
+            stopifnot(fixed$timePeriod == '2003on')
+            stopifnot(fixed$predictorsForm == 'level')
+            stopifnot(fixed$ndays == '60')
+            stopifnot(fixed$query == '100')
+
+            Headers.Fixed(fixed, lines)
         }
         Body <- function(lines) {
             table <- Table.9(lines)
@@ -1890,21 +2118,22 @@ Chart.10 <- function(my.control) {
 }
 Chart.11 <- function(my.control) {
     # return 2 gg charts
+    fixed <- Chart.11.Fixed.Cell.Values()
 
     Path <- CvCell()$Path
     ACvResult <- function(predictorsName) {
-        path.in <- Path( scope = 'global'
-                        ,model = 'linear'
-                        ,timePeriod = '2003on'
-                        ,scenario = 'avm'
-                        ,response = 'logprice'
+        path.in <- Path( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
                         ,predictorsName = predictorsName
-                        ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
-                        ,lambda = '0'
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         load(path.in)
         stopifnot(length(cv.result) == 1)
@@ -1953,24 +2182,26 @@ Chart.11 <- function(my.control) {
 }
 Chart.12 <- function(my.control) {
     # return 2 gg charts
+    fixed <- Chart.12.Fixed.Cell.Values()
+
 
     cv.cell <- CvCell()
     Path <- cv.cell$Path
     C.To.Lambda <- cv.cell$C.To.Lambda
 
     ACvResult <- function(lambda) {
-        path.in <- Path( scope = 'global'
-                        ,model = 'linL2'
-                        ,timePeriod = '2003on'
-                        ,scenario = 'avm'
-                        ,response = 'logprice'
-                        ,predictorsName = 'best20'
-                        ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
+        path.in <- Path( scope = fixed$scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = fixed$predictorsName
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
                         ,lambda = lambda
-                        ,ntree = '0'
-                        ,mtry = '0'
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
                         )
         load(path.in)
         stopifnot(length(cv.result) == 1)
@@ -2360,7 +2591,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
