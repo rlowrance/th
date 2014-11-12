@@ -129,11 +129,6 @@ Clearly there is a choice to be made for which figure of merit to use in
 actual models. In the experiments that follow, we use the medRMSE figure
 of merit to choose among models.
 
-One other observation: considering just the medRMSE values, the lowest
-estimated generalization error occurs when estimating $log(price)$ using
-features in their natural units and 60 days of training data. This is
-our base model going foward.
-
 % attempt to rotate: works (though with small text)
 \begin{figure}[ht]
 \begin{sideways}
@@ -150,7 +145,83 @@ our base model going foward.
 
 \section{Entire-market Models}
 
+This section explores linear models that are specified once for the
+entire marketplace: there is one model form for every query transaction
+and this model is location aware only through features of the census
+tract and zip code of the property. I call theses kinds of models
+``entire-market models.''
+
+With the class of entire-market models, we explore design choices. In
+the first subsection that follows, we examine the form of the equation
+in the model and the training period used to fit the model. We then
+examine what features give the best predictive performance and examine a
+reduced-feature model. We then show that regularizing the linear model
+with an L2 regularizer improves performance.
+
 \subsection{Model form and ndays}
+
+In the literature, a popular model for is the log-linear form: one
+predicts $log(price)$ using features in their natural units. Other
+choices for model form include log-log, in which the features are in the
+log domain, level-level in which price is predicted using features in
+the natural units, and level-log in which price is predicted using
+features in the log domain.
+
+At least three rationales can be invoked to choose a model. First is
+that the form of the model should conform to one's prior about the data
+generation process. If you suppose that doubling the lot size might
+double the price, you can admit this possibility by specifying
+$\log(price) = \beta \ log(size)$. If you suppose that adding a bedroom
+adds a certain amount of value, you would want to have $price = \beta \
+bedrooms$. If you suppose both are true, you are stuck.
+
+A second rationale for choosing the form is to transform the prices to a
+form more compatible with the statistical assumptions of the model.
+Since real estate prices tend to be right-skewed, a log transformation
+would make the transformed distribution more normal.
+
+A third rationale is to transform the price to the log domain in order
+to avoid applying equal importance with respect to prediction accuracy
+to expensive and less expensive houses. The idea is to fit the model to
+minimize average error not price-weighted error. 
+
+% OMIT, SINCE WE DIDN"T TEST THESE log-mixed form
+%Sometimes these rationale's are combined. For example, in
+%\cite{chopra-09}, prices were transformed to the log domain in order to
+%not overweight the importance of accuracy for larger houses, and size
+%feature (such as lot size and interior space) were transformed into the
+%log domain to allow for the possibility that doubling them would double
+%the price.
+
+Here we focus on the third rationale and simply ask: why model form
+yields the lowest estimated generalization errors as measured by the
+median rMedianSE across folds.
+
+Another issue is to determine the best training period. The linear
+models are setting the marginal cost of each feature. If prices are
+moving slowly, then training on a longer periods of time might be
+beneficial.  If prices are moving rapidly, then training only on recent
+data may be necessary.
+
+Our experiment fixed the time period (2003 on) and the feature set
+(all features always in transactions excluding the features derived from
+the tax assessment). We vary the model form and number of training days.
+Because a local model is built for every query point, we take a one
+percent random sample of the possible query points in each fold in order
+to reduce the computational burden.
+
+Figure \ref{figure:EGEFormNdays} shows the estimated generalization
+errors from 10-fold cross validation. Comparing the first two rows, we
+see that when price is the response variable, more accuracy is obtained
+by working with features in natural units than in the log domain.
+Comparing all the rows, we see that estimating $\log(price)$ instead of
+$price$ always leads to reduced estimated generalization errors.
+Comparing rows three and four shows that the for most training periods,
+using a log-level model outperforms a log-log model. Finally, the lowest
+estimated generalization error is for the log-level model when trained
+for 60 days.
+
+We use this model form and training period as a benchmark going forward.
 
 % attempt to rotate: works (though with small text)
 \begin{figure}[ht]
@@ -167,23 +238,34 @@ Period}
 \label{figure:EGEFormNdays}
 \end{figure}
 
-Figure \ref{figure:EGEFormNDays}
-
 \subsection{Feature selection}
+
+The benchmark model has two features. Which of these are the best
+features to use? Here we consider two approached. In the first, we
+use a simple heuristic to determine the best features to use. In the
+second, we use PCA for the same purpose. We then compare results and
+have one surprising findings.
 
 \subsubsection{LCV Heuristic}
 
-% non-rotated txt chart
-\begin{figure}[ht]
-\tiny
-%\small
-%\normalsize
-\verbatiminput{\Sexpr{path.lcv2}}
-\caption{Most Important Features}
-\label{figure:LCV}
-\end{figure}
+We have 24 feaures that are candidates for inclusion in the model. A
+straight-forward way to determine the best feature combinations is to
+consider all possible subsets and estimate the generalization error for
+each. This would be way too time consuming.
 
-Figure \ref{figure:LCV}
+Our idea is to instead use L1 regularization to consider determine the
+rank-ordering of the 24 features in terms of their importance. We then
+use cross validation to estimate the generalization error from a model
+with the first, the first two, \dots, all 24 rank-ordered features. We
+call the procedure LCV, for L1 regularization followed by cross
+validation.
+
+The implementation is by using the Elastic Net from Zoe and Hastie
+(\cite{zou-05}). It solves a linear model by concurrently using an L1
+and L2 regularizer. As a by-product, the \code{elasticnet} R package
+(\cite{zou-12}) produces a rank-ordering of the featuresfrom Zoe and
+Hastie (\cite{zou-05}). It fits a linear model by concurrently using
+L1 and L2 regularizer. 
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -195,7 +277,12 @@ Figure \ref{figure:LCV}
 \label{figure:MedianTable}
 \end{figure}
 
-Figure \ref{figure:MedianTable}
+The result of the rank-ordering from the Elastic Net procedure is in
+Figure \ref{figure:MedianTable}. It shows that the most important feature is the
+living area of the house. Real estate agents claim the most important
+features of the house its its location, but that isn't true in these
+data. Indeed, a features of the location (median household income and
+average commute time) are second and third in importance. 
 
 % including a pdf
 \begin{figure}[h]
@@ -207,19 +294,95 @@ Showing Origin
 \centering\includegraphics[scale=.4]{\Sexpr{path.9.gg1}}
 \end{figure}
 
-Figure \ref{figure:MedianGraph1}
+The same data are shown in \ref{figure:MedianGraph1}, which shows the
+estimated generalization error fom including the first $n$ features,
+together with a 95 percent confidence interval. One sees that the lowest
+estimated error is when using the first 20 features, from living area to
+census tract has park. The estimated errors then tend to increase and
+the placement of the confidence intervals does not compel one to
+consider going beyond the first 20 features. 
 
-% including a pdf
-\begin{figure}[h]
-\caption{
-Median rMedianSE\\
-Not Showing Origin
-}
-\label{figure:MedianGraph2}
-\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg2}}
+If one seeks parsimony, one could consider using the first eight
+features (through zip5 has industry), after which there is an increase
+in estimated generalization error before a subsequent decline. Another
+possible feature set is the first 20 feature (through census tract has
+park), as that feature set has the lowest estimated error. Another
+choice would be 19 features (through factor is new construction) as
+though it would have a slightly higher median estimated generatlization
+error than for the 20-feature choice, the 95% confidence interval is
+smaller.
+
+% non-rotated txt chart
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.lcv2}}
+\caption{Most Important Features}
+\label{figure:LCV}
 \end{figure}
 
-Figure \ref{figure:MedianGraph2}
+Figure \ref{figure:LCV} shows the 24 rank-ordered features split into
+house features and location features. Some observations on the house
+features:
+
+\begin{itemize}
+
+\item living area: this is the interior living space. Construction is
+required to change it, so its not surprising to see it highly-ranked.
+That is is more highly ranked than the land square footage is a surprise
+to me.
+
+\item fireplace number: the number of fireplaces, including the
+possibility of zero. A surprise, perhaps fireplaces are proxies for
+overall amenities in the house.
+
+\item year built: the year the house was built. Other studies have
+concluded that the age and the squared age of the house are important
+features. Our models
+are local, so that we need a house age for every query transaction.
+Instead of pre-building a training set for each possible query, we
+transform year built into age and age squared just before fitting the
+model.
+
+\item factor has pool: whether there is a swimming pool. Not a
+surprise, as the houses are all in Los Angeles, where the weather is
+often pleasant.
+
+\end{itemize} 
+
+Some observations on the location features:
+
+\begin{itemize}
+
+\item median household income and fraction owner occupied: the median
+income in the census tract from the year 2000 census and the fraction of
+houses in the census tract that are occupied by owners. Both of these
+features indicate the wealth of the neighborhood.
+
+\item average commute time: in other studies, longer commutes are
+associated with lower prices.
+
+\item zip 5 and census tract have idustry: being near industry is not
+good for prices.
+
+\item census tract and zip have park: Los Angeles residents are not
+there for the parks. Perhaps this is because its a driving-around city,
+not a walking-around city.
+
+\end{itemize}
+
+%
+%% including a pdf
+%\begin{figure}[h]
+%\caption{
+%Median rMedianSE\\
+%Not Showing Origin
+%}
+%\label{figure:MedianGraph2}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg2}}
+%\end{figure}
+%
 
 \subsubsection{PCA}
 
@@ -233,7 +396,11 @@ Figure \ref{figure:MedianGraph2}
 \label{figure:PCA1}
 \end{figure}
 
-Figure \ref{figure:PCA1}
+The second approach to determining the importance of features is to use
+Principal Components Analysis. Figure \ref{figure:PCA1} shows the the
+principle components associated with the 24 features. We see that the
+first three principal components account for almost 100 percent of the
+variance.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -245,7 +412,13 @@ Figure \ref{figure:PCA1}
 \label{figure:PCA201}
 \end{figure}
 
-Figure \ref{figure:PCA201}
+In Figure \ref{figure:PCA201} we see the weights of the 24 features in
+the first principal component. The median household income has the
+highest absolute weight. Other weights are much lower in absolute value,
+The only ones of much importance are the land square footage and the
+living area. It seems that the first principal component may be about
+the wealth of the neighborhood: more income is correlated with larger
+plots is correlated with bigger houses.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -257,7 +430,12 @@ Figure \ref{figure:PCA201}
 \label{figure:PCA202}
 \end{figure}
 
-Figure \ref{figure:PCA202}
+In Figure \ref{figure:PCA202} we see the weights of the 24 features in
+the second principal component. The land square footage has the highest
+absolute weight. Other weights are much lower in value with household
+income and living area being the largest in absolute size. This
+principal component is possibly about the size of the land and has the same
+correlated highly-weighted features as the first principal component.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -269,7 +447,10 @@ Figure \ref{figure:PCA202}
 \label{figure:PCA203}
 \end{figure}
 
-Figure \ref{figure:PCA203}
+In Figure \ref{figure:PCA203} we see the weights of the 24 features
+for third principal component. It is mostly composed of the basement
+square feet, perhaps a proxy for other size features in the house:
+bigger basement probably implies bigger house.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -281,8 +462,6 @@ Figure \ref{figure:PCA203}
 \label{figure:MedianTable10}
 \end{figure}
 
-Figure \ref{figure:MedianTable10}
-
 % including a pdf
 \begin{figure}[h]
 \caption{
@@ -293,48 +472,64 @@ Showing Origin
 \centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
 \end{figure}
 
-Figure \ref{figure:MedianGraph101}
+%% including a pdf
+%\begin{figure}[h]
+%\caption{
+%Median rMedianSE\\
+%Not Showing Origin
+%}
+%\label{figure:MedianGraph102}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
+%\end{figure}
 
-% including a pdf
-\begin{figure}[h]
-\caption{
-Median rMedianSE\\
-Not Showing Origin
-}
-\label{figure:MedianGraph102}
-\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
-\end{figure}
-
-Figure \ref{figure:MedianGraph102}
+In Figure \ref{figure:MedianTable10} we see the estimated generalization
+error from using the median household income, median household income
+and land square foot, and so on up to the 4 features identified as
+important in the PCA work. The same data are in Figure
+\ref{figue:MedianGraph102} which shows the 95 percent confidence
+intervals graphically. One might choose to use only the first 3 features
+based on this graphic.
 
 \subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
 
-
 % including a pdf
 \begin{figure}[h]
 \caption{
-Median rMedianSE\\
-Showing Origin
+Median rMedianSE
 }
 \label{figure:MedianGraph111}
 \centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
 \end{figure}
 
-Figure \ref{figure:MedianGraph111}
+To find the best reduced-feature model, we test all the feature sets
+suggested by the LCV and PCA analyses. These results are in Figure
+\ref{figure:MedianGraph111}, which brings together results previously
+shown. A surprising conclusion is that the PCA-derived feature sets all
+underperform the LCV-derived feature sets: extremely small feature sets
+are challenged in this setting. The best feature sets is the
+one with the first 20 features in Figure \ref{figure:LCV}
 
-% including a pdf
-\begin{figure}[h]
-\caption{
-Median rMedianSE\\
-Not Showing Origin
-}
-\label{figure:MedianGraph112}
-\centering\includegraphics[scale=.4]{\Sexpr{path.11.gg2}}
-\end{figure}
-
-Figure \ref{figure:MedianGraph112}
+%
+%% including a pdf
+%\begin{figure}[h]
+%\caption{
+%Median rMedianSE\\
+%Not Showing Origin
+%}
+%\label{figure:MedianGraph112}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.11.gg2}}
+%\end{figure}
 
 \subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Regularizing models is one way to avoid overfitting and thereby improve
+prediction accuracy. So far the models are all linear and are not
+regularized.
+
+To assess the extent to which regularization leads to more accuracy, we
+take the model using the 20 best features and run multiple verions using
+several choices for the weight of an L2 regularizer. A simple grid
+search was used. 
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -346,38 +541,39 @@ Figure \ref{figure:MedianGraph112}
 \label{figure:Regularize3}
 \end{figure}
 
-Figure \ref{figure:Regularize3}
-
-% including a pdf
-\begin{figure}[h]
-\caption{
-Estimated Generalization Error from L2 Regularization
-\\
-Showing Origin
-}
+% including a pdf \begin{figure}[h]
+\begin{figure}[ht]
+\caption{Estimated Generalization Error from L2 Regularization }
 \label{figure:Regularization1}
 \centering\includegraphics[scale=.4]{\Sexpr{path.12.gg1}}
 \end{figure}
 
-Figure \ref{figure:Regularization1}
+Figure \ref{figure:Regularize3} contains the result in a table. Figure
+\ref{figure:Regularization1} has the same results graphically. We see
+the typical pattern, small values for the regularizer importance improve
+estimated accuracy and larger values decrease accuracy. Setting the
+weight to $\lambda = 4$ seems like a good choice: it has the lowest
+median across the cross-validation folds and the 95 percent confidence
+intervals are not signally warnings.
 
-% including a pdf
-\begin{figure}[h]
-\caption{
-Estimated Generalization Error from L2 Regularization
-\\
-Not Showing Origin
-}
-\label{figure:Regularization2}
-\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
-\end{figure}
 
-Figure \ref{figure:Regularization2}
+%% including a pdf
+%\begin{figure}[h]
+%\caption{
+%Estimated Generalization Error from L2 Regularization
+%\\
+%Not Showing Origin
+%}
+%\label{figure:Regularization2}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
+%\end{figure}
+%
 
 \section{Submarket Models}
 
+\subsection{Using Indicator Variables}
 \subsection{Zip vs. Census vs. City}
 
-\subsection{Regularization}
-
 \section{The best linear model is \dots}
+
+\section{Coda: A Non-Linear Model, Random Forests}
