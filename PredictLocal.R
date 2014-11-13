@@ -32,7 +32,7 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                      ,control = control
                                      )
         if (!maybe.formula$ok)
-            return(list(ok = false, problem = maybe.formula$problem))
+            return(list(ok = FALSE, problem = maybe.formula$problem))
         maybe.fitted <-
             TryCatchWE(FitModel( formula = maybe.formula$value
                                 ,data = training.data
