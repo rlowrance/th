@@ -68,11 +68,20 @@ Control <- function(default.args) {
                     ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
                     ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
                     ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
+                    ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
+                    ,path.out.chart.13.submarkets.summary.txt = 
+                        paste0(working, out.base, '_chart13_submarkets_summary.txt')
+                    ,path.out.chart.13.submarkets.census.txt = 
+                        paste0(working, out.base, '_chart13_submarkets_census.txt')
+                    ,path.out.chart.13.submarkets.property.city.txt = 
+                        paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
+                    ,path.out.chart.13.submarkets.zip5.txt = 
+                        paste0(working, out.base, '_chart13_submarkets_zip5.txt')
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = FALSE
+                    ,testing = TRUE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
@@ -116,16 +125,28 @@ RootMedianSquaredErrors <- function(a.cv.result) {
                )
     rootMedianSquaredError.values
 }
-CIMedian <- function(values) {
+CIMedian <- function(values, removeNAs = FALSE, debug = FALSE) {
     # return 95% confidence interval for the median of the vector of values
     # ref: R Cookbook, p 184
+    if (debug) browser()
+    if (removeNAs)
+        values <- values[!is.na(values)]
+    if (length(values) == 1) {
+        # sample(values) ==> a very long vector, because sample.int is called
+        # hence handle specially
+        result <- list( lowest = values
+                       ,highest = values
+                       )
+        return(result)
+    }
+    # length(values) > 1
     num.resamples <- 100  # TODO: set to 10,000
     num.resamples <- 10000
-    medians <- numeric(length = num.resamples)  # preallocate for speed
+    sample.medians <- numeric(length = num.resamples)  # preallocate for speed
     lapply( 1:num.resamples
-           ,function(index) medians[[index]] <<- median(sample(values, replace = TRUE))
+           ,function(index) sample.medians[[index]] <<- median(sample(values, replace = TRUE))
            )
-    confidence.interval <- quantile( x = medians
+    confidence.interval <- quantile( x = sample.medians
                                     ,probs = c(0.025, 0.975)
                                     )
     result <- list( lowest = confidence.interval[[1]]
@@ -1071,7 +1092,7 @@ Chart.13.Parameters <- function(control) {
                            ,predictorsName = predictorsName
                            ,predictorsForm = fixed$predictorsForm
                            ,ndays = fixed$ndays
-                           ,query = '100'
+                           ,query = fixed$query
                            ,lambda = fixed$lambda
                            ,ntree = fixed$ntree
                            ,mtry = fixed$mtry
@@ -1277,13 +1298,17 @@ Header.Query <- function(s) {
                    )
            )
 }
+Header.Lambda <- function(s) {
+    if (s != '0')
+        sprintf('Lambda: %.2f', as.numeric(s) / 100)
+}
+    
 Headers.Fixed <- function(fixed, lines) {
     # append fixed header to lines
     lines$Append(' ')
     for (header.name in names(fixed)) {
 
         if (header.name == 'scenario') stopifnot(fixed$scenario == 'avm')
-        else if (header.name == 'lambda') stopifnot(fixed$lambda == '0')
         else if (header.name == 'ntree') stopifnot(fixed$ntree == '0')
         else if (header.name == 'mtry') stopifnot(fixed$mtry == '0')
         else {
@@ -1296,6 +1321,7 @@ Headers.Fixed <- function(fixed, lines) {
                             ,predictorsName = Header.PredictorsName(fixed$predictorsName)
                             ,ndays = Header.Ndays(fixed$ndays)
                             ,query = Header.Query(fixed$query)
+                            ,lambda = Header.Lambda(fixed$lambda)
                             ,stop(paste('bad header.name', header.name))
                             )
             lines$Append(value)
@@ -2266,6 +2292,385 @@ Chart.12 <- function(my.control) {
                    )
     result
 }
+Chart.13 <- function(my.control) {
+    # return 2 gg charts
+
+    verbose <- TRUE
+
+    fixed <- Chart.13.Fixed.Cell.Values()
+    cv.cell <- CvCell()
+    Path <- cv.cell$Path
+    C.To.Lambda <- cv.cell$C.To.Lambda
+
+
+    # for now, figure out what files have been created
+    DetermineIndicators <- function() {
+        created <- Lines()
+        togo <- Lines()
+        for (predictorsName in c( 'best20zip'
+                                 ,'best20census'
+                                 ,'best20city'
+                                 )) {
+            path <-Path( scope = 'global'
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
+                        )
+            if (file.exists(path)) 
+                created$Append(path)
+            else
+                togo$Append(path)
+        }
+        result <- list( created = created$Get()
+                       ,togo = togo$Get()
+                       )
+        result
+    }
+    DetermineSubmarkets <- function() {
+        created <- Lines()
+        togo <- Lines()
+        loaded <- load(file = control$path.in.submarkets)
+        for (scope in c(codes.census.tract, codes.property.city, codes.zip5)) {
+            path <-Path( scope = scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = 'best20'
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = '1'  # 100 percent sample (each scope tends to be small)
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
+                        )
+            if (file.exists(path)) 
+                created$Append(path)
+            else
+                togo$Append(path)
+        }
+        result <- list( created = created$Get()
+                       ,togo = togo$Get()
+                       )
+        result
+    }
+        
+    indicators <- DetermineIndicators()
+    Printf( 'created %d indicators; still have %d to go\n'
+           ,length(indicators$created)
+           ,length(indicators$togo)
+           )
+    submarkets <- DetermineSubmarkets()
+    Printf( 'created %d submarkets; still have %d to go\n'
+           ,length(submarkets$created)
+           ,length(submarkets$togo)
+           )
+
+    ACvResult <- function(path) {
+        loaded <- load(path)
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+        a.cv.result
+    }
+
+    Indicators.Txt <- function() {
+        # return Lines() object
+        Indicators.Path <- function(predictorsName) {
+            path <-Path( scope = 'global'
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = predictorsName
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = fixed$query
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
+                        )
+        }
+        report <- Lines()
+        report.format.header <- '%15s %12s %12s %12s'
+        report.format.detail <- '%15s %12.0f %12.0f %12.0f'
+        report$Append('Comparison of Estimated Generalization Errors for Indicator Models')
+        report$Append(' ')
+        Headers.Fixed(fixed,report)
+
+        line <- sprintf( report.format.header
+                        ,'indicators for'
+                        ,'median'
+                        ,'ci95%.lo'
+                        ,'ci95%.hi'
+                        )
+        report$Append(' ')
+        report$Append(line)
+
+        Indicators.Detail <- function(path, report, indicators.for) {
+            # add detail line to report
+            # produce analysis for a.cv.result in path file
+            a.cv.result <- ACvResult(path)
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            ci <- CIMedian(rmse.values)
+            line <- sprintf( report.format.detail 
+                            ,indicators.for
+                            ,median(rmse.values)
+                            ,ci$lowest
+                            ,ci$highest
+                            )
+            report$Append(line)
+        }
+        for (predictorsName in c( 'best20zip'
+                                 ,'best20census'
+                                 ,'best20city'
+                                 )) {
+            path <- Indicators.Path(predictorsName)
+            if (file.exists(path)) {
+                indicators.for <- switch(predictorsName
+                                         ,best20zip = 'zip 5 code'
+                                         ,best20census = 'census tract'
+                                         ,best20city = 'city'
+                                         )
+                Indicators.Detail(path, report, indicators.for)
+            } else {
+                stop('all files should exist')
+            }
+        }
+        result <- report
+        result
+    }
+    Submarkets.Txt <- function() {
+        # return list of Lines() objects
+        # summary: summary aross census, city, zip
+        # census : details for the census tracts
+        # city   : details for the property cities
+        # zip    : details for the zip5 code
+        Analyze <- function() {
+            # return a list of 4 reports
+            # $summary              : Lines object with summary report (3 detail lines)
+            # $details.census.tract : Lines object with details for census.tract
+            # $details.property.city: Lines object
+            # $details.zip5         : Lines object
+            verbose <- TRUE
+
+            loaded <- load(file = my.control$path.in.submarkets)
+            analysis.census.tract <- Analyze.Scopes(codes.census.tract)
+            analysis.property.city <-  Analyze.Scopes(codes.property.city)
+            analysis.zip5 <- Analyze.Scopes(codes.zip5)
+
+            report <- Lines()
+
+            report$Append('Comparison of Estimated Generalization Errors for Various Submarkets')
+            report$Append(' ')
+            Headers.Fixed(fixed, report)
+
+            report$Append(' ')
+            report.format.header <- '%20s %8s %12s %12s %8s %8s %8s %8s'
+            report.format.detail <- '%20s %8.0f %12.0f %12.0f %8.0f %8.0f %8.0f %8.2f'
+            line <- sprintf( report.format.header
+                            ,'scope name'
+                            ,'median'
+                            ,'95%ci.low'
+                            ,'95%ci.hi'
+                            ,'nFound'
+                            ,'nScope'
+                            ,'nAlways'
+                            ,'coverage'
+                            )
+            if (verbose) cat(line, '\n')
+            report$Append(line)
+            
+            Detail <- function(scope.name, analysis, num.scopes, report) {
+                # append detail line to report
+                line <- sprintf( report.format.detail
+                                ,scope.name
+                                ,analysis$median
+                                ,analysis$median.ci.lowest
+                                ,analysis$median.ci.highest
+                                ,analysis$num.scope.files.found
+                                ,num.scopes
+                                ,analysis$num.10fold.medians.found
+                                ,analysis$num.10fold.medians.found / analysis$num.scope.files.found
+                                )
+                if (verbose) cat(line, '\n')
+                report$Append(line)
+            }
+
+            Detail('census.tract', analysis.census.tract, length(codes.census.tract), report)
+            Detail('property.city', analysis.property.city, length(codes.property.city), report)
+            Detail('zip5', analysis.zip5, length(codes.zip5), report)
+
+            result <- list( summary = report
+                           ,details.census.tract = analysis.census.tract$detail.report
+                           ,details.property.city = analysis.property.city$detail.report
+                           ,details.zip5 = analysis.zip5$detail.report
+                           )
+            result
+        }
+        Analyze.Scopes <- function(scopes) {
+            # return list
+            # $detail.report: Lines() object for each scope
+            # $median
+            # $median.ci.lowest
+            # $median.ci.highest
+            # $num.scope.files.found
+            # $num.10fold.medians.found
+            debug <- FALSE
+            if (debug) {
+                cat('DEBUGGING\n')
+                scopes <- scopes[1:40]
+            }
+            verbose <- TRUE
+            report <- Lines()
+            report.format.header                       <- '%20s %6s %6s %6s %6s'
+            report.format.detail.file.exists           <- '%20s %6.0f %6d %6.0f %6.0f'
+            report.format.detail.file.exists.no.median <- '%20s no median'
+            report.format.detail.file.not.exist        <- '%20s scope file not found'
+
+            header.line <- sprintf( report.format.header
+                                   ,'scope'
+                                   ,'median'
+                                   ,'N'
+                                   ,'ci.low'
+                                   ,'ci.high'
+                                   )
+            report$Append(header.line)
+
+            num.scope.files.found <- 0
+            num.10fold.medians.found <- 0
+            scope.medians <- NULL
+            for (scope in scopes) {
+                maybe <- Maybe.Analyze.Scope(scope)
+                if (maybe$ok) {
+                    # scope file exists
+                    value <- maybe$value
+                    num.scope.files.found <- num.scope.files.found + 1 
+                    if (value$num.rmse.values == 10) {
+                        num.10fold.medians.found <- num.10fold.medians.found + 1 
+                        scope.medians[[length(scope.medians) + 1]] <- value$median.of.medians
+                    }
+                    line <-
+                        if (is.na(value$median.of.medians))
+                            sprintf( report.format.detail.file.exists.no.median
+                                    ,scope)
+                        else
+                            sprintf( report.format.detail.file.exists
+                                    ,scope
+                                    ,value$median.of.medians
+                                    ,value$num.rmse.values
+                                    ,value$median.lowest.ci
+                                    ,value$median.highest.ci
+                                    )
+                    if (verbose) cat(line, '\n')
+                    report$Append(line)
+                } else {
+                    # scope file does not exist
+                    line <- sprintf( report.format.detail.file.not.exist
+                                    ,scope
+                                    )
+                    if (verbose) cat(line, '\n')
+                    report$Append(line)
+                }
+            }
+            median.scope.medians <- median(scope.medians)
+            ci <- CIMedian(scope.medians)
+            result <- list( detail.report = report
+                           ,median = median.scope.medians
+                           ,median.ci.lowest = ci$lowest
+                           ,median.ci.highest = ci$highest
+                           ,num.scope.files.found = num.scope.files.found
+                           ,num.10fold.medians.found = num.10fold.medians.found
+                           )
+            result
+        }
+        Submarkets.Path <- function(scope) {
+            # return path to cv cell in file system
+            path <-Path( scope = scope
+                        ,model = fixed$model
+                        ,timePeriod = fixed$timePeriod
+                        ,scenario = fixed$scenario
+                        ,response = fixed$response
+                        ,predictorsName = 'best20'
+                        ,predictorsForm = fixed$predictorsForm
+                        ,ndays = fixed$ndays
+                        ,query = '1'  # 100 percent sample (each scope tends to be small)
+                        ,lambda = fixed$lambda
+                        ,ntree = fixed$ntree
+                        ,mtry = fixed$mtry
+                        )
+            path
+        }
+        Maybe.Analyze.Scope <- function(scope) {
+            # return list
+            # $ok = TRUE (the scope has been computed) or FALSE (is has not)
+            # $value: NA or a list $median.of.medians $num.rmse.values $median.ci.lowest $median.ci.highest
+            path <- Submarkets.Path(scope)
+            if (file.exists(path))
+                list( ok = TRUE
+                     ,value = Analyze.Scope(path)
+                     )
+            else
+                list( ok = FALSE
+                     ,value = NA
+                     )
+        }
+        Analyze.Scope <- function(path) {
+            # return analysis of the scope as a list
+            # $median.of.medians: NA or numeric
+            # $num.rmse.values: num
+            # $median.lowest.ci: num
+            # $median.highest.ci: num
+
+            # produce analysis for a.cv.result in path file
+            # return median value for path
+            a.cv.result <- ACvResult(path)
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            num.folds.with.medians <- sum(!is.na(rmse.values))
+            if (num.folds.with.medians == 0)
+                list( median.of.medians = NA
+                     ,num.rmse.values = num.folds.with.medians
+                     ,median.lowest.ci = NA
+                     ,median.highest.ci = NA
+                     )
+            else  {
+                ci <- CIMedian(rmse.values, removeNAs = TRUE, debug = FALSE)
+                list( median.of.medians = median(rmse.values, na.rm = TRUE)
+                     ,num.rmse.values = num.folds.with.medians
+                     ,median.lowest.ci = ci$lowest
+                     ,median.highest.ci = ci$highest
+                     )
+            }
+        }
+
+        # EXECUTION STARTS HERE
+        result <- Analyze()
+        result
+    }
+
+
+
+    indicators <- Indicators.Txt()
+    submarkets <- Submarkets.Txt()
+    print(indicators$Get())
+    print(submarkets$summary$Get())
+
+
+    result <- list( indicators = indicators$Get()
+                   ,submarkets.summary = submarkets$summary$Get()
+                   ,submarkets.census = submarkets$details.census.tract$Get()
+                   ,submarkets.property.city = submarkets$details.property.city$Get()
+                   ,submarkets.zip5 = submarkets$details.zip5$Get()
+                   )
+    return(result)
+}
 MakeMakefiles <- function(control) {
     # write one makefile for each chart that is being created
 
@@ -2561,6 +2966,24 @@ MakeCharts <- function(control) {
             )
         print(chart.12$gg2)
         dev.off()
+    }
+    Make.Chart.13 <- function() {
+        chart.13 <- Chart.13(control)
+        writeLines( text = chart.13$indicators
+                   ,con = control$path.out.chart.13.indicators.txt
+                   )
+        writeLines( text = chart.13$submarkets.summary
+                   ,con = control$path.out.chart.13.submarkets.summary.txt
+                   )
+        writeLines( text = chart.13$submarkets.census
+                   ,con = control$path.out.chart.13.submarkets.census.txt
+                   )
+        writeLines( text = chart.13$submarkets.property.city
+                   ,con = control$path.out.chart.13.submarkets.property.city.txt
+                   )
+        writeLines( text = chart.13$submarkets.zip5
+                   ,con = control$path.out.chart.13.submarkets.zip5.txt
+                   )
     }
     developing <- FALSE
     if (!control$testing) {
