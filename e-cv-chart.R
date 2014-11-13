@@ -2681,12 +2681,14 @@ MakeMakefiles <- function(control) {
 
     Path <- CvCell()$Path
     Command <- CvCell()$Command
-    MakeMakefile <- function( target.variable.name
+    MakeMakefileOLD <- function( target.variable.name
                              ,dependency.file.names
                              ,targets.lines
                              ,rules.lines
                              ) {
         # append to define.target.lines and rules.lines
+        num.systems <- 2
+        system.number <- 0
         for (dfn in dependency.file.names) {
             path <- Path( scope = dfn$scope
                          ,model = dfn$model
@@ -2714,13 +2716,53 @@ MakeMakefiles <- function(control) {
                                ,ntree = dfn$ntree
                                ,mtry = dfn$mtry
                                )
-            targets.lines$Append(paste0(target.variable.name, ' += ', path))
+            system.number <- system.number + 1
+            if (system.number == num.systems)
+                system.number <- 1 
+            target.lines$Append(sprintf( '%s-%dof%d += %s'
+                                        ,target.variable.name
+                                        ,system.number
+                                        ,num.systems
+                                        ,path))
             rules.lines$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
             rules.lines$Append(paste0('\t', command))
         }
-        target.name <- paste0(target.variable.name, '-target')
-        targets.lines$Append(sprintf('.PHONY: %s', target.name))
-        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
+        # .PHONY: <target>-1of2
+        # <target>-1of2 : $(<target>-1of2)
+        browser()
+        for (system.number in 1:num.systems) {
+            target.name <- sprintf('%s-target-%dof%d'
+                                   ,target.variable.name
+                                   ,system.number
+                                   ,num.systems
+                                   )
+            targets.lines$Append(sprintf('.PHONY: %s'
+                                         ,target.name
+                                         )
+            )
+            target.lines$Append(sprintf('%s: $($s-%dof%d)'
+                                        ,target.name
+                                        ,target.variable.name
+                                        ,system.number
+                                        ,num.systems
+                                        )
+            )
+        }
+        stopifnot(num.systems == 2)
+        target.lines$Append(sprintf('PHONY: %s'
+                                    ,master.target.variable.name
+                                    )
+        )
+        target.lines$Append(sprintf('%s: $(%s-1of2) $(%s-2of2)'
+                                    ,target.variable.name
+                                    ,target.variable.name
+                                    ,target.variable.name
+                                    )
+        )
+
+#        target.name <- paste0(target.variable.name, '-target')
+#        targets.lines$Append(sprintf('.PHONY: %s', target.name))
+#        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
         # return nothing
     }
 
@@ -2728,6 +2770,8 @@ MakeMakefiles <- function(control) {
     rules.lines <- Lines()
 
     
+    num.threads <- 20  # 8 on J's system, 12 on R's system
+    thread.number <- 0
     targets.lines <- Lines()
     all.dependency.file.names <- NULL
     M <- function(target.variable.name, dependency.file.names) {
@@ -2748,12 +2792,47 @@ MakeMakefiles <- function(control) {
                          ,ntree = dfn$ntree
                          ,mtry = dfn$mtry
                          )
-            targets.lines$Append(paste0(target.variable.name, ' += ', path))
+
+            # distribute the jobs over the threads
+            thread.number <- thread.number + 1 
+            if (thread.number > num.threads)
+                thread.number <- 1 
+            targets.lines$Append(sprintf('%s-thread-%d += %s'
+                                         ,target.variable.name
+                                         ,thread.number
+                                         ,path
+                                         ))
         }
-        target.name <- paste0(target.variable.name, '-target')
-        targets.lines$Append(sprintf('.PHONY: %s', target.name))
-        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
+        # assign 8 thread's to J's system and 12 thread's to R's
+        CreateTarget <- function(tag, threads) {
+            system.target.name <- sprintf('%s-target-%s'
+                                          ,target.variable.name
+                                          ,tag
+                                          )
+            targets.lines$Append(sprintf('.PHONY: %s'
+                                         ,system.target.name
+                                         ))
+            uses <- ''
+            for (thread.index in threads) {
+                uses <- sprintf('%s $(%s)'
+                                ,uses
+                                ,sprintf('%s-thread-%d'
+                                         ,target.variable.name
+                                         ,thread.index
+                                         )
+                                )
+            }
+            targets.lines$Append(sprintf('%s : %s'
+                                         ,system.target.name
+                                         ,uses
+                                         ))
+        }
+        CreateTarget('r', 1:12)  # R runs threads 1 - 12
+        CreateTarget('j', 13:20) # J runs threads 13 - 20
+        CreateTarget('all', 1:20)
+        targets.lines
         # return nothing
+        NULL
     }
 
     M( target.variable.name = 'e-cv-chart-chart5'
@@ -3018,7 +3097,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-default.args <- list( makefile = FALSE) 
+#default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
