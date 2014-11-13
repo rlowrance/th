@@ -89,7 +89,7 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
       query.transaction
     }
 
-    predictions <- as.double(rep(NA), nrow(query.transactions))
+    predictions <- as.double(rep(NA, nrow(query.transactions)))
 
     # group queries by sale date, and fit one model for each sale date
     saleDates <- query.transactions$saleDate
