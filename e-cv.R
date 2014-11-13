@@ -569,6 +569,8 @@ Evaluate_9 <- function( model, scenario, response
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
 
     actuals <- query.transactions$price
+    print(predictions)
+    print(actuals)
     result <- EvaluatePredictions( prediction = predictions
                                   ,actual = actuals
                                   )
@@ -888,14 +890,16 @@ clock <- Clock()
 # 90808 13834
 # 91767 13882
 default.args <-
-    list( scope          = 'global'
+    list(#scope          = 'global'
          #scope          = '535000'  # census tract 60 observations
          #scope          = '464100'  # census tract 60 observations
          #scope          = 'LOSANGELES' # property.city 135985 observations
          #scope          = 'WATTS'      # property.city 1 observations
          #scope          = '90013'      # zip5 2 observations
          #scope          = '91767'      # zip5 13882 observations
-         #model          = 'linL2'
+         # scope          = '910706'
+          scope          = '93591'
+         ,model          = 'linL2'
          ,model          = 'rf'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
@@ -903,10 +907,10 @@ default.args <-
          ,predictorsForm = 'level'
          ,predictorsName = 'best20'
          ,ndays          = '60'
-         ,query          = '100'
+         ,query          = '1'
          ,lambda         = '400'
-         ,ntree          = '1'
-         ,mtry           = '2'
+         ,ntree          = '0'
+         ,mtry           = '0'
          )
 control <- Control(default.args)
 
