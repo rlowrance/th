@@ -14,8 +14,12 @@ Lines <- function(max.size = 1000) {
     }
 
     Get <- function() {
-        lines[1:last.index]
+        if (last.index == 0)
+          as.character()
+       else
+         lines[1:last.index]
     }
+
 
     list( Append = Append
          ,Get    = Get
