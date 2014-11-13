@@ -107,7 +107,7 @@ predictors.prices += $(splits)/price.log.RData
 .PHONY: all
 #all: $(working)/defense.pdf $(working)/experiments.pdf $(working)/thesis.pdf
 #all:  $(working)/experiments.pdf $(working)/thesis.pdf
-all:  $(working)/thesis.pdf $(working)/submarkets.RData
+all:  $(working)/thesis.pdf $(working)/submarkets.RData e-cv-chart-chart13-target
 
 # dependencies within this makefile
 predictors2.makefile: Predictors2.R predictors2.makefile.R
