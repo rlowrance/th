@@ -36,6 +36,7 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('Counter.R')
 source('CvCell.R')        # machinery to manipule the e-cv-cells directory
 source('Lines.R')
 source('PredictLocal.R')  # all local models
@@ -181,21 +182,6 @@ ParseCommandArgs <- function(command.args, default.args) {
                       ,positional_arguments = FALSE
                       )
     opt
-}
-Counter <- function(initial.value = 0) {
-    current.value <- initial.value
-
-    Increment <- function() {
-        current.value <<- current.value + 1
-    }
-
-    Get <- function() {
-        current.value
-    }
-
-    list( Increment = Increment
-         ,Get       = Get
-         )
 }
 ReportMemoryUsage <- function(msg = '') {
     mem.used <- mem_used()
@@ -898,7 +884,7 @@ default.args <-
          #scope          = '90013'      # zip5 2 observations
          #scope          = '91767'      # zip5 13882 observations
          # scope          = '910706'
-          scope          = '93591'
+          scope          = '91750'
          ,model          = 'linL2'
          ,model          = 'rf'
          ,timePeriod     = '2003on'
