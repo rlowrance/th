@@ -77,11 +77,12 @@ Control <- function(default.args) {
                         paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
                     ,path.out.chart.13.submarkets.zip5.txt = 
                         paste0(working, out.base, '_chart13_submarkets_zip5.txt')
+                    ,path.out.chart.14.txt = paste0(working, out.base, '_chart14.txt')
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
                     ,working = working
-                    ,testing = TRUE
+                    ,testing = FALSE
                     ,debug = FALSE
                     ,opt = opt
                     ,me = me
@@ -1299,12 +1300,15 @@ Header.Query <- function(s) {
            )
 }
 Header.Lambda <- function(s) {
-    if (s != '0')
+    if (s == '0')
+        NULL
+    else
         sprintf('Lambda: %.2f', as.numeric(s) / 100)
 }
     
 Headers.Fixed <- function(fixed, lines) {
     # append fixed header to lines
+    stopifnot(!is.null(lines))
     lines$Append(' ')
     for (header.name in names(fixed)) {
 
@@ -1324,7 +1328,8 @@ Headers.Fixed <- function(fixed, lines) {
                             ,lambda = Header.Lambda(fixed$lambda)
                             ,stop(paste('bad header.name', header.name))
                             )
-            lines$Append(value)
+            if (!is.null(value))
+                lines$Append(value)
         }
     }
 }
@@ -2293,7 +2298,7 @@ Chart.12 <- function(my.control) {
     result
 }
 Chart.13 <- function(my.control) {
-    # return 2 gg charts
+    # return list of txt vectors
 
     verbose <- TRUE
 
@@ -2671,6 +2676,90 @@ Chart.13 <- function(my.control) {
                    )
     return(result)
 }
+Chart.14 <- function(my.control) {
+    Table <- function(lines) {
+        format.header <- '%12s %12s %12s %6s %6s %6s'
+        format.detail <- '%12s %12s %12s %6.0f %6.0f %6.0f'
+        format.notfound <- '%12s %12s %12s %s'
+        
+        Header <- function(predictorsName, ntree, mtry, median, cilow, cihi) {
+            line <- sprintf(format.header, predictorsName, ntree, mtry, median, cilow, cihi)
+            lines$Append(line)
+        }
+        Detail <- function(predictorsName, ntree, mtry, median, cilow, cihi) {
+            line <- sprintf(format.detail, predictorsName, ntree, mtry, median, cilow, cihi)
+            lines$Append(line)
+        }
+        NotFound <- function(predictorsName, ntree, mtry, message) {
+            line <- sprintf(format.notfound, predictorsName, ntree, mtry, message)
+            lines$Append(line)
+        }
+        Blank <- function() {
+            lines$Append(' ')
+        }
+        list( Header   = Header
+             ,Detail   = Detail
+             ,NotFound = NotFound
+             ,Blank    = Blank
+             )
+    }
+
+    verbose <- TRUE
+    fixed <- Chart.14.Fixed.Cell.Values()
+    Path <- CvCell()$Path
+
+    report <- Lines()
+    report$Append('Comparison of Estimated Generalization Errors')
+    report$Append('From Random Forests')
+    report$Append(' ')
+    Headers.Fixed(fixed, report)
+
+    # create table
+    table <- Table(report)
+    table$Header('predictors', ' ',     ' ',    ' ',        ' ',       ' ')
+    table$Header('name',       'ntree', 'mtry', 'median' , 'ci95%.lo', 'ci95%.hi')
+    table$Blank()
+
+    DetailLine <- function(table, predictorsName, ntree, mtry) {
+        path <- Path( scope          = fixed$scope
+                     ,model          = fixed$model
+                     ,timePeriod     = fixed$timePeriod
+                     ,scenario       = fixed$scenario
+                     ,response       = fixed$response
+                     ,predictorsName = predictorsName
+                     ,predictorsForm = fixed$predictorsForm
+                     ,ndays          = fixed$ndays
+                     ,query          = fixed$query
+                     ,lambda         = fixed$lambda
+                     ,ntree          = ntree
+                     ,mtry           = mtry
+                     )
+        if (!file.exists(path)) {
+            table$NotFound(predictorsName, ntree, mtry, 'file not found')
+            return()
+        }
+
+        # retrieve cross validation results from cv-cell file
+        loaded <- load(path)
+        stopifnot(length(cv.result) == 1)
+        a.cv.result <- cv.result[[1]]
+
+        rmse.values <- RootMedianSquaredErrors(a.cv.result)
+        ci <- CIMedian(rmse.values)
+        table$Detail(predictorsName, ntree, mtry, median(rmse.values), ci$lowest, ci$highest)
+    }
+
+    for (predictorsName in c('always', 'best20')) {
+        for (ntree in c('1', '100', '300', '1000')) {
+            for (mtry in c('1', '2', '3', '4')) {
+                DetailLine(table, predictorsName, ntree, mtry)
+            }
+        }
+    }
+    result <- report$Get()
+    if (verbose) print(result)
+    result
+}
 MakeMakefiles <- function(control) {
     # write one makefile for each chart that is being created
 
@@ -2681,90 +2770,6 @@ MakeMakefiles <- function(control) {
 
     Path <- CvCell()$Path
     Command <- CvCell()$Command
-    MakeMakefileOLD <- function( target.variable.name
-                             ,dependency.file.names
-                             ,targets.lines
-                             ,rules.lines
-                             ) {
-        # append to define.target.lines and rules.lines
-        num.systems <- 2
-        system.number <- 0
-        for (dfn in dependency.file.names) {
-            path <- Path( scope = dfn$scope
-                         ,model = dfn$model
-                         ,timePeriod = dfn$timePeriod
-                         ,scenario = dfn$scenario
-                         ,response = dfn$response
-                         ,predictorsName = dfn$predictorsName
-                         ,predictorsForm = dfn$predictorsForm
-                         ,ndays = dfn$ndays
-                         ,query = dfn$query
-                         ,lambda = dfn$lambda
-                         ,ntree = dfn$ntree
-                         ,mtry = dfn$mtry
-                         )
-            command <- Command( scope = dfn$scope
-                               ,model = dfn$model
-                               ,timePeriod = dfn$timePeriod
-                               ,scenario = dfn$scenario
-                               ,response = dfn$response
-                               ,predictorsName = dfn$predictorsName
-                               ,predictorsForm = dfn$predictorsForm
-                               ,ndays = dfn$ndays
-                               ,query = dfn$query
-                               ,lambda = dfn$lambda
-                               ,ntree = dfn$ntree
-                               ,mtry = dfn$mtry
-                               )
-            system.number <- system.number + 1
-            if (system.number == num.systems)
-                system.number <- 1 
-            target.lines$Append(sprintf( '%s-%dof%d += %s'
-                                        ,target.variable.name
-                                        ,system.number
-                                        ,num.systems
-                                        ,path))
-            rules.lines$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
-            rules.lines$Append(paste0('\t', command))
-        }
-        # .PHONY: <target>-1of2
-        # <target>-1of2 : $(<target>-1of2)
-        browser()
-        for (system.number in 1:num.systems) {
-            target.name <- sprintf('%s-target-%dof%d'
-                                   ,target.variable.name
-                                   ,system.number
-                                   ,num.systems
-                                   )
-            targets.lines$Append(sprintf('.PHONY: %s'
-                                         ,target.name
-                                         )
-            )
-            target.lines$Append(sprintf('%s: $($s-%dof%d)'
-                                        ,target.name
-                                        ,target.variable.name
-                                        ,system.number
-                                        ,num.systems
-                                        )
-            )
-        }
-        stopifnot(num.systems == 2)
-        target.lines$Append(sprintf('PHONY: %s'
-                                    ,master.target.variable.name
-                                    )
-        )
-        target.lines$Append(sprintf('%s: $(%s-1of2) $(%s-2of2)'
-                                    ,target.variable.name
-                                    ,target.variable.name
-                                    ,target.variable.name
-                                    )
-        )
-
-#        target.name <- paste0(target.variable.name, '-target')
-#        targets.lines$Append(sprintf('.PHONY: %s', target.name))
-#        targets.lines$Append(sprintf('%s: $(%s)', target.name, target.variable.name))
-        # return nothing
-    }
 
     targets.lines <- Lines()
     rules.lines <- Lines()
@@ -3064,6 +3069,14 @@ MakeCharts <- function(control) {
                    ,con = control$path.out.chart.13.submarkets.zip5.txt
                    )
     }
+    Make.Chart.14 <- function() {
+        browser()
+        chart.14 <- Chart.14(control)
+        writeLines( text = chart.14
+                   ,con = control$path.out.chart.14.txt
+                   )
+    }
+    
     developing <- FALSE
     if (!control$testing) {
         Make.Chart.5()
@@ -3074,9 +3087,10 @@ MakeCharts <- function(control) {
         Make.Chart.10()
         Make.Chart.11()
         Make.Chart.12()
+        Make.Chart.13()
+        Make.Chart.14()
     } else {
         # while developing
-        Make.Chart.13()
     }
 }
 Main <- function(control) {
@@ -3097,7 +3111,7 @@ Main <- function(control) {
 ### Execution starts here
 
 default.args <- list( makefile = TRUE) 
-#default.args <- list( makefile = FALSE) 
+default.args <- list( makefile = FALSE) 
 
 control <- Control(default.args)
 
