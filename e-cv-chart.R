@@ -756,7 +756,7 @@ Chart.4 <- function(my.control) {
          ,FileDependencies = FileDependencies
          )
 }
-Chart.5.Fixed.Cell.Values <- function() {
+Chart.5.Fixed.Cell.ValuesOLD <- function() {
     list( scope = 'global'
          ,model = 'linear'
          ,timePeriod = '2008'
@@ -772,7 +772,7 @@ Chart.5.FileDependencies <- function(my.control) {
     # predictorsName in {always, alwaysNoAssesment}
     # timePeriod 2008
 
-    fixed <- Chart.5.Fixed.Cell.Values()
+    fixed <- CvCell()$ChartCellsFixed('Chart5')
     result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('always', 'alwaysNoAssessment')) {
@@ -798,7 +798,7 @@ Chart.5.FileDependencies <- function(my.control) {
     }
     result
 }
-Chart.6.Fixed.Cell.Values <- function() {
+Chart.6.Fixed.Cell.ValuesOLD <- function() {
     # return list of selectors for cells that are fixed in chart 5
     list( scope = 'global'
          ,model = 'linear'
@@ -841,7 +841,7 @@ Chart.6.FileDependencies <- function(my.control) {
     }
     result
 }
-Chart.7.Fixed.Cell.Values <- function() {
+Chart.7.Fixed.Cell.ValuesOLD <- function() {
     list( scope = 'global'
          ,model = 'linear'
          ,scenario = 'avm'
@@ -882,7 +882,7 @@ Chart.7.FileDependencies <- function(my.control) {
     }
     result
 }
-Chart.8.Fixed.Cell.Values <- function() {
+Chart.8.Fixed.Cell.ValuesOLD <- function() {
     Chart.7.Fixed.Cell.Values()
 }
 Chart.8.Fixed.Cell.Dependencies <- function() {
@@ -908,7 +908,7 @@ Chart.9.PredictorsNames <- function(control) {
            )
     predictorsNames
 }
-Chart.9.Fixed.Cell.Values <- function() {
+Chart.9.Fixed.Cell.ValuesOLD <- function() {
     list( scope = 'global'
          ,model = 'linear'
          ,timePeriod = '2003on'
@@ -953,7 +953,7 @@ Chart.10.PredictorsNames <- function() {
     result <- sprintf('pca%02d', 1:4)
     result
 }
-Chart.10.Fixed.Cell.Values <- function() {
+Chart.10.Fixed.Cell.ValuesOLD <- function() {
     Chart.9.Fixed.Cell.Values()
 }
 Chart.10.FileDependencies <- function(my.control) {
@@ -992,7 +992,7 @@ Chart.11.PredictorsNames <- function() {
                 )
     result
 }
-Chart.11.Fixed.Cell.Values <- function() {
+Chart.11.Fixed.Cell.ValuesOLD <- function() {
     Chart.9.Fixed.Cell.Values()
 }
 Chart.11.FileDependencies <- function(my.control) {
@@ -1025,7 +1025,7 @@ Chart.12.Lambda.Values <- function() {
     lambda.on.command.line <- as.character(100 * lambda.in.regression)
     lambda.on.command.line
 }
-Chart.12.Fixed.Cell.Values <- function() {
+Chart.12.Fixed.Cell.ValuesOLD <- function() {
     list( scope = 'global'
          ,model = 'linL2'
          ,timePeriod = '2003on'
@@ -1062,7 +1062,7 @@ Chart.12.FileDependencies <- function(my.control) {
     }
     result
 }
-Chart.13.Fixed.Cell.Values <- function() {
+Chart.13.Fixed.Cell.ValuesOLD <- function() {
     list( model = 'linL2'
          ,timePeriod = '2003on'
          ,scenario = 'avm'
@@ -1129,7 +1129,7 @@ Chart.13.FileDependencies <- function(my.control) {
     result <- Chart.13.Parameters(my.control)
     result
 }
-Chart.14.Fixed.Cell.Values <- function() {
+Chart.14.Fixed.Cell.ValuesOLD <- function() {
     list( scope = 'global'
          ,model = 'rf'
          ,scenario = 'avm'
@@ -1336,8 +1336,9 @@ Headers.Fixed <- function(fixed, lines) {
 Chart.5 <- function(my.control) {
     # return list of lines, the txt table for chart 5
 
-    fixed <- Chart.5.Fixed.Cell.Values()
-    Path <- CvCell()$Path
+    cv.cell <- CvCell()
+    fixed <- cv.cell$ChartCellsFixed('chart5')
+    Path <- cv.cell$Path
 
     Header <- function() {
         lines <- Lines()
@@ -2331,8 +2332,10 @@ Chart.13 <- function(my.control) {
                         )
             if (file.exists(path)) 
                 created$Append(path)
-            else
+            else {
+                cat('missing indicator cell: ', path, '\n')
                 togo$Append(path)
+            }
         }
         result <- list( created = created$Get()
                        ,togo = togo$Get()
@@ -2808,7 +2811,7 @@ MakeMakefiles <- function(control) {
                                          ,path
                                          ))
         }
-        # assign 8 thread's to J's system and 12 thread's to R's
+        # assign 8 threads to J's system and 12 threads to R's
         CreateTarget <- function(tag, threads) {
             system.target.name <- sprintf('%s-target-%s'
                                           ,target.variable.name
@@ -2907,7 +2910,9 @@ MakeMakefiles <- function(control) {
                                ,ntree = dfn$ntree
                                ,mtry = dfn$mtry
                                )
-            rules.recipes$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
+            # don't depend on anything, so RUN THESE RULES MANUUALLY
+            rules.recipes$Append(paste0(path ,':'))
+            #rules.recipes$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
             rules.recipes$Append(paste0('\t', command))
         }
         rules.recipes
@@ -3077,7 +3082,6 @@ MakeCharts <- function(control) {
                    )
     }
     
-    developing <- FALSE
     if (!control$testing) {
         Make.Chart.5()
         Make.Chart.6()
