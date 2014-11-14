@@ -107,7 +107,7 @@ predictors.prices += $(splits)/price.log.RData
 .PHONY: all
 #all: $(working)/defense.pdf $(working)/experiments.pdf $(working)/thesis.pdf
 #all:  $(working)/experiments.pdf $(working)/thesis.pdf
-all:  $(working)/thesis.pdf $(working)/submarkets.RData e-cv-chart-chart13-target
+all:  $(working)/thesis.pdf
 
 # dependencies within this makefile
 predictors2.makefile: Predictors2.R predictors2.makefile.R
@@ -326,10 +326,6 @@ e-cv-chart-source += CvCell.R
 e-cv-chart-source += Lines.R
 e-cv-chart-source += Predictors2.R
 
-e-cv-chart-generated.makefile: e-cv-chart.R $(e-cv-chart-source)
-	Rscript e-cv-chart.R --makefile
-
-include e-cv-chart-generated.makefile
 
 # stem is .
 $(working)/e-cv-chart_chart5%txt \
@@ -350,6 +346,21 @@ $(working)/e-cv-chart_chart12%txt \
 : e-cv-chart.R $(e-cv-chart-source)
 	Rscript e-cv-chart.R
 
+# E-CV-CHART-GENERATED
+
+e-cv-chart-generated-data += $(working)/e-features-lcv2.txt
+e-cv-chart-generated-data += $(working)/submarkets.RData
+
+e-cv-chart-generated-souce += Directory.R
+e-cv-chart-generated-souce += Libraries.R
+e-cv-chart-generated-souce += CvCell.R
+e-cv-chart-generated-souce += Lines.R
+
+e-cv-chart-generated.makefile: \
+	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
+	Rscript e-cv-chart-generated.R
+
+include e-cv-chart-generated.makefile
 # E-FEATURES-LCV
 
 $(working)/e-features-lcv--query-100.RData \
