@@ -94,8 +94,13 @@ Predictors2 <- function(predictors.name, predictors.form) {
         # list of names in log1p space
         sapply(v, function(name) sprintf('%s.log1p', name))
     }
+    IsPositiveInteger <- function(s) {
+        maybe.number <- as.integer(s)
+        result <- (!is.na(maybe.number)) && maybe.number > 0
+        result
+    }
 
-    #cat('Predictors2 args:', predictors.name, predictors.form, '\n')
+    #cat('Predictors2 args:', predictors.name, predictors.form, '\n'); browser()
     result.named <-
         if (predictors.name == 'price') {
             price
@@ -162,12 +167,15 @@ Predictors2 <- function(predictors.name, predictors.form) {
                         ,'zip5'
                         )
             result
-        } else if (substr(predictors.name, 1, 4) == 'best' && predictors.form == 'level') {
-            #cat(predictors.name, predictors.form, '\n'); browser()
+        } else if (substr(predictors.name, 1, 4) == 'best' && 
+                   IsPositiveInteger(substr(predictors.name, 5, 6)) &&
+                   predictors.form == 'level') {
             n <- as.integer(substr(predictors.name, 5, 6))
             result <- best.features[1:n]
             result
-        } else if (substr(predictors.name, 1, 3) == 'pca' && predictors.form == 'level') {
+        } else if (substr(predictors.name, 1, 3) == 'pca' && 
+                   IsPositiveInteger(substr(predictors.name, 4, 5)) &&
+                   predictors.form == 'level') {
             n <- as.integer(substr(predictors.name, 4, 6))
             result <- pca.features[1:n]
             result
@@ -209,4 +217,4 @@ Predictors2Test <- function() {
     Test('alwaysNoCensus', 'log')
 }
 
-Predictors2Test()
+#Predictors2Test()
