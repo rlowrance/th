@@ -11,11 +11,8 @@
 source('Directory.R')
 source('Libraries.R')
 
-#source('CrossValidateCharts.R')
-#source('CvApplyAllPossibilities.R')
 source('CvCell.R')
 source('Lines.R')
-source('Predictors2.R')
 
 #library(boot)
 #library(ggplot2)
@@ -366,7 +363,6 @@ Chart.14.FileDependencies <- function(control) {
 }
 MakeMakefiles <- function(control) {
     # write a makefile
-    browser()
 
     Path <- CvCell()$Path
     Command <- CvCell()$Command
