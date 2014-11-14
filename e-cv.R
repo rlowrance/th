@@ -550,6 +550,7 @@ Evaluate_9 <- function( model, scenario, response
                                             ,linL2  = ModelLinL2.Predict
                                             ,rf = ModelRandomForest.Predict
                                             )
+                     ,model.name = control$model.name
                      )
 
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
