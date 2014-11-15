@@ -19,7 +19,7 @@ overlap in time periods for our data is small.
 2009. Deeds from a few bonus years before 1984 are thrown in.
 \item The taxroll file is for 2008. It was created in late 2007. It
 contains property descriptions as well as the tax assessor's estimated
-value for the house. It also contains the census tract number for the
+value for the house. It also contains the census tract number for each
 house.
 \item The census file contains data from the decennial census file in
 year 2000. It became available to the public sometime in 2002.
@@ -37,11 +37,70 @@ census data became available.
 Furthermore, we can extend the time period back before 2003, if the
 census data are also not valuable for predictive purposes.
 
-The next few sections explore the value of the assessment and census
-data.
+To determine whether feature sets are valuable for predictive purposes,
+we employ a cross validation and model-testing process using the training data.
+
+The remainder of this chapter is sectionalized.
+
+\begin{itemize}
+\item Section 1 describes the cross validation process and how models
+are fitted and use for prediction.
+\item Section 2 provides an overview of the real estate taxes in
+California.
+\item Section 3 answers the question: Are the tax assessment-derived
+features valuable for predicting prices?
+\item Section 4 provides an overview of the U.S. decennial census and
+the year 2000 census in particular.
+\item Section 5 answers the questions: Are the census-derived features
+valuable for predicting prices?
+\item Section 6 provides a brief summary of the findings: the tax
+assessment-derived features are not valuable and the census-tract
+derived features are valuable.
+\end{itemize}
+
+\section{Cross Validation and Model Fitting}
+
+We will be comparing a large number of models with the goal of selecting
+the models that are best for predictive purposes. In this work, ``best''
+means that the model provides the lowest estimated generalization error,
+which is defined to be the estimated error on data that the trained
+model has never seen.
+
+The estimate the generalization error, we use 10-fold cross validation,
+as described in \cite{hastie-01} Chapter 7 (starting page 214). Our
+implementation of cross validation assigns each of the training samples
+randomly to one of 10 folds and then trains 10 sets of models. Each set
+of models sees 90 percent of the data as training data and the remaining
+10 percent as testing data. This is the standard 10-fold cross
+validation approach: for each fold, we have a training data set (with 90
+percent of the data) and testing data set (with 10 percent of the data).
+
+For each of the samples in the testing set, we then build a local model
+just for that sample, which we call the query transaction. To avoid
+using the future in the training process, the local model first discards
+all data in the training set that occurs on or after the date of the
+query transaction. A model is then trained on remaining data in the
+training fold. The trained model is then used to predict the query
+transaction's price and the results are recorded. After all query
+transactions in all folds are recorded, the accuracy of the predictions
+is assessed.
+
+There are two optimizations both motivated by potentially long
+computational times in the fitting process for numerous query
+transactions. The first optimization caches trained models for a
+particular fold that have the same query date. All models with the same
+query date are fitted to the same training data because the training
+process does not use the query transaction or any data on or after the
+data of the query transaction. This optimization is always used, because
+it doesn't change the results.
+
+The second optimization samples the potential query transactions in the
+testing set from a fold. We do this because of the potentially large
+size of the testing sets: Los Angeles County is very large and we are
+testing potentially over many years of transactions. This optimization
+is used often when multiple years of data are studied.
 
 \section{Understanding the Real Estate Tax Assessment}
-
 
 % including a pdf
 \begin{figure}[h]
