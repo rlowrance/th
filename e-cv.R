@@ -32,6 +32,7 @@
 # --lambda INT: (100 * lamba), the weight of the L2 regularizer
 # --ntree INT
 # --mtry  INT
+# --fold  {all, combine, N} where N is 1, 2, .. 10
 
 source('Directory.R')
 source('Libraries.R')
@@ -64,6 +65,9 @@ Control <- function(default.args) {
     working <- Directory('working')
 
     # validate each command arg
+    IsPositive1To10 <- function(i) {
+        i >= 1 && i <= 10
+    }
 
     stopifnot(opt$ndays > 0)
     stopifnot( opt$predictorsName == 'always'
@@ -86,6 +90,16 @@ Control <- function(default.args) {
     stopifnot( opt$timePeriod == '2003on'
               |opt$timePeriod == '2008'
               )
+    if (opt$fold == 'all' | opt$fold == 'combine') {
+        # do nothing, value is OK
+    } else {
+        i.fold <- as.integer(opt$fold)
+        if (i.fold >= 1 | i.fold <= 10) {
+            # do nothing, value is OK
+        } else {
+            stop(paste0('bad fold option = ', as.character(opt$fold)))
+        }
+    }
 
     # define splits we use
     predictors <- Predictors2( predictors.name = opt$predictorsName
@@ -118,7 +132,6 @@ Control <- function(default.args) {
     stopifnot(!is.null(codes.property.city))
     stopifnot(!is.null(codes.zip5))
 
-
     control <- list( path.in.splits = splits
                     ,path.out.log = paste0(log, out.base, out.options, '.log')
                     ,path.out.rdata = paste0(working, out.base, out.options, '.RData')
@@ -126,6 +139,11 @@ Control <- function(default.args) {
                     ,codes.property.city = codes.property.city
                     ,codes.zip5 = codes.zip5
                     ,opt = opt
+                    ,fold.option = switch( opt$fold
+                                          ,all = 'all'
+                                          ,combine = 'combine'
+                                          ,as.integer(opt$fold)
+                                          )
                     ,model.name = out.options
                     ,nfolds = 10
                     ,split.names = unique(c( predictors
@@ -140,6 +158,7 @@ Control <- function(default.args) {
                     ,trace.memory.usage = TRUE
                     ,fold.counter = Counter()
                     ,me = me
+                    ,master.clock = Clock()
                     )
     control
 }
@@ -175,6 +194,7 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionInt('lambda',         '(100 * lamdda) for regularized regression')
              ,OptionInt('ntree',          'number of trees (for randomForest)')
              ,OptionInt('mtry',           'number of features samples when growing tree (for randomForest)')
+             ,OptionChr('fold',           'one of {all, combine, N in 1..10}')
              )
 
     opt <- parse_args( object = OptionParser(option_list = option.list)
@@ -751,6 +771,14 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                                    ,{control$fold.counter$Increment(); control$fold.counter$Get()}
                                    )
     )
+
+    # handle --fold command line parameter
+    browser()
+    control$fold.counter$Increment()
+    if (is.integer(control$fold.option)) {
+        if (control$fold.counter$Get() != control$fold.option) 
+            return(NULL)
+    }
     
     # split the data into training and test folds
     # also discard transactions with houses built after date of taxroll
@@ -777,12 +805,13 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                           ,control = control
                           )
     MaybeReportMemoryUsage('end EvaluateModelHp')
-    Printf( 'time for  fold %d:  %f CPU minutes %f elapsed minutes\n'
+    Printf( 'cumulative time for  fold %d:  %f CPU minutes %f elapsed minutes\n'
            ,control$fold.counter$Get()
-           ,clock$Cpu() / 60
-           ,clock$Wallclock() / 60
+           ,control$master.clock$Cpu() / 60
+           ,control$master.clock$Wallclock() / 60
            )
     Printf(' model %s\n', control$model.name)
+    #cat('finished fold\n'); browser()
     result
 }
 Main <- function(control, transaction.data.all.years) {
@@ -877,16 +906,15 @@ clock <- Clock()
 # 90808 13834
 # 91767 13882
 default.args <-
-    list(#scope          = 'global'
+    list( scope          = 'global'
          #scope          = '535000'  # census tract 60 observations
          #scope          = '464100'  # census tract 60 observations
          #scope          = 'LOSANGELES' # property.city 135985 observations
          #scope          = 'WATTS'      # property.city 1 observations
          #scope          = '90013'      # zip5 2 observations
          #scope          = '91767'      # zip5 13882 observations
-         # scope          = '910706'
-          scope          = '91750'
-         ,model          = 'linL2'
+         #scope          = '910706'
+         #scope          = '91750'
          ,model          = 'rf'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
@@ -894,10 +922,11 @@ default.args <-
          ,predictorsForm = 'level'
          ,predictorsName = 'best20'
          ,ndays          = '60'
-         ,query          = '1'
-         ,lambda         = '400'
-         ,ntree          = '0'
-         ,mtry           = '0'
+         ,query          = '100'
+         ,lambda         = '0'
+         ,ntree          = '1'
+         ,mtry           = '1'
+         ,fold           = 'all'
          )
 control <- Control(default.args)
 
