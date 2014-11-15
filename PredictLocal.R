@@ -95,9 +95,10 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
     # group queries by sale date, and fit one model for each sale date
     saleDates <- query.transactions$saleDate
     unique.saleDates <- unique(saleDates)
-    for (saleDate.number in unique.saleDates) {
+    for (unique.saleDate.index in 1:length(unique.saleDates)) {
+      saleDate.as.number <- unique.saleDates[[unique.saleDate.index]]
       #cat('looping on saleDate\n'); browser()
-      saleDate <- as.Date(saleDate.number, origin = as.Date('1970-01-01'))
+      saleDate <- as.Date(saleDate.as.number, origin = as.Date('1970-01-01'))
 
       # derive training data, convert years to ages, remove factors levels with 0 occurences
       training.data.in.period <- TrainingData( data.training = data.training
@@ -108,8 +109,10 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                                ,saleDate = saleDate
                                                )
       training.data.factors <- RemoveZeroOccurrenceLevels(training.data.age)
-      Printf('saleDate %s fitting on %d samples model %s\n'
+      Printf('saleDate %s %d of %d fitting on %d samples model %s\n'
              ,saleDate
+             ,unique.saleDate.index
+             ,length(unique.saleDates)
              ,nrow(training.data.factors)
              ,model.name
              )
