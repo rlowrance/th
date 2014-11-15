@@ -7,7 +7,92 @@ sections that describe other comparisons of real estate price prediction
 models. These are organized by data of publication of the study. The
 final section describes the contributions of this work.
 
-\section{2010 Louisville}
+\section{2003 Study of Tuscon Prices in 1998} 
+
+In \cite{fik-03-spatial}, authors Timothy J. Fik, David C. Ling, and
+Gordon F.  Mulligan study approaches for incorporating location into
+house-price estimation models using data from 1998 for Tuscon, Arizona.
+The data are for 2,971 sales transactions as recorded in nine
+multiple-listing services systems. These system partition the real
+estate space studied.
+
+Four models were compared. All all linear in form in which the log price
+is predicted using features in natural units.
+
+\begin{itemize}
+
+\item Model 1 was an ``aspatial'' model. It contains no location
+features. Features used include the interior square footage, lot size,
+and age of the house, as well as the squares of these features. Some
+products and cubes of these features may have been included (the text is
+ambiguous, see the note with Table 2 page 634).
+
+\item Model 2 used indicator variables for the multiple-listing systems.
+In addition the features from model 1 were used and well as interactions
+with the indicator variables. Though nine multiple-listing systems were
+used, only 3 indicator variables for them were included. The choice of
+these variables reflects the implied expert opinions of the real estate
+agents.
+
+\item Model 3 used GPS coordinates after transforming them into $x,y$ offsets
+from the most southwestern house. In addition, features from model 1
+were used as well as some interactions of the $x$ and $y$ location features.
+
+\item Model 4 used by the three multiple-listing system indicator
+variables and the $x,y$ offsets. In addition, features from model 1 were
+used as well as interactions of the $x,y$ features as well their squares
+and cubes.
+\end{itemize}
+
+
+
+The text claims model 4 performed best as measured by the mean absolute
+error and fraction of estimates with 10 percent of observed prices. The
+error rates were identified by randomly selecting 500 of the 2971
+transactions, training on remaining 2491 transactions and testing on the
+500.
+
+Model 3 is claimed to perform almost as well as model 4, and does
+not require the expert knowledge of the real estate agents, just the
+property descriptions and GPS coordinates.
+
+Model 3 is claimed to perform better than model 2 as measured by mean
+absolute error and only slightly worse as measured by fraction of
+estimates within 10 percent.
+
+Stengths of the work include:
+
+\begin{itemize}
+
+\item Incorporation of GPS coordinates. This work seems to be among the
+first to do so.
+
+\item Demonstrating the GPS coordinates provide a useful feature in
+predicting real estate prices.
+
+\item Demonstrating that the expert knowledge of real estate agents is
+not needed: GPS coordinates provide at least as accurate measurements
+and avoid the risk of using an expert who lacks insight.
+
+\end{itemize}
+
+Limitations of the work include: 
+
+\begin{itemize}
+
+\item Inclusion of only a few non-location features of the house.
+
+\item There is some art in detemining which interactions to include and
+whether the include $x$ and $y$ features in squared and cubed forms in
+these interaction features.
+
+\item The approach for estimating the generalization error is relative
+weak: it uses a single hold-out test sample instead of a cross
+validation procedure that would use the labelled data more thoroughly.
+
+\end{itemize}
+
+\section{2010 Study of Louisville Prices in 1999}
 
 In \cite{bourassa-10-predicting}, authors Steven C. Bourassa, Evan
 Cantoni, and Martin Hoesli compare hedonic methods for predicting
@@ -98,6 +183,7 @@ cannot be extended to also test other techniques.
 This work extends the literature in several ways.
 
 \begin{itemize}
+
 \item Open sources all of the software. The implementation is entirely
 in the R programming language \cite{r-14}. All the source code is available in
 the author's github acount \code{rlowrance}. The license is the GNU
@@ -122,5 +208,23 @@ United States \cite{census-bureau-14-population-clock}.
 \item Most prior studies measure goodness of fit of the tested model
 using some variant of the metric ``fraction of estimated values within
 10 percent of the actual value.'' We test this metric against other choices.
+
+\item Most prior studies use only information available from tax
+asessors and records of deeds. We extend this information to include
+information available from the U.S. Census Bureau.
+
+\end{itemize}
+
+
+Some limitations of this work include:
+
+\begin{itemize}
+
+\item The dataset is proprietary to the study. Thus even though the
+source code is available, results cannot be replicated on these data.
+
+\item The work reported on here does not use the GPS coordinates for the
+properties. Other work has found that leveraging the GPS coordinates can
+improve predictive accuracy.
 
 \end{itemize}
