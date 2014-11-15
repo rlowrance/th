@@ -322,12 +322,37 @@ e-cv-source += ReadTransactionSplits.R
 
 e-cv-chart-source += Directory.R
 e-cv-chart-source += Libraries.R
+e-cv-chart-source += Chart5.R
+e-cv-chart-source += Chart6.R
+e-cv-chart-source += Chart7.R
+e-cv-chart-source += Chart8.R
+e-cv-chart-source += Chart9.R
+e-cv-chart-source += Chart10.R
+e-cv-chart-source += Chart11.R
+e-cv-chart-source += Chart12.R
+e-cv-chart-source += Chart13.R
+e-cv-chart-source += Chart14.R
+e-cv-chart-source += Chart9And10.R
+e-cv-chart-source += Chart12LambdaValues.R
+e-cv-chart-source += CIChart.R
+e-cv-chart-source += CITable.R
 e-cv-chart-source += CvCell.R
+e-cv-chart-source += HeadersFixed.R
 e-cv-chart-source += Lines.R
+e-cv-chart-source += MeanWithin10.R
+e-cv-chart-source += MedianRMSE.R
 e-cv-chart-source += Predictors2.R
+e-cv-chart-source += RootMedianSquaredErrors.R
+e-cv-chart-source += Table5And6.R
+e-cv-chart-source += Table7A.R
+e-cv-chart-source += Table7B.R
+e-cv-chart-source += Table8.R
 
+# data dependencies
+# NOTE: also depends on most everything in e-cv-cell directory
+e-cv-chart-data += $(working)/e-features-lcv2.RData
+e-cv-chart-data += $(working)/submarkets.RData
 
-# stem is .
 $(working)/e-cv-chart_chart5%txt \
 $(working)/e-cv-chart_chart6%txt \
 $(working)/e-cv-chart_chart7%txt \
@@ -343,7 +368,13 @@ $(working)/e-cv-chart_chart11_2%pdf \
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
 $(working)/e-cv-chart_chart12%txt \
-: e-cv-chart.R $(e-cv-chart-source)
+$(working)/e-cv-chart_chart13_indicators%txt \
+$(working)/e-cv-chart_chart13_submarkets_summary%txt \
+$(working)/e-cv-chart_chart13_submarkets_census%txt \
+$(working)/e-cv-chart_chart13_submarkets_property_city%txt \
+$(working)/e-cv-chart_chart13_submarkets_zip5%txt \
+$(working)/e-cv-chart_chart14%txt \
+: e-cv-chart.R $(e-cv-chart-source) $(e-cv-chart-data)
 	Rscript e-cv-chart.R
 
 # E-CV-CHART-GENERATED
