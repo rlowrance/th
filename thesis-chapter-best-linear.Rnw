@@ -37,8 +37,8 @@ Our interest is in estimating the generalization error for unseen
 transactions. For this, we use 10-fold cross validation on the training
 portion of the subset1 data.
 
-Property descriptions come from the taxroll for the year 2008. The
-taxroll contains property descriptions as of December 31, 2007. We
+Property descriptions come from the tax roll for the year 2008. The
+tax roll contains property descriptions as of December 31, 2007. We
 need to exclude from out data any houses built or modified after that
 date. An analysis shows that there are no such houses.
 
@@ -85,7 +85,7 @@ MSE). To make the untenable situation acceptable, one would need to
 produce both an estimate and a confidence in the estimate.  Now the
 model has to be trained to deliver two values, and we have conceivable
 more than doubled the difficulty of the problem of selecting the best
-model: there are now two figures of merit and how to make radeoffs
+model: there are now two figures of merit and how to make tradeoffs
 between them is not obvious.
 
 The issue of choice of figure of merit would be moot if using either
@@ -103,7 +103,7 @@ natural units
 
 All of these models used all features always present except for those
 derived from the tax assessor data. All models used data from 2003 on.
-To keep running times resonable, a random one percent sample of possible
+To keep running times reasonable, a random one percent sample of possible
 test transactions (queries) was drawn from each cross-validation fold.
 
 The results are depicted in Figure \ref{figure:merit1}.
@@ -248,7 +248,7 @@ have one surprising findings.
 
 \subsubsection{LCV Heuristic}
 
-We have 24 feaures that are candidates for inclusion in the model. A
+We have 24 features that are candidates for inclusion in the model. A
 straight-forward way to determine the best feature combinations is to
 consider all possible subsets and estimate the generalization error for
 each. This would be way too time consuming.
@@ -263,7 +263,7 @@ validation.
 The implementation is by using the Elastic Net from Zoe and Hastie
 (\cite{zou-05}). It solves a linear model by concurrently using an L1
 and L2 regularizer. As a by-product, the \code{elasticnet} R package
-(\cite{zou-12}) produces a rank-ordering of the featuresfrom Zoe and
+(\cite{zou-12}) produces a rank-ordering of the features from Zoe and
 Hastie (\cite{zou-05}). It fits a linear model by concurrently using
 L1 and L2 regularizer. 
 
@@ -278,11 +278,11 @@ L1 and L2 regularizer.
 \end{figure}
 
 The result of the rank-ordering from the Elastic Net procedure is in
-Figure \ref{figure:MedianTable}. It shows that the most important feature is the
-living area of the house. Real estate agents claim the most important
-features of the house its its location, but that isn't true in these
-data. Indeed, a features of the location (median household income and
-average commute time) are second and third in importance. 
+Figure \ref{figure:MedianTable}. It shows that the most important
+feature is the living area of the house. Real estate agents claim the
+most important features of the house its its location, but that isn't
+true in these data. Indeed, a features of the location (median household
+income and average commute time) are second and third in importance. 
 
 % including a pdf
 \begin{figure}[h]
@@ -295,7 +295,7 @@ Showing Origin
 \end{figure}
 
 The same data are shown in \ref{figure:MedianGraph1}, which shows the
-estimated generalization error fom including the first $n$ features,
+estimated generalization error from including the first $n$ features,
 together with a 95 percent confidence interval. One sees that the lowest
 estimated error is when using the first 20 features, from living area to
 census tract has park. The estimated errors then tend to increase and
@@ -308,7 +308,7 @@ in estimated generalization error before a subsequent decline. Another
 possible feature set is the first 20 feature (through census tract has
 park), as that feature set has the lowest estimated error. Another
 choice would be 19 features (through factor is new construction) as
-though it would have a slightly higher median estimated generatlization
+though it would have a slightly higher median estimated generalization
 error than for the 20-feature choice, the 95% confidence interval is
 smaller.
 
@@ -363,7 +363,7 @@ features indicate the wealth of the neighborhood.
 \item average commute time: in other studies, longer commutes are
 associated with lower prices.
 
-\item zip 5 and census tract have idustry: being near industry is not
+\item zip 5 and census tract have industry: being near industry is not
 good for prices.
 
 \item census tract and zip have park: Los Angeles residents are not
@@ -434,8 +434,9 @@ In Figure \ref{figure:PCA202} we see the weights of the 24 features in
 the second principal component. The land square footage has the highest
 absolute weight. Other weights are much lower in value with household
 income and living area being the largest in absolute size. This
-principal component is possibly about the size of the land and has the same
-correlated highly-weighted features as the first principal component.
+principal component is possibly about the size of the land and has the
+same correlated highly-weighted features as the first principal
+component.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -486,7 +487,7 @@ In Figure \ref{figure:MedianTable10} we see the estimated generalization
 error from using the median household income, median household income
 and land square foot, and so on up to the 4 features identified as
 important in the PCA work. The same data are in Figure
-\ref{figue:MedianGraph102} which shows the 95 percent confidence
+\ref{figure:MedianGraph102} which shows the 95 percent confidence
 intervals graphically. One might choose to use only the first 3 features
 based on this graphic.
 
@@ -527,7 +528,7 @@ prediction accuracy. So far the models are all linear and are not
 regularized.
 
 To assess the extent to which regularization leads to more accuracy, we
-take the model using the 20 best features and run multiple verions using
+take the model using the 20 best features and run multiple versions using
 several choices for the weight of an L2 regularizer. A simple grid
 search was used. 
 
