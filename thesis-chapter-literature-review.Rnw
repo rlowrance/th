@@ -7,6 +7,84 @@ sections that describe other comparisons of real estate price prediction
 models. These are organized by data of publication of the study. The
 final section describes the contributions of this work.
 
+\section{2003 Study of Auckland Prices in 1996}
+
+In \cite{bourassa-03-submarkets} authors Steven C. Bourassa, Martin E.
+Hoesli, and Vincent S. Peng study housing prices in Auckland, New
+Zealand in 1996. Their objective is to determine the extent to which
+housing submarkets matter.
+
+The idea of introducing housing submarkets is this: rather than develop
+a model for an entire city, partition the city into submarkets and
+develop a model for each submarket or, alternatively, fit one model and
+include in it an indicator variable for each submarket. The motivation
+for introducing submarkets is to improve prediction accuracy. It's clear
+that not all submarket definitions will improve accuracy: for example,
+define every house to be in its own submarket, and then only training
+data is the history of prices for the single house. It's hard to
+see how this model could be accurate.
+
+So the problem is to find a definition of submarket that improves
+accuracy. The text considers two definitions. For the first, submarkets
+are defined as the ``sales groups'' used by the Auckland government real
+estate tax appraisers.  ``The sales groups are geographic areas
+considered by the appraisers to be relatively homogeneous.''
+
+For the second definition of submarkets, principal components analysis
+(PCA) was used.  Two sets of PCA-based clusters were defined. The first
+was based on all the PCA components accounting for 80 of the variance in
+price. The second was based on the first two principal components. The
+extracted clusters are the submarkets; the are not required to hold
+contiguous houses.
+
+Five models were developed.
+
+\begin{itemize}
+\item Model 1 was for the entire market. The features set was from the
+tax assessment kugmented by indicator variables for each quarter.
+
+\item Model 2 was like model 1, but included indicator variables for the
+sales groups.
+
+\item Model 3 was a separate model for each sales group.
+
+\item Model 4 was a separate model for the first set of PCA-based
+clusters.
+
+\item Model 5 was a separate model for the second set of PCA-based
+clusters.
+
+\end{itemize}
+
+Various subsets of the houses and features were tested. We focus here on
+results for detached houses (corresponding to our interest in
+single-family residences), for a restricted data set (using only
+variables readily available from the tax assessor), and for
+non-spatially adjusted data (the spatial adjustments add  complication
+without changing the conclusions of interest to us).
+
+A resampling technique was used to estimate the generalized error, which
+was measures at the fraction of estimated prices that are within 10 and
+20 percent of their true values. (RMSE values were not reported.)
+
+Based on the fraction of estimates within 10 percent of true values, the
+models using the sales group outperformed the models using the clusters
+found through PCA. Thus, reliance on a experts trumped reliance on the
+specific clustering algorithms used. Other automated means to find
+clusters may outperform the human experts. Models with clusters always
+outperformed model 1, the model for the entire market. Model 2, which
+used indicator variables for the sales groups, slightly outperformed
+model 3, which used a separaete model for each sales group.
+
+The strength of this study its the demonstration that submarkets are
+important and the discovery that, at least in Auckland in 1999, the
+human expert tax authorities outperform one PCA-based clustering
+algorithm.
+
+The weaknesses, not of the study but of the literature, is a lack of
+follow up in attempting to construct algorithmic clustering techniques
+that outperform the human experts.
+
 \section{2003 Study of Tuscon Prices in 1998} 
 
 In \cite{fik-03-spatial}, authors Timothy J. Fik, David C. Ling, and
@@ -36,12 +114,13 @@ agents.
 
 \item Model 3 used GPS coordinates after transforming them into $x,y$ offsets
 from the most southwestern house. In addition, features from model 1
-were used as well as some interactions of the $x$ and $y$ location features.
+were used. Also included were squares and cubes of all the features as
+well as interactions among all the features.
+as well as some interactions of the $x$ and $y$ location features.
 
-\item Model 4 used by the three multiple-listing system indicator
-variables and the $x,y$ offsets. In addition, features from model 1 were
-used as well as interactions of the $x,y$ features as well their squares
-and cubes.
+\item Model 4 used all the features from model 2 and 3 combined, so it
+has both the expertise of the real estate agents and the $x,y$
+locations. Interactions were again included.
 \end{itemize}
 
 
@@ -92,6 +171,67 @@ validation procedure that would use the labelled data more thoroughly.
 
 \end{itemize}
 
+\section{2009 Study of Los Angeles Prices in 2004}
+
+In \cite{chopra-09} author Summit Prakash Chopra developed factor graphs
+for relational regression, an approach intended to capture ``the
+underlying relation structure'' of the data. He develops the approach
+and illustrates its value using two real estate price prediction
+problems. Here we review the first of these price prediction problems
+because its setting is most like other price prediction studies.
+
+Five models were compared:
+
+% see page 101 for the results
+\begin{itemize}
+
+\item Model 1 was a nearest neighbor model using 90 neighbors, a value
+found through experimentation. The distance metric was the Euclidean
+metric on the entire feature space with equally weighted coordinates.
+
+
+\item Model 2 was linear regression using an L2 regularizer. The
+features used were the tax assessor features.
+
+
+\item Model 3 was a locally-weighted regression. Here ``local'' means
+that a separate linear model was constructed for each query transaction.
+The training set for the query was the $K$ nearest neighbors to the
+query.  The distance metric was the Euclidean distance in the feature
+space and the GPS coordinates. Distances were converted to weights via a
+Gaussian kernel (called exponential in the text). $K$ was set to 70
+through experimentation.
+
+\item Model 4 was a neural network with two hidden layers.
+
+\item Model 5 was a ``relational factor graph,'' a model developed for
+the study. This model is designed to determine neighborhood
+desirability for all houses collectively. A by-product of the relational
+factor approach is that neighborhood desirability is computed.
+
+\end{itemize}
+
+The models were compared by training on the the first 90 percent of
+transactions in 2004 and then estimating the values for the transactions
+in the last 10 percent of 2004. The size of the data set is much larger
+than for other studies reported here: it has about 42,000 transactions.
+
+Here we report the study's results for the metric fraction of estimated
+values within 10 percent of the true values. The accuracy of the models
+is in the order listed above: model 1 was least accurate, model 5 was
+most accurate.
+
+A strength of the study is the development of the relational factor
+graph approach.
+
+A gap in the literature is to compare the value of the desirability of
+the neighborhoods as determined by the factor graph approach with
+simplier easier-to-compute and easier-to-understand approaches. One such
+feature is the $Location$ feature use in Louisville 2003 - 2007 study.
+Another such feature is the census tract median household income, which
+is used in the present work. How well models built with these features
+perform is work that has not yet been carried out.
+
 \section{2010 Study of Louisville Prices in 1999}
 
 In \cite{bourassa-10-predicting}, authors Steven C. Bourassa, Evan
@@ -110,11 +250,12 @@ These models were compared:
 \item An OLS model.
 \item A two-stage OLS model. The first stage is used to calculate
 residuals. The second stage uses the average residual of the ten nearest
-neighbors as an additional feature.
-\item A geostatistical model, an approach that models the covariance
-matrix of residuals from a first-stage model. The key assumption of
-geostatistical models is that ``the covariance [of prices] between locations depends
-only on the distance between them (\cite{bourassa-10-predicting} page 142).'' 
+neighbors as an additional feature.  \item A geostatistical model, an
+approach that models the covariance matrix of residuals from a
+first-stage model. The key assumption of geostatistical models is that
+``the covariance [of prices] between locations depends only on the
+distance between them '' (\cite{bourassa-10-predicting} page 142). 
+
 %That is, consider
 %all locations $s$ in space $F$. The data are hypothesized to be
 %generated by random process $Y(s)$ so that when $s \in F$, $E(Y(s)) = \mu$, in
@@ -178,6 +319,179 @@ The main strengths of the work are the use of a single data set to
 compare very different models. It is a shame that the modeling work
 cannot be extended to also test other techniques.
 
+\section{2011 Study of Louisville Prices in 2003 - 2007}
+
+In \cite{zurada-11-comparison} authoris Jozef Zurada, Alan S. Levitan,
+and Jian Guan compare regression and ``artificial intelligence'' methods
+for predicting real estate prices. The study uses Louisville data for
+2003 - 2007. 
+
+Seven models were compared (descriptions are from the text):
+
+\begin{itemize}
+
+\item MRA: multiple regression analysis using features from the tax
+assessor. 
+
+\item NN: neural network.
+
+\item M5P trees: a decision tree with a linear regression model built at
+each leaf.
+
+\item additive regression (aka, gradient boosting): an ensemble method
+that repeatedly adds models that best maximize predictive performance.
+
+\item SVM-SMO regression: support vector machines optimized not with a
+quadratic programming but with sequential minimal optimization, which is
+claimed to be faster.
+
+\item RBFNN: a neural network variant with one hidden layer where the
+hidden layer is a radial Guassian activation function.
+
+\item MBR : memory-based reasoning, which was not defined in the text.
+Possible it was the average of the 10 nearest neighbors (based on the
+headings in Exhibits 8, 9, and 10).
+
+\end{itemize}
+
+
+The data set came from the Louisville tax assessor. After processing, it
+contained 16,366 sales in years 2003 - 2007 (hence before the real
+estate crash) and 18 features (the text sometimes says 16 features).
+
+
+Five ``scenarios'' were studied.
+
+\begin{itemize}
+
+\item Scenario 1 used the data from the tax collector. There was one
+model for the entire market.
+
+\item Scenario 2 used all the features from scenario 1 and a feature
+call $Location$
+meant to represent neighborhood desirability: the mean price of
+properties within a tax assessor district, which is designed by the tax
+assessor to contain 10 to 50 properties. What time periods were used is
+not specified. There was one model for the entire market. (A better name
+for $Location$ would be $neighborhood.value$.)
+
+\item Scenario 3 used K-means to create 3 clusters using all the
+features from scenario 2 and the sales price. A Euclidean distance was
+used most likely with equal weighting of the coordinated, as coordinate
+weighting was not discussed. A separate model was built for each
+cluster.
+
+\item Scenario 4 used K-means clustering to create 5 clusters using just
+the $Location$ feature from scenario 2 and sales price. A separate model
+was built for each cluster.
+
+\item Scenario 5 used K-means clustering to create 5 clusters using
+$Location$, sale price, age, and interior square footage. A separate
+model was built for each cluster.
+
+\end{itemize}
+
+Each of the seven model forms was compared on each of the five
+scenarios-cluster combinations.  Comparisons were based on 10-fold cross
+validation. Each fold produces one error estimate. Cross validation was
+repeated: if each fold had more than 5000 observations, the cross
+validation with new random draws was repeated 3 times; otherwise it was
+repeated 10 times.  It is claimed (but not substantiated) that this
+procedure is ``sufficient to achieve stabilization of cumulative average
+error'' (page 368).
+
+Models are compared on a five metrics including RMSE and excluding
+fraction within $X$ percent.
+
+
+
+<<zurada>>=
+names <- c(     'mra',  'nn', 'rbf', 'svm', 'mbr',  'ar', 'm5p')
+# RMSE results by scenario s.1 .. s.5 and cluster c.a .. c.d
+sc <- list(
+ s.1           = c(39288, 38235, 38641, 39439, 36985, 35281, 35802)
+
+,s.2           = c(31472, 30755, 32949, 31651, 33729, 28139, 28614)
+
+,s.3.cluster.a = c(36235, 43010, 37317, 36022, 43950, 34719, 35996)
+,s.3.cluster.b = c(28460, 34389, 30777, 28137, 33951, 27155, 27255)
+,s.3.cluster.c = c(23152, 26589, 25386, 23080, 26125, 22002, 22035)
+
+,s.4.cluster.a = c(40871, 44075, 39069, 41044, 46529, 38966, 38970)
+,s.4.cluster.b = c(23033, 24897, 23173, 22967, 24979, 21709, 22280)
+,s.4.cluster.c = c(22652, 24869, 22786, 22659, 24670, 21820, 21906)
+,s.4.cluster.d = c(21176, 24564, 21403, 21026, 24646, 20854, 20937)
+ 
+,s.5.cluster.a = c(46557, 48761, 47865, 46574, 56306, 45529, 45459)
+,s.5.cluster.b = c(40419, 39809, 41352, 40575, 43793, 40343, 40362)
+,s.5.cluster.c = c(44828, 46143, 46586, 44828, 53827, 44313, 44239)
+,s.5.cluster.d = c(26464, 24965, 30269, 27107, 30257, 25699, 25708)
+,s.5.cluster.e = c(22817, 22168, 26991, 22876, 25286, 22114, 22158)
+)
+
+mra.div.by.smallest <- NULL
+DivBySmallest <- function(v) {
+min.value <- min(v)
+result <- v / min.value
+print(result)
+mra.div.by.smallest[[length(mra.div.by.smallest) + 1]] <<- result[[1]]
+}
+for (name in names(sc)) {
+print(name)
+DivBySmallest(sc[[name]])
+}
+mra.div.by.smallest
+mean(mra.div.by.smallest)
+@
+
+We undertook our analysis of the the text's results, relying exclusively
+on the RMSE metric. We found
+
+\begin{itemize}
+
+\item Adding a feature $neighborhood.value$ always improves estimates.
+
+\item Introducing clusters is both good and bad. Some clusters have
+lower estimated RMSE values while others have higher estimated RMSE
+values.
+
+\item Additive Regression performs best in 12 of the 14 scenario-cluster
+combinations. When it doesn't perform best, it is at most 1.3 percent
+worse than the best performing model. When Additive Regression was not
+the best performing model, the best performing model was M5P in one case
+and NN in other.
+
+\item MRA is never the best performing model, but never the worse
+performing model.
+
+\item MRA's RMSE as a fraction of that of the best performing model ranges
+between 1.015 (1.5 percent worse than the best model) and 1.118 (11.8
+percent worse than the best model). The mean was 1.049, so that MRA
+performs on average 4.9 percent worse than the best model.
+
+\end{itemize}
+
+The main strengths of the text are its multi-year nature and testing of
+many different models and scenarios.
+
+The main limitations are the proprietary data set and the failure to
+define the MBR method and, the biggest disappointment, an absence of
+detail on the additive regression (gradient boosting techniques). 
+
+I asked for a copy of the data sets and was told by Alan Levitan, one of
+the authors, that a strict confidentiality and nondisclosure agreement
+was imposed by the Lousville tax assessor. He refered my to the tax
+assessor's website, which offers to sell the data. (All the text's
+authors were at the University of Louisville when the study was
+published.)
+
+A request for a copy of the code used in the text did not receive a
+response. Clearly the research community for real estate analytics is
+never going to be able to stand on the shoulders of giants: though we
+may be able to identify them, we can't use their data nor leverage their
+software. 
+
+
 \section{Contributions of This Work}
 
 This work extends the literature in several ways.
@@ -188,6 +502,10 @@ This work extends the literature in several ways.
 in the R programming language \cite{r-14}. All the source code is available in
 the author's github acount \code{rlowrance}. The license is the GNU
 General Public License Version 3.
+
+\item Inclusion of transactions both before and after the 2007 real
+estate crash. Most other studies are either only before this crash or
+after it.
 
 \item Most prior studies focus on one model form, often the log-level
 form in which the log of the price is estimated using features in
