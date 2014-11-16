@@ -171,6 +171,121 @@ validation procedure that would use the labelled data more thoroughly.
 
 \end{itemize}
 
+\section{2004 Study of Fairfax Country Prices in 1967 through 1991}
+
+In \cite{case-04} authors Bradford Case, John Clapp, Robin Dubin, and
+Mauricio Rodriguez report on a competition to build house price
+prediction models for single-family residences in Fairfax Country,
+Virginia over 1967 through 1991.  The time period is long but covers
+only 60,000 transactions.
+
+The model-building efforts were organized as a competition. The data
+were split into training and testing sets. One participant kept the
+testing data and scored results predicted by others.
+
+The data were from the tax assessor, a GPS coding firm, and the 1990
+decennial census. They included both housing characteristics (such as
+land area, number of rooms, and so forth), GPS coordinates, and census
+tract data. The census tract data were based on 1990 census tracts.
+
+A large number of models were built in several families.
+
+\begin{itemize}
+
+\item Model family 1 was based on an OLS model with housing features and
+with what was called a ``trend surface.'' The trend surface was modeled
+by including latitude and longitude, the squares of these features, and
+the product of these features. A variant of model 1 included indicator
+variables for census tracts, building what is now called a submarket
+models. Model 1 variants also included indicator variables for the years.
+
+\item Model family 2 was based on a kind of local regression in which
+the log of the price is modelled as the sum of a linear function of
+house features and a possibly non-linear function of the house's
+location in space and time. One variant in this model worked in two
+stages. In stage one, residuals for all transactions were determined. In
+stage two, the residuals from the nearest fifteen neighbors of each
+house sold within the last three years were included as features in the
+linear portion of the model.
+
+\item Model family 3 is a set of linear models in which the error terms
+are allowed to be correlated and the covariance matrix of the error
+terms is modelled explicitly. This approach is called ``kriging.'' One
+advantage of kriging is that it explicitly models the error term and
+thus allows the error term to be added back to the estimate from the
+linear model.  A separate (local) model was built for each query
+transaction. Variants included inclusion or not of census tract data,
+testing of several methods to estimate the covariance of the error
+terms, and tuning of hyperparameters that selected samples for inclusion
+in the local models.
+
+\item Model family 4 is a set of linear models with ``homogeneous
+[submarkets] and nearest-neighbor residuals.'' The submarkets were found
+through K-means clustering of features of census tracts. The census
+tract features were the fitted parameters of separate linear models for
+each census tract. The optimal number of submarkets was found to be 12.
+This model family was a two stage model, in which residuals from the
+nearest five properties from the first stage were used as features in
+the second stage. A separate model was estimated for each submarket.
+
+
+\end{itemize}
+
+Models were built and tested by the judge. The model builders then tuned
+their models and resubmitted. The judge computed a handful of metrics,
+all variants on mean and median errors (but not fraction with X
+percent).
+
+% My terminology | Paper
+% Model 1 | Clapp OLS
+% Model 2 | Clapp LRM local regression
+% Model 3 | Dubin
+% Model 4 | Case
+
+<<case>>=
+names  <- c('1a',  '1b',  '2a',  '2b', '3',   '4')
+errors <- c(11520, 11768, 11892, 11644, 11079, 11500)
+min.error <- min(errors)
+excess.errors <- errors / min.error
+excess.errors
+@
+
+We focus here on results as measured by the root median squared
+prediction error. Under this metric, all models performed approximately
+equally. The best model was a variant of model 3, a local kriging model.
+The text claims that is is ``computationally intensive.'' The software
+to implement it is available from Robin Dubin and is written in the
+Gauss programming language.
+
+The worst model was a variant of model 2, which had median errors 8.2
+percent higher than the best model. The OLS model variants were neither
+the best nor the worst.  One of the OLS variants had errors 4.0 percent
+higher than the best model; the other OLS variant had errors 6.2 percent
+higher than the best model.
+
+The strengths of the study include:
+\begin{itemize}
+\item The use of a single data set by multiple model builders.
+\item The long time period for the data sets.
+\item Inclusion of many time period in the testing sample.
+\item The structure of the competition: providing the testing data only
+to a judge.
+\end{itemize}
+
+A weakness is the use of a single test data set. More modern approaches
+would use some variant on cross validation.
+
+A potential weakness is the use of 1990 census tract numbers for
+transactions before the date the 1990 census became available, probably
+in roughly 1993. Census tracts numbers are not stable over time, so
+transactions before the availability date have future values in their
+features. One of the features is the median household income, a feature
+that other researchers have found to be valuable in predicting housing
+prices.
+
+
+
+
 \section{2009 Study of Los Angeles Prices in 2004}
 
 In \cite{chopra-09} author Summit Prakash Chopra developed factor graphs
@@ -178,7 +293,8 @@ for relational regression, an approach intended to capture ``the
 underlying relation structure'' of the data. He develops the approach
 and illustrates its value using two real estate price prediction
 problems. Here we review the first of these price prediction problems
-because its setting is most like other price prediction studies.
+because its setting is most like other price prediction studies in this
+literature review.
 
 Five models were compared:
 
@@ -218,8 +334,11 @@ than for other studies reported here: it has about 42,000 transactions.
 
 Here we report the study's results for the metric fraction of estimated
 values within 10 percent of the true values. The accuracy of the models
-is in the order listed above: model 1 was least accurate, model 5 was
-most accurate.
+is in the order listed above: model 1 was least accurate (47 percent of
+transactions were within 10 percent of true values), model 5 was
+most accurate (66 percent within 10 percent). The 66 percent figure is a
+high figure compared to other studies, however, none of the studies are
+repeatable as all of the data are proprietary.
 
 A strength of the study is the development of the relational factor
 graph approach.
@@ -231,6 +350,9 @@ feature is the $Location$ feature use in Louisville 2003 - 2007 study.
 Another such feature is the census tract median household income, which
 is used in the present work. How well models built with these features
 perform is work that has not yet been carried out.
+
+The great result obtained by the relational factor graph begs to be
+tested in other studies.
 
 \section{2010 Study of Louisville Prices in 1999}
 
@@ -506,6 +628,10 @@ General Public License Version 3.
 \item Inclusion of transactions both before and after the 2007 real
 estate crash. Most other studies are either only before this crash or
 after it.
+
+\item Rather than capture the effects of time through indicator
+variables for quarters or years, directly investigate the effect of the
+training period on model accuracy.
 
 \item Most prior studies focus on one model form, often the log-level
 form in which the log of the price is estimated using features in
