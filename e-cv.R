@@ -762,7 +762,7 @@ Evaluate_12 <- function(scope, model, timePeriod, scenario, response
     MaybeReportMemoryUsage('end Evaluate_12')
     result
 }
-EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
+EvaluateModelHp <- function(hp, data, is.testing, is.training, my.control) {
     # Return evaluation of the model specified in the hyperparameters using
     # the specified training and test data.
 
@@ -772,12 +772,26 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
                                    )
     )
 
-    # handle --fold command line parameter
-    browser()
-    control$fold.counter$Increment()
-    if (is.integer(control$fold.option)) {
-        if (control$fold.counter$Get() != control$fold.option) 
-            return(NULL)
+    # handle --fold command line parameter, which is in control$fold.option
+
+    my.control$fold.counter$Increment()
+    fold.counter <- my.control$fold.counter$Get()
+    fold.option <- my.control$fold.option
+    #cat('fold.option', fold.option, 'fold.counter', fold.counter, '\n'); browser()
+
+    if (fold.option == 'all' ) {
+        # do nothing special, just continue processing
+    } else if (fold.option == 'combine') {
+        stop('combine option should be handled by caller')
+    } else if (is.integer(fold.option)) {
+        if (fold.option == fold.counter) {
+            # do nothing special, just continue processing
+        } else {
+            result <- NULL
+            return(result)
+        }
+    } else {
+        stop(paste0('bad fold.option: ', as.character(control$fold.option)))
     }
     
     # split the data into training and test folds
@@ -813,6 +827,22 @@ EvaluateModelHp <- function(hp, data, is.testing, is.training, control) {
     Printf(' model %s\n', control$model.name)
     #cat('finished fold\n'); browser()
     result
+}
+CombineFoldResults <- function(expected.model.name, path.out.rdata) {
+    # return precompute result from 10 fold files
+    #cat('about to combine\n'); browser()
+    my.cv.result <- NULL
+    for (fold.number in 1:10) {
+        file.path <- PathToFold(path.out.rdata, fold.number)
+        loaded <- load(file = file.path) 
+        # check that the cv.result has only one model, namely the expected model
+        stopifnot(length(names(cv.result)) == 1)
+        stopifnot(expected.model.name == names(cv.result) [[1]])
+        fold.cv.result <- cv.result[[expected.model.name]] [[fold.number]]
+        my.cv.result[[expected.model.name]] [[fold.number]] <- fold.cv.result
+    }
+    #cat('examine my.cv.result\n'); browser()
+    my.cv.result
 }
 Main <- function(control, transaction.data.all.years) {
     InitializeR(duplex.output.to = control$path.out.log)
@@ -863,23 +893,39 @@ Main <- function(control, transaction.data.all.years) {
 
     model.name = control$model.name
 
-    cv.result <- CrossValidate( data = data
-                               ,nfolds = control$nfolds
-                               ,EvaluateModel = EvaluateModel
-                               ,model.name = model.name
-                               ,control = control
-                               ,verbose = control$verbose.CrossValidate
-                               )
+
+    cv.result <- 
+        if (control$fold.option == 'combine') {
+            CombineFoldResults(control$model.name, control$path.out.rdata)
+        } else {
+            CrossValidate( data = data
+                          ,nfolds = control$nfolds
+                          ,EvaluateModel = EvaluateModel
+                          ,model.name = model.name
+                          ,control = control
+                          ,verbose = control$verbose.CrossValidate
+                          )
+        }
 
     #cat('examine cv.result\n'); browser()
+
+    file.path <- 
+        if (is.integer(control$fold.option))
+            PathToFold(control$path.out.rdata, control$fold.option)
+        else
+            control$path.out.rdata
 
     save( control
          ,cv.result
          ,model.name
-         ,file = control$path.out.rdata
+         ,file = file.path
          )
 
     str(control)
+}
+PathToFold <- function(path.out.rdata, fold.option) {
+    result <- paste0(path.out.rdata, '.fold_', as.character(fold.option))
+    result
 }
 
 ################## EXECUTION STARTS HERE
@@ -926,7 +972,7 @@ default.args <-
          ,lambda         = '0'
          ,ntree          = '1'
          ,mtry           = '1'
-         ,fold           = 'all'
+         ,fold           = 'combine'
          )
 control <- Control(default.args)
 
