@@ -17,7 +17,7 @@ overlap in time periods for our data is small.
 \begin{itemize}
 \item The deeds file contains deeds for 1984 through the first part of
 2009. Deeds from a few bonus years before 1984 are thrown in.
-\item The taxroll file is for 2008. It was created in late 2007. It
+\item The tax roll file is for 2008. It was created in late 2007. It
 contains property descriptions as well as the tax assessor's estimated
 value for the house. It also contains the census tract number for each
 house.
@@ -187,12 +187,12 @@ zero-error points in the second half of 2007 in Figure
 for 2008 equal to the transaction prices for properties transacted in
 2007 starting in July. Because property values were changing rapidly in
 around the time that the tax bills were sent out, properties transacting
-before July in 2007 were assessed at some value other than market value. The figure
-reflects recording dates, which tend to lag sales dates by a few months.
-Thus the properties reported as transacting in November and December in
-many cases would have transacted a few months early, say ending in
-roughly October. The last day for publishing tax assessment is October
-31.
+before July in 2007 were assessed at some value other than market value.
+The figure reflects recording dates, which tend to lag sales dates by a
+few months.  Thus the properties reported as transacting in November and
+December in many cases would have transacted a few months early, say
+ending in roughly October. The last day for publishing tax assessment is
+October 31.
 
 \section{Testing the Predictive Value of the Assessment}
 
@@ -405,7 +405,7 @@ Two survey forms were used in 2000.
 \item Short-form: Most households (83 percent) received a questionnaire
 asking for information on ``name, sex, age, relationship, Hispanic origin,
 and race.''
-\item Long-form: Some houesholds (17 percent) received a questionnaire
+\item Long-form: Some households (17 percent) received a questionnaire
 that asked for both the short-form information and an additional ``52
 questions requesting \dots information about housing, social, and
 economic characteristics of the household.''
@@ -413,23 +413,23 @@ economic characteristics of the household.''
 
 Data are captured for each household and then aggregated for reporting
 purposes. The lowest level of aggregation is the census block. Data from
-census blocks are futher aggregated into several hierarchies
+census blocks are further aggregated into several hierarchies
 (\cite{census-bureau-10-geodiagram}). The hierarchy of interest to this
 work has these levels: nation, region, divisions, states, counties,
 census tracts, block groups, and census blocks. All of the census data
 we use are from the 2000 census for Los Angeles Country and are at the
 census tract level.
 
-Unfortunately, boundaries between census tracts in Los Angeles changed
-between the 2000 and 2010 censuses (\cite{proximityone-14-tracts}).
-That's because census tracts are designed to contain about 4,000 people:
-as populations grow and shrink, census tracts need to be redefined.
-Indeed, an analysis of Los Angeles Country census data at the census
-tract level for years 1990 and 2000 shows an increase in the number of
-census tracts in Los Angeles County.
+Boundaries between census tracts in Los Angeles changed between the 2000
+and 2010 censuses (\cite{proximityone-14-tracts}).  That's because
+census tracts are designed to contain about 4,000 people: as populations
+grow and shrink, census tracts need to be redefined.  Indeed, an
+analysis of Los Angeles Country census data at the census tract level
+for years 1990 and 2000 shows an increase in the number of census tracts
+in Los Angeles County.
 
 Unfortunately, the census tract numbers for properties are contained in
-the taxroll, which we have only for 2008. Thus we cannot easily
+the tax roll, which we have only for 2008. Thus we cannot easily
 determine census tract numbers for parcels for the 1980 nor 1990
 censuses. The implication is that the earliest date we can use the
 census data we have is for the date when it first became available.
