@@ -1,4 +1,4 @@
-CvCell <- function() {
+CvCell <- function(validate.cell.specifiers = TRUE) {
   # list of functions for working with e-cv-cells
   # $Command(scope, model, ..., mtry) --> chr, Rscript -e-cv.R --scope SCOPE ... --mtry MTRY
   # $Path(scope, model, ..., mtry) --> chr, path to WORKING/e-cv-cells/FILE.Rdata
@@ -106,9 +106,10 @@ CvCell <- function() {
                       ,response, predictorsName, predictorsForm, ndays
                       ,query, lambda, ntree, mtry) {
     # return command to build a particular cell
-    Validate.Cell.Specifiers( scope, model, timePeriod, scenario
-                             ,response, predictorsName, predictorsForm, ndays
-                             ,query, lambda, ntree, mtry)
+    if (validate.cell.specifiers) 
+      Validate.Cell.Specifiers( scope, model, timePeriod, scenario
+                               ,response, predictorsName, predictorsForm, ndays
+                               ,query, lambda, ntree, mtry)
     command <- paste0( 'Rscript e-cv.R'
                       ,' --scope ', scope
                       ,' --model ', model
@@ -131,9 +132,10 @@ CvCell <- function() {
                    ,query, lambda, ntree, mtry) {
     # return path in file system to a particular cell
 
-    Validate.Cell.Specifiers( scope, model, timePeriod, scenario
-                             ,response, predictorsName, predictorsForm, ndays
-                             ,query, lambda, ntree, mtry)
+    if (validate.cell.specifiers)
+      Validate.Cell.Specifiers( scope, model, timePeriod, scenario
+                               ,response, predictorsName, predictorsForm, ndays
+                               ,query, lambda, ntree, mtry)
 
     path <- paste0( Directory('working')
                    ,'e-cv-cells/' ,scope
