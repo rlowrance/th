@@ -7,6 +7,7 @@
 #   describes all file dependencies for each chart
 #
 # Command line arguments:
+# --chart NN: number of chart family to create, NN in {05, 06, ..., 14}
 # --makefile: FLAG, if present only create file e-cv-chart.makefile
 
 source('Directory.R')
@@ -54,7 +55,9 @@ library(memoise)
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
-    stopifnot(is.null(default.args))
+    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
+                            ,default.args = default.args
+                            )
 
     me <- 'e-cv-chart' 
 
@@ -112,160 +115,173 @@ Control <- function(default.args) {
                     ,testing = FALSE
                     ,debug = FALSE
                     ,me = me
+                    ,opt = opt
                     )
     control
+}
+ParseCommandArgs <- function(command.args, default.args) {
+    # return name list of values from the command args
+    OptionChr <- function(name, help) {
+        make_option( opt_str = c(sprintf('--%s', name))
+                    ,action = 'store'
+                    ,type = 'character'
+                    ,default = default.args[[name]]
+                    ,help = help
+                    )
+    }
+    OptionInt <- function(name, help) {
+        make_option( opt_str = c(sprintf('--%s', name))
+                    ,action = 'store'
+                    ,type = 'integer'
+                    ,default = default.args[[name]]
+                    ,help = help
+                    )
+    }
+
+    option.list <-
+        list( OptionChr('chart',          'one of {05, 06, ..., 14}')
+             )
+
+    opt <- parse_args( object = OptionParser(option_list = option.list)
+                      ,args = command.args
+                      ,positional_arguments = FALSE
+                      )
+    opt
 }
 MakeCharts <- function(control) {
     # write chart files:
 
-    MakeChart5 <- function() {
-        chart.5.txt <- Chart5(control)
-        writeLines( text = chart.5.txt
-                   ,con = control$path.out.chart.5
-                   )
-    }
-    MakeChart6 <- function() {
-        chart.6.txt <- Chart6(control)
-        writeLines( text = chart.6.txt
-                   ,con = control$path.out.chart.6
-                   )
-    }
-    MakeChart7 <- function() {
-        chart.7.txt <- Chart7(control)
-        writeLines( text = chart.7.txt
-                   ,con = control$path.out.chart.7
-                   )
-    }
-    MakeChart8 <- function() {
-        chart.8.txt <- Chart8(control)
-        writeLines( text = chart.8.txt
-                   ,con = control$path.out.chart.8
-                   )
-    }
-    MakeChart9 <- function() {
-        # Chart.9 returns list $txt $gg1 $gg2
-        chart.9 <- Chart9(control)
-        writeLines( text = chart.9$txt
-                   ,con = control$path.out.chart.9.txt
-                   )
+    switch( control$opt$chart
+           ,'05' = { 
+               chart.5.txt <- Chart5(control)
+               writeLines( text = chart.5.txt
+                          ,con = control$path.out.chart.5
+                          )
+           }
+           ,'06' = {
+               chart.6.txt <- Chart6(control)
+               writeLines( text = chart.6.txt
+                          ,con = control$path.out.chart.6
+                          )
+           }
+           ,'07' = {
+               chart.7.txt <- Chart7(control)
+               writeLines( text = chart.7.txt
+                          ,con = control$path.out.chart.7
+                          )
+           }
+           ,'08' = {
+               chart.8.txt <- Chart8(control)
+               writeLines( text = chart.8.txt
+                          ,con = control$path.out.chart.8
+                          )
+           }
+           ,'09' = {
+               chart.9 <- Chart9(control)
+               writeLines( text = chart.9$txt
+                          ,con = control$path.out.chart.9.txt
+                          )
 
-        pdf( file = control$path.out.chart.9.gg1
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.9$gg1)
-        dev.off()
+               pdf( file = control$path.out.chart.9.gg1
+                   ,width = control$chart.width
+                   ,height = control$chart.height
+                   )
+               print(chart.9$gg1)
+               dev.off()
 
-        pdf( file = control$path.out.chart.9.gg2
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.9$gg2)
-        dev.off()
-    }
-    MakeChart10 <- function() {
-        # Chart.10 returns list $txt $gg1 $gg2 (same charts as for chart 9)
-        chart.10 <- Chart10(control)
-        writeLines( text = chart.10$txt
-                   ,con = control$path.out.chart.10.txt
+               pdf( file = control$path.out.chart.9.gg2
+                   ,width = control$chart.width
+                   ,height = control$chart.height
                    )
+               print(chart.9$gg2)
+               dev.off()
+           }
+           ,'10' = {
+               chart.10 <- Chart10(control)
+               writeLines( text = chart.10$txt
+                          ,con = control$path.out.chart.10.txt
+                          )
 
-        pdf( file = control$path.out.chart.10.gg1
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.10$gg1)
-        dev.off()
+               pdf( file = control$path.out.chart.10.gg1
+                   ,width = control$chart.width
+                   ,height = control$chart.height
+                   )
+               print(chart.10$gg1)
+               dev.off()
 
-        pdf( file = control$path.out.chart.10.gg2
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.10$gg2)
-        dev.off()
-    }
-    MakeChart11 <- function() {
-        # Chart.11 returns list $txt $gg1 $gg2 (same charts as for chart 9)
-        chart.11 <- Chart11(control)
-        #    writeLines( text = chart.11$txt
-        #               ,con = control$path.out.chart.11.txt
-        #               )
+               pdf( file = control$path.out.chart.10.gg2
+                   ,width = control$chart.width
+                   ,height = control$chart.height
+                   )
+               print(chart.10$gg2)
+               dev.off()
+           }
+           ,'11' = {
+               chart.11 <- Chart11(control)
+               #    writeLines( text = chart.11$txt
+               #               ,con = control$path.out.chart.11.txt
+               #               )
 
-        pdf( file = control$path.out.chart.11.gg1
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.11$gg1)
-        dev.off()
+               pdf( file = control$path.out.chart.11.gg1
+                   ,width = control$chart.width
+                   ,height = control$chart.height
+                   )
+               print(chart.11$gg1)
+               dev.off()
 
-        pdf( file = control$path.out.chart.11.gg2
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.11$gg2)
-        dev.off()
-    }
-    MakeChart12 <- function() {
-        # Chart.12 returns list $txt $gg1 $gg2 (same charts as for chart 9)
-        chart.12 <- Chart12(control)
-        writeLines( text = chart.12$txt
-                   ,con = control$path.out.chart.12.txt
+               pdf( file = control$path.out.chart.11.gg2
+                   ,width = control$chart.width
+                   ,height = control$chart.height
                    )
+               print(chart.11$gg2)
+               dev.off()
+           }
+           ,'12' = {
+               chart.12 <- Chart12(control)
+               writeLines( text = chart.12$txt
+                          ,con = control$path.out.chart.12.txt
+                          )
 
-        pdf( file = control$path.out.chart.12.gg1
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.12$gg1)
-        dev.off()
+               pdf( file = control$path.out.chart.12.gg1
+                   ,width = control$chart.width
+                   ,height = control$chart.height
+                   )
+               print(chart.12$gg1)
+               dev.off()
 
-        pdf( file = control$path.out.chart.12.gg2
-            ,width = control$chart.width
-            ,height = control$chart.height
-            )
-        print(chart.12$gg2)
-        dev.off()
-    }
-    MakeChart13 <- function() {
-        chart.13 <- Chart13(control)
-        writeLines( text = chart.13$indicators
-                   ,con = control$path.out.chart.13.indicators.txt
+               pdf( file = control$path.out.chart.12.gg2
+                   ,width = control$chart.width
+                   ,height = control$chart.height
                    )
-        writeLines( text = chart.13$submarkets.summary
-                   ,con = control$path.out.chart.13.submarkets.summary.txt
-                   )
-        writeLines( text = chart.13$submarkets.census
-                   ,con = control$path.out.chart.13.submarkets.census.txt
-                   )
-        writeLines( text = chart.13$submarkets.property.city
-                   ,con = control$path.out.chart.13.submarkets.property.city.txt
-                   )
-        writeLines( text = chart.13$submarkets.zip5
-                   ,con = control$path.out.chart.13.submarkets.zip5.txt
-                   )
-    }
-    MakeChart14 <- function() {
-        chart.14 <- Chart14(control)
-        writeLines( text = chart.14
-                   ,con = control$path.out.chart.14.txt
-                   )
-    }
-    
-    if (!control$testing) {
-        MakeChart5()
-        MakeChart6()
-        MakeChart7()
-        MakeChart8()
-        MakeChart9()
-        MakeChart10()
-        MakeChart11()
-        MakeChart12()
-        MakeChart13()
-        MakeChart14()
-    } else {
-        # while testing
-        MakeChart14()
-    }
+               print(chart.12$gg2)
+               dev.off()
+           }
+           ,'13' = {
+               chart.13 <- Chart13(control)
+               writeLines( text = chart.13$indicators
+                          ,con = control$path.out.chart.13.indicators.txt
+                          )
+               writeLines( text = chart.13$submarkets.summary
+                          ,con = control$path.out.chart.13.submarkets.summary.txt
+                          )
+               writeLines( text = chart.13$submarkets.census
+                          ,con = control$path.out.chart.13.submarkets.census.txt
+                          )
+               writeLines( text = chart.13$submarkets.property.city
+                          ,con = control$path.out.chart.13.submarkets.property.city.txt
+                          )
+               writeLines( text = chart.13$submarkets.zip5
+                          ,con = control$path.out.chart.13.submarkets.zip5.txt
+                          )
+           }
+           ,'14' = {
+               chart.14 <- Chart14(control)
+               writeLines( text = chart.14
+                          ,con = control$path.out.chart.14.txt
+                          )
+           }
+           ,stop(paste0('bad control$opt$chart value: ', as.character(control$opt$chart)))
+           )
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
@@ -279,7 +295,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- NULL
+default.args <- list(chart='07')
 
 control <- Control(default.args)
 
