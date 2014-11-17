@@ -6,6 +6,7 @@ source('Table7A.R')
 
 Chart7 <- function(my.control) {
     # return txt lines for chart 7
+
     parts.a.and.b <- FALSE
 
     cv.cell <- CvCell()
