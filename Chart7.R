@@ -1,7 +1,10 @@
 source('CvCell.R')
 source('HeadersFixed.R')
 source('MeanWithin10.R')
+source('MeanRMSE.R')
 source('MedianRMSE.R')
+source('RootMeanSquaredErrors.R')
+source('RootMedianSquaredErrors.R')
 source('Table7A.R')
 
 Chart7 <- function(my.control) {
@@ -39,6 +42,7 @@ Chart7 <- function(my.control) {
         lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
         lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
         lines$Append('Mean of Fraction of Predictions Within 10 Percent of Actual Values (fctWI10)')
+        lines$Append('An asterisk (*) before a number indicates that it minimizes the row')
 
         stopifnot(fixed$scope == 'global')
         stopifnot(fixed$model == 'linear')
@@ -68,6 +72,7 @@ Chart7 <- function(my.control) {
                     switch( metricName
                            ,medRMSE = MedianRMSE(cv.result)
                            ,fctWI10 = MeanWithin10(cv.result)
+                           ,meanRMSE = MeanRMSE(cv.result)
                            ,stop('bad metricName')
                            )
                 result
@@ -76,6 +81,7 @@ Chart7 <- function(my.control) {
             Detail <- switch( metricName
                              ,medRMSE = table$DetailWholeNumbers
                              ,fctWI10 = table$DetailFractions
+                             ,meanRMSE = table$DetailWholeNumbers
                              )
 
             Detail( response, predictorsForm, metricName
@@ -87,7 +93,7 @@ Chart7 <- function(my.control) {
         for (response in c('price', 'logprice')) {
             for (predictorsForm in c('level', 'log')) {
                 table$Append(' ')
-                for (metricName in c('medRMSE', 'fctWI10')) {
+                for (metricName in c('meanRMSE', 'medRMSE', 'fctWI10')) {
                     DetailLine( response = response
                                ,predictorsForm = predictorsForm
                                ,metricName = metricName
