@@ -367,116 +367,73 @@ MakeMakefiles <- function(control) {
     Path <- CvCell()$Path
     Command <- CvCell()$Command
 
-    targets.lines <- Lines()
-    rules.lines <- Lines()
 
-    
-    num.threads <- 20  # 8 on J's system, 12 on R's system
-    thread.number <- 0
-    targets.lines <- Lines()
-    all.dependency.file.names <- NULL
-    M <- function(target.variable.name, dependency.file.names) {
-        # append to all.dependency.file.names
-        # build targets.lines
-        for (dfn in dependency.file.names) {
-            all.dependency.file.names[[length(all.dependency.file.names) + 1]] <<- dfn
-            path <- Path( scope = dfn$scope
-                         ,model = dfn$model
-                         ,timePeriod = dfn$timePeriod
-                         ,scenario = dfn$scenario
-                         ,response = dfn$response
-                         ,predictorsName = dfn$predictorsName
-                         ,predictorsForm = dfn$predictorsForm
-                         ,ndays = dfn$ndays
-                         ,query = dfn$query
-                         ,lambda = dfn$lambda
-                         ,ntree = dfn$ntree
-                         ,mtry = dfn$mtry
+    PathWithFold <- function(path, fold) {
+        result <- paste0( path
+                         ,'.fold_'
+                         ,as.character(fold)
                          )
-
-            # distribute the jobs over the threads
-            thread.number <- thread.number + 1 
-            if (thread.number > num.threads)
-                thread.number <- 1 
-            targets.lines$Append(sprintf('%s-thread-%d += %s'
-                                         ,target.variable.name
-                                         ,thread.number
-                                         ,path
-                                         ))
-        }
-        # assign 8 threads to J's system and 12 threads to R's
-        CreateTarget <- function(tag, threads) {
-            system.target.name <- sprintf('%s-target-%s'
-                                          ,target.variable.name
-                                          ,tag
-                                          )
-            targets.lines$Append(sprintf('.PHONY: %s'
-                                         ,system.target.name
-                                         ))
-            uses <- ''
-            for (thread.index in threads) {
-                uses <- sprintf('%s $(%s)'
-                                ,uses
-                                ,sprintf('%s-thread-%d'
-                                         ,target.variable.name
-                                         ,thread.index
-                                         )
-                                )
-            }
-            targets.lines$Append(sprintf('%s : %s'
-                                         ,system.target.name
-                                         ,uses
-                                         ))
-        }
-        CreateTarget('r', 1:12)  # R runs threads 1 - 12
-        CreateTarget('j', 13:20) # J runs threads 13 - 20
-        CreateTarget('all', 1:20)
-        targets.lines
-        # return nothing
-        NULL
+        result
     }
+    CommandWithFold <- function(command, fold) {
+        result <- paste0( command
+                         ,' --fold '
+                         ,as.character(fold)
+                         )
+        result
+    }
+    DefineCells <- function(targets, target.variable.name, system.id, path, num.folds) {
+        if (num.folds == 0) {
+            line <- paste0( target.variable.name
+                            ,'-cells-'
+                            ,system.id
+                            ,' += '
+                            ,path
+                            )
+            targets$Append(line)
+        } else {
+            for (fold in 1:num.folds) {
+                path.with.fold <- PathWithFold(path, fold)
+                line <- paste0( target.variable.name
+                               ,'-cells-',
+                               system.id
+                               ,' += '
+                               ,path.with.fold
+                               )
+                targets$Append(line)
+            }
+        }
+    }
+    DefineTarget <- function(lines, target.variable.name, system.id) {
+        target.variable.name.with.system.id <- paste0( target.variable.name
+                                                      ,'-'
+                                                      ,system.id
+                                                      )
+        line <- paste0( '.PHONY : '
+                       ,target.variable.name.with.system.id
+                       )
+        line <- paste0(target.variable.name.with.system.id
+                       ,': $('
+                       ,target.variable.name
+                       ,'-cells-'
+                       ,system.id
+                       ,')'
+                       )
+        lines$Append(line)
+    }
+    OneTarget <- function(target.variable.name, dependency.file.names, num.folds) {
+        # return list
+        # $path.command: list() with name $path and value command
+        # $targets: Lines () object
 
-    M( target.variable.name = 'e-cv-chart-chart5'
-      ,dependency.file.names = Chart.5.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart6'
-      ,dependency.file.names = Chart.6.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart7'
-      ,dependency.file.names = Chart.7.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart8'
-      ,dependency.file.names = Chart.8.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart9'
-      ,dependency.file.names = Chart.9.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart10'
-      ,dependency.file.names = Chart.10.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart11'
-      ,dependency.file.names = Chart.11.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart12'
-      ,dependency.file.names = Chart.12.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart13'
-      ,dependency.file.names = Chart.13.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart14'
-      ,dependency.file.names = Chart.14.FileDependencies(control)
-      )
+        if (FALSE && num.folds > 0) {
+            cat('target.variable.name', target.variable.name, '\n'); browser()
+        }
 
-    RulesRecipes <- function(all.dependency.file.names) {
-        # return Lines object containing unique rules and recipes
-        # NOTE: all.dependency.file.name may contain the same value many times
-        # because the same cell is used in many charts
-        u <- unique(all.dependency.file.names)  # does this work on lists?
-        #print(length(all.dependency.file.names))
-        #print(length(u))
-        stopifnot(length(u) < length(all.dependency.file.names))
-        rules.recipes <- Lines()
-        for (dfn in u) {
+        targets <- Lines()
+        thread.number <- 0
+        path.command.nfold <- NULL
+        for (dfn in dependency.file.names) {
             path <- Path( scope = dfn$scope
                          ,model = dfn$model
                          ,timePeriod = dfn$timePeriod
@@ -503,40 +460,147 @@ MakeMakefiles <- function(control) {
                                ,ntree = dfn$ntree
                                ,mtry = dfn$mtry
                                )
-            # don't depend on anything, so RUN THESE RULES MANUUALLY
-            rules.recipes$Append(paste0(path ,':'))
-            #rules.recipes$Append(paste0(path ,': e-cv.R $(e-cv-source) $(e-cv-data)'))
-            rules.recipes$Append(paste0('\t', command))
+
+            path.command.nfold[[path]] <- list(command = command, nfold = num.folds)
+
+            # 12 threads on R's system, 8 on J's
+            # assign all folds for one path/command to the same system
+            thread.number <-
+                if (thread.number == 20)
+                    1
+                else
+                    thread.number + 1
+            #cat('thread.number', thread.number, '\n'); browser()
+            if (thread.number <= 12) {
+                DefineCells(targets, target.variable.name, 'r', path, num.folds)
+            } else {
+                DefineCells(targets, target.variable.name, 'j', path, num.folds)
+            }
+            DefineCells(targets, target.variable.name, 'all', path, num.folds)
+            #print(tail(rules$Get())); print(tail(targets$Get())); browser()
         }
-        rules.recipes
+        DefineTarget(targets, target.variable.name, 'r')
+        DefineTarget(targets, target.variable.name, 'j')
+        DefineTarget(targets, target.variable.name, 'all')
+        result <- list( path.command = path.command.nfold
+                       ,targets = targets
+                       )
+        result
     }
 
-    # targets.lines and all.dependency.file.names
-    # now combine them into one makefile
 
-    all.lines <- Lines()
-    # comments for human readers
-    all.lines$Append('# rules and targets to make cv cells needed by charts produced by e-cv-chart.r')
-    all.lines$Append('# to generate files needed for Chart 12, execute')
-    all.lines$Append('#   make -j 12 e-cv-chart-chart12')
-    all.lines$Append(' ')
-    all.lines$Append('# generated by Rscript e-cv-chart.R --makefile')
-    all.lines$Append(paste0('# run ', Sys.time()))
-    
-    # rules and recipes
-    all.lines$Append(' ')
-    all.lines$Append('# rules and recipes')
-    rules.recipes <- RulesRecipes(all.dependency.file.names)
-    lapply(rules.recipes$Get(), function(line) all.lines$Append(line))
-    
-    # targets (to allow data for individual charts to be created and recreated)
-    all.lines$Append(' ')
-    all.lines$Append('# targets')
-    lapply(targets.lines$Get(), function(line) all.lines$Append(line))
+    all.path.command.nfold <- NULL
+    all.targets <- Lines()
+    M <- function(target.variable.name, dependency.file.names, num.folds = 0) {
+        one.target <- OneTarget(target.variable.name, dependency.file.names, num.folds)
+        if (FALSE && num.folds > 0) {
+            cat('in M examine one.target\n'); browser()
+        }
+        all.path.command.nfold <<- c(all.path.command.nfold, one.target$path.command)
+        lapply(one.target$targets$Get(), function(line) all.targets$Append(line))
+    }
+    M( target.variable.name = 'e-cv-chart-chart5'
+      ,dependency.file.names = Chart.5.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart6'
+      ,dependency.file.names = Chart.6.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart7'
+      ,dependency.file.names = Chart.7.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart8'
+      ,dependency.file.names = Chart.8.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart9'
+      ,dependency.file.names = Chart.9.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart10'
+      ,dependency.file.names = Chart.10.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart11'
+      ,dependency.file.names = Chart.11.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart12'
+      ,dependency.file.names = Chart.12.FileDependencies(control)
+      )
+    M( target.variable.name = 'e-cv-chart-chart13'
+      ,dependency.file.names = Chart.13.FileDependencies(control)
+      ,num.folds = 10
+      )
+    M( target.variable.name = 'e-cv-chart-chart14'
+      ,dependency.file.names = Chart.14.FileDependencies(control)
+      ,num.folds = 10
+      )
 
-    writeLines( text = all.lines$Get()
+    GenerateMakefile <- function(all.path.command.nfold, all.targets) {
+        # return a Lines() object containing all lines in the makefile
+        all.lines <- Lines()
+
+        # comments for human readers
+        all.lines$Append('# rules and targets to make cv cells needed by charts produced by e-cv-chart.r')
+
+        all.lines$Append('# to generate files needed for Chart 12, execute')
+        all.lines$Append('#   make -j 12 e-cv-chart-chart12-all')
+        all.lines$Append('# to generate files needed for Chart 12 using judith"s system, execute')
+        all.lines$Append('#   make -j 8 e-cv-chart-chart12-j')
+
+        all.lines$Append(' ')
+        all.lines$Append('# generated by Rscript e-cv-chart.R --makefile')
+        all.lines$Append(paste0('# run ', Sys.time()))
+    
+        # rules and recipes
+        all.lines$Append(' ')
+        all.lines$Append('# rules and recipes')
+        unique.paths <- unique(names(all.path.command.nfold))
+        for (path in unique.paths) {
+            command.nfold <- all.path.command.nfold[[path]]
+            command <- command.nfold$command
+            nfold <- command.nfold $nfold
+            if (nfold == 0) {
+                dependency <- paste0(path, ' :')
+                recipe     <- paste0('\t', command)
+                all.lines$Append(dependency)
+                all.lines$Append(recipe)
+            }
+            else {
+                for (fold in 1:nfold) {
+                    path.with.fold <- PathWithFold(path, fold)
+                    command.with.fold <- CommandWithFold(command, fold)
+                    dependency <- paste0(path.with.fold, ' :')
+                    recipe <- paste0('\t', command.with.fold)
+                    all.lines$Append(dependency)
+                    all.lines$Append(recipe)
+                }
+                # now recreate rule and recipe for the combination
+                dependency.first <- paste0(path, ' : \\')  # end with backslash, to continue
+                all.lines$Append(dependency.first)
+                for (fold in 1:nfold) {
+                    dependency.next <- paste0('   '
+                                              ,PathWithFold(path, fold)
+                                              ,if (fold == nfold) '' else ' \\'
+                                              )
+                    all.lines$Append(dependency.next)
+                }
+                recipe <- paste0('\t', command, ' --fold combine')
+                all.lines$Append(dependency)
+                all.lines$Append(recipe)
+            }
+        }
+    
+        # targets (to allow data for individual charts to be created and recreated)
+        all.lines$Append(' ')
+        all.lines$Append('# targets')
+        lapply(all.targets$Get(), function(line) all.lines$Append(line))
+
+        all.lines
+    }
+    
+    makefile.lines <- GenerateMakefile(all.path.command.nfold, all.targets)
+
+    writeLines( text = makefile.lines$Get()
                ,con = control$path.out.makefile
                )
+
 }
 Main <- function(control) {
     InitializeR(duplex.output.to = control$path.out.log)
