@@ -1,10 +1,42 @@
 Table7A <- function(lines) {
     # return table function object $Header1() $Header2() $Detail() $Formated() $Blank() $Get()
     # each of which appends to Lines object line
-    case   <- '%8s %8s %8s'
+    case   <- '%8s %8s %8s '
     header.format             <- paste0(case, paste0(rep(' %6s', 12), collapse = ''))
-    data.format.whole.numbers <- paste0(case, paste0(rep(' %6.0f', 12), collapse = ''))
-    data.format.fractions     <- paste0(case, paste0(rep(' %6.3f', 12), collapse = ''))
+
+    o      <- ' %6.0f' # other
+    lowest <- '*%6.0f'
+    data.format.whole.numbers <-
+        list( paste0(case, lowest, o, o, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, lowest, o, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, lowest, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, lowest, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, lowest, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, lowest, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, lowest, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, lowest, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, lowest, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, lowest, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, o, lowest, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, o, o, lowest)
+             )
+
+    o      <- ' %6.3f' # other
+    lowest <- '*%6.3f'
+    data.format.fractions <-
+        list( paste0(case, lowest, o, o, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, lowest, o, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, lowest, o, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, lowest, o, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, lowest, o, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, lowest, o, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, lowest, o, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, lowest, o, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, lowest, o, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, lowest, o, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, o, lowest, o)
+             ,paste0(case, o, o, o, o, o, o, o, o, o, o, o, lowest)
+             )
 
     Header1 <- function(predictorsForm, ndays30) {
         # append a header record with mostly blank columns
@@ -45,8 +77,15 @@ Table7A <- function(lines) {
     DetailEither <- function( response, predictorsForm, metricName
                              ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
                              ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-                             ,data.format
+                             ,data.format.family
                              ) {
+        # put brackets [] around the minimizer
+        min.index <- which.min(c( ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                                 ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                                 )
+        )
+        data.format <- data.format.family[[min.index]]
+
         line <- sprintf( data.format
                         ,response, predictorsForm, metricName
                         ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
