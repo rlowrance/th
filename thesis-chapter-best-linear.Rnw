@@ -123,26 +123,45 @@ test transactions (queries) was drawn from each cross-validation fold.
 
 The results are depicted in Figure \ref{figure:merit1}.
 
-To read the table, consider the first two rows and the column with 150
-for the number of days. The first line (price, level, medRMSE) has the
-median of the root median squared errors from the 10 folds. Just below
-it (price, level, fctWI10) is reported the fraction of values that are
-within 10 percent of true values using the model trained to minimize
-medRMSE.
+To read the table, consider the first three rows. All of these are for
+the price-level form of the linear model: we predict price using the
+natural units for each feature. The three rows show the value of a model
+selection metric for 30, 60, and more days. An asterisk before a number
+indicates that the number is the minimizer for the row. The metrics are
+\code{meanRMSE}, the mean of the root mean squared error for each fold;
+\code{medRMSE}, the median of the root median squared error for each
+fold; and \code{fctWI10}, the mean fraction of estimates within 10
+percent of the actual values for each fold.
 
-Reading across the first pair of rows, we see that the model that
-minimizes that medRMSE would be trained on 60 days of data and that the
-model that minimized the fraction of observations within 10 percent
-(fctWI10) would be trained 360 days. These training periods are very
-different.
+There are several observations to make:
 
-Likewise, comparing other pairs of rows shows that the model selected as
-best by the two figures of merits always differ by at least 120 days of
-training data.
+\begin{itemize}
 
-Clearly there is a choice to be made for which figure of merit to use in
-actual models. In the experiments that follow, we use the medRMSE figure
-of merit to choose among models.
+\item It's never true that the metric \code{fctWI10} would select as best the
+same model that would be choosen by either of the other metrics. Often
+the chosen models would have very different training periods. For
+example, for the price-level model, both \code{meanRMSE} and
+\code{medRMSE} suggest training on 60 days of data and \code{fctWI10}
+suggests training on 330 days of data. A similar conclusion holds for
+the logprice-level model and the logprice-log model. The metric leads to
+very different training periods.
+
+\item It's often true that the metric \code{meanRMSE} and
+\code{medRMSE} select a similar number of training days. The number of
+training days is either identical or differs by at most 60 days. These
+metrics have similar choices for models selected.
+
+\item It's always true that the metric \code{meanRMSE} greatly exceeds
+\code{medRMSE}. This is because there is right-skew in the prices: the
+mean exceeds the median, so that the mean error can greatly exceed the
+median error.
+
+\end{itemize}
+
+Going forward, we focus on the \code{medRMSE} metric, judging that it
+more intutitively sizes average errors than does \code{medianRMSE} and
+that is is more reliable for model selection than \code{fctWI10}.
+
 
 \section{Entire-market Models}
 
