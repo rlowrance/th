@@ -350,32 +350,67 @@ e-cv-chart-source += Table8.R
 
 # data dependencies
 # NOTE: also depends on most everything in e-cv-cell directory
-e-cv-chart-data += $(working)/e-features-lcv2.RData
+e-cv-chart-data += $(working)/e-features-lcv2.txt
 e-cv-chart-data += $(working)/submarkets.RData
 
-$(working)/e-cv-chart_chart5%txt \
-$(working)/e-cv-chart_chart6%txt \
-$(working)/e-cv-chart_chart7%txt \
-$(working)/e-cv-chart_chart8%txt \
+$(working)/e-cv-chart_chart5.txt: Chart5.R
+	Rscript e-cv-chart.R --chart 05
+
+$(working)/e-cv-chart_chart6.txt: Chart6.R
+	Rscript e-cv-chart.R --chart 06
+
+$(working)/e-cv-chart_chart7.txt: Chart7.R
+	Rscript e-cv-chart.R --chart 07
+
+$(working)/e-cv-chart_chart8.txt: Chart8.R
+	Rscript e-cv-chart.R --chart 08
+
 $(working)/e-cv-chart_chart9_1%pdf \
 $(working)/e-cv-chart_chart9_2%pdf \
 $(working)/e-cv-chart_chart9%txt \
+: Chart9.R
+	Rscript e-cv-chart.R --chart 09
+
 $(working)/e-cv-chart_chart10_1%pdf \
 $(working)/e-cv-chart_chart10_2%pdf \
 $(working)/e-cv-chart_chart10%txt \
+: Chart10.R
+	Rscript e-cv-chart.R --chart 10
+
 $(working)/e-cv-chart_chart11_1%pdf \
 $(working)/e-cv-chart_chart11_2%pdf \
+: Chart11.R
+	Rscript e-cv-chart.R --chart 11
+
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
-$(working)/e-cv-chart_chart12%txt \
-$(working)/e-cv-chart_chart13_indicators%txt \
-$(working)/e-cv-chart_chart13_submarkets_summary%txt \
-$(working)/e-cv-chart_chart13_submarkets_census%txt \
-$(working)/e-cv-chart_chart13_submarkets_property_city%txt \
-$(working)/e-cv-chart_chart13_submarkets_zip5%txt \
-$(working)/e-cv-chart_chart14%txt \
-: e-cv-chart.R $(e-cv-chart-source) $(e-cv-chart-data)
-	Rscript e-cv-chart.R
+$(working)/e-cv-chart_chart12_3%txt \
+: Chart12.R
+	Rscript e-cv-chart.R --chart 12
+
+#$(working)/e-cv-chart_chart5%txt \
+#$(working)/e-cv-chart_chart6%txt \
+#$(working)/e-cv-chart_chart7%txt \
+#$(working)/e-cv-chart_chart8%txt \
+#$(working)/e-cv-chart_chart9_1%pdf \
+#$(working)/e-cv-chart_chart9_2%pdf \
+#$(working)/e-cv-chart_chart9%txt \
+#$(working)/e-cv-chart_chart10_1%pdf \
+#$(working)/e-cv-chart_chart10_2%pdf \
+#$(working)/e-cv-chart_chart10%txt \
+#$(working)/e-cv-chart_chart11_1%pdf \
+#$(working)/e-cv-chart_chart11_2%pdf \
+#$(working)/e-cv-chart_chart12_1%pdf \
+#$(working)/e-cv-chart_chart12_2%pdf \
+#$(working)/e-cv-chart_chart12%txt \
+#$(working)/e-cv-chart_chart13_indicators%txt \
+#$(working)/e-cv-chart_chart13_submarkets_summary%txt \
+#$(working)/e-cv-chart_chart13_submarkets_census%txt \
+#$(working)/e-cv-chart_chart13_submarkets_property_city%txt \
+#$(working)/e-cv-chart_chart13_submarkets_zip5%txt \
+#$(working)/e-cv-chart_chart14%txt \
+#: e-cv-chart.R $(e-cv-chart-source) $(e-cv-chart-data)
+#	Rscript e-cv-chart.R
 
 # E-CV-CHART-GENERATED
 
@@ -885,6 +920,9 @@ thesis-data-best-linear += $(working)/e-cv-chart_chart10_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart10_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart11_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart11_2.pdf
+thesis-data-best-linear += $(working)/e-cv-chart_chart12_1.pdf
+thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
+thesis-data-best-linear += $(working)/e-cv-chart_chart12_3.txt
 thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
