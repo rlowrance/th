@@ -364,9 +364,9 @@ Chart.14.FileDependencies <- function(control) {
 MakeMakefiles <- function(control) {
     # write a makefile
 
-    Path <- CvCell()$Path
-    Command <- CvCell()$Command
-
+    cv.cell <- CvCell(validate.cell.specifiers = if(control$testing) FALSE else TRUE)
+    Path <- cv.cell$Path
+    Command <- cv.cell$Command
 
     PathWithFold <- function(path, fold) {
         result <- paste0( path
@@ -499,38 +499,73 @@ MakeMakefiles <- function(control) {
         all.path.command.nfold <<- c(all.path.command.nfold, one.target$path.command)
         lapply(one.target$targets$Get(), function(line) all.targets$Append(line))
     }
-    M( target.variable.name = 'e-cv-chart-chart5'
-      ,dependency.file.names = Chart.5.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart6'
-      ,dependency.file.names = Chart.6.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart7'
-      ,dependency.file.names = Chart.7.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart8'
-      ,dependency.file.names = Chart.8.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart9'
-      ,dependency.file.names = Chart.9.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart10'
-      ,dependency.file.names = Chart.10.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart11'
-      ,dependency.file.names = Chart.11.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart12'
-      ,dependency.file.names = Chart.12.FileDependencies(control)
-      )
-    M( target.variable.name = 'e-cv-chart-chart13'
-      ,dependency.file.names = Chart.13.FileDependencies(control)
-      ,num.folds = 10
-      )
-    M( target.variable.name = 'e-cv-chart-chart14'
-      ,dependency.file.names = Chart.14.FileDependencies(control)
-      ,num.folds = 10
-      )
+    if (control$testing) {
+        browser()
+        fixed <- list( model = 'a'
+                      ,timePeriod = 'b'
+                      ,scenario = 'c'
+                      ,response = 'd'
+                      ,predictorsName = 'e'
+                      ,predictorsForm = 'f'
+                      ,ndays = 'g'
+                      ,query = 'h'
+                      ,lambda = 'i'
+                      ,ntree = 'j'
+                      ,mtry = 'k'
+                      )
+        TestNoFolds <- function(control) {
+            element <- fixed
+            element[['scope']] <- 'nofolds'
+            result <- list(element)
+            result
+        }
+        TestFolds <- function(control) {
+            element <- fixed
+            element[['scope']] <- 'folds'
+            result <- list(element)
+            result
+        }
+        M( target.variable.name = 'target-no-folds',
+          ,dependency.file.names = TestNoFolds(control)
+          )
+        M( target.variable.name = 'target-folds'
+          ,dependency.file.name = TestFolds(control)
+          ,num.folds = 2
+          )
+    } else {
+        M( target.variable.name = 'e-cv-chart-chart5'
+          ,dependency.file.names = Chart.5.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart6'
+          ,dependency.file.names = Chart.6.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart7'
+          ,dependency.file.names = Chart.7.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart8'
+          ,dependency.file.names = Chart.8.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart9'
+          ,dependency.file.names = Chart.9.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart10'
+          ,dependency.file.names = Chart.10.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart11'
+          ,dependency.file.names = Chart.11.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart12'
+          ,dependency.file.names = Chart.12.FileDependencies(control)
+          )
+        M( target.variable.name = 'e-cv-chart-chart13'
+          ,dependency.file.names = Chart.13.FileDependencies(control)
+          ,num.folds = 10
+          )
+        M( target.variable.name = 'e-cv-chart-chart14'
+          ,dependency.file.names = Chart.14.FileDependencies(control)
+          ,num.folds = 10
+          )
+    }
 
     GenerateMakefile <- function(all.path.command.nfold, all.targets) {
         # return a Lines() object containing all lines in the makefile
@@ -575,14 +610,13 @@ MakeMakefiles <- function(control) {
                 dependency.first <- paste0(path, ' : \\')  # end with backslash, to continue
                 all.lines$Append(dependency.first)
                 for (fold in 1:nfold) {
-                    dependency.next <- paste0('   '
+                    dependency.next <- paste0(' '
                                               ,PathWithFold(path, fold)
-                                              ,if (fold == nfold) '' else ' \\'
+                                              ,' \\'
                                               )
                     all.lines$Append(dependency.next)
                 }
                 recipe <- paste0('\t', command, ' --fold combine')
-                all.lines$Append(dependency)
                 all.lines$Append(recipe)
             }
         }
