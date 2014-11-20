@@ -295,7 +295,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='07')
+default.args <- list(chart='08')
 
 control <- Control(default.args)
 
