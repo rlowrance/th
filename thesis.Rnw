@@ -102,7 +102,7 @@ Roy E. Lowrance
 \vspace{0.5 in}
 A dissertation submitted in partial fulfillment\\
 of the requirements for the degree of\\
-Doctor of Philsophy\\
+Doctor of Philosophy\\
 Department of Computer Science\\
 New York University\\
 January, 2015
@@ -139,24 +139,24 @@ Acknowledgements go here. Thanks to \ldots.
 This work develops the best linear model of residential real estate
 prices for 2003 through 2009 in Los Angeles County. This work differs
 from typical academic research on prediction of home prices by covering
-seven years instead of a single year.  The multi-year time period covers
-both ups and downs in the real estate market. It also uses a much larger
-population than is typical, as the data is on Los Angeles County, a
-large metropolitan area. With the best linear model in hand, we compare
-its performance to a non-linear model and conclude (TODO: REPLACE WITH
-RESULTS FROM e-random-forests-local) that the gain in
-performance from introducing non-linearity is relative small.
+a larger geographic area than most, more houses than most, and a longer
+time period than most, and the time period before before and after the
+real estate price boom in the United States. The systematic exploration
+of design choices for linear models leads to results that may surprise
+some, including the finding the the most important factor in estimating
+real estate prices is not location.
 
+\chapter*{Table of Contents}
 \tableofcontents
 
+\chapter*{List of Figures}
 \listoffigures
 
 %%%%%%%%%%%%%%%%%%%%%% MAIN MATTER
 
 \mainmatter
 
-
-<<Control>>=
+<<Control,include=FALSE>>=
 options(warn = 2)  # turn warnings into errors
 source('Directory.R')
 
@@ -166,7 +166,8 @@ cache <- FALSE
 
 # whether to include code like this in the output
 include <- TRUE
-#include <- FALSE  # for review and final copies
+include <- FALSE  # for review and final copies
+
 control <- list( cache = cache
                 ,include = include
                 ,working = Directory('working')
@@ -209,10 +210,7 @@ About <- function(x) {
 
 \Sexpr{knit_child('thesis-chapter-best-linear.Rnw')}
 
-\Sexpr{knit_child('thesis-chapter-non-linear.Rnw')}
-
-
-\chapter{Future Work}
+\Sexpr{knit_child('thesis-chapter-conclusions.Rnw')}
 
 
 %%%%%%%%%%%%%%% BACK MATTER: BIBLIOGRAPHY
