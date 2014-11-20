@@ -29,7 +29,7 @@ Chart8 <- function(my.control) {
     Header <- function(lines) {
         # mutate lines by appending the header
         lines$Append('Comparison of Estimated Generalization Errors From from 10 Fold Cross Validation')
-        lines$Append('Using Median RMedianSE Values from Folds')
+        lines$Append('Using Root Median Squared Errors from Folds')
         lines$Append('Across Model Form and Length of Training Period')
 
         stopifnot(fixed$scope == 'global')
