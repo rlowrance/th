@@ -15,14 +15,18 @@ models over as many years as possible. Most academic studies of real
 estate prices cover just one year of transactions. Unfortunately, the
 overlap in time periods for our data is small.
 \begin{itemize}
+
 \item The deeds file contains deeds for 1984 through the first part of
 2009. Deeds from a few bonus years before 1984 are thrown in.
+
 \item The tax roll file is for 2008. It was created in late 2007. It
 contains property descriptions as well as the tax assessor's estimated
 value for the house. It also contains the census tract number for each
 house.
+
 \item The census file contains data from the decennial census file in
 year 2000. It became available to the public sometime in 2002.
+
 \end{itemize}
 
 Thus, the common time period is starting in 2008 and extending into a
@@ -66,7 +70,7 @@ means that the model provides the lowest estimated generalization error,
 which is defined to be the estimated error on data that the trained
 model has never seen.
 
-The estimate the generalization error, we use 10-fold cross validation,
+To estimate the generalization error, we use 10-fold cross validation,
 as described in \cite{hastie-01} Chapter 7 (starting page 214). Our
 implementation of cross validation assigns each of the training samples
 randomly to one of 10 folds and then trains 10 sets of models. Each set
@@ -77,13 +81,11 @@ percent of the data) and testing data set (with 10 percent of the data).
 
 For each of the samples in the testing set, we then build a local model
 just for that sample, which we call the query transaction. To avoid
-using the future in the training process, the local model first discards
-all data in the training set that occurs on or after the date of the
-query transaction. A model is then trained on remaining data in the
-training fold. The trained model is then used to predict the query
-transaction's price and the results are recorded. After all query
-transactions in all folds are recorded, the accuracy of the predictions
-is assessed.
+using the future in the training process, we first discard all data in
+the training set that occurs on or after the date of the query
+transaction. A model is then trained on remaining data in the training
+set. The trained model is then used to predict the query transaction's
+price and the results are recorded.
 
 There are two optimizations both motivated by potentially long
 computational times in the fitting process for numerous query
@@ -352,22 +354,20 @@ Value}
 %\end{figure}
 
 Figure \ref{figure:CvAssessment} contains the result from the cross
-validation study comparing a linear model with all combinations of the
-design choices. Column one names the scenario: AVM or mortgage. Column
-two tells whether the model predicted price or the logarithm of price.
-Column three tells whether the size features were transformed into the
-log domain (``log'') or left in their natural units (``level''). Column
-four states whether the 2008 assessment features were used or not. The
-remaining columns vary the number of days in the training period from 30
-up to 360 days. Each data cell contains the median of the RMSE values
-from 10-fold cross validation. Here RMSE means the square root of the
-median square errors.
+validation study. Column one tells whether the model predicted price or
+the logarithm of price.  Column two tells whether the size features were
+transformed into the log domain (``log'') or left in their natural units
+(``level''). Column three states whether the 2008 assessment features
+were used or not. The remaining columns vary the number of days in the
+training period from 30 up to 360 days. Each data cell contains the
+median of the RMSE values from 10-fold cross validation. Here RMSE means
+the square root of the median square errors.
 
-The models used in the cross validation study are local to each possible
-query point. This means that a separate model is built and trained for
-every query point. The implementation optimizes the computation by
-memoising the fitting process based on the sale date. Thus at most one
-model is fit for every sale date.
+%The models used in the cross validation study are local to each possible
+%query point. This means that a separate model is built and trained for
+%every query point. The implementation optimizes the computation by
+%memoising the fitting process based on the sale date. Thus at most one
+%model is fit for every sale date.
 
 % including a pdf
 \begin{figure}[h]
@@ -387,9 +387,10 @@ obsolete.
 
 Thus we reach an unexpected conclusion: the assessed values are not
 necessarily useful in linear models. One reason is that in California,
-Proposition 13 biases the assessed values to be less than market values.
-Another reason is that the assessment may become obsolete if market
-values are either increasing or decreasingly rapidly.
+Proposition 13 biases the assessed values to be less than market values
+on some properties but not others. Another reason is that the
+assessment may become obsolete if market values are either increasing or
+decreasingly rapidly.
 
 \section{Understanding the Census Data}
 
