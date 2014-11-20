@@ -205,26 +205,32 @@ tightness of estimates.
 \section{Entire-market Models}
 
 This section explores linear models that are specified once for the
-entire marketplace: there is one model form for every query transaction
-and this model is location aware only through features of the census
-tract and zip code of the property. I call theses kinds of models
+entire marketplace: there is one model for every query transaction and
+this model is location aware only through features of the census tract
+and zip code of the property. I call theses kinds of models
 ``entire-market models.''
 
-With the class of entire-market models, we explore design choices. In
+Within the class of entire-market models, we explore design choices. In
 the first subsection that follows, we examine the form of the equation
-in the model and the training period used to fit the model. We then
-examine what features give the best predictive performance and examine a
-reduced-feature model. We then show that regularizing the linear model
-with an L2 regularizer improves performance.
+in the model and the training period used to fit the model. We find that
+training using 60 days of data before the query transaction is best. The
+best form of model to use is log-level, so that one would predict the
+log of price using the features in natural units. We then examine,
+within this choice of training period and form,  what features give the
+best predictive performance and examine a reduced-feature model. We show
+that a 20-feature model performs best. Finally, using the 20 feature
+model trained on 60 days of data in log-level form,  we then show that
+regularizing the linear model with an L2 regularizer improves
+performance.
 
 \subsection{Model form and ndays}
 
-In the literature, a popular model for is the log-linear form: one
+In the literature, a popular model for is the log-level form: one
 predicts $log(price)$ using features in their natural units. Other
-choices for model form include log-log, in which the features are in the
-log domain, level-level in which price is predicted using features in
-the natural units, and level-log in which price is predicted using
-features in the log domain.
+choices for model form include log-log, in which the log of price is
+predicted using features are in the log domain, level-level in which
+price is predicted using features in the natural units, and level-log in
+which price is predicted using features in the log domain.
 
 At least three rationales can be invoked to choose a model. First is
 that the form of the model should conform to one's prior about the data
@@ -232,7 +238,7 @@ generation process. If you suppose that doubling the lot size might
 double the price, you can admit this possibility by specifying
 $\log(price) = \beta \ log(size)$. If you suppose that adding a bedroom
 adds a certain amount of value, you would want to have $price = \beta \
-bedrooms$. If you suppose both are true, you are stuck.
+bedrooms$. 
 
 A second rationale for choosing the form is to transform the prices to a
 form more compatible with the statistical assumptions of the model.
@@ -242,7 +248,9 @@ would make the transformed distribution more normal.
 A third rationale is to transform the price to the log domain in order
 to avoid applying equal importance with respect to prediction accuracy
 to expensive and less expensive houses. The idea is to fit the model to
-minimize average error not price-weighted error. 
+minimize errors on more typical less expensive houses, not to minimize
+the price-weighted error, which could be regarded as overly-influenced
+by a few very large houses.
 
 % OMIT, SINCE WE DIDN"T TEST THESE log-mixed form
 %Sometimes these rationale's are combined. For example, in
@@ -254,13 +262,13 @@ minimize average error not price-weighted error.
 
 Here we focus on the third rationale and simply ask: why model form
 yields the lowest estimated generalization errors as measured by the
-median rMedianSE across folds.
+median of the root median squared error across folds. 
 
 Another issue is to determine the best training period. The linear
-models are setting the marginal cost of each feature. If prices are
+models are setting the marginal price of each feature. If prices are
 moving slowly, then training on a longer periods of time might be
 beneficial.  If prices are moving rapidly, then training only on recent
-data may be necessary.
+data might be necessary.
 
 Our experiment fixed the time period (2003 on) and the feature set
 (all features always in transactions excluding the features derived from
@@ -268,19 +276,6 @@ the tax assessment). We vary the model form and number of training days.
 Because a local model is built for every query point, we take a one
 percent random sample of the possible query points in each fold in order
 to reduce the computational burden.
-
-Figure \ref{figure:EGEFormNdays} shows the estimated generalization
-errors from 10-fold cross validation. Comparing the first two rows, we
-see that when price is the response variable, more accuracy is obtained
-by working with features in natural units than in the log domain.
-Comparing all the rows, we see that estimating $\log(price)$ instead of
-$price$ always leads to reduced estimated generalization errors.
-Comparing rows three and four shows that the for most training periods,
-using a log-level model outperforms a log-log model. Finally, the lowest
-estimated generalization error is for the log-level model when trained
-for 60 days.
-
-We use this model form and training period as a benchmark going forward.
 
 % attempt to rotate: works (though with small text)
 \begin{figure}[ht]
@@ -296,6 +291,21 @@ We use this model form and training period as a benchmark going forward.
 Period}
 \label{figure:EGEFormNdays}
 \end{figure}
+
+Figure \ref{figure:EGEFormNdays} shows the estimated generalization
+errors from 10-fold cross validation. Comparing the first two rows, we
+see that when price is the response variable, more accuracy is obtained
+by working with features in natural units than in the log domain.
+Comparing all the rows, we see that estimating $\log(price)$ instead of
+$price$ always leads to reduced estimated generalization errors.
+Comparing rows three and four shows that the for most training periods,
+using a log-level model outperforms a log-log model. Finally, the lowest
+estimated generalization error is for the log-level model when trained
+for 60 days.
+
+In our search for the best linear model, going forward we fix the number
+of training days to 60 and use the log-level form for the model.
+
 
 \subsection{Feature selection}
 
