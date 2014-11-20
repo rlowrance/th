@@ -368,13 +368,13 @@ $(working)/e-cv-chart_chart8.txt: Chart8.R
 $(working)/e-cv-chart_chart9_1%pdf \
 $(working)/e-cv-chart_chart9_2%pdf \
 $(working)/e-cv-chart_chart9%txt \
-: Chart9.R
+: Chart9.R Chart9And10.R
 	Rscript e-cv-chart.R --chart 09
 
 $(working)/e-cv-chart_chart10_1%pdf \
 $(working)/e-cv-chart_chart10_2%pdf \
 $(working)/e-cv-chart_chart10%txt \
-: Chart10.R
+: Chart10.R Chart9And10.R
 	Rscript e-cv-chart.R --chart 10
 
 $(working)/e-cv-chart_chart11_1%pdf \
