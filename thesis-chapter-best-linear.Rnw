@@ -540,15 +540,6 @@ bigger basement probably implies bigger house.
 \centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
 \end{figure}
 
-%% including a pdf
-%\begin{figure}[h]
-%\caption{
-%Median rMedianSE\\
-%Not Showing Origin
-%}
-%\label{figure:MedianGraph102}
-%\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
-%\end{figure}
 
 In Figure \ref{figure:MedianTable10} we see the estimated generalization
 error from using the median household income, land square footage, and
@@ -574,26 +565,14 @@ underperform the LCV-derived feature sets: extremely small feature sets
 are challenged in this setting. The best feature sets is the
 one with the first 20 features.
 
-%
-%% including a pdf
-%\begin{figure}[h]
-%\caption{
-%Median rMedianSE\\
-%Not Showing Origin
-%}
-%\label{figure:MedianGraph112}
-%\centering\includegraphics[scale=.4]{\Sexpr{path.11.gg2}}
-%\end{figure}
-
 \subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Regularizing models is one way to avoid overfitting and thereby improve
-prediction accuracy. So far the models are all linear and are not
-regularized.
+prediction accuracy. So far the models are not regularized.
 
 To assess the extent to which regularization leads to more accuracy, we
 take the model using the 20 best features and run multiple versions using
-several choices for the weight of an L2 regularizer. A simple grid
+several choices for the weight of an L2 regularizer. A simple line
 search was used. 
 
 % non-rotated txt chart
@@ -607,32 +586,27 @@ search was used.
 \end{figure}
 
 % including a pdf \begin{figure}[h]
-\begin{figure}[ht]
-\caption{Estimated Generalization Error from L2 Regularization }
-\label{figure:Regularization1}
-\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg1}}
-\end{figure}
+%\begin{figure}[ht]
+%\caption{Estimated Generalization Error from L2 Regularization }
+%\label{figure:Regularization1}
+%\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg1}}
+%\end{figure}
 
-Figure \ref{figure:Regularize3} contains the result in a table. Figure
-\ref{figure:Regularization1} has the same results graphically. We see
+Figure \ref{figure:Regularize3} contains the result in a table. We see
 the typical pattern, small values for the regularizer importance improve
 estimated accuracy and larger values decrease accuracy. Setting the
 weight to $\lambda = 4$ seems like a good choice: it has the lowest
 median across the cross-validation folds and the 95 percent confidence
-intervals are not signally warnings.
+intervals are not signaling warnings.
 
-
-%% including a pdf
-%\begin{figure}[h]
-%\caption{
-%Estimated Generalization Error from L2 Regularization
-%\\
-%Not Showing Origin
-%}
-%\label{figure:Regularization2}
-%\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
-%\end{figure}
-%
+The impact of the regularizer on the estimated generalization error is
+very small: the median is reduced about \$100 from an unregularized
+error of \$57,880, a reduction of less than two-tenths of a percent. The
+small impact of the regularizer suggests that there is not much
+overfitting in the un-regularized model. The reason for that is possibly
+that the training sets are not very large. In our approach, we build a
+local model for each query and that model had only 60 days of training
+data.
 
 \section{Submarket Models}
 
