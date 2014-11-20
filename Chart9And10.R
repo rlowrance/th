@@ -72,6 +72,8 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
     TextChart <- function(summary) {
         Header <- function(lines) {
             lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
+            lines$Append('Using Root Median Squared Errors from Folds')
+            lines$Append('Across Feature Sets')
 
             stopifnot(fixed$scope == 'global')
             stopifnot(fixed$model == 'linear')
