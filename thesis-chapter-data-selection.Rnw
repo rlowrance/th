@@ -396,7 +396,7 @@ decreasingly rapidly.
 
 The United States Census Bureau conducts
 \cite{census-bureau-14-website} a decennial census every 10 years. The
-year 2000 census (\cite{census-bureau-12-measuring} page 140) began in
+year 2000 census \cite[p.~140]{census-bureau-12-measuring} began in
 March 2000 to survey all 98 million households. The survey technique was
 to mail surveys and follow up with non-respondents by sending
 ``enumerators'' to the household. 
@@ -415,28 +415,30 @@ economic characteristics of the household.''
 Data are captured for each household and then aggregated for reporting
 purposes. The lowest level of aggregation is the census block. Data from
 census blocks are further aggregated into several hierarchies
-(\cite{census-bureau-10-geodiagram}). The hierarchy of interest to this
+\cite{census-bureau-10-geodiagram}. The hierarchy of interest to this
 work has these levels: nation, region, divisions, states, counties,
 census tracts, block groups, and census blocks. All of the census data
 we use are from the 2000 census for Los Angeles Country and are at the
 census tract level.
 
 Boundaries between census tracts in Los Angeles changed between the 2000
-and 2010 censuses (\cite{proximityone-14-tracts}).  That's because
+and 2010 censuses \cite{proximityone-14-tracts}.  That's because
 census tracts are designed to contain about 4,000 people: as populations
 grow and shrink, census tracts need to be redefined.  Indeed, an
 analysis of Los Angeles Country census data at the census tract level
 for years 1990 and 2000 shows an increase in the number of census tracts
-in Los Angeles County.
+in Los Angeles County, consistent with an increase in Los Angeles
+Country population.
 
 Unfortunately, the census tract numbers for properties are contained in
 the tax roll, which we have only for 2008. Thus we cannot easily
 determine census tract numbers for parcels for the 1980 nor 1990
 censuses. The implication is that the earliest date we can use the
 census data we have is for the date when it first became available.
-Rather than determine that date exactly, we have assumed that
-transactions on or after January 1, 2003 properly reflect census data
-from the year 2000.
+According to the help line for the Census Bureau, the year 2000 census
+data became public sometime in 2002.  Rather than determine that date
+exactly, we have assumed that transactions on or after January 1, 2003
+properly reflect census data from the year 2000.
 
 \section{Assessing the Predictive Power of the Census Data}
 
@@ -461,16 +463,10 @@ Figure \ref{figure:EGECensus} shows the estimated generalization error
 for each of the design choices, both with and without the features
 derived from the census data. The comparison metric is the median of the
 root median squared errors from the folds. The feature set used was the
-set of features appearing in every transaction. Some observations:
+set of features appearing in every transaction. The key finding is that
+using the census-derived features always leads to better performance.
+(Later we will determine why this is.)
 
-\begin{itemize}
-\item Using the census-derived features always leads to better
-performance than not using the census-derived features.
-\item The best-performing model predicts the log price using the level
-features and training for only 30 days. The relatively short training
-period was a surprise to me. That it is so short suggests that prices
-were changing rapidly since 2003.
-\end{itemize}
 
 \begin{figure}[ht]
 \begin{sideways}
