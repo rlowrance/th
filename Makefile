@@ -426,7 +426,10 @@ e-cv-chart-generated.makefile: \
 	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
 	Rscript e-cv-chart-generated.R
 
-include e-cv-chart-generated.makefile
+#include e-cv-chart-generated.makefile
+
+
+
 # E-FEATURES-LCV
 
 $(working)/e-features-lcv--query-100.RData \
@@ -923,6 +926,9 @@ thesis-data-best-linear += $(working)/e-cv-chart_chart11_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12_3.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart13_indicators.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_summary.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart14.txt
 thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
