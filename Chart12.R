@@ -53,7 +53,7 @@ Chart12 <- function(my.control) {
         result
     }
     GraphChart <- function(summary, show.zero.value) {
-        gg <- CIChart( axis.values = 'median rMedianSE across folds'
+        gg <- CIChart( axis.values = 'Estimated Generalization Errors'
                       ,axis.names = 'L2 regularizer value'
                       ,values = summary$median.value
                       ,values.low = summary$ci.lowest
@@ -64,7 +64,7 @@ Chart12 <- function(my.control) {
         gg
     }
     TableChart <- function(summary) {
-        txt <- CITable( axis.values = 'Median rMedianSE Across Folds'
+        txt <- CITable( axis.values = 'Estimated Generalization Errors from 10-fold Cross Validation'
                        ,axis.names = 'L2 regularizer value'
                        ,values = summary$median.value
                        ,values.low = summary$ci.lowest
