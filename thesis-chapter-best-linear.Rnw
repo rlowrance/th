@@ -22,6 +22,9 @@ path.11.gg2 <- paste0(working, 'e-cv-chart_chart11_2.pdf')
 path.12.gg1 <- paste0(working, 'e-cv-chart_chart12_1.pdf')
 path.12.gg2 <- paste0(working, 'e-cv-chart_chart12_2.pdf')
 path.12.txt <- paste0(working, 'e-cv-chart_chart12_3.txt')
+path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators.txt')
+path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary.txt')
+path.13.rf <- paste0(working, 'e-cv-chart_chart14.txt')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -592,9 +595,170 @@ intervals are not signally warnings.
 
 \section{Submarket Models}
 
+We considered two approaches to incorporating submarkets into the model.
+The first uses indicator variables, the second builds a separate model
+for each submarket.
+
 \subsection{Using Indicator Variables}
-\subsection{Zip vs. Census vs. City}
+
+The indicator model all have the form
+
+% ref: Gratzer page 212 (splitting long formulas)
+
+\begin{multline}
+\log(price) = \\
+\beta_0 + \beta_1 ZipIs11111 + \beta_2 ZipIs22222 + \ldots \\
++ \beta_k LotSize + \beta_{k+1} LivingArea + \ldots
+.
+\end{multline}
+
+The indicators are capturing the possibly different average prices in
+each submarket. The average price per feature is the same across
+submarkets.
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.13.indicator}}
+\caption{Estimated Generalization Error Using Submarket Indicators}
+\label{figure:Indicator}
+\end{figure}
+
+Figure \ref{figure:Indicator} shows the estimated generalization errors
+from adding indicators variables to the regularized linear model. We see
+that adding indicators for zip codes, census tract, and cities all help
+and that the best result is obtained with the five-digit zip code
+indicators.
+
+\subsection{Separate Models for Each Submarket}
+
+The separate-models approach builds a separate model for each submarket.
+Each model has the form
+
+\begin{multline}
+\log(price) = \\
+\beta_0 \\
++ \beta_k LotSize + \beta_{k+1} LivingArea + \ldots
+.
+\end{multline}
+
+A query transaction is presented, its submarket is determined, for
+example, it is in zip code 11111, and then a model is trained using only
+transactions in the prior 60 days in the zip code. This fitted model is
+used to estimate the value for the query transaction. 
+
+This fitting process results in many models that cannot be fit, most
+often because there are too few transactions in the training set. 
+
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.13.submarkets}}
+\caption{Estimated Generalization Error Using Submarket Models}
+\label{figure:Submarkets}
+\end{figure}
+
+
+Figure \ref{figure:Submarkets} shows the results of this experiment. The
+submarket models that used city names had the lowest estimated
+generalization errors, but the fitting process suceeded in only 69
+percent of the city names. (We say the coverage was 69 percent.)
+Coverage was higher for the zip code-based submarkets, but estimated
+performance was worse than for city-based submarkets. The census tracts
+are the worst of both worlds: the highest expected error and the lowest
+coverage.
+
+Coverage numbers could be increased most likely by either retraining the
+models on more than 60 days of data or forming submarkets groups by
+splicing together some of the submarkets. The latter approach has been
+tried in the literature. The former appears to have not been tried.
+
+The apparently pleasing results in Figure \ref{figure:Submarkets} hide
+the fact the what is reported is the median across all the various
+models. Let's focus on the city-defined submarkets. There are 191
+separate cities. The median errors for each city vary widely. So, for
+example in the city of Los Angeles, the median error is about \$100,000,
+while in the city of Norwalk, the median error is about \$25,000. One
+interpretation of these results is that prices are much harder to
+estimate in some submarkets than in others.
 
 \section{The best linear model is \dots}
 
+Based on time period from 2003 through the first part of 2009, the best
+linear model would predict $\log(price)$ from the feeatures in natural
+units, use the 20 features we identified, be regularized, be fitted on
+60 days of data, and created for each submarket as defined by the city
+name. These design choices are in effect hyperparameters for the linear
+models.
+
+Commercial model builders should consider being more aggressive in selecting the
+hyperparameters than we have been here. Rather than select them once for
+the entire time period and for all submarkets, they should select
+hyperparameters for each submarket based on very recent transactions
+instead of the longer time period studied here: we are interested in
+models that work on average, most commercial price estimators are
+interested in models that work on tomorrow's transactions.
+
 \section{Coda: A Non-Linear Model, Random Forests}
+
+Every study that we reviewed that compares linear to non-linear models
+claims that non-linear models generally outperform linear models when
+predicting house prices. We verify that claim in our setting by
+developing a number of random forest models by sweeping these design
+choices:
+
+\begin{itemize}
+\item The feature set used: we testing both all features and the 20
+features that were best for the linear model. 
+\item The number of trees in the random forest: more trees should lead to
+better results, probably with a tailing off in performance at some
+point. We tested 1, 100, 300, and 1000 trees in each random forest.
+\item The number of features to try when adding a new leaf
+to the tree. The implementation of random forests first tests that
+number of random-selected features to add and then adds the one giving
+the best greedy performance. We test 1, 2, 3, and 4 features.
+\end{itemize}
+
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.13.rf}}
+\caption{Estimated Generalization Error Using Random Forests}
+\label{figure:Submarkets}
+\end{figure}
+
+Figure \ref{figure:Submarkets} shows there results of this experiment.
+As expected, increasing the number of trees (column \code{ntree}) and
+increasing the number of features tested when adding a leaf (column
+\code{mtry}) both always improved prediction accuracy. The model in
+which the available feature set was restricted to the 20 features found
+to be best for the linear model greatly underperformed the otherwise
+equivalent model allowed to select from all features. This is logical:
+why should taking away choice improve prediction?
+
+<<random>>=
+best.lin <- 39557
+rf       <- 35782
+ratio    <- best.lin / rf
+ratio
+@
+
+Finally, the best of the linear models which work on the entire market
+is the zip-code based indicator model. It's expected generalization
+error is \$39,557 with a 95 percent confidence interval of $[\$36,500;
+\$43,108]$. The expected generalization error from the best random
+forest model is \$35,782 with a 95 percent confidence intervale of
+$[\$32,976; \$37,871]$. The best linear model tested is about 10 percent
+worse than the random forest model tested. 
+
+Both can be improved. The linear model can be improved through including
+the GPS coordinates and probably through many other means. How do design
+these improvements is not obvious. The random forests model can be
+improved simply by increasing the two hyperparameters and by adding
+features.
+
