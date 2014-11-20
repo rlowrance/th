@@ -78,13 +78,22 @@ Table7A <- function(lines) {
                              ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
                              ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
                              ,data.format.family
+                             ,min.or.max
                              ) {
         # put brackets [] around the minimizer
-        min.index <- which.min(c( ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
-                                 ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
-                                 )
-        )
-        data.format <- data.format.family[[min.index]]
+        special.index <-
+            if (min.or.max == 'min') {
+                which.min(c( ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                            ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                            )
+                )
+            } else {
+                which.max(c( ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
+                            ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
+                            )
+                )
+            }
+        data.format <- data.format.family[[special.index]]
 
         line <- sprintf( data.format
                         ,response, predictorsForm, metricName
@@ -103,6 +112,7 @@ Table7A <- function(lines) {
                      ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
                      ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
                      ,data.format.whole.numbers
+                     ,min.or.max = 'min'
                      )
     }
 
@@ -115,6 +125,7 @@ Table7A <- function(lines) {
                      ,ndays30, ndays60, ndays90, ndays120, ndays150, ndays180
                      ,ndays210, ndays240, ndays270, ndays300, ndays330, ndays360
                      ,data.format.fractions
+                     ,min.or.max = 'max'
                      )
     }
 
