@@ -2,6 +2,7 @@ Chart13 <- function(my.control) {
     # return list of txt vectors
 
     verbose <- TRUE
+    testing <- FALSE
 
     cv.cell <- CvCell()
     fixed <- cv.cell$FixedCellValues('Chart13')
@@ -89,9 +90,9 @@ Chart13 <- function(my.control) {
         a.cv.result
     }
 
-    Indicators.Txt <- function() {
+    Indicators <- function() {
         # return Lines() object
-        Indicators.Path <- function(predictorsName) {
+        IndicatorsPath <- function(predictorsName) {
             path <-Path( scope = 'global'
                         ,model = fixed$model
                         ,timePeriod = fixed$timePeriod
@@ -122,7 +123,7 @@ Chart13 <- function(my.control) {
         report$Append(' ')
         report$Append(line)
 
-        Indicators.Detail <- function(path, report, indicators.for) {
+        IndicatorDetail <- function(path, report, indicators.for) {
             # add detail line to report
             # produce analysis for a.cv.result in path file
             a.cv.result <- ACvResult(path)
@@ -136,18 +137,22 @@ Chart13 <- function(my.control) {
                             )
             report$Append(line)
         }
+        IndicatorDetail( IndicatorsPath('best20')
+                        ,report
+                        ,'no indicators'
+                        )
         for (predictorsName in c( 'best20zip'
                                  ,'best20census'
                                  ,'best20city'
                                  )) {
-            path <- Indicators.Path(predictorsName)
+            path <- IndicatorsPath(predictorsName)
             if (file.exists(path)) {
                 indicators.for <- switch(predictorsName
                                          ,best20zip = 'zip 5 code'
                                          ,best20census = 'census tract'
                                          ,best20city = 'city'
                                          )
-                Indicators.Detail(path, report, indicators.for)
+                IndicatorDetail(path, report, indicators.for)
             } else {
                 cat('MISSING FILE CHART 11', path, '\n')
                 #stop('all files should exist')
@@ -156,7 +161,28 @@ Chart13 <- function(my.control) {
         result <- report
         result
     }
-    Submarkets.Txt <- function() {
+    SubmarketsSpecific <- function() {
+        # return Lines() object with details
+        # no-indicators    median  low.ci  hi.ci
+        # census=9999999   median  low.ci  hi.ci
+        # ...
+        # city=XXXXXXXXXXX median  low.ci  hi.ci
+        # ...
+        # zip5=99999       median  low.ci  hi.ci
+        # ...
+
+        # Approach
+        # pass 1: figure out which indicator-using models were best and worst
+        # pass 2: write these out
+
+        # Pass 1: determine median rMedSE of each possible model
+        median.value <- NULL  # build list median.value[[
+
+
+
+    }
+
+    Submarkets <- function() {
         # return list of Lines() objects
         # summary: summary aross census, city, zip
         # census : details for the census tracts
@@ -171,9 +197,9 @@ Chart13 <- function(my.control) {
             verbose <- TRUE
 
             loaded <- load(file = my.control$path.in.submarkets)
-            analysis.census.tract <- Analyze.Scopes(codes.census.tract)
-            analysis.property.city <-  Analyze.Scopes(codes.property.city)
-            analysis.zip5 <- Analyze.Scopes(codes.zip5)
+            analysis.census.tract <- AnalyzeScopes(codes.census.tract)
+            analysis.property.city <-  AnalyzeScopes(codes.property.city)
+            analysis.zip5 <- AnalyzeScopes(codes.zip5)
 
             report <- Lines()
 
@@ -224,7 +250,7 @@ Chart13 <- function(my.control) {
                            )
             result
         }
-        Analyze.Scopes <- function(scopes) {
+        AnalyzeScopes <- function(scopes) {
             # return list
             # $detail.report: Lines() object for each scope
             # $median
@@ -257,7 +283,7 @@ Chart13 <- function(my.control) {
             num.10fold.medians.found <- 0
             scope.medians <- NULL
             for (scope in scopes) {
-                maybe <- Maybe.Analyze.Scope(scope)
+                maybe <- MaybeAnalyzeScope(scope)
                 if (maybe$ok) {
                     # scope file exists
                     value <- maybe$value
@@ -300,7 +326,7 @@ Chart13 <- function(my.control) {
                            )
             result
         }
-        Submarkets.Path <- function(scope) {
+        SumarketsPath <- function(scope) {
             # return path to cv cell in file system
             path <-Path( scope = scope
                         ,model = fixed$model
@@ -317,21 +343,21 @@ Chart13 <- function(my.control) {
                         )
             path
         }
-        Maybe.Analyze.Scope <- function(scope) {
+        MaybeAnalyzeScope <- function(scope) {
             # return list
             # $ok = TRUE (the scope has been computed) or FALSE (is has not)
             # $value: NA or a list $median.of.medians $num.rmse.values $median.ci.lowest $median.ci.highest
-            path <- Submarkets.Path(scope)
+            path <- SumarketsPath(scope)
             if (file.exists(path))
                 list( ok = TRUE
-                     ,value = Analyze.Scope(path)
+                     ,value = AnalyzeScope(path)
                      )
             else
                 list( ok = FALSE
                      ,value = NA
                      )
         }
-        Analyze.Scope <- function(path) {
+        AnalyzeScope <- function(path) {
             # return analysis of the scope as a list
             # $median.of.medians: NA or numeric
             # $num.rmse.values: num
@@ -366,10 +392,14 @@ Chart13 <- function(my.control) {
 
 
 
-    indicators <- Indicators.Txt()
-    submarkets <- Submarkets.Txt()
-    print(indicators$Get())
-    print(submarkets$summary$Get())
+    if (testing) {
+        indicators <- Indicators()
+    } else {
+        indicators <- Indicators()
+        submarkets <- Submarkets()
+        print(indicators$Get())
+        print(submarkets$summary$Get())
+    }
 
 
     result <- list( indicators = indicators$Get()
