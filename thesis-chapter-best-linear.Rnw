@@ -309,11 +309,11 @@ of training days to 60 and use the log-level form for the model.
 
 \subsection{Feature selection}
 
-The benchmark model has two features. Which of these are the best
-features to use? Here we consider two approached. In the first, we
+The benchmark model has 24 features. Which of these are the best
+features to use? Here we consider two approaches. In the first, we
 use a simple heuristic to determine the best features to use. In the
 second, we use PCA for the same purpose. We then compare results and
-have one surprising findings.
+have one surprising finding.
 
 \subsubsection{LCV Heuristic}
 
@@ -322,7 +322,7 @@ straight-forward way to determine the best feature combinations is to
 consider all possible subsets and estimate the generalization error for
 each. This would be way too time consuming.
 
-Our idea is to instead use L1 regularization to consider determine the
+Our idea is to instead use L1 regularization to determine the
 rank-ordering of the 24 features in terms of their importance. We then
 use cross validation to estimate the generalization error from a model
 with the first, the first two, \dots, all 24 rank-ordered features. We
@@ -330,11 +330,12 @@ call the procedure LCV, for L1 regularization followed by cross
 validation.
 
 The implementation is by using the Elastic Net from Zoe and Hastie
-(\cite{zou-05}). It solves a linear model by concurrently using an L1
+\cite{zou-05}. It solves a linear model by concurrently using an L1
 and L2 regularizer. As a by-product, the \code{elasticnet} R package
-(\cite{zou-12}) produces a rank-ordering of the features from Zoe and
-Hastie (\cite{zou-05}). It fits a linear model by concurrently using
-L1 and L2 regularizer. 
+\cite{zou-12} produces a rank-ordering of the features in terms of their
+importance. In our use of this package, we set the L2 regularizer to
+zero and see just the rank-ordering of features under the L1
+regularizer.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -342,7 +343,7 @@ L1 and L2 regularizer.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.9.txt}}
-\caption{Median rMedianSE Table}
+\caption{Median Errors For Features Sets: Table}
 \label{figure:MedianTable}
 \end{figure}
 
@@ -350,36 +351,34 @@ The result of the rank-ordering from the Elastic Net procedure is in
 Figure \ref{figure:MedianTable}. It shows that the most important
 feature is the living area of the house. Real estate agents claim the
 most important features of the house its its location, but that isn't
-true in these data. Indeed, a features of the location (median household
+true in these data. Instead,  features of the location (median household
 income and average commute time) are second and third in importance. 
 
 % including a pdf
 \begin{figure}[h]
-\caption{
-Median rMedianSE\\
-Showing Origin
-}
+\caption{Median Errors for Feature Sets: Graphic}
 \label{figure:MedianGraph1}
 \centering\includegraphics[scale=.4]{\Sexpr{path.9.gg1}}
 \end{figure}
 
-The same data are shown in \ref{figure:MedianGraph1}, which shows the
-estimated generalization error from including the first $n$ features,
-together with a 95 percent confidence interval. One sees that the lowest
-estimated error is when using the first 20 features, from living area to
-census tract has park. The estimated errors then tend to increase and
-the placement of the confidence intervals does not compel one to
-consider going beyond the first 20 features. 
+The same data are shown graphically in Figure \ref{figure:MedianGraph1},
+which displays the estimated generalization error from including the
+first $n$ features, together with a 95 percent confidence interval. One
+sees that the lowest estimated error is when using the first 20
+features, from living area to census tract has park. The estimated
+errors then tend to increase and the placement of the confidence
+intervals does not compel one to consider going beyond the first 20
+features. 
 
 If one seeks parsimony, one could consider using the first eight
 features (through zip5 has industry), after which there is an increase
 in estimated generalization error before a subsequent decline. Another
-possible feature set is the first 20 feature (through census tract has
+possible feature set is the first 20 features (through census tract has
 park), as that feature set has the lowest estimated error. Another
 choice would be 19 features (through factor is new construction) as
 though it would have a slightly higher median estimated generalization
-error than for the 20-feature choice, the 95% confidence interval is
-smaller.
+error than for the 20-feature choice, the 95 percent confidence interval
+is smaller.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -400,23 +399,25 @@ features:
 \item living area: this is the interior living space. Construction is
 required to change it, so its not surprising to see it highly-ranked.
 That is is more highly ranked than the land square footage is a surprise
-to me.
+to me, because land square footage seems harder to change than interior
+living space.
 
 \item fireplace number: the number of fireplaces, including the
-possibility of zero. A surprise, perhaps fireplaces are proxies for
+possibility of zero. A surprise--perhaps fireplaces are proxies for
 overall amenities in the house.
 
 \item year built: the year the house was built. Other studies have
 concluded that the age and the squared age of the house are important
-features. Our models
-are local, so that we need a house age for every query transaction.
-Instead of pre-building a training set for each possible query, we
-transform year built into age and age squared just before fitting the
-model.
+features. Our models are local, so that we need a house age for every
+query transaction.  Instead of pre-building a training set for each
+possible query, we transform year built into age and age squared just
+before fitting the model. We perform a similar transformation for the
+effective year built, which is the last year of signficant updates to
+the house.
 
 \item factor has pool: whether there is a swimming pool. Not a
 surprise, as the houses are all in Los Angeles, where the weather is
-often pleasant.
+often pleasant and a swimming pool might be a joy.
 
 \end{itemize} 
 
@@ -461,12 +462,12 @@ not a walking-around city.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.1}}
-\caption{Principal Components\\Cumulative Variance}
+\caption{Principal Components Cumulative Variance}
 \label{figure:PCA1}
 \end{figure}
 
 The second approach to determining the importance of features is to use
-Principal Components Analysis. Figure \ref{figure:PCA1} shows the the
+Principal Components Analysis. Figure \ref{figure:PCA1} shows the
 principle components associated with the 24 features. We see that the
 first three principal components account for almost 100 percent of the
 variance.
@@ -477,7 +478,7 @@ variance.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.01}}
-\caption{Principal Components\\Component 1}
+\caption{Principal Component 1}
 \label{figure:PCA201}
 \end{figure}
 
@@ -495,7 +496,7 @@ plots is correlated with bigger houses.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.02}}
-\caption{Principal Components\\Component 2}
+\caption{Principal Component 2}
 \label{figure:PCA202}
 \end{figure}
 
@@ -513,7 +514,7 @@ component.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.03}}
-\caption{Principal Components\\Component 3}
+\caption{Principal Component 3}
 \label{figure:PCA203}
 \end{figure}
 
@@ -528,16 +529,13 @@ bigger basement probably implies bigger house.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.10.txt}}
-\caption{Median rMedianSE Table}
+\caption{Median Errors Across Folds: Table}
 \label{figure:MedianTable10}
 \end{figure}
 
 % including a pdf
 \begin{figure}[h]
-\caption{
-Median rMedianSE\\
-Showing Origin
-}
+\caption{Median Errors Across Folds: Graphic}
 \label{figure:MedianGraph102}
 \centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
 \end{figure}
@@ -553,20 +551,17 @@ Showing Origin
 %\end{figure}
 
 In Figure \ref{figure:MedianTable10} we see the estimated generalization
-error from using the median household income, median household income
-and land square foot, and so on up to the 4 features identified as
-important in the PCA work. The same data are in Figure
-\ref{figure:MedianGraph102} which shows the 95 percent confidence
-intervals graphically. One might choose to use only the first 3 features
-based on this graphic.
+error from using the median household income, land square footage, and
+so on up to the 4 features identified as important in the PCA work. The
+same data are in Figure \ref{figure:MedianGraph102} which shows the 95
+percent confidence intervals graphically. One might choose to use only
+the first 3 features based on this graphic.
 
 \subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
 
 % including a pdf
 \begin{figure}[h]
-\caption{
-Median rMedianSE
-}
+\caption{Median Errors Across Folds}
 \label{figure:MedianGraph111}
 \centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
 \end{figure}
@@ -577,7 +572,7 @@ suggested by the LCV and PCA analyses. These results are in Figure
 shown. A surprising conclusion is that the PCA-derived feature sets all
 underperform the LCV-derived feature sets: extremely small feature sets
 are challenged in this setting. The best feature sets is the
-one with the first 20 features in Figure \ref{figure:LCV}
+one with the first 20 features.
 
 %
 %% including a pdf
