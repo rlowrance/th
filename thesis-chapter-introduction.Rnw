@@ -1,5 +1,5 @@
 \chapter{Introduction}
-% vim: texwidth=72
+% vim: textwidth=72
 
 Many parties are interested in accurate predictions of the market
 value of residential real estate. Buyers and sellers have a clear
