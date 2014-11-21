@@ -882,9 +882,9 @@ thesis: $(working)/thesis.pdf
 thesis-chapters += thesis-chapter-introduction.Rnw
 thesis-chapters += thesis-chapter-literature-review.Rnw
 thesis-chapters += thesis-chapter-data-munging.Rnw
-#thesis-chapters += thesis-chapter-taxonomy.Rnw
 thesis-chapters += thesis-chapter-data-selection.Rnw
 thesis-chapters += thesis-chapter-best-linear.Rnw
+thesis-chapters += thesis-chapter-conclusions.Rnw
 
 thesis-data-data-munging += $(working)/transactions.RData
 thesis-data-data-munging += $(working)/transactions-subset1.RData
