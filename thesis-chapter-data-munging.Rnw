@@ -1,145 +1,28 @@
-\chapter{Data Munging}
-%% vim: textwidth=72
+\chapter{TEST}
+% vim: textwidth=72
 %
-%
-%
-%% STYLE GUIDE
-%% not dataset, but data set
-%%\input{thesis-prologue}
-%
-%\documentclass[10pt]{amsart}
-%%\documentclass[10pt]{amsbook}
-%%\setlength{\textwidth}{5in}
-%
-%\usepackage{amssymb,latexsym,amsmath}
-%\usepackage{listings}
-%%\usepackage[all]{xy}   %xy-pic
-%
-%% graphics
-%\usepackage{graphicx}    % needed for \includegraphics
-%% Tell \includegraphics where to search for files
-%% see Gratzer p 317
-%% The trailing / is required
-%\graphicspath{%
-%{/home/roy/Dropbox/nyu-real-estate/repp-repo.git/src/local-weighted-regression-2/src/}
-%}
-%\usepackage{epstopdf}   % allow eps files as graphics input
-%\usepackage{caption}    % allow line breaks \\ in captions
-%
-%% don't indent first list of a paragraph
-%%\setlength{\parindent}{0pt}   
-%% increase spacing between paragraphs
-%\setlength{\parskip}{1ex plus 0.5ex minus 0.2 ex}
-%% don't align right margin
-%\raggedright
-%
-%% proclamations
-%%\newtheorem{corollary}{Corollary}
-%%\newtheorem{definition}{Definition}
-%\newtheorem{lemma}{Lemma}
-%%\newtheorem{notation}{Notation}
-%%\newtheorem{proposition}{Proposition}
-%%\newtheorem{theorem]{Theorem}
-%
-%%%%%%% commands local to this document
-%\newcommand{\code}[1]{\texttt{#1}}
-%\newcommand{\term}[1]{\emph{#1}}
-%\newcommand{\blanks}{\_\_\_}
-%\newcommand{\blank}{\textunderscore\textunderscore\textunderscore}
-%
-%\DeclareMathOperator*{\argmax}{arg\,max}
-%\DeclareMathOperator*{\argmin}{arg\,min}
-%\begin{document}
-%\title{Input Processing}
-%\author{Roy E. Lowrance}
-%\date{\today}
-%\email{roy.lowrance@gmail.com}
-%\maketitle
-%
-%\SweaveOpts{concordance=TRUE}
-<<control, include=FALSE>>=
-options(warn = 2)  # turn warnings into errors
-source('DirectoryWorking.R')
-Control <- function() {
-    working <- DirectoryWorking()
-    control <-
-        list( path.in.transactions = paste0(working, 'transactions.RData')
-             ,path.in.subset = paste0(working, 'transactions-subset1.RData')
-             ,path.in.deeds = paste0(working, 'deeds-al-g.RData')
-             ,path.in.parcels = paste0(working, 'parcels-sfr.RData')
-             ,cache = FALSE
-             #,cache = TRUE
-             #,include = FALSE
-             ,include = TRUE
-        )
-    control
-}
+<<dataMunging, include=TRUE, error=FALSE>>=
+path.in.data.munging.info <- paste0(control$working, 'data-munging-info.RData')
+loaded <- load(path.in.data.munging.info)
+str(loaded)
+stopifnot(!is.null(deeds))
+stopifnot(!is.null(parcels))
+stopifnot(!is.null(subset))
+stopifnot(!is.null(transactions))
 
-control <- Control()
-str(control)
-opts_chunk$set(cache = control$cache)
-opts_chunk$set(include = control$include)
-@
+str(deeds)
+str(parcels)
+str(subset)
+str(transactions)
 
-
-<<deeds>>=
-Deeds <- function(control) {
-    deeds.loaded <- load(control$path.in.deeds)
-    str(deeds.loaded)
-    list( info = count
-          ,df = deeds.al.grant
-          ,control = control
-    )
-}
-deeds <- Deeds(control)
-str(deeds$info)
-str(deeds$control)
-@
-
-<<parcels>>=
-Parcels <- function(control) {
-    parcels.loaded <- load(control$path.in.parcels)
-    str(parcels.loaded)
-    list( info = info
-         ,df = parcels.sfr
-         ,control = control
-         )
-}
-parcels <- Parcels(control)
-str(parcels$info)
-str(parcels$control)
-@
-
-<<subset>>=
-Subset <- function(control) {
-    subset.loaded <- load(control$path.in.subset)
-    str(subset.loaded)
-    list( info = info
-         ,df = transactions.subset1
-         ,control = control
-    )
-}
-subset <- Subset(control)
-str(subset$info)
-str(subset$control)
-subset.nrow <- nrow(subset$df)
+# some datasets have special variables (for historical reasons)
+subset.nrow <- subset$nrow 
 subset.nrow
-@
 
-<<transactions>>=
-Transactions <- function(control) {
-    transactions.loaded <- load(control$path.in.transactions)
-    str(transactions.loaded)
-    list( info = info
-         ,df = transactions
-         ,control = control
-    )
-}
-# a bug in Knitr prevents something from reloaded
-# Maybe that something is the dataframe
-transactions <- Transactions(control)
+str(deeds$info)
+str(parcels$info)
+str(subset$info)
 str(transactions$info)
-str(transactions$control)
 @
 
 
@@ -164,6 +47,7 @@ transaction observations with values we define to be reasonable. Most of the ana
 uses subset1, which contains about
 \Sexpr{Commas(About(subset$info$num.with.possible.duplicates))}
 observations.
+
 
 This chapter provides the details on how this was done. It contains these
 sections:
@@ -209,16 +93,16 @@ to identify whether the parcel is for a single-family residence.
 \item Information on the owner, which is not populated.
 
 \item A series of fields describing the assessment for the parcel.
-  California Propositions 7 and 13 force the assessment to not be an
-  unbiased estimate of the market value of the property. Proposition 13
-  constrains the assessment to not grow beyond the last sale price of
-  the property by more than two percent annually, thus biasing
-  assessments to be on average lower than property values in periods of
-  high real estate inflation. Proposition 7 reduces the assessment to an
-  estimated market value upon successful petition of the property owner,
-  thus biasing the assessment to be on average higher than property
-  values, because not all owners will petition to have their assessments
-  reduced when the real estate market is falling.
+%  California Propositions 7 and 13 force the assessment to not be an
+%  unbiased estimate of the market value of the property. Proposition 13
+%  constrains the assessment to not grow beyond the last sale price of
+%  the property by more than two percent annually, thus biasing
+%  assessments to be on average lower than property values in periods of
+%  high real estate inflation. Proposition 7 reduces the assessment to an
+%  estimated market value upon successful petition of the property owner,
+%  thus biasing the assessment to be on average higher than property
+%  values, because not all owners will petition to have their assessments
+%  reduced when the real estate market is falling.
 
 \item Information on the most recent sale of the property. We don't use this
 information and rely instead on the information in the deeds. The two
@@ -234,8 +118,8 @@ of information.
 
 \item A description of the primary building, including the year built, number 
 of rooms, number of bedrooms, number of bathrooms, whether it has a swimming
-pool. Many of the values are missing, so we use a subset of the values that
-are often present.
+pool. Many of the values are missing. Later we describe how we define a
+subset of the data to use.
 
 \item The legal description of the property. We don't use this.
 
@@ -307,20 +191,20 @@ between the seller and buyer.
 
 Our work uses only deeds classified as arms-length sales as recorded
 in the PRICATCODE (primary category code) field. The deeds files from CoreLogic contain
-\Sexpr{Commas(deeds$info$num.all.deeds)}
+\Sexpr{Commas(About(deeds$info$num.all.deeds))}
 deeds of which  
-\Sexpr{Commas(deeds$info$num.is.arms.length)} 
+\Sexpr{Commas(About(deeds$info$num.is.arms.length))} 
 are classified as arms-length.
 
 The document type code field records the type of the deed. The deeds of
 interest are those that transfer ownership of a property. There are the
 grant deeds. There are 
-\Sexpr{Commas(deeds$info$num.is.grant.deed)} 
+\Sexpr{Commas(About(deeds$info$num.is.grant.deed))} 
 grant deeds in the deeds files.
 
 We are interested in deeds that are both arms-length and grant deeds.
 There are 
-\Sexpr{Commas(deeds$info$num.is.arms.length.and.grant.deed)} 
+\Sexpr{Commas(About(deeds$info$num.is.arms.length.and.grant.deed))} 
 such deeds.
 
 \subsection{Select single-family residences}
@@ -330,9 +214,9 @@ One of the uses is as a single-family residence.
 
 Our work uses only parcels classified as single-family residences as
 recorded in the LUSEI field. The tax roll files from CoreLogic contain
-\Sexpr{Commas(parcels$info$nrow.all)} 
+\Sexpr{CommasAbout(parcels$info$nrow.all)} 
 tax roll records of which 
-\Sexpr{Commas(parcels$info$nrow.sfr)}
+\Sexpr{CommasAbout(parcels$info$nrow.sfr)}
 are classified as single-family
 residences.
 
@@ -370,12 +254,12 @@ but all are straight-forward to compute from the information provided.
 The transactions file is created by joining each of the input files.
 \begin{itemize}
   \item The file of all arms-length sale deeds containing 
-    \Sexpr{Commas(transactions$info$nrow.deeds.al)} records.
+    \Sexpr{CommasAbout(transactions$info$nrow.deeds.al)} records.
   \item The file of all single-family-residence parcels containing 
-    \Sexpr{Commas(transactions$info$nrow.parcels.sfr)}
+    \Sexpr{CommasAbout(transactions$info$nrow.parcels.sfr)}
     records. These parcels are naturally joined into the deeds using the
     best APN field from each file. The resulting joined file has
-    \Sexpr{Commas(transactions$info$nrow.deeds.parcels)} records. The
+    \Sexpr{CommasAbout(transactions$info$nrow.deeds.parcels)} records. The
     unique key of each record is the APN and the recording date for the
     deed. Other fields in the joined records are information from the deeds file
     including, when available, the date of the sale and the price, and
@@ -387,7 +271,7 @@ The transactions file is created by joining each of the input files.
     the census tract data. The information in these records is appended
     to the joined deeds-parcels file using the census tract fields to
     line up the records.  A file with
-    \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels)} records
+    \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels)} records
     results.
   \item The file containing
     \Sexpr{Commas(transactions$info$nrow.geocoding)} records from the
@@ -396,7 +280,7 @@ The transactions file is created by joining each of the input files.
     parcels. These location values are appended onto the corresponding
     records in the census-deeds-parcel file. The resulting merged file
     has
-    \Sexpr{Commas(transactions$info$nrow.census.deeds.parcels.geocoding)}
+    \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels.geocoding)}
     records.
   \item The file containing 
     \Sexpr{Commas(transactions$info$nrow.derived.zip5)} records recording 
@@ -409,9 +293,8 @@ The transactions file is created by joining each of the input files.
 
 
 The resulting transactions file contains 
-\Sexpr{Commas(transactions$info$nrow.transactions)} 
+\Sexpr{CommasAbout(transactions$info$nrow.transactions)} 
 records.
-
 
 \section{Pick a subset with reasonable values}
 
@@ -434,31 +317,38 @@ Remaining <- function(used) {
 These judgements were applied to reject records and form ``subset1,''
 the subset of transactions actually used in the analysis.
 \begin{itemize}
+
   \item Assessed value. Transaction arising from parcels with an
     assess value exceeding the maximum sales price were discarded. How
     the maximum sales price was determined is described just below under ``Sale amount.''
     There are \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
+
   \item Document type code. Only transactions arising from grant
     deeds were retained. Grant deeds are sales. There are many other 
     types of deeds. Records with other types
     of deeds were excluded. There were
     \Sexpr{Remaining(subset$info$DOCUMENT.TYPE.CODE$grant.deed)}
     such.
+
   \item Effective year built. Transactions arising from properties
     without an effective year built were discarded. The effective year
     built is the year of the last major remodeling or the year the property
     is built. There are \Sexpr{Remaining(subset$info$effective.year.built)} such.
+
   \item Geocoding. Transactions for which either the latitude or
     longitude were missing were rejected. There were 
     \Sexpr{Remaining(subset$info$geocoding)} such.
+
   \item One building. Transactions arising from parcels with more
     than one building were rejected because we have only descriptions
     for one building. There are \Sexpr{Remaining(subset$info$one.building)}
     such.
+
   \item One parcel. Transactions arising from deeds that reported
     more than one sold parcel were rejected because there is no way to
     apportion the price to the parcels. There are 
     \Sexpr{Remaining(subset$info$one.parcel$num.one.apn)} such.
+    
   \item Sale amount. Some deeds report extremely large prices.
     Research in the Wall
     Street Journal suggests that the highest transaction price in Los
@@ -467,30 +357,37 @@ the subset of transactions actually used in the analysis.
     so observations with prices
     higher than this were rejected. 
     There were \Sexpr{Remaining(subset$info$sale.amount)} such.
+
   \item Sale code. The price on the deed might not be for the full
     value of the parcel. We rejected transactions that did not say the
     sales price was for the full amount. There were 
     \Sexpr{Remaining(subset$info$sale.code$sale.price.full)} such.
+
   \item Sale date. None of the deeds are missing recording dates. Some are missing
   sale dates. When a
     sales date is missing, it is imputed from the recording date. This
     imputation uses the average delay between sales and recording (
     \Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
     days) as the best estimate for the missing sales date.
+
   \item Total rooms. We rejected transactions for houses reported to
-    have less than \Sexpr{Commas(subset$control$min.total.rooms)} rooms. 
+    have less than \Sexpr{Commas(subset$control$min.total.rooms)} room. 
     There were \Sexpr{Remaining(subset$info$total.rooms)} such.
+
   \item Transaction type code. We rejected transactions for parcels
-    that were not either new construction nor resales. Other
+    that were neither new construction nor resales. Other
     possibilities include time shares, construction loans, and
     refinancing. There were 
     \Sexpr{Remaining(subset$info$TRANSACTION.TYPE.CODE$resale + 
     subset$info$TRANSACTION.TYPE.CODE$new.construction)} such.
+
   \item  Units number. We have the description for only the primary
     unit on the parcel, so we rejected observations with more than one
     unit. There were \Sexpr{Remaining(subset$info$units.number)} such.
+
   \item Year built. Transactions arising from properties with a
     missing year built were discarded. There are \Sexpr{Remaining(subset$info$year.built)} such.
+
 \end{itemize}
 
 Some transactions were discarded because of extremely high values in one
@@ -499,13 +396,14 @@ reported values were discarded. Features subject to this protocol were
 these:
 \begin{itemize}
   \item Land square footage. The square footage of the land. The
-    largest value in the transactions file is 
+    largest land square footage value in the transactions file is 
     \Sexpr{Commas(subset$info$land.square.footage$max.before.selection)};
      the largest value in
     the subset of retained transactions is 
     \Sexpr{Commas(subset$info$land.square.footage$max.after.selection)}. 
     There are \Sexpr{Remaining(subset$info$land.square.footage$num.selected)}
     observations with values exceeding the highest allowed percentile.
+
   \item Living square feet. The square footage of the livable part
     of the  house. The largest value in the transactions file is 
     \Sexpr{Commas(subset$info$living.square.feet$max.before.selection)};
@@ -514,6 +412,7 @@ these:
     There are \Sexpr{Remaining(subset$info$living.square.feet$num.selected)} 
     observations with values exceeding the highest allowed
     percentile.
+
   \item Universal building square feet. The square footage inside
     the house. The largest value in the transactions file is 
     \Sexpr{Commas(subset$info$building.square.feet$max.before.selection)}; the
@@ -522,10 +421,11 @@ these:
     There are \Sexpr{Remaining(subset$info$building.square.feet$num.selected)}
     observations with values exceeding the highest allowed
     percentile.
+
 \end{itemize}
 
 The resulting subset file (``subset1'') contains 
-\Sexpr{Commas(subset.nrow)} 
+\Sexpr{CommasAbout(subset.nrow)} 
 records.
 
 \section{Split the subset into individual features}
@@ -551,6 +451,4 @@ the log of the values. For continuous features that can be zero, instead
 of the log I used 1 plus the log.
 
 
-\end{document}
  
-% vim:fdm=syntax
