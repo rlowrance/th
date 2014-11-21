@@ -388,29 +388,13 @@ $(working)/e-cv-chart_chart12_3%txt \
 : Chart12.R
 	Rscript e-cv-chart.R --chart 12
 
-#$(working)/e-cv-chart_chart5%txt \
-#$(working)/e-cv-chart_chart6%txt \
-#$(working)/e-cv-chart_chart7%txt \
-#$(working)/e-cv-chart_chart8%txt \
-#$(working)/e-cv-chart_chart9_1%pdf \
-#$(working)/e-cv-chart_chart9_2%pdf \
-#$(working)/e-cv-chart_chart9%txt \
-#$(working)/e-cv-chart_chart10_1%pdf \
-#$(working)/e-cv-chart_chart10_2%pdf \
-#$(working)/e-cv-chart_chart10%txt \
-#$(working)/e-cv-chart_chart11_1%pdf \
-#$(working)/e-cv-chart_chart11_2%pdf \
-#$(working)/e-cv-chart_chart12_1%pdf \
-#$(working)/e-cv-chart_chart12_2%pdf \
-#$(working)/e-cv-chart_chart12%txt \
-#$(working)/e-cv-chart_chart13_indicators%txt \
-#$(working)/e-cv-chart_chart13_submarkets_summary%txt \
-#$(working)/e-cv-chart_chart13_submarkets_census%txt \
-#$(working)/e-cv-chart_chart13_submarkets_property_city%txt \
-#$(working)/e-cv-chart_chart13_submarkets_zip5%txt \
-#$(working)/e-cv-chart_chart14%txt \
-#: e-cv-chart.R $(e-cv-chart-source) $(e-cv-chart-data)
-#	Rscript e-cv-chart.R
+$(working)/e-cv-chart_chart13_indicators%txt \
+$(working)/e-cv-chart_chart13_submarkets_summary%txt \
+: Chart13.R
+	Rscript e-cv-chart.R --chart 13
+
+$(working)/e-cv-chart_chart14.txt: Chart14.R
+	Rscript e-cv-chart.R --chart 14
 
 # E-CV-CHART-GENERATED
 
