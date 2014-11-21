@@ -128,7 +128,7 @@ natural units
 
 \item The number of days in the training period, from 30 up to 360 in
 steps of 30 days
-
+precedes
 \item The figure of merit used to select the model: one of the mean of
 the root mean squared errors from the folds (\code{meanRMSE}), the
 median of the root median squared errors from the folds
@@ -164,7 +164,7 @@ the price-level form of the linear model: we predict price using the
 natural units for each feature. The three rows show the value of a model
 selection metric for 30, 60, and more days using the three metrics
 studied. The columns with headings 30 up to 360 are the number of days
-in the training period for each query.  An asterisk preceeds the value
+in the training period for each query.  An asterisk precedes the value
 that optimizes a row: it marks the best number of days.
 
 There are several observations to make:
@@ -176,7 +176,7 @@ number of training days as best.
 
 \item When the metrics pick different training periods, they usually pick
 similar training periods, but sometimes pick very different training
-periods. The biggest diference in training periods is for the level-log
+periods. The biggest difference in training periods is for the level-log
 form.
 
 \item It's often true that the metric \code{meanRMSE} and
@@ -198,7 +198,7 @@ metric to select models is not very determining: one should pick the
 metric based on some other criteria.
 
 Going forward, we focus on the \code{medRMSE} metric, judging that it
-more intutitively sizes average errors than does \code{meanRMSE}
+more intuitively sizes average errors than does \code{meanRMSE}
 (because of the right-skew in the prices) and
 reflecting our predisposition to minimize average errors rather than the
 tightness of estimates.
@@ -414,7 +414,7 @@ features. Our models are local, so that we need a house age for every
 query transaction.  Instead of pre-building a training set for each
 possible query, we transform year built into age and age squared just
 before fitting the model. We perform a similar transformation for the
-effective year built, which is the last year of signficant updates to
+effective year built, which is the last year of significant updates to
 the house.
 
 \item factor has pool: whether there is a swimming pool. Not a
@@ -688,7 +688,7 @@ often because there are too few transactions in the training set.
 
 Figure \ref{figure:Submarkets13} shows the results of this experiment.
 The submarket models that used city names had the lowest estimated
-generalization errors, but the fitting process suceeded in only 69
+generalization errors, but the fitting process succeeded in only 69
 percent of the city names. (We say the coverage was 69 percent.)
 Coverage was highest for the zip code-based submarkets, but estimated
 performance was worse than for city-based submarkets. The census tracts
@@ -718,7 +718,7 @@ that the most accurately-estimated houses are those in Lancaster, where
 the estimated generalization error is about \$15,000. What is common
 about the cities with lowest estimated errors is not obvious to me. Turning
 to the cities with the ten highest estimated errors, we see cities that
-expensive: Santa Monica, Berverly Hills, Malibu. The large estimated
+expensive: Santa Monica, Beverly Hills, Malibu. The large estimated
 errors may be generated in part from high prices so that a 10 percent
 error in an estimate is a larger number than for lower-priced cities.
 Another source of the large errors might be that the more expensive
@@ -794,7 +794,7 @@ Finally, the best of the linear models which work on the entire market
 is the zip-code based indicator model. It's expected generalization
 error is \$39,557 with a 95 percent confidence interval of $[\$36,500;
 \$43,108]$. The expected generalization error from the best random
-forest model is \$35,782 with a 95 percent confidence intervale of
+forest model is \$35,782 with a 95 percent confidence interval of
 $[\$32,976; \$37,871]$. The best linear model tested is about 10 percent
 worse than the random forest model tested. 
 
