@@ -11,7 +11,7 @@ source('Directory.R')
 
 source('Libraries.R')
 
-source('ReadTransactionsSubset1.R')
+source('ReadTransactionSplits.R')
 
 
 Control <- function(default.arg) {
@@ -24,10 +24,17 @@ Control <- function(default.arg) {
     splits <- Directory('splits')
     working <- Directory('working')
 
-    control <- list( path.in = paste0(working, 'transactions-subset1.RData')
+    control <- list( path.in = paste0(working, 'transactions-subset1-train-splits/')
                     ,path.out.log = paste0(log, me, '.log')
                     ,path.out.rdata = paste0(working, me, '.RData')
-                    ,splits.to.read = c('price', 'sale.year', 'sale.month')
+                    ,splits.to.read = c( 'census.tract'
+                                        ,'property.city'
+                                        ,'price'
+                                        ,'sale.year'
+                                        ,'sale.month'
+                                        ,'sale.day'
+                                        ,'zip5'
+                                        )
                     ,testing = FALSE
                     )
     control
@@ -108,10 +115,42 @@ PricesByYear <- function(data) {
     Printf('by year nrow %d\n', nrow(all.rows))
     all.rows
 }
+PriceBySubmarket2003On <- function(submarket.field, data) {
+    # return list
+    # $price: named list of all prices, names are the submarkets
+    # $medians: names list of all median prices
+    all.prices <- NULL
+    all.medians <- NULL
+    unique.submarkets <- unique(data[[submarket.field]])
+    for (submarket in unique.submarkets) {
+        in.submarket <- data[[submarket.field]] == submarket
+        in.time.period <- data$year >= 2003
+        prices <- data$price[in.submarket & in.time.period]
+        all.prices[[submarket]] <- prices
+        all.medians[[submarket]] <- median(prices)
+    }
+    result <- list( prices = all.prices
+                   ,medians = all.medians
+                   )
+    result
+}
+PrintMedians <- function(median.values, submarket.name) {
+    cat('sorted median values for submarket', submarket.name, '\n')
+    sorted <- sort(median.values)
+    for (name in names(sorted)) {
+        Printf('%30s %7.0f\n', name, sorted[[name]])
+    }
+}
 Main <- function(control, data) {
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 
+
+    price.by.census.tract.2003on <- PriceBySubmarket2003On('census.tract', data)
+    price.by.property.city.2003on <- PriceBySubmarket2003On('property.city', data)
+    price.by.zip5.2003on <- PriceBySubmarket2003On('zip5', data)
+    
+    PrintMedians(price.by.property.city.2003on$medians, 'property.city')
 
     by.year <- PricesByYear(data)
     by.month <- PricesByMonth(data)
@@ -121,6 +160,9 @@ Main <- function(control, data) {
          ,by.year
          ,by.month
          ,by.day
+         ,price.by.census.tract.2003on
+         ,price.by.property.city.2003on
+         ,price.by.zip5.2003on
          ,file = control$path.out.rdata
          )
 }
@@ -129,19 +171,26 @@ clock <- Clock()
 default.args <- NULL
 control <- Control(default.args)
 
-if (!exists('relevant.transaction.data')) {
-    transaction.data <- ReadTransactionsSubset1(path = control$path.in)
+if (!exists('e.price.relevant.transaction.data')) {
+    transaction.data <- ReadTransactionSplits( path.in.base = control$path.in
+                                              ,split.names = control$splits.to.read
+                                              )
     # add year and month of transaction
-    splitDate <- SplitDate(transaction.data$transaction.date)
-    relevant.transaction.data <- data.frame( stringsAsFactors = FALSE
-                                            ,year = splitDate$year
-                                            ,month = splitDate$month
-                                            ,day = splitDate$day
-                                            ,price = transaction.data$SALE.AMOUNT
-                                            )
+    e.price.relevant.transaction.data <- 
+        data.frame( stringsAsFactors = FALSE
+                   ,year = transaction.data$sale.year
+                   ,month = transaction.data$sale.month
+                   ,day = transaction.data$sale.day
+
+                   ,price = transaction.data$price
+                   
+                   ,census.tract = as.character(transaction.data$census.tract)
+                   ,property.city = as.character(transaction.data$property.city)
+                   ,zip5 = as.character(transaction.data$zip5)
+                   )
 }
 
-Main(control, relevant.transaction.data)
+Main(control, e.price.relevant.transaction.data)
 Printf('took %f CPU minutes\n', clock$Cpu() / 60)
 Printf('took %f wallclock minutes\n', clock$Wallclock() / 60)
 
