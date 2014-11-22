@@ -30,7 +30,7 @@ from CoreLogic, one of the providers of both the data and algorithms
 for real estate price prediction. As for other academic work, the data
 are proprietary to the study. However, the source code for the work is
 licensed under the GPL and is available on the author's Github account.
-It is written in R and its models are designed to work on any dataset.
+It is written in R and its models are designed to work on any data set.
 
 We develop a few insights into linear models of real estate prices. All
 these findings are for Los Angeles County residential real estate
@@ -38,11 +38,11 @@ transactions between 2003 and the first part of 2009.
 
 \begin{itemize}
 
-\item A lot of data doesn't help a lot. In linear models, one is pricing
-the value of a set of features, everything else held constant. When
+\item A lot of data doesn't help a lot. Linear models price houses by
+pricing each feature of the house. When
 house values are changing, the hedonic nature of the linear model must
 mean that feature values are also changing. While training a model on a
-longer time period will tamper down noise effects, it will also use older
+longer time period will smooth noise, it will also use older
 feature prices that are not necessarily relevant to feature prices at
 the time of the query. We find an optimal time period is roughly 60 days,
 considering both time periods before and after the real estate crash.
@@ -54,23 +54,29 @@ negative when used in simple linear models.
 
 \item ``Location, location, location'' are said by some real estate
 agents to be the most important feature of a house. We find that isn't
-true, at least for linear models. Instead location is the second-most
-important feature and the value of location is revealed in more
-than a few features of the location. The most valuable location feature is
-the income of the neighborhood, as measured by the median household
-income of the census tract holding the house. 
+true, at least for linear models. The most important feature of the
+house is its interior living space. The second most important feature
+of the house is a feature related to location: the median income of the
+census tract holding the house.
 
-\item The most valuable single feature in determining price is not the
-size of the lot, as one might suspect. Instead, the most valuable single
-feature is the interior living space. This explains in part a trend
-toward knocking down houses and building bigger houses: value is
-increased.
+%\item The most valuable single feature in determining price is not the
+%size of the lot, as one might suspect. Instead, the most valuable single
+%feature is the interior living space. This explains in part a trend
+%toward knocking down houses and building bigger houses: value is
+%increased.
 
-\item One would hope that a few features of houses would contain most
-of the information that is driving prices. If so, models could be
-simpler. We find, however, that the most accurate linear model contains
-20 features. More features means more opportunities for overfitting,
-and we find that regularization improved predictive accuracy.
+% Data from figure 3 in chapter 5
+% n features   median RMSE
+%          5   69467      120
+%         20   57880      100
+
+\item One would hope that a few features of houses would contain most of
+the information that is driving prices. If so, models could be simpler.
+We find, however, that the most accurate linear model contains 20
+features. An otherwise identical model that uses only the 5 most
+features has an estimated error that is 20 percent higher. Using more
+features means more opportunities for overfitting, and we find that
+regularization improved predictive accuracy.
 
 %\item Linear models price houses by estimating the value of features.
 %It's not surprising that some features are worth more in some
@@ -89,15 +95,15 @@ design decisions.
 The remaining chapters are these. Chapter 2 contains a review of the
 literature, focusing on other studies of real estate price prediction
 models. Chapter 3 describes how the Los Angeles data were ingested,
-cleaned up, and converted into transactions. We end up with about 1.25
-million transactions mostly dated 1984 through the early part of 2009.
-Chapter 4 describes our work to find a subset of the Los Angeles data
-that is both informative for prediction purposes and does not contain
-any future information.  Chapter 5 identifies the best linear models, at
-least according to our experiments on these data. It also describes a
-random forests model with superior performance to the best of the linear
-models. Chapter 6 presents overall conclusions that lead to future work
-I'd like to do.
+cleaned up, and converted into transactions. We end up with about 1.2
+million transactions mostly dated from 1984 through the early part of
+2009.  Chapter 4 describes our work to find a subset of the Los Angeles
+data that is both informative for prediction purposes and does not
+contain any future information.  Chapter 5 identifies the best linear
+models, at least according to our experiments on these data. It also
+describes a random forests model with superior performance to the best
+of the linear models. Chapter 6 presents overall conclusions that lead
+to future work I'd like to do.
 
 %\layout    % see Gratzer p 268
 
