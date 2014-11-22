@@ -20,9 +20,9 @@ New York City) was given the chance to buy the data.
 
 Even freely available data may be difficult to use. For example,
 CoreLogic is one of the largest resellers of U.S. real estate data. They
-have a partnership which obtains the datasets from the tax authorities
+have a partnership which obtains the data sets from the tax authorities
 and then cleans and augments them and finally places them into a
-canonical form, because not all counties produce the same datasets for
+canonical form, because not all counties produce the same data sets for
 their tax rolls and deeds. The resulting data are available under
 license. The licensed data are much easier to use than the raw,
 from-the-tax-authorities data. However, the licenses tend to be
@@ -125,9 +125,9 @@ only variables readily available from the tax assessor), and for
 non-spatially adjusted data (the spatial adjustments add complications
 without changing the conclusions of interest to us).
 
-A resampling technique was used to estimate the generalized error, which
-was measured as the fraction of estimated prices that are within 10 and
-20 percent of their true values. (RMSE values were not reported.)
+A resampling technique was used to compare models. The comparison metric
+was a measure of accuracy: fraction of estimated prices that are within
+10 and 20 percent of their true values. RMSE values were not reported.
 
 Based on the fraction of estimates within 10 percent of true values, the
 models using the sales group outperformed the models using the clusters
@@ -250,15 +250,15 @@ A large number of models were built in several families.
 
 \begin{itemize}
 
-\item Model family 1 was based on an OLS model with housing features and
-with what was called a ``trend surface.'' The trend surface was modeled
-by including latitude and longitude, the squares of these features, and
-the product of these features. The trend surface is very similar to the
-$x,y$ approach from \cite{fik-03-spatial}, which was reviewed in the
-previous section.  A variant in the model 1 family included indicator
-variables for census tracts, building what is now called submarket
-models. Model 1 variants also included indicator variables for the
-years.
+\item Model family 1 was based on an ordinary least squares (OLS) model
+with housing features and with what was called a ``trend surface.'' The
+trend surface was modeled by including latitude and longitude, the
+squares of these features, and the product of these features. The trend
+surface is very similar to the $x,y$ approach from
+\cite{fik-03-spatial}, which was reviewed in the previous section.  A
+variant in the model 1 family included indicator variables for census
+tracts, building what is now called submarket models. Model 1 variants
+also included indicator variables for the years.
 
 \item Model family 2 was based on a kind of local regression in which
 the log of the price is modeled as the sum of a linear function of
@@ -509,7 +509,7 @@ encourage reproducibility.  Another limitation is that the data are
 proprietary to the study team. I spoke with Bourassa and was told that
 his license for the data did not allow sharing of the data with me.
 Another limitation is that the data are for one year and the size of the
-dataset is relatively small (13,000 transactions).
+data set is relatively small (13,000 transactions).
 
 %In the OLS models at
 %least, indicator variables for calendar quarters were used, raising the
@@ -550,7 +550,8 @@ quadratic programming but with sequential minimal optimization, which is
 claimed to be faster.
 
 \item RBFNN: a neural network variant with one hidden layer where the
-hidden layer is a radial Gaussian activation function.
+hidden layer is a radial Gaussian activation function; hence a radial
+basis function neural network.
 
 \item MBR: memory-based reasoning, which was not defined in the text.
 Possibly it was the average of the 10 nearest neighbors (based on the
@@ -710,7 +711,7 @@ General Public License Version 3. Most of the modeling code is written
 in a generic way so that it could be incorporated into a reusable
 library. The only data-source specific code is in the code that cleans
 up the data sets. All the modelling code is designed to be adapted to
-work with any dataset.
+work with any data set.
 
 \item Inclusion of transactions both before and after the 2007 real
 estate crash. None of the other studies reviewed includes data after the
@@ -738,7 +739,7 @@ This work studies potential feature sets and uses a simple heuristic
 %\item Most prior studies are focused on one year of data. We use multiple
 %years of data.
 
-\item Most prior studies are for relatively small datasets. Our dataset
+\item Most prior studies are for relatively small data sets. Our data set
 is for all of Los Angeles County, the most populated country in the
 United States \cite{census-bureau-14-population-clock}.
 
@@ -746,11 +747,10 @@ United States \cite{census-bureau-14-population-clock}.
 using some variant of the metric ``fraction of estimated values within
 10 percent of the actual value.'' We test this metric against other choices.
 
-\item We are paranoid about using future information in fitting models.
-We avoid the future through careful design of the datasets and by
-fitting a model to each query transaction in a way that the all data on
-or after the date of the query transaction are invisible to the fitting
-process. 
+\item We avoid using future information in fitting models.  We avoid the
+future through careful design of the data sets and by fitting a model to
+each query transaction in a way that the all data on or after the date
+of the query transaction are invisible to the fitting process. 
 
 \end{itemize}
 
@@ -759,17 +759,11 @@ Some limitations of this work include:
 
 \begin{itemize}
 
-\item The dataset is proprietary to the study. Thus even though the
+\item The data set is proprietary to the study. Thus even though the
 source code is available, results cannot be replicated on these data.
 
 \item The work reported on here does not use the GPS coordinates for the
 properties. Other work has found that leveraging the GPS coordinates can
 improve predictive accuracy.
-
-\item We focus on linear models, which are not the best in the
-literature as judged by their accuracy: they are roughly 5 percent less
-accurate than the best models. However, they are widely popular and many
-issues concerning their design are studied here for what we believe to be
-the first time.
 
 \end{itemize}
