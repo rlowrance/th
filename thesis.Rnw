@@ -1,15 +1,8 @@
-% vim: textwidth=72
-% vim: foldmethod=manual
-
-
-
-% STYLE GUIDE
-% not dataset, but data set
-%\input{thesis-prologue}
-
 %%%%%%%%%%%%%%%%%%% PREAMBLE
+% vim: textwidth=72
 
-\documentclass[12pt,onesided]{amsbook}  
+\documentclass[12pt]{amsbook}  
+%\documentclass[12pt,onesided]{amsbook}  
 %\documentclass[12pt,draft]{amsbook}  
 % draft ==> print slug in margin if line too wide and boxes for figures
 
@@ -168,23 +161,28 @@ cache <- FALSE
 include <- TRUE
 include <- FALSE  # for review and final copies
 
+error <- FALSE  # stop on errors
+#error <- TRUE  # keep going on errors
 control <- list( cache = cache
                 ,include = include
+                ,error = error
                 ,working = Directory('working')
                 ,drawings = Directory('drawings')
                 )
 str(control)
 opts_chunk$set(cache = control$cache)
 opts_chunk$set(include = control$include)
+opts_chunk$set(error = control$error)
 @
 
 <<Commas>>=
 Commas <- function(i) {
     # insert commas into an integer
-    format(i, big.mark = ',')
+    format(i, big.mark = ',', scientific = FALSE)
 }
 # test
 Commas(123456)
+Commas(4022865)
 @
 
 <<About>>=
@@ -192,6 +190,14 @@ About <- function(x) {
   # return rounded number like 1,200,000 (without the commas)
   million <- 1000000
   million * round(x / million, 1)
+}
+About(4022865)
+Commas(About(4022865))
+@
+
+<<CommasAbout>>=
+CommasAbout <- function(x) {
+  Commas(About(x))
 }
 @
 
@@ -201,10 +207,7 @@ About <- function(x) {
 
 \Sexpr{knit_child('thesis-chapter-literature-review.Rnw')}
 
-%\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
-\chapter{Data Munging} Dummy text.
-
-%\Sexpr{knit_child('thesis-chapter-taxonomy.Rnw')}
+\Sexpr{knit_child('thesis-chapter-data-munging.Rnw')}
 
 \Sexpr{knit_child('thesis-chapter-data-selection.Rnw')}
 
@@ -216,8 +219,8 @@ About <- function(x) {
 %%%%%%%%%%%%%%% BACK MATTER: BIBLIOGRAPHY
 \backmatter
 
-\appendix
-\chapter{First Appendix Title}
+%\appendix
+%\chapter{First Appendix Title}
 
 \bibliographystyle{amsalpha}
 \bibliography{../../roy-bib/roy-bib}
