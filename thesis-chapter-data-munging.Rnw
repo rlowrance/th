@@ -1,4 +1,4 @@
-\chapter{TEST}
+\chapter{Data Munging}
 % vim: textwidth=72
 %
 <<dataMunging, include=TRUE, error=FALSE>>=
@@ -15,7 +15,7 @@ str(parcels)
 str(subset)
 str(transactions)
 
-# some datasets have special variables (for historical reasons)
+# some data sets have special variables (for historical reasons)
 subset.nrow <- subset$nrow 
 subset.nrow
 
