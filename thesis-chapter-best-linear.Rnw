@@ -56,39 +56,41 @@ models are better. We decide to focus on median errors.
 
 \item Section 2 studies design choices for linear models that cover the
 entire market.  We start by considering model forms and the number of
-training days that lead to the most accurate models. Having fixed form
-and number of days, we then consider which features are best and
-compare heuristics for selecting the best features. Finally, fixing
-form, number of days, and feature sets, we show that regularization
-improves estimation accuracy.
+training days that lead to the most accurate models. (The term ``model
+form'' captures whether transformations into the log domain are used in
+the left hand and right hand sides of the model. More on this later.)
+Having fixed form and number of training days, we then consider which
+features are best and compare heuristics for selecting the best
+features.  Finally, fixing form, number of  training days, and feature
+sets, we show that regularization improves estimation accuracy.
 
 \item Section 3 considers submarket models. Submarket models partition
 the possibly queries and use the partitions in the fitting and
 prediction processes. We consider both indicator-based submarket models,
 in which the submarkets are represented by indicator variables in a
 single model for all queries, and separate submarket models, in which a
-separate model is build for each submarket.  We find that submarket
-models outperform entire-market models.
+separate model is build for each submarket. We consider multiple
+definitions for submarkets. We find that submarket models outperform
+entire-market models.
 
 \item Section 4 summarizes our results for linear models and provides
 some guidelines for extending the work into a commercial setting.
 
-\item Section 5 contrasts the results from the linear models with an
-easy-to-specify model: the random forests model. We show that an
-off-the-shelf random forests model outperforms our carefully-designed
-linear model.
+\item Section 5 contrasts the results from the linear models with a
+non-linear model: the random forests model. We show that a
+random forests model outperforms our best linear model.
 
 \end{itemize}
 
 \section{Figure of Merit}
 
 The literature often compares models using the fraction of estimates
-within 10 percent of the known values in training data. The motivation
-for this figure of merit is in part that Freddie Mac is said
-\cite[footnote on p.~642]{fik-03-spatial} to use that metric to judge
-the effectiveness of automated valuation models. In any case, using
-fraction within 10 percent (along with fraction within 20 and 30
-percent) is popular in the real estate pricing literature.
+within 10 percent of the known values. The motivation for this figure of
+merit may in part be that Freddie Mac is said \cite[footnote on
+p.~642]{fik-03-spatial} to use that metric to judge the effectiveness of
+automated valuation models. In any case, using fraction within 10
+percent (along with fraction within 20 and 30 percent) is popular in the
+real estate pricing literature.
 
 It is a curious choice of metric for at least two reasons. The first
 reason is that linear models are often trained to minimize the mean
@@ -97,15 +99,15 @@ the model was trained to deliver. The second reason is that selecting
 fraction within $x$ percent is implicitly a decision to favor models
 that are close when accurate and to not minimize the average error.
 
-Here's a contrived example which illustrates that point: There
+Here's a contrived example which illustrates that point. There
 are two properties both of which sold for \$100,000. Suppose we have two
-models to consider. Model A produces estimates of  \$100,000 and \$200,000:
-it is either perfect or very wrong. Model B produces estimates of
-\$85,000 and \$115,000: it's never super accurate but never very wrong.
-Model A has 50 percent of its estimates within 10 percent of the true
-value, Model B has 0 percent of its estimates within 10 percent of the
-true value. So under the fraction-with-$x$-percent metric, we prefer
-model A over model B. 
+models to consider. Model A produces estimates of  \$100,000 and
+\$200,000.  It is either perfect or very wrong. Model B produces
+estimates of \$85,000 and \$115,000. It is never super accurate but
+never very wrong.  Model A has 50 percent of its estimates within 10
+percent of the true value, Model B has 0 percent of its estimates within
+10 percent of the true value. So under the fraction-with-$x$-percent
+metric, we prefer model A over model B. 
 
 Now imagine using model A. When it delivers its estimate, we have no
 idea whether the estimate is good or bad.  To me, this situation
@@ -120,7 +122,7 @@ between them is not obvious.
 The issue of choice of figure of merit would be moot if using either
 metric resulted in selecting the same model as best. To investigate
 whether the issue is moot, we designed an experiment. In the experiment,
-we consider the estimated generalization error from a variety of model.
+we consider the estimated generalization error from a variety of models.
 The models were generated by sweeping these design choices:
 
 \begin{itemize}
@@ -134,8 +136,8 @@ natural units
 steps of 30 days
 
 \item The figure of merit used to select the model: one of the mean of
-the root mean squared errors from the folds (\code{meanRMSE}), the
-median of the root median squared errors from the folds
+the root mean squared errors from the folds (\code{meanRMSE} in the
+figure), the median of the root median squared errors from the folds
 (\code{medRMSE}), or the fraction within 10 percent of actual values
 (\code{fctWI10}).
 
@@ -163,7 +165,7 @@ test transactions (queries) was drawn from each cross-validation fold.
 The results are depicted in Figure \ref{figure:merit1}.
 
 To read the table, consider the first three rows. All of these are for
-the price-level form of the linear model: we predict price using the
+the level-level form of the linear model: we predict price using the
 natural units for each feature. The three rows show the value of a model
 selection metric for 30, 60, and more days using the three metrics
 studied. The columns with headings 30 up to 360 are the number of days
@@ -197,7 +199,7 @@ median error.
 We conclude that choice of metric does influence choice of the training
 period, particularly if one will use a level-log model. For the
 log-level model, which is most popular in the literature, the choice of
-metric to select models is not very determining: one should pick the
+metric to select a model is not very determining: one should pick the
 metric based on some other criteria.
 
 Going forward, we focus on the \code{medRMSE} metric, judging that it
@@ -232,9 +234,9 @@ performance.
 In the literature, a popular model for is the log-level form: one
 predicts $\log(price)$ using features in their natural units. Other
 choices for model form include log-log, in which the log of price is
-predicted using features are in the log domain, level-level in which
-price is predicted using features in the natural units, and level-log in
-which price is predicted using features in the log domain.
+predicted using features that are in the log domain, level-level in
+which price is predicted using features in the natural units, and
+level-log in which price is predicted using features in the log domain.
 
 At least three rationales can be invoked to choose a model. First is
 that the form of the model should conform to one's prior assumptions
@@ -254,7 +256,7 @@ to avoid applying equal importance with respect to prediction accuracy
 to expensive and less expensive houses. By prediction $\log(price)$
 instead of $price$, the idea  is to fit the model to minimize errors on
 the more typical less expensive houses, not to minimize the
-price-weighted error, which could be regarded as overly-influenced by a
+price-weighted error, which could be regarded as overly influenced by a
 few very large houses.
 
 % OMIT, SINCE WE DIDN"T TEST THESE log-mixed form
@@ -265,7 +267,7 @@ few very large houses.
 %log domain to allow for the possibility that doubling them would double
 %the price.
 
-Here we focus on the third rationale and simply ask: Why model form
+Here we focus on the third rationale and simply ask: Which model form
 yields the lowest estimated generalization errors as measured by the
 median of the root median squared error across folds? 
 
@@ -303,7 +305,7 @@ see that when price is the response variable, a lower error is obtained
 by working with features in natural units than in the log domain.
 Comparing all the rows, we see that estimating $\log(price)$ instead of
 $price$ always leads to reduced estimated generalization errors.
-Comparing rows three and four shows that the for most training periods,
+Comparing rows three and four shows that for most training periods,
 using a log-level model outperforms a log-log model. Finally, the lowest
 estimated generalization error is for the log-level model when trained
 for 60 days.
@@ -317,8 +319,8 @@ of training days to 60 and use the log-level form for the model.
 The benchmark model has 24 features. Which of these are the best
 features to use? Here we consider two approaches. In the first, we
 use a simple heuristic to determine the best features to use. In the
-second, we use PCA for the same purpose. We then compare results and
-have one surprising finding.
+second, we use Principal Components Analysis (PCA) for the same purpose.
+We then compare results and have one surprising finding.
 
 \subsubsection{LCV Heuristic}
 
@@ -339,7 +341,7 @@ The implementation is by using the Elastic Net from Zoe and Hastie
 and L2 regularizer. As a by-product, an R implementation, the
 \code{elasticnet} R package \cite{zou-12}, produces a rank-ordering of
 the features in terms of their importance. In our use of this package,
-we set the L2 regularizer to zero and see just the rank-ordering of
+we set the L2 regularizer to zero and use just the rank-ordering of
 features under the L1 regularizer.
 
 % non-rotated txt chart
@@ -354,8 +356,8 @@ features under the L1 regularizer.
 
 The result of the rank-ordering from the Elastic Net procedure is in
 Figure \ref{figure:MedianTable}. It shows that the most important
-feature is the living area of the house. Real estate agents claim the
-most important features of the house is its location, but that isn't
+feature is the living area of the house. Real estate agents often claim
+the most important feature of the house is its location, but that isn't
 true in these data. Instead, features of the location (median household
 income and average commute time) are second and third in importance. 
 
@@ -377,7 +379,7 @@ features.
 
 If one seeks parsimony, one could consider using the first eight
 features (through zip5-has-industry), after which there is an increase
-jn estimated generalization error before a subsequent decline. Another
+in estimated generalization error before a subsequent decline. Another
 possible feature set is the first 20 features (through
 census-tract-has-park), as that feature set has the lowest estimated
 error. Another choice would be 19 features (through
@@ -471,11 +473,11 @@ city, not a walking-around city.
 \label{figure:PCA1}
 \end{figure}
 
-The second approach to determining the importance of features is to use
+The second approach we used to determining the importance of features is 
 Principal Components Analysis. Figure \ref{figure:PCA1} shows the
-principal components associated with the 24 features. We see that the
-first three principal components account for almost 100 percent of the
-variance.
+principal components associated with the training set predictors. We see
+that the first three principal components account for almost 100 percent
+of the variance.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -492,8 +494,7 @@ the first principal component. The median household income has the
 highest absolute weight. Other weights are much lower in absolute value.
 The only ones of much importance are the land square footage and the
 living area. It seems that the first principal component may be about
-the wealth of the neighborhood: more income is correlated with larger
-plots is correlated with bigger houses.
+the wealth of the neighborhood.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -509,9 +510,7 @@ In Figure \ref{figure:PCA202} we see the weights of the 24 features in
 the second principal component. The land square footage has the highest
 absolute weight. Other weights are much lower in value with household
 income and living area being the largest in absolute size. This
-principal component is possibly about the size of the land and has the
-same correlated highly-weighted features as the first principal
-component.
+principal component is possibly about the size of the land.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -526,7 +525,8 @@ component.
 In Figure \ref{figure:PCA203} we see the weights of the 24 features
 for third principal component. It is mostly composed of the basement
 square feet, perhaps a proxy for other size features in the house:
-bigger basement probably implies bigger house.
+bigger basement probably implies bigger house. This principal component
+is possibly about the size of the house.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -550,8 +550,10 @@ In Figure \ref{figure:MedianTable10} we see the estimated generalization
 error from using the median household income, land square footage, and
 so on up to the 4 features identified as important in the PCA work. The
 same data are in Figure \ref{figure:MedianGraph102} which shows the 95
-percent confidence intervals graphically. One might choose to use only
-the first 3 features based on this graphic.
+percent confidence intervals graphically. If you prefer sparsity, you
+might use the first 3 features. If you prefer the lowest error, you
+might choose the first 4 features.
+
 
 \subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -608,12 +610,18 @@ The impact of the regularizer on the estimated generalization error is
 very small: the median is reduced about \$100 from an unregularized
 error of \$57,880, a reduction of less than two-tenths of a percent. The
 small impact of the regularizer suggests that there is not much
-overfitting in the un-regularized model. The reason for that is possibly
+overfitting in the unregularized model. The reason for that is possibly
 that the training sets are not very large. In our approach, we build a
 local model for each query and that model had only 60 days of training
 data.
 
 \section{Submarket Models}
+
+We considered three very simple definitions of submarkets. In the first,
+the submarkets are defined by the census tract. Each census tract is its
+own submarket. In the second, submarkets are defined by the city names.
+Each city is its own submarket. In the third, submarkets are defined by
+zip code. Each 5-digit zip code is its own submarket.
 
 We considered two approaches to incorporating submarkets into the model.
 The first uses indicator variables, the second builds a separate model
@@ -621,7 +629,9 @@ for each submarket.
 
 \subsection{Using Indicator Variables}
 
-The indicator model all have the form
+The indicator models all have indicators for whether the observation is
+in a specific submarket. For example, for zip-code based submarkets, the
+model is
 
 % ref: gratzer p.220
 \begin{align}
@@ -661,7 +671,7 @@ indicators.
 \subsection{Separate Models for Each Submarket}
 
 The separate-models approach builds a separate model for each submarket.
-Each model has the form
+Each model has the same form:
 
 \[
 \log(price) =
@@ -691,7 +701,7 @@ often because there are too few transactions in the training set.
 
 Figure \ref{figure:Submarkets13} shows the results of this experiment.
 The submarket models that used city names had the lowest estimated
-generalization errors, but the fitting process succeeded in all folds in
+generalization error, but the fitting process succeeded in all folds in
 only 69 percent of the city names. (We say the coverage was 69 percent.)
 Coverage was highest for the zip code-based submarkets, but estimated
 performance was worse than for city-based submarkets. The census tracts
@@ -713,7 +723,7 @@ tried in the literature. The former appears to have not been tried.
 \end{figure}
 
 The low estimated errors in Figure \ref{figure:Submarkets13} are perhaps
-deceptive: they are the median values across all the cities. Individual
+deceptive: they are the median values across all the submarkets. Individual
 models for specific submarkets may have much lower or higher errors than
 the median for all markets.
 
@@ -812,15 +822,11 @@ the best greedy performance. We test 1, 2, 3, and 4 features.
 \end{figure}
 
 Figure \ref{figure:Submarkets} shows there results of this experiment.
-Looking first at Panel A, which used the 20 predictors found to be best
-for the linear models, we see that increasing \code{ntree} and
-\code{mtry} always reduces the estimated error. Looking at Panel B,
-which used all 24 predictors, we see that increasing \code{ntree} can
-increase the error and that increasing \code{mtry} always reduced the
-error. We conclude that there is some tuning to be done for the
-hyperparameters.
+In Panel A and B, increasing \code{mtry} always decreases the error, and
+increasing \code{ntree} usually decreases the error.  We conclude that
+there is some tuning to be done for the hyperparameters.
 
-Looking at Panel A and Panel B together, we see that the error is always
+Comparing Panel A and Panel B, we see that the error is always
 lower when all the predictors are used. Apparently the random forests
 have found a way to use the 4 predictors that degraded the performance
 of the linear model.
