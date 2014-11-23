@@ -1,7 +1,7 @@
 \chapter{Data Munging}
 % vim: textwidth=72
 %
-<<dataMunging, include=TRUE, error=FALSE>>=
+<<dataMunging, error=FALSE>>=
 path.in.data.munging.info <- paste0(control$working, 'data-munging-info.RData')
 loaded <- load(path.in.data.munging.info)
 str(loaded)
@@ -26,7 +26,7 @@ str(transactions$info)
 @
 
 
-We start with real estate data for Los Angeles Country: the tax roll for
+We start with real estate data for Los Angeles County: the tax roll for
 2008, containing about
 \Sexpr{Commas(About(parcels$info$nrow.all))} 
 parcels, and 25 years of deeds, about
@@ -53,8 +53,8 @@ This chapter provides the details on how this was done. It contains these
 sections:
 \begin{itemize}
 \item A description of the input files
-\item How the input files were joined into the transactions file.
-\item How a subset of the transactions was selected.
+\item How the input files were joined into the transactions file
+\item How a subset of the transactions was selected
 \item An optimization designed to speed up testing of programs using the
 subset.
 \end{itemize}
@@ -62,13 +62,14 @@ subset.
 \section{Input Files}
 
 The tax roll is used by the tax assessor to prepare and send property tax
-bills. In Los Angeles Country, the initial real estate bills are send
+bills. In Los Angeles County, the initial real estate bills are send
 starting November 1. The tax roll used in this work is as of November 1,
 2008, representing tax dues in late 2008 and in 2009.
 
 The eight tax roll files we use are assembled by CoreLogic, which obtains the
-original files for Los Angeles County, cleans them up, augments them with other data, and sells
-them. There is one record (CoreLogic type 2580) for every parcel.
+original files for Los Angeles County, cleans them up, augments them
+with other data, and licenses them. There is one record (CoreLogic type
+2580) for every parcel.
 
 The fields in each record are in these groups:
 
@@ -80,11 +81,11 @@ plain number field.  The number field is not always numeric and does not
 always have the correct number of digits, so the two fields are analyzed
 to infer the ``best'' APN.
 
-\item Information on the parcel itself: it's census tract, its latitude
-and longitude (though these fields are not populated in our data, so
-that we have used a separate geocoding file), location on maps, the
-universal land use code (LUSEI), and so forth. The LUSEI field is used
-to identify whether the parcel is for a single-family residence.
+\item Information on the parcel itself: census tract, latitude,
+longitude, location on maps, the universal land use code (LUSEI), and
+so forth. The LUSEI field is used to identify whether the parcel is for
+a single-family residence. The GPS fields were not populated in our
+data.
 
 \item Information on the subdivision, primarily its location in reference books.
 
@@ -117,7 +118,7 @@ of information.
 \item A description of the lot including its size in acres and square feet.
 
 \item A description of the primary building, including the year built, number 
-of rooms, number of bedrooms, number of bathrooms, whether it has a swimming
+of rooms, number of bedrooms, number of bathrooms, and whether it has a swimming
 pool. Many of the values are missing. Later we describe how we define a
 subset of the data to use.
 
@@ -132,7 +133,7 @@ ending late in 2009.
 
 The eight deeds files we use are assembled by CoreLogic, which obtains
 the original files, cleans them up, augments them with other data, and
-sells them. There is one record (CoreLogic type 1080) for every deed.
+licenses them. There is one record (CoreLogic type 1080) for every deed.
 
 The fields in each record are in these groups:
 
@@ -152,13 +153,12 @@ and hence do not use these fields.
   many APNs were in the transaction, the type of deed, and the primary
   category code (PRICATCODE) reporting whether the transaction was at
   arms-length. We use only arms-length transactions in this work. We use
-  only grant deeds (these are deeds of sale) and trust deeds (sales
-  supported by a mortgage) in this work.
+  only grant deeds (these are deeds of sale) in this work.
 
 \end{itemize}
 
-The census file was downloaded from the U.S. Census. It is for the year 2000 and
-contains records for census tracts in Los Angeles Country.
+The census file for the year 2000 decennial census. It contains records
+for census tracts in Los Angeles County.
 
 The geocoding file was produced by GeoLytics, Inc. It contains latitudes and
 longitudes for many of the parcels in Los Angeles.
@@ -197,7 +197,7 @@ deeds of which
 are classified as arms-length.
 
 The document type code field records the type of the deed. The deeds of
-interest are those that transfer ownership of a property. There are the
+interest are those that transfer ownership of a property. These are the
 grant deeds. There are 
 \Sexpr{Commas(About(deeds$info$num.is.grant.deed))} 
 grant deeds in the deeds files.
@@ -299,13 +299,13 @@ records.
 \section{Pick a subset with reasonable values}
 
 We would be finished with the data munging except that the transactions
-file contains observations with very unusable values. For example,
+file contains observations with unreasonable values. For example,
 there are single-family residences with no rooms and with sales prices in
 the hundreds of millions of dollars.
 
 This project assumed that observations with unreasonable values were
 not recorded properly and chose to discard those observations. An alternative
-would be to identify the missing or mis-coded values and to impute their
+would be to identify the missing or miscoded values and to impute their
 values.
 
 <<Remaining>>=
@@ -321,42 +321,42 @@ the subset of transactions actually used in the analysis.
   \item Assessed value. Transaction arising from parcels with an
     assess value exceeding the maximum sales price were discarded. How
     the maximum sales price was determined is described just below under ``Sale amount.''
-    There are \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
+    There was \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
 
-  \item Document type code. Only transactions arising from grant
-    deeds were retained. Grant deeds are sales. There are many other 
-    types of deeds. Records with other types
-    of deeds were excluded. There were
-    \Sexpr{Remaining(subset$info$DOCUMENT.TYPE.CODE$grant.deed)}
-    such.
+% COMMENTED OUT, SINCE 0 SUCH
+%  \item Document type code. Only transactions arising from grant
+%    deeds were retained. Grant deeds are sales. There are many other 
+%    types of deeds. Records with other types
+%    of deeds were excluded. There were
+%    \Sexpr{Remaining(subset$info$DOCUMENT.TYPE.CODE$grant.deed)}
+%    such.
 
   \item Effective year built. Transactions arising from properties
     without an effective year built were discarded. The effective year
     built is the year of the last major remodeling or the year the property
-    is built. There are \Sexpr{Remaining(subset$info$effective.year.built)} such.
+    is built. There were \Sexpr{Remaining(subset$info$effective.year.built)} such.
 
   \item Geocoding. Transactions for which either the latitude or
     longitude were missing were rejected. There were 
     \Sexpr{Remaining(subset$info$geocoding)} such.
 
   \item One building. Transactions arising from parcels with more
-    than one building were rejected because we have only descriptions
-    for one building. There are \Sexpr{Remaining(subset$info$one.building)}
+    than one building were rejected because we have only the description
+    for one building. There were \Sexpr{Remaining(subset$info$one.building)}
     such.
 
   \item One parcel. Transactions arising from deeds that reported
     more than one sold parcel were rejected because there is no way to
-    apportion the price to the parcels. There are 
+    apportion the price to the parcels. There were 
     \Sexpr{Remaining(subset$info$one.parcel$num.one.apn)} such.
     
   \item Sale amount. Some deeds report extremely large prices.
     Research in the Wall
     Street Journal suggests that the highest transaction price in Los
     Angeles through the end of 2009 is
-    \Sexpr{Commas(as.integer(subset$control$max.sale.amount))} dollars, 
-    so observations with prices
-    higher than this were rejected. 
-    There were \Sexpr{Remaining(subset$info$sale.amount)} such.
+    \$\Sexpr{Commas(as.integer(subset$control$max.sale.amount))}, 
+    so observations with higher prices were rejected.  There were
+    \Sexpr{Remaining(subset$info$sale.amount)} such.
 
   \item Sale code. The price on the deed might not be for the full
     value of the parcel. We rejected transactions that did not say the
@@ -386,7 +386,8 @@ the subset of transactions actually used in the analysis.
     unit. There were \Sexpr{Remaining(subset$info$units.number)} such.
 
   \item Year built. Transactions arising from properties with a
-    missing year built were discarded. There are \Sexpr{Remaining(subset$info$year.built)} such.
+    missing year built were discarded. There were
+    \Sexpr{Remaining(subset$info$year.built)} such.
 
 \end{itemize}
 
@@ -440,12 +441,12 @@ binary serialized format takes several minutes, and that is too long to
 wait. So I created one final processing step, which is to split the
 subset 1 data frame into individual features and write the features as
 1-column data frames in serialized files.  Often an experiment needs
-only a hand full of features, and reading just the features needed and
+only a handful of features, and reading just the features needed and
 assembling them into a data frame for analysis is often quicker than reading
 all the features and discarding most of them.
 
 Since models will need transformed versions of the features, I
-pre-computed those as well. For the continuous features will all
+pre-computed those as well. For the continuous features with all
 positive values, I created centered versions and centered versions of
 the log of the values. For continuous features that can be zero, instead
 of the log I used 1 plus the log.
