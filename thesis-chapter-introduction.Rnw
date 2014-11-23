@@ -14,7 +14,7 @@ taxes.
 With so much interest, it is not surprising that a business has arisen
 in predicting market values of residences. The structure of this
 market comprises a few large national players and many regional
-players. The players regard their algorithms and often their data
+players. The players regard their algorithms and their data
 as sources of competitive advantage.
 
 Academic studies of real estate pricing models have been limited by data
@@ -53,7 +53,7 @@ found that during the crash, the value of the tax assessment was
 negative when used in simple linear models.
 
 \item ``Location, location, location'' are said by some real estate
-agents to be the most important feature of a house. We find that isn't
+agents to be the most important features of a house. We find that isn't
 true, at least for linear models. The most important feature of the
 house is its interior living space. The second most important feature
 of the house is a feature related to location: the median income of the
@@ -74,9 +74,9 @@ census tract holding the house.
 the information that is driving prices. If so, models could be simpler.
 We find, however, that the most accurate linear model contains 20
 features. An otherwise identical model that uses only the 5 most
-features has an estimated error that is 20 percent higher. Using more
-features means more opportunities for overfitting, and we find that
-regularization improved predictive accuracy.
+important features has an estimated error that is 20 percent higher.
+Using more features means more opportunities for overfitting, and we
+find that regularization improved predictive accuracy.
 
 %\item Linear models price houses by estimating the value of features.
 %It's not surprising that some features are worth more in some
@@ -87,8 +87,7 @@ regularization improved predictive accuracy.
 \item Linear models are popular in part because they are relatively easy
 to understand and quick to fit. However, they tend to underperform
 non-linear models. We demonstrate that random forests greatly outperform
-linear models and have the additional advantage of requiring almost no
-design decisions.
+the linear models we designed.
 
 \end{itemize}
 
