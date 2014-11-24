@@ -107,7 +107,16 @@ Control <- function(default.args) {
                         paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
                     ,path.out.chart.13.submarkets.zip5.txt = 
                         paste0(working, out.base, '_chart13_submarkets_zip5.txt')
-                    ,path.out.chart.14.txt = paste0(working, out.base, '_chart14.txt')
+                    ,path.out.chart.13.submarkets.examples.census.txt=
+                        paste0(working, out.base, '_chart13_submarkets_examples_census.txt')
+                    ,path.out.chart.13.submarkets.examples.property.city.txt =
+                        paste0(working, out.base, '_chart13_submarkets_examples_property_city.txt')
+                    ,path.out.chart.13.submarkets.examples.zip5.txt =
+                        paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
+
+                    ,path.out.chart.14.txt   = paste0(working, out.base, '_chart14.txt')
+                    ,path.out.chart.14.b.txt = paste0(working, out.base, '_chart14b.txt')
+                    
                     ,path.cells = cells
                     ,chart.width = 14  # inches
                     ,chart.height = 10 # inches
@@ -258,6 +267,7 @@ MakeCharts <- function(control) {
            }
            ,'13' = {
                chart.13 <- Chart13(control)
+               str(chart.13)
                writeLines( text = chart.13$indicators
                           ,con = control$path.out.chart.13.indicators.txt
                           )
@@ -273,11 +283,23 @@ MakeCharts <- function(control) {
                writeLines( text = chart.13$submarkets.zip5
                           ,con = control$path.out.chart.13.submarkets.zip5.txt
                           )
+               writeLines( text = chart.13$submarkets.examples.census
+                          ,con = control$path.out.chart.13.submarkets.examples.census.txt
+                          )
+               writeLines( text = chart.13$submarkets.examples.property.city
+                          ,con = control$path.out.chart.13.submarkets.examples.property.city.txt
+                          )
+               writeLines( text = chart.13$submarkets.examples.zip5
+                          ,con = control$path.out.chart.13.submarkets.examples.zip5.txt
+                          )
            }
            ,'14' = {
                chart.14 <- Chart14(control)
-               writeLines( text = chart.14
+               writeLines( text = chart.14$a
                           ,con = control$path.out.chart.14.txt
+                          )
+               writeLines( text = chart.14$b
+                          ,con = control$path.out.chart.14.b.txt
                           )
            }
            ,stop(paste0('bad control$opt$chart value: ', as.character(control$opt$chart)))
@@ -295,7 +317,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='08')
+default.args <- list(chart='14')
 
 control <- Control(default.args)
 
