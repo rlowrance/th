@@ -5,7 +5,7 @@
 <<BestLinearModel>>=
 working <- control$working
 path.cv.criterion <- paste0(working, 'e-cv-chart_chart7.txt')
-path.cv.form.ndays <- paste0(working, 'e-cv-chart_chart8.txt')
+path.cv.form.ndays <- paste0(working, 'e-cv-chart_chart8_vertical.txt')
 path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
 path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
 path.9.gg1 <- paste0(working, 'e-cv-chart_chart9_1.pdf')
@@ -288,29 +288,23 @@ to reduce the computational burden.
 
 % attempt to rotate: works (though with small text)
 \begin{figure}[ht]
-\begin{sideways}
-\begin{minipage}{7in}
 \tiny
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.form.ndays}}
-\end{minipage}
-\end{sideways}
 \caption{Estimated Generalization Errors\\Across Model Forms and Training
 Period}
 \label{figure:EGEFormNdays}
 \end{figure}
 
 Figure \ref{figure:EGEFormNdays} shows the estimated generalization
-errors from 10-fold cross validation. Comparing the first two rows, we
-see that when price is the response variable, a lower error is obtained
-by working with features in natural units than in the log domain.
-Comparing all the rows, we see that estimating $\log(price)$ instead of
-$price$ always leads to reduced estimated generalization errors.
-Comparing rows three and four shows that for most training periods,
-using a log-level model outperforms a log-log model. Finally, the lowest
-estimated generalization error is for the log-level model when trained
-for 60 days.
+errors from 10-fold cross validation. The lowest error is for $ndays =
+60$ and is in the fourth column, which holds errors for the log-level
+model. Thus the lowest error occurs when training for 60 days and
+predicting $\log(price)$ using the features in their natural units. The
+log-level model (in column four) ususally has the lowest error. The only
+exception is for $ndays = 30$, where the log-log model (in column five)
+has a lower error.
 
 In our search for the best linear model, going forward we fix the number
 of training days to 60 and use the log-level form for the model.

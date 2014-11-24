@@ -44,7 +44,8 @@ source('RootMedianSquaredErrors.R')
 source('Table5And6.R')
 source('Table7A.R')
 source('Table7B.R')
-source('Table8.R')
+source('Table8Horizontal.R')
+source('Table8Vertical.R')
 
 
 
@@ -87,6 +88,7 @@ Control <- function(default.args) {
                     ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
                     ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
                     ,path.out.chart.8 = paste0(working, out.base, '_chart8.txt')
+                    ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
                     ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
                     ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
                     ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
@@ -181,8 +183,12 @@ MakeCharts <- function(control) {
            }
            ,'08' = {
                chart.8.txt <- Chart8(control)
-               writeLines( text = chart.8.txt
+               chart.8 <- Chart8(control)
+               writeLines( text = chart.8$horizontal
                           ,con = control$path.out.chart.8
+                          )
+               writeLines( text = chart.8$vertical
+                          ,con = control$path.out.chart.8.vertical.txt
                           )
            }
            ,'09' = {
@@ -317,7 +323,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='14')
+default.args <- list(chart='08')
 
 control <- Control(default.args)
 

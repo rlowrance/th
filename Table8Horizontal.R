@@ -1,4 +1,4 @@
-Table_8 <- function(lines) {
+Table8Horizontal <- function(lines) {
     # return function object $Header1() $Header2() $Detail() $Get()
     header.format <- '%8s %8s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s'
     data.format   <- '%8s %8s %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f %6.0f'

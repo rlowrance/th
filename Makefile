@@ -362,7 +362,9 @@ $(working)/e-cv-chart_chart6.txt: Chart6.R
 $(working)/e-cv-chart_chart7.txt: Chart7.R
 	Rscript e-cv-chart.R --chart 07
 
-$(working)/e-cv-chart_chart8.txt: Chart8.R
+$(working)/e-cv-chart_chart8%.txt \
+$(working)/e-cv-chart_chart8_vertical%.txt \
+: Chart8.R Table8Horizontal.R Table8Vertical.R
 	Rscript e-cv-chart.R --chart 08
 
 $(working)/e-cv-chart_chart9_1%pdf \
@@ -898,7 +900,7 @@ thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
 
 thesis-data-best-linear += $(working)/e-cv-chart_chart7.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart8.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt

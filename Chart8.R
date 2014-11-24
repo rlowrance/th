@@ -1,4 +1,7 @@
 Chart8 <- function(my.control) {
+    # return list
+    # $horizontal: txt lines for horizontal version of chart 8
+    # $vertical  : txt lines for vertical version of chart 8
     # return txt lines for chart 8
 
     cv.cell <- CvCell()
@@ -40,9 +43,9 @@ Chart8 <- function(my.control) {
 
         HeadersFixed(fixed, lines)
     }
-    Table <- function(lines) {
+    AppendTableHorizontal <- function(lines) {
         # append lines for Table 8 to Lines object lines
-        table <- Table_8(lines)
+        table <- Table8Horizontal(lines)
         table$Header1('pred', 'ndays')
         table$Header2( 'response', 'form'
                       ,'30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
@@ -73,15 +76,59 @@ Chart8 <- function(my.control) {
             }
         }
     }
+    AppendTableVertical <- function(lines) {
+        # append to Lines() object
+        browser()
+        table <- Table8Vertical(lines)
+        table$Header('response:', 'price', 'price', 'logprice', 'logprice')
+        table$Header('predictorsForm:', 'level', 'log', 'level', 'log')
+        table$Header('ndays', ' ', ' ', ' ', ' ')
+
+        DetailLine <- function(ndays) {
+            Value <- function(ndays, response, predictorsForm) {
+                a.cv.result <- ACvResult( ndays = ndays
+                                         ,response = response
+                                         ,predictorsForm = predictorsForm
+                                         )
+                result <- MedianRMSE(a.cv.result)
+                result
+            }
+            table$Detail( ndays
+                         ,Value(ndays, 'price', 'level')
+                         ,Value(ndays, 'price', 'log')
+                         ,Value(ndays, 'logprice', 'level')
+                         ,Value(ndays, 'logprice', 'log')
+                         )
+        }
+        for (ndays in c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')) {
+            DetailLine(ndays)
+        }
+        lines
+    }
+
+    Report <- function(AppendTable) {
+        # produce Lines() object with specified table
+        lines <- Lines()
+        Header(lines)
+
+        lines$Append(' ')
+        AppendTable(lines)
+        lines
+    }
+    ReportHorizontal <- function() {
+        result <- Report(AppendTableHorizontal)
+        result
+    }
+    ReportVertical <- function() {
+        result <- Report(AppendTableVertical)
+        result
+    }
 
     # body starts here
-    lines <- Lines()
-    Header(lines)
 
-    lines$Append(' ')
-    Table(lines)
-
-    result <- lines$Get()
+    result <- list( horizontal = ReportHorizontal()$Get()
+                   ,vertical   = ReportVertical()$Get()
+                   )
     result
 }
 
