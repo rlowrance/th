@@ -35,8 +35,8 @@ data from the U.S. Census Bureau from the year 2000 and, from a
 geocoding service, the latitude and longitude of many of the parcels. We
 joined a subset of these files to create a transactions file for
 single-family residences that were sold at arms-length.  Each record in
-the transaction file is for the sale of a property. The record contains
-all the information we have on the sale itself (for example, the sale
+the transaction file was for the sale of a property. The record contains
+all the information we had on the sale itself (for example, the sale
 date and price) and on the parcel (for example, the lot size and number
 of bedrooms).  We had about
 \Sexpr{Commas(About(transactions$info$nrow.transactions))} transactions.
