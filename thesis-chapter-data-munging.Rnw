@@ -26,64 +26,70 @@ str(transactions$info)
 @
 
 
-We start with real estate data for Los Angeles County: the tax roll for
-2008, containing about
-\Sexpr{Commas(About(parcels$info$nrow.all))} 
+We started with real estate data for Los Angeles County: the tax roll
+for 2008, containing about \Sexpr{Commas(About(parcels$info$nrow.all))}
 parcels, and 25 years of deeds, about
-\Sexpr{Commas(About(deeds$info$num.all.deeds))} 
-observations,
-ending early in 2009. These data came from
-CoreLogic. We supplemented them with data from the U.S. Census Bureau
-from the year 2000 and, from a geocoding service, the latitude and
-longitude of many of the parcels. We join a subset of these files to create a
-transactions file for single-family residences that were sold at arms-length. Here
-a transaction is a parcel and the price of the parcel on a date that
-it sold. We have about
-\Sexpr{Commas(About(transactions$info$nrow.transactions))}
-transactions. The transactions file contains observations with unusual values which
-we presume to be erroneous. For example, there are houses with zero rooms.
-So we create a subset (``subset1'') containing only
-transaction observations with values we define to be reasonable. Most of the analysis
-uses subset1, which contains about
+\Sexpr{Commas(About(deeds$info$num.all.deeds))} observations, ending
+early in 2009. These data came from CoreLogic. We supplemented them with
+data from the U.S. Census Bureau from the year 2000 and, from a
+geocoding service, the latitude and longitude of many of the parcels. We
+joined a subset of these files to create a transactions file for
+single-family residences that were sold at arms-length.  Each record in
+the transaction file is for the sale of a property. The record contains
+all the information we have on the sale itself (for example, the sale
+date and price) and on the parcel (for example, the lot size and number
+of bedrooms).  We had about
+\Sexpr{Commas(About(transactions$info$nrow.transactions))} transactions.
+The transactions file contained observations with unusual values which
+we presumed to be erroneous. For example, there were houses with zero
+rooms.  So we created a subset (``subset1'') containing only transaction
+observations with values we defined to be reasonable. Most of the
+analysis used subset1, which contained about
 \Sexpr{Commas(About(subset$info$num.with.possible.duplicates))}
 observations.
 
 
-This chapter provides the details on how this was done. It contains these
+This chapter provides the details on how subset1 was formed. It contains these
 sections:
+
 \begin{itemize}
+
 \item A description of the input files
+
 \item How the input files were joined into the transactions file
+
 \item How a subset of the transactions was selected
+
 \item An optimization designed to speed up testing of programs using the
 subset.
+
 \end{itemize}
 
 \section{Input Files}
 
 The tax roll is used by the tax assessor to prepare and send property tax
-bills. In Los Angeles County, the initial real estate bills are send
+bills. In Los Angeles County, the initial real estate bills are sent
 starting November 1. The tax roll used in this work is as of November 1,
 2008, representing tax dues in late 2008 and in 2009.
 
-The eight tax roll files we use are assembled by CoreLogic, which obtains the
+The eight tax roll files we used are assembled by CoreLogic, which obtains the
 original files for Los Angeles County, cleans them up, augments them
-with other data, and licenses them. There is one record (CoreLogic type
+with other data, and licenses them. There was one record (CoreLogic type
 2580) for every parcel.
 
-The fields in each record are in these groups:
+The fields in each record were in these groups:
 
 \begin{itemize}
 
 \item The parcel identifier, called the Assessor Parcel Number (APN).
-This value is presented twice, once formatted with hyphens and once as a
-plain number field.  The number field is not always numeric and does not
-always have the correct number of digits, so the two fields are analyzed
+This value was presented twice, once formatted with hyphens and once as a
+plain number field.  The number field was not always numeric and did not
+always have the correct number of digits, so the two fields were analyzed
 to infer the ``best'' APN.
 
 \item Information on the parcel itself: census tract, latitude,
 longitude, location on maps, the universal land use code (LUSEI), and
-so forth. The LUSEI field is used to identify whether the parcel is for
+so forth. The LUSEI field was used to identify whether the parcel was for
 a single-family residence. The GPS fields were not populated in our
 data.
 
@@ -91,7 +97,7 @@ data.
 
 \item The address of the property including its 9-digit zip code.
 
-\item Information on the owner, which is not populated.
+\item Information on the owner, which was not populated.
 
 \item A series of fields describing the assessment for the parcel.
 %  California Propositions 7 and 13 force the assessment to not be an
@@ -105,68 +111,68 @@ data.
 %  values, because not all owners will petition to have their assessments
 %  reduced when the real estate market is falling.
 
-\item Information on the most recent sale of the property. We don't use this
-information and rely instead on the information in the deeds. The two
+\item Information on the most recent sale of the property. We didn't use this
+information and relied instead on the information in the deeds. The two
 sources do not always agree.
 
-\item Information on the mortgage. We don't use any mortgage information in
+\item Information on the mortgage. We didn't use any mortgage information in
 this work.
 
-\item Information on the prior sale. We again rely on the deeds for this type
+\item Information on the prior sale. We again relied on the deeds for this type
 of information.
 
 \item A description of the lot including its size in acres and square feet.
 
 \item A description of the primary building, including the year built, number 
-of rooms, number of bedrooms, number of bathrooms, and whether it has a swimming
-pool. Many of the values are missing. Later we describe how we define a
+of rooms, number of bedrooms, number of bathrooms, and whether it had a swimming
+pool. Many of the values were missing. Later we describe how we defined a
 subset of the data to use.
 
-\item The legal description of the property. We don't use this.
+\item The legal description of the property. We didn't use this.
 
 \end{itemize}
 
 A deed transfers ownership or legal rights to a property. When a
 property is sold or encumbered, one files an appropriate deed with the
-registrar of deeds. The deeds used in this work are for the 25 years
-ending late in 2009.
+registrar of deeds. The deeds used in this work were for the 25 years
+ending early in 2009.
 
-The eight deeds files we use are assembled by CoreLogic, which obtains
+The eight deeds files we used are assembled by CoreLogic, which obtains
 the original files, cleans them up, augments them with other data, and
-licenses them. There is one record (CoreLogic type 1080) for every deed.
+licenses them. There was one record (CoreLogic type 1080) for every deed.
 
-The fields in each record are in these groups:
+The fields in each record were in these groups:
 
 \begin{itemize}
 
-\item The parcel identifier, the APN. This is coded as in the tax roll file and
+\item The parcel identifier, the APN. This was coded as in the tax roll file and
 has similar issues.
 
-\item A description of the owner. We don't use this.
+\item A description of the owner. We didn't use this.
 
-\item The owner's mailing address. We don't use this.
+\item The owner's mailing address. We didn't use this.
 
-\item Property information. We rely on the tax roll for this type of information
-and hence do not use these fields.
+\item Property information. We relied on the tax roll for this type of information
+and hence did not use these fields.
 
 \item Information on the sale, including the sale date, the price, how
-  many APNs were in the transaction, the type of deed, and the primary
-  category code (PRICATCODE) reporting whether the transaction was at
-  arms-length. We use only arms-length transactions in this work. We use
-  only grant deeds (these are deeds of sale) in this work.
+many APNs were in the transaction, the type of deed, and the primary
+category code (PRICATCODE) reporting whether the transaction was at
+arms-length. We used only arms-length transactions in this work. We used
+only grant deeds (these are deeds of sale) in this work.
 
 \end{itemize}
 
-The census file for the year 2000 decennial census. It contains records
+The census file for the year 2000 decennial census. It contained records
 for census tracts in Los Angeles County.
 
-The geocoding file was produced by GeoLytics, Inc. It contains latitudes and
+The geocoding file was produced by GeoLytics, Inc. It contained latitudes and
 longitudes for many of the parcels in Los Angeles.
 
 \section{Creating the Transactions File}
 
-We join the input files to create a transactions file which we then
-subset to form the main data file for most of the analysis. This section 
+We joined the input files to create a transactions file which we then
+subsetted to create the main data file for most of the analysis. This section 
 describes the steps.
 
 The major steps are these:
@@ -184,41 +190,40 @@ Details of each of these steps are in the subsections and sections that follow.
 
 \subsection{Select arms-length sale deeds}
 
-The deeds file classifies every record as to whether it was an
-arms-length sale or not.  How a deed is classified as arms-length is not known for sure, but
-presumedly relies on the type of deed and the relationship if any
-between the seller and buyer.
+The deeds file classified every record as to whether it was an
+arms-length sale or not. Deeds not at arms length may be between related
+parties, and the price paid may not be at market. For example, a parent
+might sell a house to a child for \$10.  How a deed was classified as
+arms-length was not specified, but presumably relied on the type of deed
+and the relationship if any between the seller and buyer.
 
-Our work uses only deeds classified as arms-length sales as recorded
-in the PRICATCODE (primary category code) field. The deeds files from CoreLogic contain
-\Sexpr{Commas(About(deeds$info$num.all.deeds))}
-deeds of which  
-\Sexpr{Commas(About(deeds$info$num.is.arms.length))} 
-are classified as arms-length.
+Our work used only deeds classified as arms-length sales as recorded in
+the PRICATCODE (primary category code) field. The deeds files from
+CoreLogic contained \Sexpr{Commas(About(deeds$info$num.all.deeds))}
+deeds of which  \Sexpr{Commas(About(deeds$info$num.is.arms.length))}
+were classified as arms-length.
 
-The document type code field records the type of the deed. The deeds of
+The document type code field recorded the type of the deed. The deeds of
 interest are those that transfer ownership of a property. These are the
-grant deeds. There are 
-\Sexpr{Commas(About(deeds$info$num.is.grant.deed))} 
-grant deeds in the deeds files.
+grant deeds. There were
+\Sexpr{Commas(About(deeds$info$num.is.grant.deed))} grant deeds in the
+deeds files.
 
-We are interested in deeds that are both arms-length and grant deeds.
-There are 
-\Sexpr{Commas(About(deeds$info$num.is.arms.length.and.grant.deed))} 
-such deeds.
+We were interested in deeds that are both arms-length and grant deeds.
+There were
+\Sexpr{Commas(About(deeds$info$num.is.arms.length.and.grant.deed))} such
+deeds.
 
 \subsection{Select single-family residences}
 
 The tax assessor classifies each parcel according to its primary use.
 One of the uses is as a single-family residence.
 
-Our work uses only parcels classified as single-family residences as
-recorded in the LUSEI field. The tax roll files from CoreLogic contain
-\Sexpr{CommasAbout(parcels$info$nrow.all)} 
-tax roll records of which 
-\Sexpr{CommasAbout(parcels$info$nrow.sfr)}
-are classified as single-family
-residences.
+Our work used only parcels classified as single-family residences as
+recorded in the LUSEI field. The tax roll files from CoreLogic contained
+\Sexpr{CommasAbout(parcels$info$nrow.all)} tax roll records of which
+\Sexpr{CommasAbout(parcels$info$nrow.sfr)} were classified as
+single-family residences.
 
 \subsection{Create additional features for zip codes and census tracts}
 
@@ -228,71 +233,79 @@ characteristics detracts from attractiveness and the others increase
 attractiveness.
 
 These features are not directly reflected in the tax roll file and hence
-must be deduced. We have latitudes and longitudes only for residences,
-not for parcels containing industry, parks, retailers, or schools. Hence
-we resort to determining whether 5-digit zip codes and census tracts
+must be deduced. Ideally, one would determine the distance to the
+nearest industrial location, park, shopping area, and school for every
+parcel.  But we have latitudes and longitudes only for residences, not
+for parcels containing industry, parks, retailers, or schools. Hence we
+resorted to determining whether 5-digit zip codes and census tracts
 contain industry, parks, retailers, and schools.
 
-Thus we have two additional input files that must be joined: one stating
-whether every 5-digit zip code has any of the features of interest, the
+Thus we had two additional input files that must be joined: one stating
+whether every 5-digit zip code had any of the features of interest, the
 other with the same information for every census tract.
 
 \subsection{Create additional features for the census tracts}
 
-The features we want to have for the census tracts are the average
+The features we wanted to have for the census tracts are the average
 commuting time (perhaps longer commutes lower property values), the
 median household income (perhaps neighborhoods with higher incomes also
 have higher property values), and the fraction of houses that are
 owner-occupied (perhaps higher ownership is associated with higher
 property values).
 
-None of these features is provided directly in the Census Bureau files,
-but all are straight-forward to compute from the information provided.
+None of these features are provided directly in the Census Bureau file,
+but all were straightforward to compute from the information in that
+file.
 
 \subsection{Join all the files together}
 
-The transactions file is created by joining each of the input files.
+The transactions file was created by joining each of the input files.
 \begin{itemize}
-  \item The file of all arms-length sale deeds containing 
-    \Sexpr{CommasAbout(transactions$info$nrow.deeds.al)} records.
-  \item The file of all single-family-residence parcels containing 
-    \Sexpr{CommasAbout(transactions$info$nrow.parcels.sfr)}
-    records. These parcels are naturally joined into the deeds using the
-    best APN field from each file. The resulting joined file has
-    \Sexpr{CommasAbout(transactions$info$nrow.deeds.parcels)} records. The
-    unique key of each record is the APN and the recording date for the
-    deed. Other fields in the joined records are information from the deeds file
-    including, when available, the date of the sale and the price, and
-    information from the tax roll file including, when available, a
-    description of the property (lot size, interior space, number of
-    rooms, and so forth).
-  \item The file containing 
-    \Sexpr{Commas(transactions$info$nrow.census)} records derived from
-    the census tract data. The information in these records is appended
-    to the joined deeds-parcels file using the census tract fields to
-    line up the records.  A file with
-    \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels)} records
-    results.
+
+  \item The file of all arms-length sale deeds containing
+  \Sexpr{CommasAbout(transactions$info$nrow.deeds.al)} records.
+  
+  \item The file of all single-family-residence parcels containing
+  \Sexpr{CommasAbout(transactions$info$nrow.parcels.sfr)} records. These
+  parcels were naturally joined into the deeds using the best APN field
+  from each file. The resulting joined file had
+  \Sexpr{CommasAbout(transactions$info$nrow.deeds.parcels)} records. The
+  unique key of each record was the APN and the recording date for the
+  deed. Other fields in the joined records were information from the
+  deeds file including, when available, the date of the sale and the
+  price, and information from the tax roll file including, when
+  available, a description of the property (lot size, interior space,
+  number of rooms, and so forth).
+
   \item The file containing
-    \Sexpr{Commas(transactions$info$nrow.geocoding)} records from the
-    geocoding provider.  This file has the APN as its primary key and
-    usually contains the latitude and longitude of the corresponding
-    parcels. These location values are appended onto the corresponding
-    records in the census-deeds-parcel file. The resulting merged file
-    has
-    \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels.geocoding)}
-    records.
-  \item The file containing 
-    \Sexpr{Commas(transactions$info$nrow.derived.zip5)} records recording 
-    features of the 5-digit zip codes and 
-    \Sexpr{Commas(transactions$info$nrow.derived.census.tract)} similar 
-    records from census tracts. These information in these files is
-    appended onto the census-deeds-geocoding-parcels file to create the
-    transactions file.
+  \Sexpr{Commas(transactions$info$nrow.census)} records derived from the
+  census tract data. The information in these records was appended to
+  the joined deeds-parcels file using the census tract fields to line up
+  the records.  A file with
+  \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels)}
+  records resulted.
+
+  \item The file containing
+  \Sexpr{Commas(transactions$info$nrow.geocoding)} records from the
+  geocoding provider.  This file had the APN as its primary key and
+  usually contained the latitude and longitude of the corresponding
+  parcels. These location values were appended onto the corresponding
+  records in the census-deeds-parcel file. The resulting merged file had
+  \Sexpr{CommasAbout(transactions$info$nrow.census.deeds.parcels.geocoding)}
+  records.
+    
+  \item The file containing
+  \Sexpr{Commas(transactions$info$nrow.derived.zip5)} records recording
+  features of the 5-digit zip codes and
+  \Sexpr{Commas(transactions$info$nrow.derived.census.tract)} similar
+  records from census tracts. These information in these files was
+  appended onto the census-deeds-geocoding-parcels file to create the
+  transactions file.
+
 \end{itemize}
 
 
-The resulting transactions file contains 
+The resulting transactions file contained
 \Sexpr{CommasAbout(transactions$info$nrow.transactions)} 
 records.
 
@@ -300,7 +313,7 @@ records.
 
 We would be finished with the data munging except that the transactions
 file contains observations with unreasonable values. For example,
-there are single-family residences with no rooms and with sales prices in
+there were single-family residences with no rooms and with sales prices in
 the hundreds of millions of dollars.
 
 This project assumed that observations with unreasonable values were
@@ -316,12 +329,14 @@ Remaining <- function(used) {
 
 These judgements were applied to reject records and form ``subset1,''
 the subset of transactions actually used in the analysis.
+
 \begin{itemize}
 
-  \item Assessed value. Transaction arising from parcels with an
-    assess value exceeding the maximum sales price were discarded. How
-    the maximum sales price was determined is described just below under ``Sale amount.''
-    There was \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
+  \item Assessed value. Transaction arising from parcels with an assess
+  value exceeding the maximum sales price were discarded. How the
+  maximum sales price was determined is described just below under
+  ``Sale amount.'' There were
+  \Sexpr{Remaining(subset$info$assessed.value$num.not.too.large)} such.
 
 % COMMENTED OUT, SINCE 0 SUCH
 %  \item Document type code. Only transactions arising from grant
@@ -332,120 +347,121 @@ the subset of transactions actually used in the analysis.
 %    such.
 
   \item Effective year built. Transactions arising from properties
-    without an effective year built were discarded. The effective year
-    built is the year of the last major remodeling or the year the property
-    is built. There were \Sexpr{Remaining(subset$info$effective.year.built)} such.
+  without an effective year built were discarded. The effective year
+  built is the year of the last major remodeling or the year the
+  property is built. There were
+  \Sexpr{Remaining(subset$info$effective.year.built)} such.
 
   \item Geocoding. Transactions for which either the latitude or
-    longitude were missing were rejected. There were 
-    \Sexpr{Remaining(subset$info$geocoding)} such.
+  longitude were missing were rejected. There were
+  \Sexpr{Remaining(subset$info$geocoding)} such.
 
-  \item One building. Transactions arising from parcels with more
-    than one building were rejected because we have only the description
-    for one building. There were \Sexpr{Remaining(subset$info$one.building)}
-    such.
+  \item One building. Transactions arising from parcels with more than
+  one building were rejected because we have only the description for
+  one building. There were \Sexpr{Remaining(subset$info$one.building)}
+  such.
 
-  \item One parcel. Transactions arising from deeds that reported
-    more than one sold parcel were rejected because there is no way to
-    apportion the price to the parcels. There were 
-    \Sexpr{Remaining(subset$info$one.parcel$num.one.apn)} such.
+  \item One parcel. Transactions arising from deeds that reported more
+  than one sold parcel were rejected because there is no way to
+  apportion the price to the parcels. There were
+  \Sexpr{Remaining(subset$info$one.parcel$num.one.apn)} such.
     
-  \item Sale amount. Some deeds report extremely large prices.
-    Research in the Wall
-    Street Journal suggests that the highest transaction price in Los
-    Angeles through the end of 2009 is
-    \$\Sexpr{Commas(as.integer(subset$control$max.sale.amount))}, 
-    so observations with higher prices were rejected.  There were
-    \Sexpr{Remaining(subset$info$sale.amount)} such.
+  \item Sale amount. Some deeds report extremely large prices.  Research
+  in the Wall Street Journal suggested that the highest transaction
+  price in Los Angeles through the end of 2009 was
+  \$\Sexpr{Commas(as.integer(subset$control$max.sale.amount))}, so
+  observations with higher prices were rejected.  There were
+  \Sexpr{Remaining(subset$info$sale.amount)} such.
 
-  \item Sale code. The price on the deed might not be for the full
-    value of the parcel. We rejected transactions that did not say the
-    sales price was for the full amount. There were 
-    \Sexpr{Remaining(subset$info$sale.code$sale.price.full)} such.
+  \item Sale code. The price on the deed might not be for the full value
+  of the parcel. We rejected transactions that did not say the sales
+  price was for the full amount. There were
+  \Sexpr{Remaining(subset$info$sale.code$sale.price.full)} such.
 
-  \item Sale date. None of the deeds are missing recording dates. Some are missing
-  sale dates. When a
-    sales date is missing, it is imputed from the recording date. This
-    imputation uses the average delay between sales and recording (
-    \Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
-    days) as the best estimate for the missing sales date.
+  \item Sale date. None of the deeds were missing recording dates. Some
+  were missing sale dates. When a sales date was missing, it was imputed
+  from the recording date. This imputation used the average delay
+  between sales and recording (
+  \Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
+  days) as the best estimate for the missing sales date.
 
   \item Total rooms. We rejected transactions for houses reported to
-    have less than \Sexpr{Commas(subset$control$min.total.rooms)} room. 
-    There were \Sexpr{Remaining(subset$info$total.rooms)} such.
+  have less than \Sexpr{Commas(subset$control$min.total.rooms)} room.
+  There were \Sexpr{Remaining(subset$info$total.rooms)} such.
 
-  \item Transaction type code. We rejected transactions for parcels
-    that were neither new construction nor resales. Other
-    possibilities include time shares, construction loans, and
-    refinancing. There were 
-    \Sexpr{Remaining(subset$info$TRANSACTION.TYPE.CODE$resale + 
-    subset$info$TRANSACTION.TYPE.CODE$new.construction)} such.
+  \item Transaction type code. We rejected transactions for parcels that
+  were neither new construction nor resales. Other possibilities include
+  time shares, construction loans, and refinancing. There were
+  \Sexpr{Remaining(subset$info$TRANSACTION.TYPE.CODE$resale +
+  subset$info$TRANSACTION.TYPE.CODE$new.construction)} such.
 
-  \item  Units number. We have the description for only the primary
-    unit on the parcel, so we rejected observations with more than one
-    unit. There were \Sexpr{Remaining(subset$info$units.number)} such.
+  \item  Units number. The files had the description for only the
+  primary unit on the parcel, so we rejected observations with more than
+  one unit. There were \Sexpr{Remaining(subset$info$units.number)} such.
 
-  \item Year built. Transactions arising from properties with a
-    missing year built were discarded. There were
-    \Sexpr{Remaining(subset$info$year.built)} such.
+  \item Year built. Transactions arising from properties with a missing
+  year built were discarded. There were
+  \Sexpr{Remaining(subset$info$year.built)} such.
 
 \end{itemize}
 
 Some transactions were discarded because of extremely high values in one
-or more features. Observations that exceeded the \Sexpr{subset$control$max.percentile}th percentile of
-reported values were discarded. Features subject to this protocol were
-these:
+or more features. Observations that exceeded the
+\Sexpr{subset$control$max.percentile}th percentile of reported values
+were discarded. Features subject to this protocol were these:
+
 \begin{itemize}
-  \item Land square footage. The square footage of the land. The
-    largest land square footage value in the transactions file is 
-    \Sexpr{Commas(subset$info$land.square.footage$max.before.selection)};
-     the largest value in
-    the subset of retained transactions is 
-    \Sexpr{Commas(subset$info$land.square.footage$max.after.selection)}. 
-    There are \Sexpr{Remaining(subset$info$land.square.footage$num.selected)}
-    observations with values exceeding the highest allowed percentile.
 
-  \item Living square feet. The square footage of the livable part
-    of the  house. The largest value in the transactions file is 
-    \Sexpr{Commas(subset$info$living.square.feet$max.before.selection)};
-    the largest value in the subset of retained transactions is 
-    \Sexpr{Commas(subset$info$living.square.feet$max.after.selection)}.
-    There are \Sexpr{Remaining(subset$info$living.square.feet$num.selected)} 
-    observations with values exceeding the highest allowed
-    percentile.
+  \item Land square footage. The square footage of the land. The largest
+  land square footage value in the transactions file was
+  \Sexpr{Commas(subset$info$land.square.footage$max.before.selection)};
+  the largest value in the subset of retained transactions was
+  \Sexpr{Commas(subset$info$land.square.footage$max.after.selection)}.
+  There were
+  \Sexpr{Remaining(subset$info$land.square.footage$num.selected)}
+  observations with values exceeding the highest allowed percentile.
 
-  \item Universal building square feet. The square footage inside
-    the house. The largest value in the transactions file is 
-    \Sexpr{Commas(subset$info$building.square.feet$max.before.selection)}; the
-    largest value in the subset of the retained transactions is 
-    \Sexpr{Commas(subset$info$building.square.feet$max.after.selection)}.
-    There are \Sexpr{Remaining(subset$info$building.square.feet$num.selected)}
-    observations with values exceeding the highest allowed
-    percentile.
+  \item Living square feet. The square footage of the livable part of
+  the house. The largest value in the transactions file was
+  \Sexpr{Commas(subset$info$living.square.feet$max.before.selection)};
+  the largest value in the subset of retained transactions was
+  \Sexpr{Commas(subset$info$living.square.feet$max.after.selection)}.
+  There were
+  \Sexpr{Remaining(subset$info$living.square.feet$num.selected)}
+  observations with values exceeding the highest allowed percentile.
+
+  \item Universal building square feet. The square footage inside the
+  house. The largest value in the transactions file was
+  \Sexpr{Commas(subset$info$building.square.feet$max.before.selection)};
+  the largest value in the subset of the retained transactions was
+  \Sexpr{Commas(subset$info$building.square.feet$max.after.selection)}.
+  There were
+  \Sexpr{Remaining(subset$info$building.square.feet$num.selected)}
+  observations with values exceeding the highest allowed percentile.
 
 \end{itemize}
 
-The resulting subset file (``subset1'') contains 
+The resulting subset file (``subset1'') contained
 \Sexpr{CommasAbout(subset.nrow)} 
 records.
 
 \section{Split the subset into individual features}
 
-This part of the project uses R as the programming language. The output
-of each of the processing steps is a data frame that is stored in R's
-internal binary serialized format. The idea is to make it quick to read
-in the data. CSV files can be created later if they are needed.
+The project used R as the programming language. The output of each of
+the processing steps was a data frame that was stored in R's internal
+binary serialized format. The idea was to make it quick to read in the
+data. CSV files could have be created later if they were needed.
 
-After I starting working with subset 1, I found that reading the
-binary serialized format takes several minutes, and that is too long to
-wait. So I created one final processing step, which is to split the
-subset 1 data frame into individual features and write the features as
-1-column data frames in serialized files.  Often an experiment needs
+After I starting working with subset1, I found that reading the
+binary serialized format took several minutes, and that was too long to
+wait. So I created one final processing step, which was to split the
+subset1 data frame into individual features and write the features as
+1-column data frames in serialized files.  Often an experiment needed
 only a handful of features, and reading just the features needed and
-assembling them into a data frame for analysis is often quicker than reading
-all the features and discarding most of them.
+assembling them into a data frame for analysis was often quicker than
+reading all the features and discarding most of them.
 
-Since models will need transformed versions of the features, I
+Since models would need transformed versions of the features, I
 pre-computed those as well. For the continuous features with all
 positive values, I created centered versions and centered versions of
 the log of the values. For continuous features that can be zero, instead

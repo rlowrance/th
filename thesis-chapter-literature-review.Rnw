@@ -3,7 +3,7 @@
 % vim: foldmethod=manual
 
 The literature on what works in predicting housing prices is thin.
-Several distractors keep researchers away from the field.  The
+Several detractors keep researchers away from the field.  The
 primary one is the absence of sharable data sets.  Yes, it is true that
 all the data one needs are in the public domain: tax assessments are
 held by county tax assessors, deeds are recorded publicly by the county
@@ -12,9 +12,9 @@ GPS coordinates of houses are in the public domain.
 
 However, public and free are two very different things. Many counties
 sell their tax assessment and deeds data. For example, I was offered the
-opportunity to buy data for Dade County, Florida for a dollar a
-record. Sometimes the data is priced and sometimes it is free. It seems
-that the Louisville, Kentucky tax assessor has made Louisville data freely
+opportunity to buy data for one county for a dollar a record. Sometimes
+the data are priced and sometimes are free. It seems that the
+Louisville, Kentucky tax assessor has made Louisville data freely
 available to some researchers at universities in Louisville, but I (in
 New York City) was given the chance to buy the data. 
 
@@ -127,7 +127,8 @@ without changing the conclusions of interest to us).
 
 A resampling technique was used to compare models. The comparison metric
 was a measure of accuracy: fraction of estimated prices that are within
-10 and 20 percent of their true values. RMSE values were not reported.
+10 and 20 percent of their true values. Root mean squared errors (RMSE)
+values were not reported.
 
 Based on the fraction of estimates within 10 percent of true values, the
 models using the sales group outperformed the models using the clusters
@@ -161,16 +162,17 @@ price using features in natural units.
 
 \begin{itemize}
 
-\item Model 1 was an ``aspatil'' model. It contains no location
+\item Model 1 was an ``aspatial'' model. It contains no location
 features. Features used included the interior square footage, lot size,
 and age of the house, as well as the squares of these features.
 
-\item Model 2 used indicator variables for the multiple listing systems.
-In addition the features from model 1 were used as well as interactions
-with the indicator variables. Though nine multiple listing systems were
-used, only three indicator variables for them were included. The choice
-of these variables reflects the expert opinions of real estate agents,
-who grouped some of the multiple listing services.
+\item Model 2 used indicator variables for the multiple listing systems,
+which partition Tucson.  In addition, the features from model 1 were
+used as well as interactions with the indicator variables. Though nine
+multiple listing systems were used, only three indicator variables for
+them were included. The choice of these variables reflects the expert
+opinions of real estate agents, who grouped some of the multiple listing
+services.
 
 \item Model 3 used GPS coordinates after transforming them into $x,y$
 offsets from the most southwestern house. The feature set was built in
@@ -206,7 +208,7 @@ Strengths of the work include:
 \item Incorporation of GPS coordinates. This work seems to be among the
 first to do so.
 
-\item Demonstrating the GPS coordinates provide a useful feature in
+\item Showing that the GPS coordinates provide a useful feature in
 predicting real estate prices.
 
 \item Demonstrating that the expert knowledge of real estate agents is
@@ -271,22 +273,24 @@ linear portion of the model.
 
 \item Model family 3 was a set of linear models in which the error terms
 were allowed to be correlated and the covariance matrix of the error
-terms was modeled explicitly. The model was (we follow the text, page
-176) $Y = \beta X + \mu$, where $\mu$ is drawn from $N(0, \sigma^2 K)$,
-a change from the standard OLS model in which $\mu$ is drawn from $N(0,
-\sigma^2 I)$, where $I$ is the identity matrix. If $K$ were estimated by
-$\hat K$, then the estimate for $\beta$ would be $\hat \beta = (Y'{\hat
-K}^{-1} X) ^ {-1} X' {\hat K} ^ {-1} Y$.
+terms was modeled explicitly. In the literature, these kinds of models
+are called both geostatistical and kriging models. The model was (we
+follow the text, page 176) $Y = \beta X + \mu$, where $\mu$ is drawn
+from $N(0, \sigma^2 K)$, a change from the standard OLS model in which
+$\mu$ is drawn from $N(0, \sigma^2 I)$, where $I$ is the identity
+matrix. If $K$ were estimated by $\hat K$, then the estimate for $\beta$
+would be $\hat \beta = (Y'{\hat K}^{-1} X) ^ {-1} X' {\hat K} ^ {-1} Y$.
 
 The problem reduces to estimating $K$, which is a square matrix of size
 $n$, the number of observations. This is done by assuming a form for
-$K$. Kriging is based on the assumption that $K$,  the correlation
-matrix for the error terms, is a function solely of the distance between
-each observation $i$ and $j$. The model builder Robin Dubin assumed this
-form for $K$: $K_{ij} = b_1 \exp(-d_{ij}/ b_2)$ when $ i \neq j$ and
-$K_{ij} = 1$ when $i = j$. Here $d_{ij}$ was the physical distance
-separating house $i$ and $j$.  The parameters $K_{ij}$, $b_1$, $b_2$,
-and $\sigma$ were estimated through maximum likelihood.
+$K$. Kriging, a technique within geostatistics,  is based on the
+assumption that $K$,  the correlation matrix for the error terms, is a
+function solely of the distance between each observation $i$ and $j$.
+The model builder Robin Dubin assumed this form for $K$: $K_{ij} = b_1
+\exp(-d_{ij}/ b_2)$ when $ i \neq j$ and $K_{ij} = 1$ when $i = j$. Here
+$d_{ij}$ was the physical distance separating house $i$ and $j$.  The
+parameters $K_{ij}$, $b_1$, $b_2$, and $\sigma$ were estimated through
+maximum likelihood.
 
 One advantage of kriging is that it explicitly models the error and
 thus allows the predicted error to be added back to the estimate
@@ -301,7 +305,7 @@ inclusion in the local models.
 through $K$-means clustering of features of census tracts. The census
 tract features were the fitted parameters of separate linear models for
 each census tract. The optimal number of submarkets was found to be 12.
-This model family was a two stage model, in which residuals from the
+This model family was a two-stage model, in which residuals from the
 nearest five properties from the first stage were used as features in
 the second stage. A separate model was estimated for each submarket.
 
@@ -517,7 +521,7 @@ data set is relatively small (13,000 transactions).
 
 The main strengths of the work are the use of a single data set to
 compare very different models. It is a shame that the modeling work
-cannot be extended to also test other techniques indepedent of the
+cannot be extended to also test other techniques independent of the
 original study team.
 
 \section{2011 Study of Louisville Prices in 2003 - 2007}

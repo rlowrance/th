@@ -1,0 +1,55 @@
+\chapter{Conclusions and Future Work}
+% vim: textwidth=72
+
+We have systematically designed a linear model with the goal of finding
+a model that has the lowest expected error on unseen data. The best
+model we found was tailored to a submarket, trained on 60 days of data
+prior to the query transaction, predicted the log of the price,
+was regularized, and used 20 features in their natural units. 
+
+We also found that random forests models have lower error rates.  We did
+not investigate many design decisions around random forests, so that we
+don't know the best training period for them, nor whether submarket
+models outperform whole-market models. A systematic study of random
+forests would provide those insights.
+
+Most of the literature around real estate pricing uses linear models. A
+shift toward non-linear models is indicated.
+
+These ideas seem potentially fruitful:
+
+\begin{itemize}
+
+\item Compare random forests to neural networks. Both kinds of models
+require fitting expertise that may need to be tailored to the specific
+data set at hand. 
+
+%Random forests
+%require almost no fitting decisions, whereas fitting neural networks is
+%still somewhat of an art (though well understood in certain parts of New
+%York University). The issue to resolve is: Do well-designed neural
+%networks outperform random forests? If they do, they are
+%worth pursuing.
+
+\item Understand the Additive Regression approach from
+\cite{zurada-11-comparison}; it usually outperformed other models in the
+study, but was not tested against random forests.
+
+\item Consider enhanced feature sets. Include the GPS coordinates as
+features. Compare direct usage of GPS coordinates to the trend surface
+$x,y$ feature sets. 
+
+\item Evaluate using deep learning techniques to generate feature sets.
+Most of the deep learning research is in domains where the best feature
+set is far from obvious. A research issue is: Can deep learning find
+feature sets that outperform feature sets found in the real estate
+pricing literature?
+
+\end{itemize}
+
+Some other ideas would help encourage others to work in the field of
+real estate price prediction. The most important is to arrange for a
+multiyear contemporary data set to be put in the public domain. Another
+idea is to develop an open source package that allowed real estate
+pricing models to be compared. The present work, which open sources its
+code, provides a start on such a package.

@@ -14,6 +14,9 @@
 \usepackage{verbatim}
 %\usepackage{etoolbox}
 
+\usepackage{hyperref}
+%\usepackage{url}
+
 % double space text
 % ref: Gratzer p 99 (this approach and an alternative)
 \usepackage{setspace}  % ref: Gratzer p 99
@@ -125,7 +128,7 @@ Dedication goes here.
 
 
 \chapter*{Acknowledgements}
-Acknowledgements go here. Thanks to \ldots.
+Acknowledgements go here. Thanks to \dots.
 
 \chapter*{Abstract}
 
@@ -133,11 +136,11 @@ This work develops the best linear model of residential real estate
 prices for 2003 through 2009 in Los Angeles County. This work differs
 from typical academic research on prediction of home prices by covering
 a larger geographic area than most, more houses than most, and a longer
-time period than most, and the time period before before and after the
-real estate price boom in the United States. The systematic exploration
-of design choices for linear models leads to results that may surprise
-some, including the finding the the most important factor in estimating
-real estate prices is not location.
+time period than most, and the time period both before and after the
+real estate price boom in the United States. We test design decisions
+for linear models to determine which choices lead to the lowest errors.
+We show that non-linear models outperform the best of our linear models
+and point to directions for further research.
 
 \chapter*{Table of Contents}
 \tableofcontents
