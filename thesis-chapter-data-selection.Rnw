@@ -7,6 +7,7 @@ working <- control$working
 #path.cv.assessment <- paste0(working, 'e-cv-chart_chart5.txt')
 path.cv.assessment.vertical <- paste0(working, 'e-cv-chart_chart5_vertical.txt')
 path.cv.census <- paste0(working, 'e-cv-chart_chart6.txt')
+path.cv.census.vertical <- paste0(working, 'e-cv-chart_chart6_vertical.txt')
 path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
 path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
 @
@@ -476,24 +477,34 @@ of the natural units.
 360 in steps of 30 days.
 \end{itemize}
 
-Figure \ref{figure:EGECensus} shows the estimated generalization error
+%\begin{figure}[ht]
+%\begin{sideways}
+%\begin{minipage}{7in}
+%\tiny
+%%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv.census}}
+%\end{minipage}
+%\end{sideways}
+%\caption{Estimated Generalization Errors With and Without Census Data}
+%\label{figure:EGECensus}
+%\end{figure}
+%
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv.census.vertical}}
+\caption{Estimated Generalization Errors With and Without Census Data}
+\label{figure:EGECensusVertical}
+\end{figure}
+
+Figure \ref{figure:EGECensusVertical} shows the estimated generalization error
 for each of the design choices, both with and without the features
 derived from the census data. The comparison metric is the median of the
 root median squared errors from the folds. The key finding is that
 using the census-derived features always leads to better performance.
 
-\begin{figure}[ht]
-\begin{sideways}
-\begin{minipage}{7in}
-\tiny
-%\small
-%\normalsize
-\verbatiminput{\Sexpr{path.cv.census}}
-\end{minipage}
-\end{sideways}
-\caption{Estimated Generalization Errors With and Without Census Data}
-\label{figure:EGECensus}
-\end{figure}
 
 \section{Discarding Assessments and Keeping Census Data}
 

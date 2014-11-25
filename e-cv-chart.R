@@ -38,13 +38,16 @@ source('CvCell.R')
 source('HeadersFixed.R')
 source('Lines.R')
 source('MeanWithin10.R')
+source('MeanRMSE.R')
 source('MedianRMSE.R')
 source('Predictors2.R')
+source('RootMeanSquaredErrors.R')
 source('RootMedianSquaredErrors.R')
 source('Table5And6Horizontal.R')
 source('Table5And6Vertical.R')
-source('Table7A.R')
-source('Table7B.R')
+source('Table7AHorizontal.R')
+source('Table7BHorizontal.R')
+source('Table7Vertical.R')
 source('Table8Horizontal.R')
 source('Table8Vertical.R')
 
@@ -88,8 +91,10 @@ Control <- function(default.args) {
              #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
              ,path.out.chart.5.horizontal.txt = paste0(working, out.base, '_chart5.txt')
              ,path.out.chart.5.vertical.txt = paste0(working, out.base, '_chart5_vertical.txt')
-             ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
-             ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
+             ,path.out.chart.6.horizontal.txt = paste0(working, out.base, '_chart6.txt')
+             ,path.out.chart.6.vertical.txt = paste0(working, out.base, '_chart6_vertical.txt')
+             ,path.out.chart.7.horizontal.txt = paste0(working, out.base, '_chart7.txt')
+             ,path.out.chart.7.vertical.txt = paste0(working, out.base, '_chart7_vertical.txt')
              ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
              ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
              ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
@@ -167,7 +172,6 @@ MakeCharts <- function(control) {
 
     switch( control$opt$chart
            ,'05' = { 
-               browser()
                chart.5 <- Chart5(control)
                writeLines( text = chart.5$horizontal
                           ,con = control$path.out.chart.5.horizontal.txt
@@ -177,15 +181,22 @@ MakeCharts <- function(control) {
                           )
            }
            ,'06' = {
-               chart.6.txt <- Chart6(control)
-               writeLines( text = chart.6.txt
-                          ,con = control$path.out.chart.6
+               chart.6 <- Chart6(control)
+               writeLines( text = chart.6$horizontal
+                          ,con = control$path.out.chart.6.horizontal.txt
+                          )
+               writeLines( text = chart.6$vertical
+                          ,con = control$path.out.chart.6.vertical.txt
                           )
            }
            ,'07' = {
-               chart.7.txt <- Chart7(control)
-               writeLines( text = chart.7.txt
-                          ,con = control$path.out.chart.7
+               browser()
+               chart.7 <- Chart7(control)
+               writeLines( text = chart.7$horizontal
+                          ,con = control$path.out.chart.7.horizontal.txt
+                          )
+               writeLines( text = chart.7$vertical
+                          ,con = control$path.out.chart.7.vertical.txt
                           )
            }
            ,'08' = {
@@ -329,7 +340,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='05')
+default.args <- list(chart='07')
 
 control <- Control(default.args)
 

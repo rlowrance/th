@@ -5,7 +5,9 @@
 <<BestLinearModel>>=
 working <- control$working
 path.cv.criterion <- paste0(working, 'e-cv-chart_chart7.txt')
-path.cv.form.ndays <- paste0(working, 'e-cv-chart_chart8_vertical.txt')
+path.cv.criterion.vertical <- paste0(working, 'e-cv-chart_chart7_vertical.txt')
+path.cv.form.ndays.01 <- paste0(working, 'e-cv-chart_chart8_vertical.txt')
+path.cv.form.ndays.05 <- paste0(working, 'e-cv-chart_chart8_vertical_query20.txt')
 path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
 path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
 path.9.gg1 <- paste0(working, 'e-cv-chart_chart9_1.pdf')
@@ -148,30 +150,73 @@ derived from the tax assessor data. All models used data from 2003 on.
 To keep running times reasonable, a random one percent sample of possible
 test transactions (queries) was drawn from each cross-validation fold.
 
-% attempt to rotate: works (though with small text)
+%% attempt to rotate: works (though with small text)
+%\begin{figure}[ht]
+%\begin{sideways}
+%\begin{minipage}{7in}
+%\tiny
+%%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv.criterion}}
+%\end{minipage}
+%\end{sideways}
+%\caption{Estimated Generalization Errors\\Measurement Approaches Compared }
+%\label{figure:merit1}
+%\end{figure}
+%
 \begin{figure}[ht]
-\begin{sideways}
-\begin{minipage}{7in}
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.cv.criterion}}
-\end{minipage}
-\end{sideways}
+\verbatiminput{\Sexpr{path.cv.criterion.vertical}}
 \caption{Estimated Generalization Errors\\Measurement Approaches Compared }
-\label{figure:merit1}
+\label{figure:merit1Vertical}
 \end{figure}
 
-The results are depicted in Figure \ref{figure:merit1}.
+The results are depicted in Figure \ref{figure:merit1Vertical}.
 
-To read the table, consider the first three rows. All of these are for
-the level-level form of the linear model: we predict price using the
-natural units for each feature. The three rows show the value of a model
-selection metric for 30, 60, and more days using the three metrics
-studied. The columns with headings 30 up to 360 are the number of days
-in the training period for each query.  An asterisk precedes the value
-that optimizes a row: it marks the best number of days.
+The table has two panels. In panel A, the response variable is price. In
+panel B the response variable is $\log(price)$. Each panel has a row for
+each training period considered. The length of the training period is in
+column \code{ndays}. Adjacent to the training period are two groups of
+columns. The first group is for the level form of the predictors: we use
+the predictors in their natural units. The second group is for the log
+form of the predictors: we transform the size features into the log
+domain. Each group of three column has the estimated error using one of
+the metrics. Our interest is to determine which model is best. For the
+first two metrics, \code{meanRMSE} and \code{medRMSE} we seek the lowest
+error. For the third, \code{fctWI10}, we seek the highest accuracy.
 
+\begin{figure}[ht]
+\begin{tabular}{ | l | r | r | r| }
+ \hline
+             & \multicolumn{3}{c |}{best ndays} \\
+ \hline
+ level-level & 90 &  90 & 120 \\
+ level-log   & 90 & 150 & 270 \\
+ log-level   & 30 &  60 &  30 \\
+ log-log     & 30 &  30 &  30 \\
+ \hline
+\end{tabular}
+\caption{Models Selected By Metrics}
+\label{figure:Analysis}
+\end{figure}
+
+We seek to answer the question: which model is selected as best by each
+metric? Figure \ref{figure:Analysis} contains these results. 
+
+%
+%
+%The results are depicted in Figure \ref{figure:merit1}.
+%
+%To read the table, consider the first three rows. All of these are for
+%the level-level form of the linear model: we predict price using the
+%natural units for each feature. The three rows show the value of a model
+%selection metric for 30, 60, and more days using the three metrics
+%studied. The columns with headings 30 up to 360 are the number of days
+%in the training period for each query.  An asterisk precedes the value
+%that optimizes a row: it marks the best number of days.
+%
 There are several observations to make:
 
 \begin{itemize}
@@ -286,18 +331,27 @@ Because a local model is built for every query point, we take a one
 percent random sample of the possible query points in each fold in order
 to reduce the computational burden.
 
-% attempt to rotate: works (though with small text)
 \begin{figure}[ht]
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.cv.form.ndays}}
+\verbatiminput{\Sexpr{path.cv.form.ndays.01}}
 \caption{Estimated Generalization Errors\\Across Model Forms and Training
-Periods}
-\label{figure:EGEFormNdays}
+Periods\\With 1 Percent Sample}
+\label{figure:EGEFormNdays01}
 \end{figure}
 
-Figure \ref{figure:EGEFormNdays} shows the estimated generalization
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.cv.form.ndays.05}}
+\caption{Estimated Generalization Errors\\Across Model Forms and Training
+Periods\\With 5 Percent Sample}
+\label{figure:EGEFormNdays01}
+\end{figure}
+
+Figure \ref{figure:EGEFormNdays01} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
 60$ and is in the fourth column, which holds errors for the log-level
 model. Thus the lowest error occurs when training for 60 days and
@@ -305,6 +359,8 @@ predicting $\log(price)$ using the features in their natural units. The
 log-level model (in column four) ususally has the lowest error. The only
 exception is for $ndays = 30$, where the log-log model (in column five)
 has a lower error.
+
+Figure \ref{figure:EGEFormNdays05} WRITE ME.
 
 In our search for the best linear model, going forward we fix the number
 of training days to 60 and use the log-level form for the model.

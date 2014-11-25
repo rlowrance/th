@@ -356,13 +356,13 @@ e-cv-chart-data += $(working)/submarkets.RData
 $(working)/e-cv-chart_chart5%txt \
 $(working)/e-cv-chart_chart5_vertical%txt \
 : Chart5.R Table5And6Horizontal.R Table5And6Vertical.R
-	Rscript e-cv-chart.R --chart 08
-
-$(working)/e-cv-chart_chart5.txt: Chart5.R
 	Rscript e-cv-chart.R --chart 05
 
-$(working)/e-cv-chart_chart6.txt: Chart6.R
+$(working)/e-cv-chart_chart6%txt \
+$(working)/e-cv-chart_chart6_vertical%txt \
+: Chart6.R Table5And6Horizontal.R Table5And6Vertical.R
 	Rscript e-cv-chart.R --chart 06
+
 
 $(working)/e-cv-chart_chart7.txt: Chart7.R
 	Rscript e-cv-chart.R --chart 07

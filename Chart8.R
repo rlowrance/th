@@ -78,7 +78,6 @@ Chart8 <- function(my.control) {
     }
     AppendTableVertical <- function(lines) {
         # append to Lines() object
-        browser()
         table <- Table8Vertical(lines)
         table$Header('response:', 'price', 'price', 'logprice', 'logprice')
         table$Header('predictorsForm:', 'level', 'log', 'level', 'log')
