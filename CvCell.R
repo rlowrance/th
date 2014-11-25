@@ -46,7 +46,6 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                           ,scenario = 'avm'
                           ,timePeriod = '2003on'
                           ,predictorsName = 'alwaysNoAssessment'
-                          ,query = '100'
                           ,lambda = '0'
                           ,ntree = '0'
                           ,mtry = '0'

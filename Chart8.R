@@ -8,7 +8,7 @@ Chart8 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart8')
     Path <- cv.cell$Path
 
-    ACvResult <- function(ndays, response, predictorsForm) {
+    ACvResult <- function(ndays, response, predictorsForm, query) {
         # return the single cv.result in the e-cv-cell for ndays
         path.in <- Path( scope = 'global'
                         ,model = 'linear'
@@ -18,7 +18,7 @@ Chart8 <- function(my.control) {
                         ,predictorsName = 'alwaysNoAssessment'
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
-                        ,query = '100'  # use 1% sample
+                        ,query = query
                         ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
@@ -29,7 +29,7 @@ Chart8 <- function(my.control) {
         a.cv.result <- cv.result[[1]]
         a.cv.result
     }
-    Header <- function(lines) {
+    Header <- function(lines, query) {
         # mutate lines by appending the header
         lines$Append('Comparison of Estimated Generalization Errors From from 10 Fold Cross Validation')
         lines$Append('Using Root Median Squared Errors from Folds')
@@ -42,8 +42,16 @@ Chart8 <- function(my.control) {
         stopifnot(fixed$query == '100')
 
         HeadersFixed(fixed, lines)
+        lines$Append(sprintf('Percent of queries in each fold that were estimated: %d'
+                             ,switch( query
+                                     ,'100' = 1
+                                     ,'20'  = 5
+                                     ,paste0('bad query', as.character(query))
+                                     )
+                             )
+        )
     }
-    AppendTableHorizontal <- function(lines) {
+    AppendTableHorizontal <- function(lines, query) {
         # append lines for Table 8 to Lines object lines
         table <- Table8Horizontal(lines)
         table$Header1('pred', 'ndays')
@@ -56,6 +64,7 @@ Chart8 <- function(my.control) {
                 a.cv.result <- ACvResult( ndays = ndays
                                          ,response = response
                                          ,predictorsForm = predictorsForm
+                                         ,query = query
                                          )
                 result <- MedianRMSE(a.cv.result)
                 result
@@ -76,7 +85,7 @@ Chart8 <- function(my.control) {
             }
         }
     }
-    AppendTableVertical <- function(lines) {
+    AppendTableVertical <- function(lines, query) {
         # append to Lines() object
         table <- Table8Vertical(lines)
         table$Header('response:', 'price', 'price', 'logprice', 'logprice')
@@ -88,6 +97,7 @@ Chart8 <- function(my.control) {
                 a.cv.result <- ACvResult( ndays = ndays
                                          ,response = response
                                          ,predictorsForm = predictorsForm
+                                         ,query = query
                                          )
                 result <- MedianRMSE(a.cv.result)
                 result
@@ -105,28 +115,29 @@ Chart8 <- function(my.control) {
         lines
     }
 
-    Report <- function(AppendTable) {
+    Report <- function(AppendTable, query) {
         # produce Lines() object with specified table
         lines <- Lines()
-        Header(lines)
+        Header(lines, query)
 
         lines$Append(' ')
-        AppendTable(lines)
+        AppendTable(lines, query)
         lines
     }
     ReportHorizontal <- function() {
-        result <- Report(AppendTableHorizontal)
+        result <- Report(AppendTableHorizontal, query = '100')
         result
     }
-    ReportVertical <- function() {
-        result <- Report(AppendTableVertical)
+    ReportVertical <- function(query) {
+        result <- Report(AppendTableVertical, query)
         result
     }
 
     # body starts here
 
     result <- list( horizontal = ReportHorizontal()$Get()
-                   ,vertical   = ReportVertical()$Get()
+                   ,vertical.1 = ReportVertical('100')$Get()  # 1% sample
+                   ,vertical.5 = ReportVertical('20')$Get()   # 5% sample
                    )
     result
 }

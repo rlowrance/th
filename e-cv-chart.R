@@ -97,6 +97,7 @@ Control <- function(default.args) {
              ,path.out.chart.7.vertical.txt = paste0(working, out.base, '_chart7_vertical.txt')
              ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
              ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
+             ,path.out.chart.8.vertical.5.txt = paste0(working, out.base, '_chart8_vertical5.txt')
              ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
              ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
              ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
@@ -204,8 +205,11 @@ MakeCharts <- function(control) {
                writeLines( text = chart.8$horizontal
                           ,con = control$path.out.chart.8.horizontal.txt
                           )
-               writeLines( text = chart.8$vertical
+               writeLines( text = chart.8$vertical.1
                           ,con = control$path.out.chart.8.vertical.txt
+                          )
+               writeLines( text = chart.8$vertical.5
+                          ,con = control$path.out.chart.8.vertical.5.txt
                           )
            }
            ,'09' = {
@@ -340,7 +344,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='07')
+default.args <- list(chart='08')
 
 control <- Control(default.args)
 

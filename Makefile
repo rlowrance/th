@@ -371,64 +371,124 @@ $(working)/e-cv-chart_chart7_vertical%txt \
 
 cvcells = $(working)/e-cv-cells
 
+# level-level 100% sample
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_60_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_90_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_120_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_150_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_180_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_210_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_240_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_270_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_300_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_330_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_360_1_0_0_0.RData
+
+# level-log 100% sample
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_30_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_60_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_90_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_120_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_150_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_180_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_210_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_240_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_270_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_300_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_330_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_360_1_0_0_0.RData
+
+# log-level 100% sample
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_30_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_60_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_90_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_120_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_150_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_180_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_210_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_240_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_270_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_300_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_330_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_360_1_0_0_0.RData
+
+# log-log 100% sample
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_30_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_60_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_90_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_120_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_150_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_180_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_210_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_240_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_270_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_300_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_330_1_0_0_0.RData
+chart8.100 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_360_1_0_0_0.RData
+
 # level-level 5% sample
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_60_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_90_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_120_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_150_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_180_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_210_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_240_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_270_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_300_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_330_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_360_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_60_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_90_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_120_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_150_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_180_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_210_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_240_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_270_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_300_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_330_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_360_20_0_0_0.RData
 
 # level-log 5% sample
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_30_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_60_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_90_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_120_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_150_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_180_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_210_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_240_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_270_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_300_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_330_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_360_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_30_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_60_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_90_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_120_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_150_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_180_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_210_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_240_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_270_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_300_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_330_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_360_20_0_0_0.RData
 
 # log-level 5% sample
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_90_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_120_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_150_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_180_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_210_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_240_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_270_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_300_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_330_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_360_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_90_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_120_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_150_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_180_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_210_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_240_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_270_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_300_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_330_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_360_20_0_0_0.RData
 
 # log-log 5% sample
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_30_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_60_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_90_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_120_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_150_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_180_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_210_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_240_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_270_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_300_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_330_20_0_0_0.RData
-chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_360_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_30_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_60_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_90_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_120_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_150_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_180_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_210_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_240_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_270_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_300_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_330_20_0_0_0.RData
+chart8.5 += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_360_20_0_0_0.RData
 
 .PHONY: chart8.5percent
-chart8.5percent: $(chart8.data)
+chart8.5percent: $(chart8.5)
+
+.PHONY: chart8.100percent
+chart8.100percent: $(chart8.100)
+
 
 $(working)/e-cv-chart_chart8%txt \
 $(working)/e-cv-chart_chart8_vertical%txt \
