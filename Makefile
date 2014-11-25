@@ -364,7 +364,9 @@ $(working)/e-cv-chart_chart6_vertical%txt \
 	Rscript e-cv-chart.R --chart 06
 
 
-$(working)/e-cv-chart_chart7.txt: Chart7.R
+$(working)/e-cv-chart_chart7%.txt \
+$(working)/e-cv-chart_chart7_vertical%txt \
+: Chart7.R Table7AHorizontal.R Table7BHorizontal.B Table7Vertical.A
 	Rscript e-cv-chart.R --chart 07
 
 cvcells = $(working)/e-cv-cells
@@ -971,7 +973,7 @@ thesis-data-data-selection += $(working)/e-cv-chart_chart6.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart7.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart7_vertical.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical_query20.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
