@@ -353,6 +353,11 @@ e-cv-chart-source += Table8.R
 e-cv-chart-data += $(working)/e-features-lcv2.txt
 e-cv-chart-data += $(working)/submarkets.RData
 
+$(working)/e-cv-chart_chart5%txt \
+$(working)/e-cv-chart_chart5_vertical%txt \
+: Chart5.R Table5And6Horizontal.R Table5And6Vertical.R
+	Rscript e-cv-chart.R --chart 08
+
 $(working)/e-cv-chart_chart5.txt: Chart5.R
 	Rscript e-cv-chart.R --chart 05
 
@@ -423,7 +428,7 @@ chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_l
 .PHONY: chart8.5percent
 chart8.5percent: $(chart8.data)
 
-$(working)/e-cv-chart_chart8.%txt \
+$(working)/e-cv-chart_chart8%txt \
 $(working)/e-cv-chart_chart8_vertical%txt \
 $(working)/e-cv-chart_chart8_vertical_query20%txt \
 : Chart8.R Table8Horizontal.R Table8Vertical.R
@@ -480,7 +485,7 @@ e-cv-chart-generated.makefile: \
 	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
 	Rscript e-cv-chart-generated.R
 
-include e-cv-chart-generated.makefile
+#include e-cv-chart-generated.makefile
 
 
 
@@ -961,7 +966,7 @@ thesis-data-data-munging += $(working)/transactions-subset1.RData
 thesis-data-data-munging += $(working)/deeds-al-g.RData
 thesis-data-data-munging += $(working)/parcels-sfr.RData
 
-thesis-data-data-selection += $(working)/e-cv-chart_chart5.txt
+thesis-data-data-selection += $(working)/e-cv-chart_chart5_vertical.txt
 thesis-data-data-selection += $(working)/e-cv-chart_chart6.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf

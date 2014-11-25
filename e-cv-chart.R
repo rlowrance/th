@@ -41,7 +41,8 @@ source('MeanWithin10.R')
 source('MedianRMSE.R')
 source('Predictors2.R')
 source('RootMedianSquaredErrors.R')
-source('Table5And6.R')
+source('Table5And6Horizontal.R')
+source('Table5And6Vertical.R')
 source('Table7A.R')
 source('Table7B.R')
 source('Table8Horizontal.R')
@@ -75,59 +76,61 @@ Control <- function(default.args) {
                 ,'e-cv'
                 )
 
-    control <- list( path.in.base = paste0(working, in.base)
-                    ,path.in.chart9.features = paste0(working, 'e-features-lcv2.txt')
-                    ,path.in.submarkets = paste0(working, 'submarkets.RData')
-                    ,path.out.log = paste0(log, out.base, '.log')
-                    ,path.out.makefile = paste0(me, '-generated.makefile')
-                    #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
-                    #,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
-                    #,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
-                    #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
-                    ,path.out.chart.5 = paste0(working, out.base, '_chart5.txt')
-                    ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
-                    ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
-                    ,path.out.chart.8 = paste0(working, out.base, '_chart8.txt')
-                    ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
-                    ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
-                    ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
-                    ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
-                    ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
-                    ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
-                    ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
-                    ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
-                    ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
-                    ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
-                    ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
-                    ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
-                    ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
-                    ,path.out.chart.13.submarkets.summary.txt = 
-                        paste0(working, out.base, '_chart13_submarkets_summary.txt')
-                    ,path.out.chart.13.submarkets.census.txt = 
-                        paste0(working, out.base, '_chart13_submarkets_census.txt')
-                    ,path.out.chart.13.submarkets.property.city.txt = 
-                        paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
-                    ,path.out.chart.13.submarkets.zip5.txt = 
-                        paste0(working, out.base, '_chart13_submarkets_zip5.txt')
-                    ,path.out.chart.13.submarkets.examples.census.txt=
-                        paste0(working, out.base, '_chart13_submarkets_examples_census.txt')
-                    ,path.out.chart.13.submarkets.examples.property.city.txt =
-                        paste0(working, out.base, '_chart13_submarkets_examples_property_city.txt')
-                    ,path.out.chart.13.submarkets.examples.zip5.txt =
-                        paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
+    control <- 
+        list( path.in.base = paste0(working, in.base)
+             ,path.in.chart9.features = paste0(working, 'e-features-lcv2.txt')
+             ,path.in.submarkets = paste0(working, 'submarkets.RData')
+             ,path.out.log = paste0(log, out.base, '.log')
+             ,path.out.makefile = paste0(me, '-generated.makefile')
+             #,path.out.chart.1 = paste0(working, out.base, '_chart1.txt')
+             #,path.out.chart.2 = paste0(working, out.base, '_chart2.txt')
+             #,path.out.chart.3 = paste0(working, out.base, '_chart3.txt')
+             #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
+             ,path.out.chart.5.horizontal.txt = paste0(working, out.base, '_chart5.txt')
+             ,path.out.chart.5.vertical.txt = paste0(working, out.base, '_chart5_vertical.txt')
+             ,path.out.chart.6 = paste0(working, out.base, '_chart6.txt')
+             ,path.out.chart.7 = paste0(working, out.base, '_chart7.txt')
+             ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
+             ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
+             ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
+             ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
+             ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
+             ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
+             ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
+             ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
+             ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
+             ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
+             ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
+             ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
+             ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
+             ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
+             ,path.out.chart.13.submarkets.summary.txt = 
+             paste0(working, out.base, '_chart13_submarkets_summary.txt')
+             ,path.out.chart.13.submarkets.census.txt = 
+             paste0(working, out.base, '_chart13_submarkets_census.txt')
+             ,path.out.chart.13.submarkets.property.city.txt = 
+             paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
+             ,path.out.chart.13.submarkets.zip5.txt = 
+             paste0(working, out.base, '_chart13_submarkets_zip5.txt')
+             ,path.out.chart.13.submarkets.examples.census.txt=
+             paste0(working, out.base, '_chart13_submarkets_examples_census.txt')
+             ,path.out.chart.13.submarkets.examples.property.city.txt =
+             paste0(working, out.base, '_chart13_submarkets_examples_property_city.txt')
+             ,path.out.chart.13.submarkets.examples.zip5.txt =
+             paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
 
-                    ,path.out.chart.14.txt   = paste0(working, out.base, '_chart14.txt')
-                    ,path.out.chart.14.b.txt = paste0(working, out.base, '_chart14b.txt')
-                    
-                    ,path.cells = cells
-                    ,chart.width = 14  # inches
-                    ,chart.height = 10 # inches
-                    ,working = working
-                    ,testing = FALSE
-                    ,debug = FALSE
-                    ,me = me
-                    ,opt = opt
-                    )
+             ,path.out.chart.14.txt   = paste0(working, out.base, '_chart14.txt')
+             ,path.out.chart.14.b.txt = paste0(working, out.base, '_chart14b.txt')
+
+             ,path.cells = cells
+             ,chart.width = 14  # inches
+             ,chart.height = 10 # inches
+             ,working = working
+             ,testing = FALSE
+             ,debug = FALSE
+             ,me = me
+             ,opt = opt
+             )
     control
 }
 ParseCommandArgs <- function(command.args, default.args) {
@@ -164,9 +167,13 @@ MakeCharts <- function(control) {
 
     switch( control$opt$chart
            ,'05' = { 
-               chart.5.txt <- Chart5(control)
-               writeLines( text = chart.5.txt
-                          ,con = control$path.out.chart.5
+               browser()
+               chart.5 <- Chart5(control)
+               writeLines( text = chart.5$horizontal
+                          ,con = control$path.out.chart.5.horizontal.txt
+                          )
+               writeLines( text = chart.5$vertical
+                          ,con = control$path.out.chart.5.vertical.txt
                           )
            }
            ,'06' = {
@@ -182,10 +189,9 @@ MakeCharts <- function(control) {
                           )
            }
            ,'08' = {
-               chart.8.txt <- Chart8(control)
                chart.8 <- Chart8(control)
                writeLines( text = chart.8$horizontal
-                          ,con = control$path.out.chart.8
+                          ,con = control$path.out.chart.8.horizontal.txt
                           )
                writeLines( text = chart.8$vertical
                           ,con = control$path.out.chart.8.vertical.txt
@@ -323,7 +329,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='08')
+default.args <- list(chart='05')
 
 control <- Control(default.args)
 
