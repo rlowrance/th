@@ -961,18 +961,33 @@ default.args <-
          #scope          = '91767'      # zip5 13882 observations
          #scope          = '910706'
          #scope          = '91750'
-         ,model          = 'rf'
+         ,model          = 'linear'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
-         ,predictorsForm = 'level'
-         ,predictorsName = 'best20'
-         ,ndays          = '60'
-         ,query          = '100'
+         ,predictorsForm = 'log'
+         ,predictorsName = 'alwaysNoAssessment'
+         ,ndays          = '360'
+         ,query          = '20'
          ,lambda         = '0'
-         ,ntree          = '1'
-         ,mtry           = '1'
-         ,fold           = 'combine'
+         ,ntree          = '0'
+         ,mtry           = '0'
+         ,fold           = 'all'   # must be 'all' for general use from the command line
+         )
+default.args <-
+    list( scope          = ''
+         ,model          = ''
+         ,timePeriod     = ''
+         ,scenario       = ''
+         ,response       = ''
+         ,predictorsForm = ''
+         ,predictorsName = ''
+         ,ndays          = ''
+         ,query          = ''
+         ,lambda         = ''
+         ,ntree          = ''
+         ,mtry           = ''
+         ,fold           = 'all'  # must be 'all' for general use from the command line
          )
 control <- Control(default.args)
 

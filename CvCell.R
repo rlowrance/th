@@ -15,7 +15,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   Is.Valid.PredictorsName <- function(s) s %in% Possible.PredictorsNames()
   Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
   Is.Valid.Ndays <- function(s)          s %in% Possible.Ndays()
-  Is.Valid.Query <- function(s)          s %in% c('1', '100')
+  Is.Valid.Query <- function(s)          s %in% c('1', '20', '100')
   Is.Valid.Lambda <- function(s)         is.character(s) && as.integer(s) >= 0
   Is.Valid.Ntree <- function(s)          is.character(s) && as.integer(s) >= 0
   Is.Valid.Mtry <- function(s)           is.character(s) && as.integer(s) >= 0

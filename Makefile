@@ -362,10 +362,78 @@ $(working)/e-cv-chart_chart6.txt: Chart6.R
 $(working)/e-cv-chart_chart7.txt: Chart7.R
 	Rscript e-cv-chart.R --chart 07
 
-$(working)/e-cv-chart_chart8%.txt \
-$(working)/e-cv-chart_chart8_vertical%.txt \
+cvcells = $(working)/e-cv-cells
+
+# level-level 5% sample
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_60_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_90_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_120_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_150_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_180_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_210_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_240_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_270_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_300_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_330_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_360_20_0_0_0.RData
+
+# level-log 5% sample
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_30_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_60_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_90_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_120_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_150_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_180_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_210_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_240_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_270_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_300_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_330_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_360_20_0_0_0.RData
+
+# log-level 5% sample
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_90_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_120_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_150_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_180_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_210_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_240_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_270_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_300_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_330_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_360_20_0_0_0.RData
+
+# log-log 5% sample
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_30_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_60_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_90_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_120_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_150_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_180_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_210_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_240_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_270_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_300_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_330_20_0_0_0.RData
+chart8.data += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_360_20_0_0_0.RData
+
+.PHONY: chart8.5percent
+chart8.5percent: $(chart8.data)
+
+$(working)/e-cv-chart_chart8.%txt \
+$(working)/e-cv-chart_chart8_vertical%txt \
+$(working)/e-cv-chart_chart8_vertical_query20%txt \
 : Chart8.R Table8Horizontal.R Table8Vertical.R
 	Rscript e-cv-chart.R --chart 08
+
+#$(working)/e-cv-chart_chart8%txt \
+#$(working)/e-cv-chart_chart8_vertical%txt \
+#$(working)/e-cv-chart_chart8_vertical_query20%txt \
+#: Chart8.R Table8Horizontal.R Table8Vertical.R $(chart8.data)
+#	Rscript e-cv-chart.R --chart 08
 
 $(working)/e-cv-chart_chart9_1%pdf \
 $(working)/e-cv-chart_chart9_2%pdf \
@@ -403,16 +471,16 @@ $(working)/e-cv-chart_chart14.txt: Chart14.R
 e-cv-chart-generated-data += $(working)/e-features-lcv2.txt
 e-cv-chart-generated-data += $(working)/submarkets.RData
 
-e-cv-chart-generated-souce += Directory.R
-e-cv-chart-generated-souce += Libraries.R
-e-cv-chart-generated-souce += CvCell.R
-e-cv-chart-generated-souce += Lines.R
+e-cv-chart-generated-source += Directory.R
+e-cv-chart-generated-source += Libraries.R
+e-cv-chart-generated-source += CvCell.R
+e-cv-chart-generated-source += Lines.R
 
 e-cv-chart-generated.makefile: \
 	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
 	Rscript e-cv-chart-generated.R
 
-#include e-cv-chart-generated.makefile
+include e-cv-chart-generated.makefile
 
 
 
@@ -898,9 +966,9 @@ thesis-data-data-selection += $(working)/e-cv-chart_chart6.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
-
 thesis-data-best-linear += $(working)/e-cv-chart_chart7.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical_query20.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt

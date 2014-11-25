@@ -293,7 +293,7 @@ to reduce the computational burden.
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.form.ndays}}
 \caption{Estimated Generalization Errors\\Across Model Forms and Training
-Period}
+Periods}
 \label{figure:EGEFormNdays}
 \end{figure}
 
