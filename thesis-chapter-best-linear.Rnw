@@ -114,12 +114,12 @@ metric, we prefer model A over model B.
 Now imagine using model A. When it delivers its estimate, we have no
 idea whether the estimate is good or bad.  To me, this situation
 is untenable if there is an acceptable alternative (and there is: use
-MSE). To make the untenable situation acceptable, one would need to
-produce both an estimate and a confidence in the estimate.  Now the
-model has to be trained to deliver two values, and we have conceivably
-more than doubled the difficulty of the problem of selecting the best
-model: there are now two figures of merit and how to make tradeoffs
-between them is not obvious.
+some variant on mean squared error). To make the untenable situation
+acceptable, one would need to produce both an estimate and a confidence
+in the estimate.  Now the model has to be trained to deliver two values,
+and we have conceivably more than doubled the difficulty of the problem
+of selecting the best model: there are now two figures of merit and how
+to make tradeoffs between them is not obvious.
 
 The issue of choice of figure of merit would be moot if using either
 metric resulted in selecting the same model as best. To investigate
@@ -169,7 +169,12 @@ test transactions (queries) was drawn from each cross-validation fold.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.criterion.vertical}}
-\caption{Estimated Generalization Errors\\Measurement Approaches Compared }
+\caption{
+Estimated Generalization Errors\\
+For Model Selection Metrics\\
+By Response Variable, Predictors, and Training Periods\\
+For a One Percent Sample of Sales in 2003 and Later
+}
 \label{figure:merit1Vertical}
 \end{figure}
 
@@ -192,13 +197,20 @@ error. For the third, \code{fctWI10}, we seek the highest accuracy.
  \hline
              & \multicolumn{3}{c |}{best ndays} \\
  \hline
+ form        & \code{meanRMSE} & \code{medRMSE} & \code{fctWI10}\\
+ \hline
  level-level & 90 &  90 & 120 \\
  level-log   & 90 & 150 & 270 \\
  log-level   & 30 &  60 &  30 \\
  log-log     & 30 &  30 &  30 \\
  \hline
 \end{tabular}
-\caption{Models Selected By Metrics}
+\caption{
+Preferred Number of Training Days\\
+By Model Selection Metric\\
+For Model Forms\\
+Summarizing Figure \ref{figure:merit1Vertical}
+}
 \label{figure:Analysis}
 \end{figure}
 
@@ -258,7 +270,7 @@ minimize average errors rather than the tightness of close estimates.
 This section explores linear models that are specified once for the
 entire marketplace: there is one model for every query transaction and
 this model is location aware only through features of the census tract
-and zip code of the property. I call theses kinds of models
+and zip code of the property. I call these kinds of models
 ``entire-market models.''
 
 Within the class of entire-market models, we explore design choices. In
@@ -267,7 +279,7 @@ in the model and the training period used to fit the model. We find that
 training using 60 days of data before the query transaction is best. The
 best form of model to use is log-level, so that one would predict the
 log of price using the features in natural units. We then examine,
-within this choice of training period and form,  what features give the
+within this choice of training period and form,  which features give the
 best predictive performance and examine a reduced-feature model. We show
 that a 20-feature model performs best. Finally, using the 20 feature
 model trained on 60 days of data in log-level form,  we show that
@@ -336,31 +348,46 @@ to reduce the computational burden.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.form.ndays.01}}
-\caption{Estimated Generalization Errors\\Across Model Forms and Training
-Periods\\With 1 Percent Sample}
+\caption{
+Estimated Generalization Errors\\
+By Response Variable, Predictors, and Training Period\\
+Using Census Features and Not Tax Assessor Features\\
+For A One Percent Sample of Sales in 2003 or Later
+}
 \label{figure:EGEFormNdays01}
 \end{figure}
 
-\begin{figure}[ht]
-\tiny
-%\small
-%\normalsize
-\verbatiminput{\Sexpr{path.cv.form.ndays.05}}
-\caption{Estimated Generalization Errors\\Across Model Forms and Training
-Periods\\With 5 Percent Sample}
-\label{figure:EGEFormNdays01}
-\end{figure}
+%\begin{figure}[ht]
+%\tiny
+%%\small
+%%\normalsize
+%\verbatiminput{\Sexpr{path.cv.form.ndays.05}}
+%\caption{Estimated Generalization Errors\\Across Model Forms and Training
+%Periods\\With 5 Percent Sample}
+%\label{figure:EGEFormNdays01}
+%\end{figure}
+
+
+<<FormNdays, include=FALSE>>=
+lowest <- 58496
+highest <- 78212
+1 - (lowest / highest)
+@
 
 Figure \ref{figure:EGEFormNdays01} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
 60$ and is in the fourth column, which holds errors for the log-level
 model. Thus the lowest error occurs when training for 60 days and
 predicting $\log(price)$ using the features in their natural units. The
-log-level model (in column four) ususally has the lowest error. The only
+log-level model (in column four) usually has the lowest error. The only
 exception is for $ndays = 30$, where the log-log model (in column five)
-has a lower error.
+has a lower error. One way to think about the results is to consider a
+very naive model builder who would build a level-level model and use all
+the data. The model builder would find an error that is the last entry
+in the second column: \$78,212. The best error is \$58,496, which is 25
+percent lower.
 
-Figure \ref{figure:EGEFormNdays05} WRITE ME.
+%Figure \ref{figure:EGEFormNdays05} WRITE ME.
 
 In our search for the best linear model, going forward we fix the number
 of training days to 60 and use the log-level form for the model.
@@ -403,7 +430,13 @@ features under the L1 regularizer.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.9.txt}}
-\caption{Median Errors For Features Sets: Table}
+\caption{
+Table of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For 24 Sets of Features\\
+For Model Form log-level\\
+For 60 Day Training Period\\
+For A One Percent Sample of Sales in 2003 and Later
+}
 \label{figure:MedianTable}
 \end{figure}
 
@@ -416,9 +449,15 @@ income and average commute time) are second and third in importance.
 
 % including a pdf
 \begin{figure}[h]
-\caption{Median Errors for Feature Sets: Graphic}
-\label{figure:MedianGraph1}
 \centering\includegraphics[scale=.4]{\Sexpr{path.9.gg1}}
+\caption{
+Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For 24 Sets of Features\\
+For Model Form log-level\\
+For 60 Day Training Period\\
+For A One Percent Sample of Sales in 2003 and Later
+}
+\label{figure:MedianGraph1}
 \end{figure}
 
 The same data are shown graphically in Figure \ref{figure:MedianGraph1},
@@ -446,7 +485,11 @@ the 95 percent confidence interval is smaller.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.lcv2}}
-\caption{Most Important Features}
+\caption{
+24 Features\\
+By Importance Rank\\
+Classified as House Features or Location Features
+}
 \label{figure:LCV}
 \end{figure}
 
@@ -522,7 +565,7 @@ city, not a walking-around city.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.1}}
-\caption{Principal Components Cumulative Variance}
+\caption{Cumulative Variance of the 24 Principal Components}
 \label{figure:PCA1}
 \end{figure}
 
@@ -538,7 +581,7 @@ of the variance.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.01}}
-\caption{Principal Component 1}
+\caption{Feature Weights for the First Principal Component}
 \label{figure:PCA201}
 \end{figure}
 
@@ -555,7 +598,7 @@ the wealth of the neighborhood.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.02}}
-\caption{Principal Component 2}
+\caption{Feature Weights for the Second Principal Component}
 \label{figure:PCA202}
 \end{figure}
 
@@ -571,7 +614,7 @@ principal component is possibly about the size of the land.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.03}}
-\caption{Principal Component 3}
+\caption{Feature Weights for the Third Principal Component}
 \label{figure:PCA203}
 \end{figure}
 
@@ -587,13 +630,19 @@ is possibly about the size of the house.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.10.txt}}
-\caption{Median Errors Across Folds: Table}
+\caption{
+Table of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Feature Sets Selected by the PCA Analsysis
+}
 \label{figure:MedianTable10}
 \end{figure}
 
 % including a pdf
 \begin{figure}[h]
-\caption{Median Errors Across Folds: Graphic}
+\caption{
+Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Feature Sets Selected by the PCA Analsysis
+}
 \label{figure:MedianGraph102}
 \centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
 \end{figure}
@@ -612,10 +661,19 @@ might choose the first 4 features.
 
 % including a pdf
 \begin{figure}[h]
-\caption{Median Errors Across Folds}
+\caption{
+Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Feature Sets Selected by the LCV and PCA Analyses
+}
 \label{figure:MedianGraph111}
 \centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
 \end{figure}
+
+<<Reduce, include=FALSE>>=
+error.best20 <- 57880
+error.pca.4 <- 71832
+1 - (error.best20 / error.pca.4)
+@
 
 To find the best reduced-feature model, we test all the feature sets
 suggested by the LCV and PCA analyses. These results are in Figure
@@ -623,7 +681,9 @@ suggested by the LCV and PCA analyses. These results are in Figure
 shown. The PCA-derived feature sets all underperform the LCV-derived
 feature sets: extremely small feature sets are challenged in this
 setting. The best feature set is the one with the first 20 features from
-the LCV heuristic.
+the LCV heuristic. This feature set has an estimated error of \$57,880,
+which is 19 percent lower than the estimated error of \$71,832 that was
+found by PCA.
 
 \subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -641,7 +701,10 @@ search was used.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.12.txt}}
-\caption{Estimated Generalization Error from L2 Regularization}
+\caption{
+Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Selected L2 Regularizers\\
+}
 \label{figure:Regularize3}
 \end{figure}
 
@@ -711,15 +774,25 @@ submarkets.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.13.indicator}}
-\caption{Estimated Generalization Error Using Submarket Indicators}
+\caption{
+Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Submarket Indicators
+}
 \label{figure:Indicator}
 \end{figure}
+
+<<Indicators, include=FALSE>>=
+no.indicators <- 57781
+zip5.indicators <- 39557
+1 - (zip5.indicators / no.indicators)
+@
 
 Figure \ref{figure:Indicator} shows the estimated generalization errors
 from adding indicators variables to the regularized linear model. We see
 that adding indicators for zip codes, census tract, and cities all help
 and that the best result is obtained with the five-digit zip code
-indicators.
+indicators, which has an error rate 32 percent lower than the
+entire-market model.
 
 \subsection{Separate Models for Each Submarket}
 
@@ -747,14 +820,24 @@ often because there are too few transactions in the training set.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.13.submarkets}}
-\caption{Estimated Generalization Error Using Submarket Models}
+\caption{
+Estimated Generalization Errors and 95 Percent Confidence Intervals\\
+For Submarket Models
+}
 \label{figure:Submarkets13}
 \end{figure}
+
+<<Submarkets, include=FALSE>>=
+no.indicators <- 57781
+property.city <- 44417
+1 - (property.city / no.indicators)
+@
 
 
 Figure \ref{figure:Submarkets13} shows the results of this experiment.
 The submarket models that used city names had the lowest estimated
-generalization error, but the fitting process succeeded in all folds in
+generalization error, which was 23 percent lower than the whole-market
+error. The fitting process, however, succeeded in all folds in
 only 69 percent of the city names. (We say the coverage was 69 percent.)
 Coverage was highest for the zip code-based submarkets, but estimated
 performance was worse than for city-based submarkets. The census tracts
@@ -771,7 +854,10 @@ tried in the literature. The former appears to have not been tried.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.13.examples}}
-\caption{Estimated Generalization Error Using Submarket Models}
+\caption{
+Estimated Generalization Errors\\
+For Selected Property City Submarket Models
+}
 \label{figure:Examples13}
 \end{figure}
 
@@ -875,7 +961,12 @@ one giving the best greedy performance. We test 1, 2, 3, and 4 features.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.14.rf}}
-\caption{Estimated Generalization Error Using Random Forests}
+\caption{
+Estimated Generalization Errors\\
+For Random Forests\\
+For Selected Hyperparameters \code{ntree} and \code{mtry}\\
+For All Features and the Best 20 Features from the Linear Models
+}
 \label{figure:Submarkets}
 \end{figure}
 
@@ -902,9 +993,69 @@ entire-market model (the model that used the zip-code indicators), which
 had an error of \$39,557. The linear model has errors that are about 10
 percent higher than the random forests model.
 
-%Both can be improved. The linear model can be improved through including
-%the GPS coordinates and probably through many other means. How do design
-%these improvements is not obvious. The random forests model can be
-%improved simply by increasing the two hyperparameters, by adding
-%features.
+
+<<Improvements, include=FALSE>>=
+linear.best20 <- 57781
+rf.best20     <- 48335
+linear.zip.indicators <- 39557
+rf.all <- 35782
+1 - (rf.best20 / linear.best20)
+1 - (linear.zip.indicators / rf.best20)
+1 - (rf.all / linear.zip.indicators)
+1 - (rf.all / linear.best20)
+1 - (rf.all / rf.best20)
+@
+\begin{figure}[ht]
+\begin{tabular}{| l | l | l | r | r | }
+\hline
+&Model              & features                          & error &
+decrease \\
+\hline
+1 & Linear regularized & best 20, no zip-code indicators   & 57781 & NA \\
+2 & Random forests     & best 20, no zip-code indicators   & 48335 & 16\%\\
+3 & Linear regularized & best 20, with zip-code indicators & 39557 & 18\%\\
+4 & Random forests     & all, no zip-code indicators       & 35782 & 10\% \\
+\hline
+\end{tabular}
+\caption{
+Estimated Generalization Error\\
+For Selected Entire-Market Models\\
+For Selected Feature Sets
+}
+\label{figure:CompareModels}
+\end{figure}
+
+We find that the random forests model with all features is the best
+performing. Figure \ref{figure:CompareModels} contains the results of a
+change-by-change analysis. It starts in row 1 with the best linear
+whole-market model. This model used the 20 features found to be best, was
+regularized, and was trained on 60 days of data.  Line 2 contains the
+results from an equivalent random forests model. It uses the same 20
+features and was also trained on 60 days of data. It has a 16 percent
+lower error. The random forests model is making better use of the data. 
+
+Continuing to line 3, we find the same linear model as in
+line 1, but this time the features include the five-digit zip code
+indicators. This model has an 18 percent lower error than the random
+forests model in line 2. Line 4 contains the results from a whole-market
+random forests model that uses all 24 features and was trained on 60
+days of data. It improves on the linear submarket model by 10 percent.
+
+Finally, the addition of the four features that increased the error rate
+in the linear model improved the error rate in the random forests model
+from \$48,335 to \$35,782, a reduction of 26 percent. That's a large
+gain for very little work from the model builder.
+
+Possibly both the linear and random forests models can be improved.
+Either may be able to use productively additional relevant feature,
+including the GPS coordinates, perhaps directly and perhaps as a trend
+surface. More hyperparameters choices for the random forests model could
+be explored.  A submarket model using random forests could be built.
+Additionally, rather than using the 60-day training period found best
+for the linear models, the best training period for random forests could
+be determined. Finally, the best model form for random forests is not
+necessarily the log-level form tested.
+
+
+
 

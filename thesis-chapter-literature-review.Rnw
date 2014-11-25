@@ -453,8 +453,8 @@ neighbors as an additional feature.
 \item A geostatistical model, an approach that models the covariance
 matrix of residuals from a first-stage model. The key assumption of
 geostatistical models is that ``the covariance [of residuals] between
-locations depends only on the distance between them ''
-\cite[p.~142]{bourassa-10-predicting}. This model is similar to the
+locations depends only on the distance between them
+\cite[p.~142]{bourassa-10-predicting}.'' This model is similar to the
 geostatistical model in the 2004 study of Fairfax County \cite{case-04}.
 
 %That is, consider
@@ -690,12 +690,12 @@ assessor's website, which offers to sell the data. (All the text's
 authors were at the University of Louisville when the study was
 published.)
 
-A request for a copy of the code used in the text did not receive a
-response. Clearly the research community for real estate analytics is
-never going to be able ``to stand on the shoulders of giants'' (the
-metaphor is attributed to Bernard of Chartes by John of Salisbury in a
-book published in 1159 \cite[p.~167]{salisbury-1159}). Though we may be
-able to identify the giants (the text study is one of them), we can't use
+I was not successful in obtaining a copy of the code used in the text.
+Clearly the research community for real estate analytics is never going
+to be able ``to stand on the shoulders of giants'' (the metaphor is
+attributed to Bernard of Chartes by John of Salisbury in a book
+published in 1159 \cite[p.~167]{salisbury-1159}). Though we may be able
+to identify the giants (the text study is one of them), we can't use
 their data nor leverage their software. 
 
 

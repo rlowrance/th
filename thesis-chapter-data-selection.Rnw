@@ -116,7 +116,8 @@ is used often when multiple years of data are studied.
 \begin{figure}[h]
 \caption{
 Fraction of Property Sales for Exactly Their 2008 Assessments \\
-By Recording Date Month
+By Recording Year and Month\\
+For 2006 Through 2009
 }
 \label{figure:AssessmentExactlyEqual}
 \centering\includegraphics[scale=.4]{\Sexpr{path.verify}}
@@ -349,8 +350,12 @@ provide a more accurate estimated price.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.assessment.vertical}}
-\caption{Estimated Generalization Errors With and Without the Assessed
-Value}
+\caption{
+Estimated Generalization Errors\\ 
+With and Without the Assessed Value\\
+By Response Variable, Predictors, and Training Period\\
+For Sales in 2008
+}
 \label{figure:CvAssessmentVertical}
 \end{figure}
 
@@ -390,8 +395,9 @@ leads to higher estimated errors.
 % including a pdf
 \begin{figure}[h]
 \caption{
-Median Price by Month \\
-2006 - 2009
+Median Price\\
+By Month \\
+For 2006 - 2009
 }
 \label{figure:PricesByMonth2006On}
 \centering\includegraphics[scale=.4]{\Sexpr{path.price.chart2}}
@@ -495,7 +501,12 @@ of the natural units.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.cv.census.vertical}}
-\caption{Estimated Generalization Errors With and Without Census Data}
+\caption{
+Estimated Generalization Errors\\
+With and Without Census Data
+By Response Variable, Predictors, and Training Period\\
+For A One Percent Sample of Sales in 2003 and Later
+}
 \label{figure:EGECensusVertical}
 \end{figure}
 
