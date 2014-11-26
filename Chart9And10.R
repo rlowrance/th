@@ -17,7 +17,7 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
     fixed <- cv.cell$FixedCellValues('Chart9')
     Path <- cv.cell$Path
 
-    ACvResult <- function(num.features) {
+    ACvResult <- function(num.features, query) {
         predictorsName <- predictors.names[[num.features]]
         path.in <- Path( scope = 'global'
                         ,model = 'linear'
@@ -26,30 +26,45 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
                         ,response = 'logprice'
                         ,predictorsName = predictorsName
                         ,predictorsForm = 'level'
-                        ,ndays = '60'
-                        ,query = '100'
+                        ,ndays = '30'
+                        ,query = query
                         ,lambda = '0'
                         ,ntree = '0'
                         ,mtry = '0'
                         )
-        load(path.in)
-        stopifnot(length(cv.result) == 1)
-        a.cv.result <- cv.result[[1]]
-        a.cv.result
+        if (file.exists(path.in)) {
+            load(path.in)
+            stopifnot(length(cv.result) == 1)
+            a.cv.result <- cv.result[[1]]
+            a.cv.result
+        } else {
+            cat('missing file: ', path.in, '\n')
+            browser()
+            a.cv.result <- NA
+            a.cv.result
+        }
     }
-    Summarize <- function() {
+    Summarize <- function(query) {
         # return list $feature.name $median.value $ci.lowest $ci.highest
         n <- length(feature.names)
         median.value <- double(n)
         ci.lowest <- double(n)
         ci.highest <- double(n)
         for (feature.num in 1:n) {
-            a.cv.result <- ACvResult(feature.num)
-            rmse.values <- RootMedianSquaredErrors(a.cv.result)
-            ci <- CIMedian(rmse.values)
-            median.value[[feature.num]] <- median(rmse.values)
-            ci.lowest[[feature.num]] <- ci$lowest
-            ci.highest[[feature.num]] <- ci$highest
+            a.cv.result <- ACvResult(feature.num, query)
+            if (length(a.cv.result) == 1) {
+                # missing file
+                browser()
+                median.value[[feature.num]] <- NA
+                ci.lowest[[feature.num]] <- NA
+                ci.highest[[feature.num]] <- NA
+            } else {
+                rmse.values <- RootMedianSquaredErrors(a.cv.result)
+                ci <- CIMedian(rmse.values)
+                median.value[[feature.num]] <- median(rmse.values)
+                ci.lowest[[feature.num]] <- ci$lowest
+                ci.highest[[feature.num]] <- ci$highest
+            }
         }
         result <- list( feature.names = feature.names
                        ,median.value  = median.value
@@ -57,7 +72,7 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
                        ,ci.highest    = ci.highest
                        )
         result
-        }
+    }
     GraphChart <- function(summary, show.zero.value) {
         gg <- CIChart( axis.values = 'median rMedianSE across folds'
                       ,axis.names = 'cumulative feature names'
@@ -69,7 +84,7 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
                       )
         gg
     }
-    TextChart <- function(summary) {
+    TextChart <- function(summary, query) {
         Header <- function(lines) {
             lines$Append('Estimated Generalization Errors from 10-fold Cross Validation')
             lines$Append('Using Root Median Squared Errors from Folds')
@@ -83,6 +98,14 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
             stopifnot(fixed$query == '100')
 
             HeadersFixed(fixed, lines)
+            lines$Append(paste0( 'Percent of queries in each fold there were estimated: '
+                                ,switch( query
+                                        ,'100' = '1'
+                                        ,'1'   = '100'
+                                        ,stop(paste0('bad query ', as.character(query)))
+                                        )
+                                )
+            )
         }
         Body <- function(lines) {
             table <- Table9(lines)
@@ -108,10 +131,15 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
         result
     }
 
-    summary <- Summarize()
-    result <- list( txt = TextChart(summary)
-                   ,gg1 = GraphChart(summary, show.zero.value = TRUE)
-                   ,gg2 = GraphChart(summary, show.zero.value = FALSE)
+    summary.1 <- Summarize('100')  # do all the work for 1% query sample
+    summary.100 <- Summarize('1')  # do all the work for 100% query sample
+
+    result <- list( txt.1   = TextChart(summary.1, '100')  # 1% query sample
+                   ,txt.100 = TextChart(summary.100, '1')    # 100% query sample
+                   ,gg1.1   = GraphChart(summary.1, show.zero.value = TRUE)      # 1% query sample
+                   ,gg1.100 = GraphChart(summary.100, show.zero.value = TRUE)    # 100% query sample
+                   ,gg2.1   = GraphChart(summary.1, show.zero.value = FALSE)     # 1% query sample
+                   ,gg2.100 = GraphChart(summary.100, show.zero.value = FALSE)   # 1% query sample
                    )
     result
 }

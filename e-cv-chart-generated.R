@@ -144,7 +144,7 @@ Chart.9.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 9
     # this is just for the best form and ndays
     # best for is log-level
-    # best ndays is 60 
+    # best ndays is 30
 
     Chart.9.PredictorsNames <- function(control) {
         # return list of predictor names for chart 9

@@ -91,21 +91,28 @@ Control <- function(default.args) {
              #,path.out.chart.4 = paste0(working, out.base, '_chart4.txt')
              ,path.out.chart.5.horizontal.txt = paste0(working, out.base, '_chart5.txt')
              ,path.out.chart.5.vertical.txt = paste0(working, out.base, '_chart5_vertical.txt')
+
              ,path.out.chart.6.horizontal.txt = paste0(working, out.base, '_chart6.txt')
              ,path.out.chart.6.vertical.1.txt = paste0(working, out.base, '_chart6_vertical.txt')
              ,path.out.chart.6.vertical.100.txt = paste0(working, out.base, '_chart6_vertical100.txt')
+
              ,path.out.chart.7.horizontal.txt = paste0(working, out.base, '_chart7.txt')
-             ,path.out.chart.7.vertical.txt = paste0(working, out.base, '_chart7_vertical.txt')
+             ,path.out.chart.7.vertical.1.txt = paste0(working, out.base, '_chart7_vertical.txt')
+             ,path.out.chart.7.vertical.100.txt = paste0(working, out.base, '_chart7_vertical100.txt')
+
              ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
              ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
              ,path.out.chart.8.vertical.5.txt = paste0(working, out.base, '_chart8_vertical5.txt')
              ,path.out.chart.8.vertical.100.txt = paste0(working, out.base, '_chart8_vertical100.txt')
-             ,path.out.chart.9.txt = paste0(working, out.base, '_chart9.txt')
-             ,path.out.chart.9.gg1 = paste0(working, out.base, '_chart9_1.pdf')
-             ,path.out.chart.9.gg2 = paste0(working, out.base, '_chart9_2.pdf')
+             
+             ,path.out.chart.9.100.txt = paste0(working, out.base, '_chart9_100.txt')
+             ,path.out.chart.9.gg1.100 = paste0(working, out.base, '_chart9_1_100.pdf')
+             ,path.out.chart.9.gg2.100 = paste0(working, out.base, '_chart9_2_100.pdf')
+
              ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
              ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
              ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
+
              ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
              ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
              ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
@@ -196,13 +203,15 @@ MakeCharts <- function(control) {
                           )
            }
            ,'07' = {
-               browser()
                chart.7 <- Chart7(control)
                writeLines( text = chart.7$horizontal
                           ,con = control$path.out.chart.7.horizontal.txt
                           )
-               writeLines( text = chart.7$vertical
-                          ,con = control$path.out.chart.7.vertical.txt
+               writeLines( text = chart.7$vertical.1
+                          ,con = control$path.out.chart.7.vertical.1.txt
+                          )
+               writeLines( text = chart.7$vertical.100
+                          ,con = control$path.out.chart.7.vertical.100.txt
                           )
            }
            ,'08' = {
@@ -221,23 +230,25 @@ MakeCharts <- function(control) {
                           )
            }
            ,'09' = {
+               browser()
+               # only produce charts for the 100% sample
                chart.9 <- Chart9(control)
-               writeLines( text = chart.9$txt
-                          ,con = control$path.out.chart.9.txt
+               writeLines( text = chart.9$txt.100
+                          ,con = control$path.out.chart.9.100.txt
                           )
 
-               pdf( file = control$path.out.chart.9.gg1
+               pdf( file = control$path.out.chart.9.gg1.100
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.9$gg1)
+               print(chart.9$gg1.100)
                dev.off()
 
-               pdf( file = control$path.out.chart.9.gg2
+               pdf( file = control$path.out.chart.9.gg2.100
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.9$gg2)
+               print(chart.9$gg2.100)
                dev.off()
            }
            ,'10' = {
@@ -352,7 +363,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='06')
+default.args <- list(chart='09')
 
 control <- Control(default.args)
 

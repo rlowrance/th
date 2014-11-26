@@ -631,6 +631,35 @@ $(working)/e-cv-chart_chart8_vertical_query20%txt \
 #: Chart8.R Table8Horizontal.R Table8Vertical.R $(chart8.data)
 #	Rscript e-cv-chart.R --chart 08
 
+# CHART 9 DATA At 100% sample
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best01_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best02_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best03_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best04_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best05_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best06_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best07_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best08_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best09_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best10_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best11_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best12_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best13_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best14_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best15_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best16_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best17_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best18_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best19_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best20_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best21_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best22_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best23_level_30_1_0_0_0.RData
+chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best24_level_30_1_0_0_0.RData
+
+PHONY: chart9.100percent
+chart9.100percent: $(chart9.100)
+
 $(working)/e-cv-chart_chart9_1%pdf \
 $(working)/e-cv-chart_chart9_2%pdf \
 $(working)/e-cv-chart_chart9%txt \
