@@ -46,7 +46,8 @@ Chart8 <- function(my.control) {
                              ,switch( query
                                      ,'100' = 1
                                      ,'20'  = 5
-                                     ,paste0('bad query', as.character(query))
+                                     ,'1'   = 100
+                                     ,stop(paste0('bad query:', as.character(query)))
                                      )
                              )
         )
@@ -135,9 +136,10 @@ Chart8 <- function(my.control) {
 
     # body starts here
 
-    result <- list( horizontal = ReportHorizontal()$Get()
-                   ,vertical.1 = ReportVertical('100')$Get()  # 1% sample
-                   ,vertical.5 = ReportVertical('20')$Get()   # 5% sample
+    result <- list( horizontal   = ReportHorizontal()$Get()
+                   ,vertical.1   = ReportVertical('100')$Get()  # 1% sample
+                   ,vertical.5   = ReportVertical('20')$Get()   # 5% sample
+                   ,vertical.100 = ReportVertical('1')$Get()    # 100% sample
                    )
     result
 }
