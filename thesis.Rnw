@@ -130,6 +130,19 @@ Dedication goes here.
 \chapter*{Acknowledgements}
 Acknowledgements go here. Thanks to \dots.
 
+\begin{itemize}
+\item CoreLogic for providing the data.
+\item Damien Weldon if CoreLogic for help outside this project in
+navigating CoreLogic.
+\item Davi Geiger for the suggestion to through in all features in the
+random forests model.
+\item John Leahy for a conversation years ago in which he conjuctured
+on the efficacy of a reduced feature model. 
+\item Dennis Shasha for continued interests and support over more than a
+few years.
+\end{itemize}
+
+
 \chapter*{Abstract}
 
 This work develops the best linear model of residential real estate
