@@ -112,7 +112,7 @@ Chart.7.FileDependencies <- function(my.control) {
         for (predictorsName in 'alwaysNoAssessment') {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    for (query in c('20', '100')) { # 1% and 5% samples
+                    for (query in c('1', '20', '100')) { # 1% and 5% samples
                         element <- list( scope = fixed$scope
                                         ,model = fixed$model
                                         ,timePeriod = fixed$timePeriod
