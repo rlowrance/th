@@ -82,20 +82,22 @@ Chart.6.FileDependencies <- function(my.control) {
         for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
             for (predictorsForm in c('level', 'log')) {
                 for (ndays in CvCell()$Possible.Ndays()) {
-                    element <- list( scope = fixed$scope
-                                    ,model = fixed$model
-                                    ,timePeriod = fixed$timePeriod
-                                    ,scenario = fixed$scenario
-                                    ,response = response
-                                    ,predictorsName = predictorsName
-                                    ,predictorsForm = predictorsForm
-                                    ,ndays = ndays
-                                    ,query = fixed$query
-                                    ,lambda = fixed$lambda
-                                    ,ntree = fixed$ntree
-                                    ,mtry = fixed$mtry
-                                    )
-                    result[[length(result) + 1]] <- element
+                    for (query in c('1', '100')) {
+                        element <- list( scope = fixed$scope
+                                        ,model = fixed$model
+                                        ,timePeriod = fixed$timePeriod
+                                        ,scenario = fixed$scenario
+                                        ,response = response
+                                        ,predictorsName = predictorsName
+                                        ,predictorsForm = predictorsForm
+                                        ,ndays = ndays
+                                        ,query = query
+                                        ,lambda = fixed$lambda
+                                        ,ntree = fixed$ntree
+                                        ,mtry = fixed$mtry
+                                        )
+                        result[[length(result) + 1]] <- element
+                    }
                 }
             }
         }

@@ -92,7 +92,8 @@ Control <- function(default.args) {
              ,path.out.chart.5.horizontal.txt = paste0(working, out.base, '_chart5.txt')
              ,path.out.chart.5.vertical.txt = paste0(working, out.base, '_chart5_vertical.txt')
              ,path.out.chart.6.horizontal.txt = paste0(working, out.base, '_chart6.txt')
-             ,path.out.chart.6.vertical.txt = paste0(working, out.base, '_chart6_vertical.txt')
+             ,path.out.chart.6.vertical.1.txt = paste0(working, out.base, '_chart6_vertical.txt')
+             ,path.out.chart.6.vertical.100.txt = paste0(working, out.base, '_chart6_vertical100.txt')
              ,path.out.chart.7.horizontal.txt = paste0(working, out.base, '_chart7.txt')
              ,path.out.chart.7.vertical.txt = paste0(working, out.base, '_chart7_vertical.txt')
              ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
@@ -187,8 +188,11 @@ MakeCharts <- function(control) {
                writeLines( text = chart.6$horizontal
                           ,con = control$path.out.chart.6.horizontal.txt
                           )
-               writeLines( text = chart.6$vertical
-                          ,con = control$path.out.chart.6.vertical.txt
+               writeLines( text = chart.6$vertical.1
+                          ,con = control$path.out.chart.6.vertical.1.txt
+                          )
+               writeLines( text = chart.6$vertical.100
+                          ,con = control$path.out.chart.6.vertical.100.txt
                           )
            }
            ,'07' = {
@@ -348,7 +352,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='08')
+default.args <- list(chart='06')
 
 control <- Control(default.args)
 

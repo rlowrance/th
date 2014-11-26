@@ -7,7 +7,7 @@ Chart6 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart6')
     Path <- cv.cell$Path
 
-    Header <- function(lines) {
+    Header <- function(lines, query) {
         # append head info to Lines() object
         lines$Append('Median of Root Median Squared Errors from 10 Fold Cross Validation')
 
@@ -17,12 +17,20 @@ Chart6 <- function(my.control) {
         stopifnot(fixed$query == '100')
 
         HeadersFixed(fixed, lines)
+        lines$Append(paste0( 'Percent of queries in each fold that were estimated: '
+                            ,switch( query
+                                    ,'1' = '100'
+                                    ,'100' = '1'
+                                    ,stop(paste0('bad query ', as.character(query)))
+                                    )
+                            )
+        )
 
         lines$Append(' ')
         lines$Append('Column Use Cen (yes ==> use census data)')
     }
 
-    AppendTableHorizontal <- function(lines) {
+    AppendTableHorizontal <- function(lines, query) {
         table <- Table5And6Horizontal(lines)
         table$Blank()
         table$Header1('preds', 'Use', 'ndays')
@@ -40,7 +48,7 @@ Chart6 <- function(my.control) {
                                 ,predictorsName = predictorsName
                                 ,predictorsForm = predictorsForm
                                 ,nday = ndays
-                                ,query = fixed$query
+                                ,query = query
                                 ,lambda = fixed$lambda
                                 ,ntree = fixed$ntree
                                 ,mtry = fixed$mtry
@@ -77,7 +85,7 @@ Chart6 <- function(my.control) {
     }
 
 
-    AppendTableVertical <- function(lines) {
+    AppendTableVertical <- function(lines, query) {
         table <- Table5And6Vertical(lines)
         lines$Append(' ')
         table$Header('response:', 'price', 'price', 'price', 'price', 'logprice', 'logprice', 'logprice', 'logprice')
@@ -97,16 +105,22 @@ Chart6 <- function(my.control) {
                                 ,predictorsName = predictorsName 
                                 ,predictorsForm = pred.form
                                 ,ndays = ndays
-                                ,query = fixed$query
+                                ,query = query
                                 ,lambda = fixed$lambda
                                 ,ntree = fixed$ntree
                                 ,mtry = fixed$mtry
                                 )
-                load(path.in)
-                stopifnot(!is.null(cv.result))
-                stopifnot(length(cv.result) == 1)
-                median.RMSE <- MedianRMSE(cv.result[[1]])
-                median.RMSE
+                if (file.exists(path.in)) {
+                    load(path.in)
+                    stopifnot(!is.null(cv.result))
+                    stopifnot(length(cv.result) == 1)
+                    median.RMSE <- MedianRMSE(cv.result[[1]])
+                    median.RMSE
+                } else {
+                    cat('missing file: ', path.in, '\n')
+                    median.RMSE <- NA
+                    median.RMSE
+                }
             }
             table$Detail(ndays
                          ,M(response = 'price', pred.form = 'level', use.census = 'yes')
@@ -124,25 +138,28 @@ Chart6 <- function(my.control) {
         }
     }
 
-    Report <- function(AppendTable) {
+    Report <- function(AppendTable, query) {
         lines <- Lines()
-        Header(lines)
+        Header(lines, query)
 
         lines$Append(' ')
-        AppendTable(lines)
+        AppendTable(lines, query)
         lines
     }
     ReportHorizontal <- function() {
-        result <- Report(AppendTableHorizontal)
+        result <- Report( AppendTable = AppendTableHorizontal
+                         ,query = '100'
+                         )
         result
     }
-    ReportVertical <- function() {
-        result <- Report(AppendTableVertical)
+    ReportVertical <- function(query) {
+        result <- Report(AppendTableVertical, query)
         result
     }
 
-    result <- list( horizontal = ReportHorizontal()$Get()
-                   ,vertical   = ReportVertical()$Get()
+    result <- list( horizontal   = ReportHorizontal()$Get()
+                   ,vertical.1   = ReportVertical('100')$Get()  # 1% sample of queries
+                   ,vertical.100 = ReportVertical('1')$Get()    # 100% sample of queries
                    )
     result
 }

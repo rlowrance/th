@@ -358,6 +358,132 @@ $(working)/e-cv-chart_chart5_vertical%txt \
 : Chart5.R Table5And6Horizontal.R Table5And6Vertical.R
 	Rscript e-cv-chart.R --chart 05
 
+cvcells = $(working)/e-cv-cells
+
+# TARGETS FOR CHART 6
+
+# level-level-alwaysNoAssessment 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_360_1_0_0_0.RData
+
+# level-level-alwaysNoCensus 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_level_360_1_0_0_0.RData
+
+# level-log-alwaysNoAssessment 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_log_360_1_0_0_0.RData
+
+# level-log-alwaysNoCensus 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoCensus_log_360_1_0_0_0.RData
+
+# log-level-alwaysNoAssessment 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_level_360_1_0_0_0.RData
+
+# log-level-alwaysNoCensus 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_150_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_180_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_210_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_240_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_270_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_300_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_330_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_level_360_1_0_0_0.RData
+
+# log-log-alwaysNoAssessment 100% sample for each ndays
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_30_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_60_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_90_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_120_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_150_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_180_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_210_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_240_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_270_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_300_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_330_1_0_0_0.RData
+chart6.100.R += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoAssessment_log_360_1_0_0_0.RData
+
+# log-log-alwaysNoCensus 100% sample for each ndays
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_30_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_60_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_90_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_120_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_150_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_180_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_210_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_240_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_270_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_300_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_330_1_0_0_0.RData
+chart6.100.J += $(cvcells)/global_linear_2003on_avm_logprice_alwaysNoCensus_log_360_1_0_0_0.RData
+
+.PHONY: chart6.100percent.R
+chart6.100percent.R: $(chart6.100.R)
+
+.PHONY: chart6.100percent.J
+chart6.100percent.J: $(chart6.100.J)
+
+
+
+
+
 $(working)/e-cv-chart_chart6%txt \
 $(working)/e-cv-chart_chart6_vertical%txt \
 : Chart6.R Table5And6Horizontal.R Table5And6Vertical.R
@@ -369,7 +495,6 @@ $(working)/e-cv-chart_chart7_vertical%txt \
 : Chart7.R Table7AHorizontal.R Table7BHorizontal.B Table7Vertical.A
 	Rscript e-cv-chart.R --chart 07
 
-cvcells = $(working)/e-cv-cells
 
 # level-level 100% sample
 chart8.100.R += $(cvcells)/global_linear_2003on_avm_price_alwaysNoAssessment_level_30_1_0_0_0.RData
@@ -489,7 +614,7 @@ chart8.5percent: $(chart8.5)
 .PHONY: chart8.100percent.R
 chart8.100percent.R: $(chart8.100.R)
 
-$(warning chart8.100.J is $(chart8.100.J))
+#$(warning chart8.100.J is $(chart8.100.J))
 
 .PHONY: chart8.100percent.J
 chart8.100percent.J: $(chart8.100.J) 
