@@ -63,6 +63,7 @@ Here are the studies we review:
 
 \item A 2003 study of Auckland prices in 1996
 \item A 2003 study of Tucson prices in 1998
+\item A 2004 study of Fairfax Country prices in 1967 through 1991
 \item A 2009 study of Los Angeles prices in 2004
 \item A 2010 study of Louisville prices in 1999
 \item A 2011 study of Louisville prices in 2003 through 2007.
