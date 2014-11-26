@@ -2,6 +2,7 @@ Table7Vertical <- function(lines) {
     # return function object $Header()  $Detail() $Get()
     header.format <- '%15s %8s %8s %8s %8s %8s %8s'
     data.format   <- '%15s %8.0f %8.0f %8.3f %8.0f %8.0f %8.3f'
+    data.format.large.value1   <- '%15s %8.0g %8.0f %8.3f %8.0f %8.0f %8.3f'
     panel.format  <- 'Panel %s: %s'
 
     Header <- function( col1
@@ -30,7 +31,12 @@ Table7Vertical <- function(lines) {
                        ,value1, value2, value3
                        ,value4, value5, value6
                        ) {
-        line <- sprintf(data.format
+        format <-
+            if (value1 > 1e6) 
+                data.format.large.value1
+            else
+                data.format
+        line <- sprintf( format
                         ,ndays
                         ,value1, value2, value3
                         ,value4, value5, value6

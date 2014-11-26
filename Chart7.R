@@ -15,7 +15,7 @@ Chart7 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart7')
     Path <- cv.cell$Path
 
-    ACvResult <- function(ndays, response, predictorsForm) {
+    ACvResult <- function(ndays, response, predictorsForm, query) {
         # return the single cv.result in the e-cv-cell for ndays
         path.in <- Path( scope = fixed$scope
                         ,model = fixed$model
@@ -25,18 +25,24 @@ Chart7 <- function(my.control) {
                         ,predictorsName = fixed$predictorsName
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
-                        ,query = fixed$query
+                        ,query = query
                         ,lambda = fixed$lambda
                         ,ntree = fixed$ntree
                         ,mtry = fixed$mtry
                         )
-        load(path.in)
-        stopifnot(!is.null(cv.result))
-        stopifnot(length(cv.result) == 1)
-        a.cv.result <- cv.result[[1]]
-        a.cv.result
+        if (file.exists(path.in)) {
+            load(path.in)
+            stopifnot(!is.null(cv.result))
+            stopifnot(length(cv.result) == 1)
+            a.cv.result <- cv.result[[1]]
+            a.cv.result
+        } else {
+            cat('missing file: ', path.in, '\n')
+            a.cv.result <- NA
+            a.cv.result
+        }
     }
-    Header <- function(lines, include.asterisk) {
+    Header <- function(lines, include.asterisk, query) {
         # mutate lines by appending the header
         lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
         lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
@@ -51,8 +57,17 @@ Chart7 <- function(my.control) {
         stopifnot(fixed$query == '100')
 
         HeadersFixed(fixed, lines)
+        lines$Append(sprintf('Percent of queries in each fold that were estimated: %d'
+                             ,switch( query
+                                     ,'100' = 1
+                                     ,'20'  = 5
+                                     ,'1'   = 100
+                                     ,stop(paste0('bad query:', as.character(query)))
+                                     )
+                             )
+        )
     }
-    AppendTableHorizontal <- function(lines) {
+    AppendTableHorizontal <- function(lines, query) {
         parts.a.and.b <- FALSE
 
         PartA <- function(lines) {
@@ -70,14 +85,19 @@ Chart7 <- function(my.control) {
                     cv.result <- ACvResult( ndays = ndays
                                            ,response = response
                                            ,predictorsForm = predictorsForm
+                                           ,query = query
                                            )
                     result <-
-                        switch( metricName
-                               ,medRMSE = MedianRMSE(cv.result)
-                               ,fctWI10 = MeanWithin10(cv.result)
-                               ,meanRMSE = MeanRMSE(cv.result)
-                               ,stop('bad metricName')
-                               )
+                        if (length(cv.result) == 1 ) { 
+                            NA
+                        } else {
+                            switch( metricName
+                                   ,medRMSE = MedianRMSE(cv.result)
+                                   ,fctWI10 = MeanWithin10(cv.result)
+                                   ,meanRMSE = MeanRMSE(cv.result)
+                                   ,stop('bad metricName')
+                                   )
+                        }
                     result
                 }
 
@@ -117,13 +137,18 @@ Chart7 <- function(my.control) {
                     cv.result <- ACvResult( ndays = ndays
                                            ,response = response
                                            ,predictorsForm = predictorsForm
+                                           ,query = query
                                            )
                     result <-
-                        switch( metricName
-                               ,medRMSE = MedianRMSE(cv.result)
-                               ,fctWI10 = MeanWithin10(cv.result)
-                               ,stop('bad metricName')
-                               )
+                        if (length(cv.result) == 1) {
+                            NA
+                        } else {
+                            switch( metricName
+                                   ,medRMSE = MedianRMSE(cv.result)
+                                   ,fctWI10 = MeanWithin10(cv.result)
+                                   ,stop('bad metricName')
+                                   )
+                        }
                     result
                 }
                 DetailLineMedRMSE <- function() {
@@ -169,7 +194,6 @@ Chart7 <- function(my.control) {
         }
 
 
-        browser()
         lines$Append(' ')
         PartA(lines)
         if (parts.a.and.b) {
@@ -177,7 +201,7 @@ Chart7 <- function(my.control) {
             PartB(lines)
         }
     }
-    AppendTableVertical <- function(lines) {
+    AppendTableVertical <- function(lines, query) {
         # append to Lines() object
         table <- Table7Vertical(lines)
         AppendTableHeader <- function(table) {
@@ -200,14 +224,19 @@ Chart7 <- function(my.control) {
                 a.cv.result <- ACvResult( ndays = ndays
                                          ,response = response
                                          ,predictorsForm = predictorsForm
+                                         ,query = query
                                          )
                 result <-
-                    switch( metricName
-                           ,medRMSE = MedianRMSE(a.cv.result)
-                           ,fctWI10 = MeanWithin10(a.cv.result)
-                           ,meanRMSE = MeanRMSE(a.cv.result)
-                           ,stop('bad metricName')
-                           )
+                    if (length(a.cv.result) == 1) {
+                        NA
+                    } else {
+                        switch( metricName
+                               ,medRMSE = MedianRMSE(a.cv.result)
+                               ,fctWI10 = MeanWithin10(a.cv.result)
+                               ,meanRMSE = MeanRMSE(a.cv.result)
+                               ,stop('bad metricName')
+                               )
+                    }
 
                 result
             }
@@ -233,34 +262,37 @@ Chart7 <- function(my.control) {
         lines
     }
 
-    Report <- function(AppendTable, include.asterisk) {
+    Report <- function(AppendTable, include.asterisk, query) {
         # produce Lines() object with specified table
         lines <- Lines()
         Header( lines = lines
+               ,query = query
                ,include.asterisk = include.asterisk
                )
 
         lines$Append(' ')
-        AppendTable(lines)
+        AppendTable(lines, query)
         lines
     }
     ReportHorizontal <- function() {
         result <- Report( AppendTable = AppendTableHorizontal
+                         ,query = '100'  # 1% sample
                          ,include.asterisk = TRUE
                          )
         result
     }
-    ReportVertical <- function() {
+    ReportVertical <- function(query) {
         result <- Report( AppendTable = AppendTableVertical
+                         ,query = query
                          ,include.asterisk = FALSE
                          )
         result
     }
 
 
-    browser()
-    result <- list( horizontal = ReportHorizontal()$Get()
-                   ,vertical = ReportVertical()$Get()
+    result <- list( horizontal   = ReportHorizontal()$Get()
+                   ,vertical.1   = ReportVertical('100')$Get()  # 1% sample
+                   ,vertical.100 = ReportVertical('1')$Get()    # 100% sample
                    )
     result
 }
