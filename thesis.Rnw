@@ -140,6 +140,9 @@ random forests model.
 on the efficacy of a reduced feature model. 
 \item Dennis Shasha for continued interests and support over more than a
 few years.
+\item Marco Scoffier for explaining his trick of organization this
+training data in files that each contain one column; this saved a lot of
+time.
 \end{itemize}
 
 
