@@ -52,40 +52,6 @@ Chart8 <- function(my.control) {
                              )
         )
     }
-    AppendTableHorizontal <- function(lines, query) {
-        # append lines for Table 8 to Lines object lines
-        table <- Table8Horizontal(lines)
-        table$Header1('pred', 'ndays')
-        table$Header2( 'response', 'form'
-                      ,'30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360'
-                      )
-
-        DetailLine <- function(response, predictorsForm) {
-            Value <- function(ndays) {
-                a.cv.result <- ACvResult( ndays = ndays
-                                         ,response = response
-                                         ,predictorsForm = predictorsForm
-                                         ,query = query
-                                         )
-                result <- MedianRMSE(a.cv.result)
-                result
-            }
-            table$Detail( response, predictorsForm
-                         ,Value(30),   Value(60),  Value(90), Value(120), Value(150), Value(180)
-                         ,Value(210), Value(240), Value(270), Value(300), Value(330), Value(360)
-                         )
-        }
-
-
-        # generate each detail line
-        for (response in c('price', 'logprice')) {
-            for (predictorsForm in c('level', 'log')) {
-                DetailLine( response = response
-                           ,predictorsForm = predictorsForm
-                           )
-            }
-        }
-    }
     AppendTableVertical <- function(lines, query) {
         # append to Lines() object
         table <- Table8Vertical(lines)
@@ -125,10 +91,6 @@ Chart8 <- function(my.control) {
         AppendTable(lines, query)
         lines
     }
-    ReportHorizontal <- function() {
-        result <- Report(AppendTableHorizontal, query = '100')
-        result
-    }
     ReportVertical <- function(query) {
         result <- Report(AppendTableVertical, query)
         result
@@ -136,10 +98,7 @@ Chart8 <- function(my.control) {
 
     # body starts here
 
-    result <- list( horizontal   = ReportHorizontal()$Get()
-                   ,vertical.1   = ReportVertical('100')$Get()  # 1% sample
-                   ,vertical.5   = ReportVertical('20')$Get()   # 5% sample
-                   ,vertical.100 = ReportVertical('1')$Get()    # 100% sample
+    result <- list( txt = ReportVertical('1')$Get()    # 100% sample
                    )
     result
 }

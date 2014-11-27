@@ -4,10 +4,8 @@
 
 <<BestLinearModel>>=
 working <- control$working
-path.cv.criterion <- paste0(working, 'e-cv-chart_chart7.txt')
-path.cv.criterion.vertical <- paste0(working, 'e-cv-chart_chart7_vertical.txt')
-path.cv.form.ndays.01 <- paste0(working, 'e-cv-chart_chart8_vertical.txt')
-path.cv.form.ndays.05 <- paste0(working, 'e-cv-chart_chart8_vertical_query20.txt')
+path.7.txt <- paste0(working, 'e-cv-chart_chart7.txt')
+path.8.txt <- paste0(working, 'e-cv-chart_chart8.txt')
 path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
 path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
 path.9.gg1 <- paste0(working, 'e-cv-chart_chart9_1.pdf')
@@ -150,30 +148,16 @@ derived from the tax assessor data. All models used data from 2003 on.
 To keep running times reasonable, a random one percent sample of possible
 test transactions (queries) was drawn from each cross-validation fold.
 
-%% attempt to rotate: works (though with small text)
-%\begin{figure}[ht]
-%\begin{sideways}
-%\begin{minipage}{7in}
-%\tiny
-%%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.cv.criterion}}
-%\end{minipage}
-%\end{sideways}
-%\caption{Estimated Generalization Errors\\Measurement Approaches Compared }
-%\label{figure:merit1}
-%\end{figure}
-%
 \begin{figure}[ht]
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.cv.criterion.vertical}}
+\verbatiminput{\Sexpr{path.7.txt}}
 \caption{
 Estimated Generalization Errors\\
 For Model Selection Metrics\\
 By Response Variable, Predictors, and Training Periods\\
-For a One Percent Sample of Sales in 2003 and Later
+For Sales in 2003 and Later
 }
 \label{figure:merit1Vertical}
 \end{figure}
@@ -192,6 +176,13 @@ the metrics. Our interest is to determine which model is best. For the
 first two metrics, \code{meanRMSE} and \code{medRMSE} we seek the lowest
 error. For the third, \code{fctWI10}, we seek the highest accuracy.
 
+You will notice very high value in Panel B, column 2. These are the
+estimated errors using the \code{meanRMSE} metric for the log-level form
+of the linear model. What is happening is that a few houses are very
+badly predicted. These houses tend to have unusually large values for
+some features, causing the $\log(price)$ estimate to be very much higher
+than the actual transaction price.
+
 \begin{figure}[ht]
 \begin{tabular}{ | l | r | r | r| }
  \hline
@@ -199,10 +190,10 @@ error. For the third, \code{fctWI10}, we seek the highest accuracy.
  \hline
  form        & \code{meanRMSE} & \code{medRMSE} & \code{fctWI10}\\
  \hline
- level-level & 90 &  90 & 120 \\
- level-log   & 90 & 150 & 270 \\
- log-level   & 30 &  60 &  30 \\
- log-log     & 30 &  30 &  30 \\
+ level-level & 180 & 90 &  90 \\
+ level-log   & 120 & 90 & 120 \\
+ log-level   & 195 & 30 &  30 \\
+ log-log     & 120 & 30 &  30 \\
  \hline
 \end{tabular}
 \caption{
@@ -217,34 +208,19 @@ Summarizing Figure \ref{figure:merit1Vertical}
 We seek to answer the question: which model is selected as best by each
 metric? Figure \ref{figure:Analysis} contains these results. 
 
-%
-%
-%The results are depicted in Figure \ref{figure:merit1}.
-%
-%To read the table, consider the first three rows. All of these are for
-%the level-level form of the linear model: we predict price using the
-%natural units for each feature. The three rows show the value of a model
-%selection metric for 30, 60, and more days using the three metrics
-%studied. The columns with headings 30 up to 360 are the number of days
-%in the training period for each query.  An asterisk precedes the value
-%that optimizes a row: it marks the best number of days.
-%
 There are several observations to make:
 
 \begin{itemize}
 
-\item Only for the log-log form do the three metrics pick the same
-number of training days as best.
+\item In no cases, do all three metrics pick the same number of training
+days.
 
-\item When the metrics pick different training periods, they usually pick
-similar training periods, but sometimes pick very different training
-periods. The biggest difference in training periods is for the level-log
-form.
+\item The metrics \code{medRMSE} and \code{fctWI10} closely agree on the
+best number of training days. They agree on all model forms except for
+the log-log form, and there they are only 30 days apart.
 
-\item It's often true that the metrics \code{meanRMSE} and
-\code{medRMSE} select a similar number of training days. The number of
-training days is either identical or differs by, at most, 60 days. These
-metrics have similar choices for models selected.
+\item The metric \code{meanRMSE} usually picks more training days as
+optimal than do the other metrics.
 
 \item It's always true that the expected loss for the metric
 \code{meanRMSE} greatly exceeds that for \code{medRMSE}. This is because
@@ -253,11 +229,8 @@ the mean error can exceed the median error.
 
 \end{itemize}
 
-We conclude that choice of metric does influence choice of the training
-period, particularly if one will use a level-log model. For the
-log-level model, which is most popular in the literature, the choice of
-metric to select a model is not very determining: one should pick the
-metric based on some other criteria.
+We conclude that the choice of metric does influence the choice of the
+best training period to use.
 
 Going forward, we focus on the \code{medRMSE} metric, judging that it
 more intuitively sizes average errors than does \code{meanRMSE} (because
@@ -347,50 +320,42 @@ to reduce the computational burden.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.cv.form.ndays.01}}
+\verbatiminput{\Sexpr{path.8.txt}}
 \caption{
 Estimated Generalization Errors\\
 By Response Variable, Predictors, and Training Period\\
 Using Census Features and Not Tax Assessor Features\\
-For A One Percent Sample of Sales in 2003 or Later
+For Sales in 2003 and Later
 }
 \label{figure:EGEFormNdays01}
 \end{figure}
 
-%\begin{figure}[ht]
-%\tiny
-%%\small
-%%\normalsize
-%\verbatiminput{\Sexpr{path.cv.form.ndays.05}}
-%\caption{Estimated Generalization Errors\\Across Model Forms and Training
-%Periods\\With 5 Percent Sample}
-%\label{figure:EGEFormNdays01}
-%\end{figure}
-
 
 <<FormNdays, include=FALSE>>=
-lowest <- 58496
-highest <- 78212
-1 - (lowest / highest)
+lowest <- 58862
+highest <- 77560
+p <- 1 - (lowest / highest)
+p
+Percent <- function(p) {
+sprintf('%2.0f', p * 100)
+}
 @
 
 Figure \ref{figure:EGEFormNdays01} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
-60$ and is in the fourth column, which holds errors for the log-level
-model. Thus the lowest error occurs when training for 60 days and
+30$ and is in the fourth column, which holds errors for the log-level
+model. Thus the lowest error occurs when training for 30 days and
 predicting $\log(price)$ using the features in their natural units. The
-log-level model (in column four) usually has the lowest error. The only
-exception is for $ndays = 30$, where the log-log model (in column five)
-has a lower error. One way to think about the results is to consider a
-very naive model builder who would build a level-level model and use all
-the data. The model builder would find an error that is the last entry
-in the second column: \$78,212. The best error is \$58,496, which is 25
-percent lower.
+log-level model (in column four) always has the lowest error. One way to
+think about the results is to consider a very naive model builder who
+would build a level-level model and use a year of training data. The
+model builder would find an error that is the last entry in the second
+column: \$\Sexpr{Commas(highest)}.  The best error is
+\$\Sexpr{Commas(lowest)}, which is \Sexpr{Percent(p)} percent lower.
 
-%Figure \ref{figure:EGEFormNdays05} WRITE ME.
 
 In our search for the best linear model, going forward we fix the number
-of training days to 60 and use the log-level form for the model.
+of training days to 30 and use the log-level form for the model.
 
 
 \subsection{Feature selection}

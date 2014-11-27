@@ -490,9 +490,8 @@ $(working)/e-cv-chart_chart6_vertical%txt \
 	Rscript e-cv-chart.R --chart 06
 
 
-$(working)/e-cv-chart_chart7%.txt \
-$(working)/e-cv-chart_chart7_vertical%txt \
-: Chart7.R Table7AHorizontal.R Table7BHorizontal.B Table7Vertical.A
+$(working)/e-cv-chart_chart7.txt \
+: Chart7.R Table7Vertical.R
 	Rscript e-cv-chart.R --chart 07
 
 
@@ -619,17 +618,9 @@ chart8.100percent.R: $(chart8.100.R)
 .PHONY: chart8.100percent.J
 chart8.100percent.J: $(chart8.100.J) 
 
-$(working)/e-cv-chart_chart8%txt \
-$(working)/e-cv-chart_chart8_vertical%txt \
-$(working)/e-cv-chart_chart8_vertical_query20%txt \
-: Chart8.R Table8Horizontal.R Table8Vertical.R
+$(working)/e-cv-chart_chart8.txt: Chart8.R Table8Vertical.R
 	Rscript e-cv-chart.R --chart 08
 
-#$(working)/e-cv-chart_chart8%txt \
-#$(working)/e-cv-chart_chart8_vertical%txt \
-#$(working)/e-cv-chart_chart8_vertical_query20%txt \
-#: Chart8.R Table8Horizontal.R Table8Vertical.R $(chart8.data)
-#	Rscript e-cv-chart.R --chart 08
 
 # CHART 9 DATA At 100% sample
 chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best01_level_30_1_0_0_0.RData
@@ -674,9 +665,9 @@ chart10.100 += $(cvcells)/global_linear_2003on_avm_logprice_pca04_level_30_1_0_0
 PHONY: chart10.100percent
 chart10.100percent: $(chart10.100)
 
-$(working)/e-cv-chart_chart10_1%pdf \
-$(working)/e-cv-chart_chart10_2%pdf \
-$(working)/e-cv-chart_chart10%txt \
+$(working)/e-cv-chart_chart10_1_100%pdf \
+$(working)/e-cv-chart_chart10_2_100%pdf \
+$(working)/e-cv-chart_chart10_100%txt \
 : Chart10.R Chart9And10.R
 	Rscript e-cv-chart.R --chart 10
 
@@ -737,9 +728,11 @@ chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_
 chart14.target30: $(chart14.30)
 
 
-
-$(working)/e-cv-chart_chart14.txt: Chart14.R
+$(working)/e-cv-chart14_vertical_30%txt \
+$(working)/e-cv-chart14_vertical_60%txt \
+: Chart14.R
 	Rscript e-cv-chart.R --chart 14
+
 
 # E-CV-CHART-GENERATED
 
@@ -1242,9 +1235,8 @@ thesis-data-data-selection += $(working)/e-cv-chart_chart6_vertical100.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
 
-thesis-data-best-linear += $(working)/e-cv-chart_chart7_vertical.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical_query20.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart7.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart8.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt

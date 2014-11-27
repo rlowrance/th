@@ -45,10 +45,10 @@ source('RootMeanSquaredErrors.R')
 source('RootMedianSquaredErrors.R')
 source('Table5And6Horizontal.R')
 source('Table5And6Vertical.R')
-source('Table7AHorizontal.R')
-source('Table7BHorizontal.R')
+#source('Table7AHorizontal.R')
+#source('Table7BHorizontal.R')
 source('Table7Vertical.R')
-source('Table8Horizontal.R')
+#source('Table8Horizontal.R')
 source('Table8Vertical.R')
 
 
@@ -96,14 +96,9 @@ Control <- function(default.args) {
              ,path.out.chart.6.vertical.1.txt = paste0(working, out.base, '_chart6_vertical.txt')
              ,path.out.chart.6.vertical.100.txt = paste0(working, out.base, '_chart6_vertical100.txt')
 
-             ,path.out.chart.7.horizontal.txt = paste0(working, out.base, '_chart7.txt')
-             ,path.out.chart.7.vertical.1.txt = paste0(working, out.base, '_chart7_vertical.txt')
-             ,path.out.chart.7.vertical.100.txt = paste0(working, out.base, '_chart7_vertical100.txt')
+             ,path.out.chart.7.txt = paste0(working, out.base, '_chart7.txt')
 
-             ,path.out.chart.8.horizontal.txt = paste0(working, out.base, '_chart8.txt')
-             ,path.out.chart.8.vertical.txt = paste0(working, out.base, '_chart8_vertical.txt')
-             ,path.out.chart.8.vertical.5.txt = paste0(working, out.base, '_chart8_vertical5.txt')
-             ,path.out.chart.8.vertical.100.txt = paste0(working, out.base, '_chart8_vertical100.txt')
+             ,path.out.chart.8.txt = paste0(working, out.base, '_chart8.txt')
              
              ,path.out.chart.9.100.txt = paste0(working, out.base, '_chart9_100.txt')
              ,path.out.chart.9.gg1.100 = paste0(working, out.base, '_chart9_1_100.pdf')
@@ -134,7 +129,6 @@ Control <- function(default.args) {
              ,path.out.chart.13.submarkets.examples.zip5.txt =
              paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
 
-             ,path.out.chart.14.horizontal.60.txt   = paste0(working, out.base, '_chart14.txt')
              ,path.out.chart.14.vertical.30.txt = paste0(working, out.base, '_chart14_vertical_30.txt')
              ,path.out.chart.14.vertical.60.txt = paste0(working, out.base, '_chart14_vertical_60.txt')
 
@@ -206,29 +200,14 @@ MakeCharts <- function(control) {
            }
            ,'07' = {
                chart.7 <- Chart7(control)
-               writeLines( text = chart.7$horizontal
-                          ,con = control$path.out.chart.7.horizontal.txt
-                          )
-               writeLines( text = chart.7$vertical.1
-                          ,con = control$path.out.chart.7.vertical.1.txt
-                          )
-               writeLines( text = chart.7$vertical.100
-                          ,con = control$path.out.chart.7.vertical.100.txt
+               writeLines( text = chart.7$txt
+                          ,con = control$path.out.chart.7.txt
                           )
            }
            ,'08' = {
                chart.8 <- Chart8(control)
-               writeLines( text = chart.8$horizontal
-                          ,con = control$path.out.chart.8.horizontal.txt
-                          )
-               writeLines( text = chart.8$vertical.1
-                          ,con = control$path.out.chart.8.vertical.txt
-                          )
-               writeLines( text = chart.8$vertical.5
-                          ,con = control$path.out.chart.8.vertical.5.txt
-                          )
-               writeLines( text = chart.8$vertical.100
-                          ,con = control$path.out.chart.8.vertical.100.txt
+               writeLines( text = chart.8$txt
+                          ,con = control$path.out.chart.8.txt
                           )
            }
            ,'09' = {
@@ -343,9 +322,9 @@ MakeCharts <- function(control) {
            }
            ,'14' = {
                chart.14 <- Chart14(control)
-               writeLines( text = chart.14$horizontal.60
-                          ,con = control$path.out.chart.14.horizontal.60.txt
-                          )
+#               writeLines( text = chart.14$horizontal.60
+#                          ,con = control$path.out.chart.14.horizontal.60.txt
+#                          )
                writeLines( text = chart.14$vertical.30
                           ,con = control$path.out.chart.14.vertical.30.txt
                           )
@@ -368,7 +347,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='09')
+default.args <- list(chart='14')
 
 control <- Control(default.args)
 
