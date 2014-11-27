@@ -126,9 +126,9 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
     #summary.1 <- Summarize('100')  # do all the work for 1% query sample
     summary.100 <- Summarize('1')  # do all the work for 100% query sample
 
-    result <- list( txt.100 = TextChart(summary.100, '1')    # 100% query sample
-                   ,gg1.100 = GraphChart(summary.100, show.zero.value = TRUE)    # 100% query sample
-                   ,gg2.100 = GraphChart(summary.100, show.zero.value = FALSE)   # 1% query sample
+    result <- list( txt = TextChart(summary.100, '1')                        # 100% query sample
+                   ,gg1 = GraphChart(summary.100, show.zero.value = TRUE)    # 100% query sample
+                   ,gg2 = GraphChart(summary.100, show.zero.value = FALSE)   # 100% query sample
                    )
     result
 }

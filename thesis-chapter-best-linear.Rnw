@@ -604,7 +604,7 @@ Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Feature Sets Selected by the PCA Analsysis
 }
 \label{figure:MedianGraph102}
-\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg1}}
+\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
 \end{figure}
 
 
@@ -612,10 +612,10 @@ In Figure \ref{figure:MedianTable10} we see the estimated generalization
 error from using the median household income, land square footage, and
 so on up to the 4 features identified as important in the PCA work. The
 same data are in Figure \ref{figure:MedianGraph102} which shows the 95
-percent confidence intervals graphically. If you prefer sparsity, you
-might use the first 3 features. If you prefer the lowest error, you
-might choose the first 4 features.
-
+percent confidence intervals graphically. The lowest estimated error is
+from using the first 3 features. Adding basement-square-feet slightly
+increases the estimated error but yields a smaller 95 percent confidence
+interval, so some may prefer keeping the fourth PCA feature.
 
 \subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
 
