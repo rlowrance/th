@@ -697,7 +697,7 @@ chart12.100.target: $(chart12.100)
 
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
-$(working)/e-cv-chart_chart12_3%txt \
+$(working)/e-cv-chart_chart12%txt \
 : Chart12.R
 	Rscript e-cv-chart.R --chart 12
 
@@ -1288,7 +1288,7 @@ thesis-data-best-linear += $(working)/e-cv-chart_chart11_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart11_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12_1.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart12_3.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart12.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart13_indicators.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_summary.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart14_1.txt

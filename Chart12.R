@@ -21,10 +21,16 @@ Chart12 <- function(my.control) {
                         ,ntree = fixed$ntree
                         ,mtry = fixed$mtry
                         )
-        load(path.in)
-        stopifnot(length(cv.result) == 1)
-        a.cv.result <- cv.result[[1]]
-        a.cv.result
+        if (file.exists(path.in)) {
+            load(path.in)
+            stopifnot(length(cv.result) == 1)
+            a.cv.result <- cv.result[[1]]
+            a.cv.result
+        } else {
+            cat('missing file: ', path.in, '\n')
+            a.cv.result <- NA
+            a.cv.result
+        }
     }
     Summarize <- function() {
         # return list $predictors.name $median.value $ci.lowest $ci.highest
@@ -38,12 +44,19 @@ Chart12 <- function(my.control) {
         for (index in 1:n) {
             lambda <- possible.lambda.values[[index]]
             a.cv.result <- ACvResult(lambda)
-            rmse.values <- RootMedianSquaredErrors(a.cv.result)
-            ci <- CIMedian(rmse.values)
-            median.value[[index]] <- median(rmse.values)
-            ci.lowest[[index]] <- ci$lowest
-            ci.highest[[index]] <- ci$highest
-            lambda.value.name[[index]] <- lambda
+            if (length(a.cv.result) == 10) {
+                rmse.values <- RootMedianSquaredErrors(a.cv.result)
+                ci <- CIMedian(rmse.values)
+                median.value[[index]] <- median(rmse.values)
+                ci.lowest[[index]] <- ci$lowest
+                ci.highest[[index]] <- ci$highest
+                lambda.value.name[[index]] <- lambda
+            } else {
+                median.value[[index]] <- NA
+                ci.lowest[[index]] <- NA
+                ci.highest[[index]] <- NA
+                lambda.value.name[[index]] <- NA
+            }
         }
         result <- list( lambda.value.name = as.character(as.numeric(lambda.value.name) / 100)
                        ,median.value  = median.value

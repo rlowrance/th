@@ -113,7 +113,7 @@ Control <- function(default.args) {
              
              ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
              ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
-             ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
+             ,path.out.chart.12.txt = paste0(working, out.base, '_chart12.txt')
             
              ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
              ,path.out.chart.13.submarkets.summary.txt = 
@@ -348,7 +348,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='10')
+default.args <- list(chart='12')
 
 control <- Control(default.args)
 
