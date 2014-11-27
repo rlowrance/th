@@ -114,7 +114,6 @@ Main <- function(control, transaction.data.all.years) {
     is.ok.date <- transaction.data.all.years$saleDate >= first.date
     transaction.data <- transaction.data.all.years[is.ok.date, ]
 
-    browser()
     ordered.features <- LCVAnalysis(control, transaction.data)
     writeLines( text = ordered.features
                ,con = control$path.out.txt
