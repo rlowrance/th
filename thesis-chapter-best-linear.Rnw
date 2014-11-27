@@ -26,7 +26,8 @@ path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators.txt')
 path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary.txt')
 path.13.examples   <- paste0(working
                              ,'e-cv-chart_chart13_submarkets_examples_property_city.txt')
-path.14.rf <- paste0(working, 'e-cv-chart_chart14b.txt')
+path.14.rf.1 <- paste0(working, 'e-cv-chart_chart14_1.txt')
+path.14.rf.2 <- paste0(working, 'e-cv-chart_chart14_2.txt')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -399,8 +400,8 @@ features under the L1 regularizer.
 Table of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For 24 Sets of Features\\
 For Model Form log-level\\
-For 60 Day Training Period\\
-For A One Percent Sample of Sales in 2003 and Later
+For 30 Day Training Period\\
+For Sales in 2003 and Later
 }
 \label{figure:MedianTable}
 \end{figure}
@@ -414,13 +415,13 @@ income and average commute time) are second and third in importance.
 
 % including a pdf
 \begin{figure}[h]
-\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg1}}
+\centering\includegraphics[scale=.4]{\Sexpr{path.9.gg2}}
 \caption{
 Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For 24 Sets of Features\\
 For Model Form log-level\\
-For 60 Day Training Period\\
-For A One Percent Sample of Sales in 2003 and Later
+For 30 Day Training Period\\
+For Sales in 2003 and Later
 }
 \label{figure:MedianGraph1}
 \end{figure}
@@ -428,21 +429,15 @@ For A One Percent Sample of Sales in 2003 and Later
 The same data are shown graphically in Figure \ref{figure:MedianGraph1},
 which displays the estimated generalization error from including the
 first $n$ features, together with a 95 percent confidence interval. One
-sees that the lowest estimated error is when using the first 20
-features, from living-area to census-tract-has-park. The estimated
-errors then tend to increase and the placement of the confidence
-intervals does not compel one to consider going beyond the first 20
-features. 
+sees that the lowest estimated error is when using the first 15
+features, from living-area to zip5-has-school. The estimated errors then
+tend to increase and the placement of the confidence intervals does not
+compel one to consider going beyond the first 15 features. 
 
-If one seeks parsimony, one could consider using the first eight
-features (through zip5-has-industry), after which there is an increase
-in estimated generalization error before a subsequent decline. Another
-possible feature set is the first 20 features (through
-census-tract-has-park), as that feature set has the lowest estimated
-error. Another choice would be 19 features (through
-factor-is-new-construction) as though it would have a slightly higher
-median estimated generalization error than for the 20-feature choice,
-the 95 percent confidence interval is smaller.
+If one seeks parsimony, one could consider using the first six
+features (through fraction-owner-occupied), after which there is an increase
+in estimated generalization error before a subsequent decline to the
+minimum at 15 features.
 
 % non-rotated txt chart
 \begin{figure}[ht]
@@ -925,17 +920,35 @@ one giving the best greedy performance. We test 1, 2, 3, and 4 features.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.14.rf}}
+\verbatiminput{\Sexpr{path.14.rf.1}}
 \caption{
 Estimated Generalization Errors\\
 For Random Forests\\
 For Selected Hyperparameters \code{ntree} and \code{mtry}\\
-For All Features and the Best 20 Features from the Linear Models
+For All Features Except Assessment Features and the Best 15 Features from the Linear Models\\
+Trained for 30 Days
 }
-\label{figure:Submarkets}
+\label{figure:RF1}
 \end{figure}
 
-Figure \ref{figure:Submarkets} shows the results of this experiment.
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.14.rf.2}}
+\caption{
+Estimated Generalization Errors\\
+For Random Forests\\
+For Selected Hyperparameters \code{ntree} and \code{mtry}\\
+For All Features Except Assessment Features\\
+Trained for 60 Days
+}
+\label{figure:RF2}
+\end{figure}
+
+TODO: REWRITE FROM HERE ON.
+
+Figure \ref{figure:RF1} shows the results of this experiment.
 In Panel A and B, increasing \code{mtry} always decreases the error, and
 increasing \code{ntree} usually decreases the error.  We conclude that
 there is some tuning to be done for the hyperparameters.
@@ -1022,5 +1035,5 @@ be determined. Finally, the best model form for random forests is not
 necessarily the log-level form tested.
 
 
-
+Figure \ref{figure:RF2} SHOWS.
 

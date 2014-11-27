@@ -343,7 +343,7 @@ Chart.14.FileDependencies <- function(control) {
     result <- NULL
     # generate in order so that the longest to run are specified first
     # that's because the makefile runs the jobs in parallel, first to last
-    for (predictorsName in c('alwaysNoAssessment', 'best20')) {
+    for (predictorsName in c('alwaysNoAssessment', 'best15')) {
         for (ntree in c('1000', '300', '100', '1')) {
             for (mtry in c('4', '3', '2', '1')) {
                 for (ndays in c('30', '60', '90')) {

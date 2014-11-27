@@ -8,12 +8,34 @@ Chart14 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart14')
     Path <- cv.cell$Path
 
-    AppendHeader <- function(report, ndays) {
-        report$Append('Comparison of Estimated Generalization Errors')
-        report$Append('From Random Forests')
-        report$Append(' ')
-        HeadersFixed(fixed, report)
-        report$Append(paste0('Number of training days: ', ndays))
+    AppendHeader <- function(lines, ndays) {
+        lines$Append('Comparison of Estimated Generalization Errors')
+        lines$Append('From Random Forests')
+        HeadersFixed(fixed, lines)
+        lines$Append(paste0('Number of training days: ', ndays))
+    }
+    Table <- function(lines) {
+        # return named list 
+        # $Header() : write header to lines
+        # $Detail(ntree, mtry1, mtry2, mtry3, mtry4): write detail line to lines
+        format.header <- '%8s %8s %8s %8s %8s'
+        format.detail <- '%8s %8.0f %8.0f %8.0f %8.0f'
+        Header <- function() {
+            # write header
+            line <- sprintf(format.header, ' ', 'mtry', ' ', ' ', ' ')
+            lines$Append(line)
+
+            line <- sprintf(format.header, 'ntree', '1', '2', '3', '4')
+            lines$Append(line)
+        }
+        Detail <- function(ntree, mtry1, mtry2, mtry3, mtry4) {
+            # write detail line
+            line <- sprintf(format.detail, ntree, mtry1, mtry2, mtry3, mtry4)
+            lines$Append(line)
+        }
+        list( Header = Header
+             ,Detail = Detail
+             )
     }
     MyPath <- function(predictorsName, ntree, mtry, ndays) {
         path <- Path( scope          = fixed$scope
@@ -31,149 +53,71 @@ Chart14 <- function(my.control) {
                      )
         path
     }
-    ReportHorizontal <- function(ndays) {
-        # return Lines() object
-
-        Table <- function(lines) {
-            format.header <- '%12s %12s %12s %6s %6s %6s'
-            format.detail <- '%12s %12s %12s %6.0f %6.0f %6.0f'
-            format.notfound <- '%12s %12s %12s %s'
-
-            Header <- function(predictorsName, ntree, mtry, median, cilow, cihi) {
-                line <- sprintf(format.header, predictorsName, ntree, mtry, median, cilow, cihi)
-                lines$Append(line)
-            }
-            Detail <- function(predictorsName, ntree, mtry, median, cilow, cihi) {
-                line <- sprintf(format.detail, predictorsName, ntree, mtry, median, cilow, cihi)
-                lines$Append(line)
-            }
-            NotFound <- function(predictorsName, ntree, mtry, message) {
-                line <- sprintf(format.notfound, predictorsName, ntree, mtry, message)
-                lines$Append(line)
-            }
-            Blank <- function() {
-                lines$Append(' ')
-            }
-            list( Header   = Header
-                 ,Detail   = Detail
-                 ,NotFound = NotFound
-                 ,Blank    = Blank
-                 )
-        }
-        report <- Lines()
-        AppendHeader(report)
-
-        # create table
-        table <- Table(report)
-        table$Header('predictors', ' ',     ' ',    ' ',        ' ',       ' ')
-        table$Header('name',       'ntree', 'mtry', 'median' , 'ci95%.lo', 'ci95%.hi')
-        table$Blank()
-
-        DetailLine <- function(table, predictorsName, ntree, mtry) {
-            path <- MyPath( predictorsName = predictorsName
-                           ,ntree = ntree
-                           ,mtry = mtry
-                           ,ndays = ndays
-                           )
-            if (!file.exists(path)) {
-                table$NotFound(predictorsName, ntree, mtry, 'file not found')
-                return()
-            }
-
-            # retrieve cross validation results from cv-cell file
+    Value <- function(predictorsName, ntree, mtry, ndays) {
+        # return median error across folds
+        path <- MyPath( predictorsName = predictorsName
+                       ,ntree = ntree
+                       ,mtry = mtry
+                       ,ndays = ndays
+                       )
+        if (file.exists(path)) {
             loaded <- load(path)
             stopifnot(length(cv.result) == 1)
             a.cv.result <- cv.result[[1]]
 
             rmse.values <- RootMedianSquaredErrors(a.cv.result)
-            ci <- CIMedian(rmse.values)
-            table$Detail(predictorsName, ntree, mtry, median(rmse.values), ci$lowest, ci$highest)
+            result <- median(rmse.values)
+            result
+        } else {
+            cat('missing file: ', path, '\n')
+            result <- NA
+            result
         }
-
-        for (predictorsName in c('always', 'best20')) {
-            for (ntree in c('1', '100', '300', '1000')) {
-                for (mtry in c('1', '2', '3', '4')) {
-                    DetailLine(table, predictorsName, ntree, mtry)
-                }
-            }
-        }
-        report
     }
-    ReportVertical <- function(ndays, panels) {
-        # return Lines() object with panels
-
-        Value <- function(predictorsName, ntree, mtry) {
-            # return median error across folds
-            path <- MyPath( predictorsName = predictorsName
-                           ,ntree = ntree
-                           ,mtry = mtry
-                           ,ndays = ndays
-                           )
-            if (file.exists(path)) {
-                loaded <- load(path)
-                stopifnot(length(cv.result) == 1)
-                a.cv.result <- cv.result[[1]]
-
-                rmse.values <- RootMedianSquaredErrors(a.cv.result)
-                result <- median(rmse.values)
-                result
-            } else {
-                cat('missing file: ', path, '\n')
-                result <- NA
-                result
-            }
+    AppendPanel <- function(lines, tag, description, predictorsName, ndays) {
+        # append table lines to lines, return nothing
+        lines$Append(' ')
+        lines$Append(sprintf('Panel %s: %s', tag, description))
+        lines$Append(' ')
+        table <- Table(lines)
+        table$Header()
+        for (ntree in c('1', '100', '300', '1000')) {
+            table$Detail( ntree = ntree
+                         ,mtry1 = Value(predictorsName, ntree, '1', ndays)
+                         ,mtry2 = Value(predictorsName, ntree, '2', ndays)
+                         ,mtry3 = Value(predictorsName, ntree, '3', ndays)
+                         ,mtry4 = Value(predictorsName, ntree, '4', ndays)
+                         )
         }
-        Table <- function(lines) {
-            # return named list 
-            # $Header() : write header to lines
-            # $Detail(ntree, mtry1, mtry2, mtry3, mtry4): write detail line to lines
-            format.header <- '%8s %8s %8s %8s %8s'
-            format.detail <- '%8s %8.0f %8.0f %8.0f %8.0f'
-            Header <- function() {
-                # write header
-                line <- sprintf(format.header, ' ', 'mtry', ' ', ' ', ' ')
-                lines$Append(line)
-                
-                line <- sprintf(format.header, 'ntree', '1', '2', '3', '4')
-                lines$Append(line)
-            }
-            Detail <- function(ntree, mtry1, mtry2, mtry3, mtry4) {
-                # write detail line
-                line <- sprintf(format.detail, ntree, mtry1, mtry2, mtry3, mtry4)
-                lines$Append(line)
-            }
-            list( Header = Header
-                 ,Detail = Detail
-                 )
-        }
-        Panel <- function(report, tag, description, predictorsName) {
-            # append table lines to report, return nothing
-            report$Append(' ')
-            report$Append(sprintf('Panel %s: %s', tag, description))
-            report$Append(' ')
-            table <- Table(report)
-            table$Header()
-            for (ntree in c('1', '100', '300', '1000')) {
-                table$Detail( ntree = ntree
-                             ,mtry1 = Value(predictorsName, ntree, '1')
-                             ,mtry2 = Value(predictorsName, ntree, '2')
-                             ,mtry3 = Value(predictorsName, ntree, '3')
-                             ,mtry4 = Value(predictorsName, ntree, '4')
-                             )
-            }
-        }
-        
-        report <- Lines()
-        AppendHeader(report, ndays)
-        Panel(report, 'A', 'using the best 20 predictors', 'best20')
-        Panel(report, 'B', 'using all the predictors except assessment', 'alwaysNoAssessment')
-        report
     }
 
+    Report1Panel <- function(ndays, msg, predictorsName) {
+        lines <- Lines()
+        AppendHeader(lines, ndays)
+        AppendPanel(lines, 'A', msg, predictorsName, ndays)
+        lines
+    }
+    Report2Panels <- function(ndays, msg.1, predictorsName.1, msg.2, predictorsName.2) {
+        lines <- Lines()
+        AppendHeader(lines, ndays)
+        AppendPanel(lines, 'A', msg.1, predictorsName.1, ndays)
+        AppendPanel(lines, 'B', msg.2, predictorsName.2, ndays)
+        lines
+    }
 
+    report.2.30 <- Report2Panels( ndays = '30'
+                                 ,msg.1 = 'using the best 15 predictors'
+                                 ,predictorsName.1 = 'best15'
+                                 ,msg.2 = 'using all predictors except assessment'
+                                 ,predictorsName.2 = 'alwaysNoAssessment'
+                                 )
+    report.1.60 <- Report1Panel( ndays = '60'
+                                ,msg = 'using all predictors except assessment'
+                                ,predictorsName = 'alwaysNoAssessment'
+                                )
 
-    result <- list( vertical.30   = ReportVertical('30')$Get()    # vertical on 30 days of data
-                   ,vertical.60   = ReportVertical('60')$Get()    # vertical  on 60 days of data
+    result <- list( panels.2.30 = report.2.30$Get()
+                   ,panels.1.60 = report.1.60$Get()
                    )
     result
 }
