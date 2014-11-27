@@ -50,43 +50,6 @@ Control <- function(default.args) {
                     )
     control
 }
-EvaluateOLD <- function(prediction, actual) {
-    # return list of evaluations
-    # ARGS
-    # prediction: vector of predictions or NA
-    # actual    : vector of actual values
-    #cat('start Evaluate\n'); browser()
-
-    # most evaluations compare only where predictions are available
-    is.prediction <- !is.na(prediction)
-    num.predictions <- sum(is.prediction)
-    price <- actual[is.prediction]
-    coverage <- length(price) / length(actual)
-
-    error <- prediction[is.prediction] - price
-    error2 <- error * error
-    root.mean.squared.error <- sqrt(mean(error2))
-    root.median.squared.error <- sqrt(median(error2))
-    abs.relative.error <- abs(error / price)
-    mean.price <- mean(price)
-    median.price <- median(price)
-
-    Fraction <- function(max.abs.relative.error) {
-        is.within.x.percent <- abs.relative.error <= max.abs.relative.error
-        fraction.within.x.percent <- sum(is.within.x.percent) / num.predictions
-    }
-        
-    result <- list( rootMeanSquaredError = root.mean.squared.error
-                   ,rootMedianSquaredError = root.median.squared.error
-                   ,coverage = coverage
-                   ,fraction.within.10.percent = Fraction(.10)
-                   ,fraction.within.20.percent = Fraction(.20)
-                   ,fraction.within.30.percent = Fraction(.30)
-                   ,mean.price = mean.price
-                   ,median.price = median.price
-                   )
-    result
-}
 MakeX <- function(data, control) {
     # return matrix containing just the predictor columns
 
@@ -117,59 +80,12 @@ MakeY <- function(data, control) {
     result <- data[, control$response]
     result
 }
-ListRemoveNullsOLD <-function(lst) {
-    # return lst with NULL elements removed
-    # ref: R Cookbook, 5.12 Removing NULL elements from a list
-    is.null.element <- sapply(lst, is.null)
-    lst[is.null.element] <- NULL
-    lst
-}
 ListRemoveNulls <-function(lst) {
     # return lst with NULL elements removed
     # ref: R Cookbook, 5.12 Removing NULL elements from a list
     is.null.element <- sapply(lst, is.null)
     lst[is.null.element] <- NULL
     lst
-}
-EvaluateFeaturesOLD <- function(features, data, is.testing, is.training, control) {
-    # reduce to call to ModelLinearLocal followed by call to evaluate preditions
-    # determine which transactions will be the query transactions
-    #cat('EvaluateFeatures\n'); browser()
-
-    data.training <- data[is.training,]
-    InTraining <- function(saleDate) {
-        # return indicated of data.training transactions within num.training.days of saleDate
-        last.transaction.date <- saleDate - 1
-        first.transaction.date <- last.transaction.date - control$num.training.days
-        in.training <- 
-            data.training$saleDate <= last.transaction.date &
-            data.training$saleDate >= first.transaction.date
-        in.training
-    }
-
-    # determine query transactions
-    data.testing <- data[is.testing,]
-    num.test.transactions <- round(nrow(data.testing) * control$query.fraction)
-    which.test <- sample.int( n = nrow(data.testing)
-                             ,size = num.test.transactions
-                             ,replace = FALSE)
-    queries <- data.testing[which.test,]
-    Printf('will sample %d of %d test transactions\n', nrow(queries), nrow(data.testing))
-
-    mll <- ModelLinearLocal( InTraining = InTraining
-                            ,queries = queries
-                            ,data.training = data.training
-                            ,formula = Formula( response = control$response
-                                               ,predictors = features
-                                               )
-                            )
-    predictions <- exp(mll$predictions)    # possible NA
-    num.training <- mll$num.training       # probably not used
-    
-    actuals <- queries$price
-    evaluate <- Evaluate( prediction = predictions
-                         ,actual = actuals)
-    evaluate
 }
 LCVAnalysis <- function(control, transaction.data) {
     # return list of features ordered in terms of their importance
