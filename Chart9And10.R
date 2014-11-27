@@ -96,14 +96,6 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
             stopifnot(fixed$predictorsForm == 'level')
 
             HeadersFixed(fixed, lines)
-            lines$Append(paste0( 'Percent of queries in each fold there were estimated: '
-                                ,switch( query
-                                        ,'100' = '1'
-                                        ,'1'   = '100'
-                                        ,stop(paste0('bad query ', as.character(query)))
-                                        )
-                                )
-            )
         }
         Body <- function(lines) {
             table <- Table9(lines)
