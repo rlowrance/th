@@ -8,11 +8,12 @@ Chart14 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart14')
     Path <- cv.cell$Path
 
-    AppendHeader <- function(report) {
+    AppendHeader <- function(report, ndays) {
         report$Append('Comparison of Estimated Generalization Errors')
         report$Append('From Random Forests')
         report$Append(' ')
         HeadersFixed(fixed, report)
+        report$Append(paste0('Number of training days: ', ndays))
     }
     MyPath <- function(predictorsName, ntree, mtry, ndays) {
         path <- Path( scope          = fixed$scope
@@ -108,13 +109,19 @@ Chart14 <- function(my.control) {
                            ,mtry = mtry
                            ,ndays = ndays
                            )
-            loaded <- load(path)
-            stopifnot(length(cv.result) == 1)
-            a.cv.result <- cv.result[[1]]
+            if (file.exists(path)) {
+                loaded <- load(path)
+                stopifnot(length(cv.result) == 1)
+                a.cv.result <- cv.result[[1]]
 
-            rmse.values <- RootMedianSquaredErrors(a.cv.result)
-            result <- median(rmse.values)
-            result
+                rmse.values <- RootMedianSquaredErrors(a.cv.result)
+                result <- median(rmse.values)
+                result
+            } else {
+                cat('missing file: ', path, '\n')
+                result <- NA
+                result
+            }
         }
         Table <- function(lines) {
             # return named list 
@@ -157,22 +164,15 @@ Chart14 <- function(my.control) {
         }
         
         report <- Lines()
-        AppendHeader(report)
+        AppendHeader(report, ndays)
         Panel(report, 'A', 'using the best 20 predictors', 'best20')
         Panel(report, 'B', 'using all the predictors except assessment', 'alwaysNoAssessment')
         report
     }
 
 
-    report.a <- ReportA()$Get()
-    report.b <- ReportB()$Get()
-    if (verbose) {
-        print(report.a)
-        print(report.b)
-    }
 
-    result <- list( horizontal.60 = ReportHorizontal('60')$Get()  # horizontal on 60 days of data
-                   ,vertical.30   = ReportVertical('30')$Get()    # vertical on 30 days of data
+    result <- list( vertical.30   = ReportVertical('30')$Get()    # vertical on 30 days of data
                    ,vertical.60   = ReportVertical('60')$Get()    # vertical  on 60 days of data
                    )
     result
