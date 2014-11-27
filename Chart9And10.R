@@ -94,8 +94,6 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
             stopifnot(fixed$model == 'linear')
             stopifnot(fixed$timePeriod == '2003on')
             stopifnot(fixed$predictorsForm == 'level')
-            stopifnot(fixed$ndays == '60')
-            stopifnot(fixed$query == '100')
 
             HeadersFixed(fixed, lines)
             lines$Append(paste0( 'Percent of queries in each fold there were estimated: '
@@ -131,14 +129,13 @@ Chart9And10 <- function(my.control, feature.names, predictors.names) {
         result
     }
 
-    summary.1 <- Summarize('100')  # do all the work for 1% query sample
+    # Produce charts only for the 100% sample
+
+    #summary.1 <- Summarize('100')  # do all the work for 1% query sample
     summary.100 <- Summarize('1')  # do all the work for 100% query sample
 
-    result <- list( txt.1   = TextChart(summary.1, '100')  # 1% query sample
-                   ,txt.100 = TextChart(summary.100, '1')    # 100% query sample
-                   ,gg1.1   = GraphChart(summary.1, show.zero.value = TRUE)      # 1% query sample
+    result <- list( txt.100 = TextChart(summary.100, '1')    # 100% query sample
                    ,gg1.100 = GraphChart(summary.100, show.zero.value = TRUE)    # 100% query sample
-                   ,gg2.1   = GraphChart(summary.1, show.zero.value = FALSE)     # 1% query sample
                    ,gg2.100 = GraphChart(summary.100, show.zero.value = FALSE)   # 1% query sample
                    )
     result

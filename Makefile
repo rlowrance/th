@@ -660,9 +660,9 @@ chart9.100 += $(cvcells)/global_linear_2003on_avm_logprice_best24_level_30_1_0_0
 PHONY: chart9.100percent
 chart9.100percent: $(chart9.100)
 
-$(working)/e-cv-chart_chart9_1%pdf \
-$(working)/e-cv-chart_chart9_2%pdf \
-$(working)/e-cv-chart_chart9%txt \
+$(working)/e-cv-chart_chart9_1_100%pdf \
+$(working)/e-cv-chart_chart9_2_100%pdf \
+$(working)/e-cv-chart_chart9_100%txt \
 : Chart9.R Chart9And10.R
 	Rscript e-cv-chart.R --chart 09
 
