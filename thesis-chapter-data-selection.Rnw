@@ -4,10 +4,9 @@
 
 <<DataSelection>>=
 working <- control$working
-#path.cv.assessment <- paste0(working, 'e-cv-chart_chart5.txt')
 path.cv.assessment.vertical <- paste0(working, 'e-cv-chart_chart5_vertical.txt')
-path.cv.census <- paste0(working, 'e-cv-chart_chart6.txt')
-path.cv.census.vertical <- paste0(working, 'e-cv-chart_chart6_vertical.txt')
+#path.cv.census <- paste0(working, 'e-cv-chart_chart6.txt')
+path.cv.census.vertical <- paste0(working, 'e-cv-chart_chart6_vertical100.txt')
 path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
 path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
 @
@@ -376,21 +375,6 @@ errors are lower if we do not use the tax assessment-derived features.
 This is true for every column pair. Using the tax assessment always
 leads to higher estimated errors.
 
-%Figure \ref{figure:CvAssessment} contains the result from the cross
-%validation study. Column one tells whether the model predicted price or
-%the logarithm of price.  Column two tells whether the size features were
-%transformed into the log domain (``log'') or left in their natural units
-%(``level''). Column three tells whether the 2008 assessment features
-%were used or not. The remaining columns vary the number of days in the
-%training period from 30 up to 360 days. Each data cell contains the
-%median of the RMSE values from 10-fold cross validation. Here RMSE means
-%the square root of the median square errors.
-
-%The models used in the cross validation study are local to each possible
-%query point. This means that a separate model is built and trained for
-%every query point. The implementation optimizes the computation by
-%memoising the fitting process based on the sale date. Thus at most one
-%model is fit for every sale date.
 
 % including a pdf
 \begin{figure}[h]
