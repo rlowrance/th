@@ -5,7 +5,6 @@
 <<DataSelection>>=
 working <- control$working
 path.cv.assessment.vertical <- paste0(working, 'e-cv-chart_chart5_vertical.txt')
-#path.cv.census <- paste0(working, 'e-cv-chart_chart6.txt')
 path.cv.census.vertical <- paste0(working, 'e-cv-chart_chart6_vertical100.txt')
 path.verify <- paste0(working,'e-verify-assessment-chart_chart1.pdf')
 path.price.chart2 <- paste0(working, 'e-price-chart_chart2.pdf')
