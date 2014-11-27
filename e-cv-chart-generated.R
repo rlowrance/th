@@ -343,23 +343,25 @@ Chart.14.FileDependencies <- function(control) {
     result <- NULL
     # generate in order so that the longest to run are specified first
     # that's because the makefile runs the jobs in parallel, first to last
-    for (predictorsName in c('always', 'best20')) {
+    for (predictorsName in c('alwaysNoAssessment', 'best20')) {
         for (ntree in c('1000', '300', '100', '1')) {
             for (mtry in c('4', '3', '2', '1')) {
-                element <-list( scope = fixed$scope
-                               ,model = fixed$model
-                               ,scenario = fixed$scenario
-                               ,timePeriod = fixed$timePeriod
-                               ,response = fixed$response
-                               ,predictorsName = predictorsName
-                               ,predictorsForm = fixed$predictorsForm
-                               ,ndays = fixed$ndays
-                               ,query = fixed$query
-                               ,lambda = fixed$lambda
-                               ,ntree = ntree
-                               ,mtry = mtry
-                               )
-                result[[length(result) + 1]] <- element
+                for (ndays in c('30', '60', '90')) {
+                    element <-list( scope = fixed$scope
+                                   ,model = fixed$model
+                                   ,scenario = fixed$scenario
+                                   ,timePeriod = fixed$timePeriod
+                                   ,response = fixed$response
+                                   ,predictorsName = predictorsName
+                                   ,predictorsForm = fixed$predictorsForm
+                                   ,ndays = ndays
+                                   ,query = fixed$query
+                                   ,lambda = fixed$lambda
+                                   ,ntree = ntree
+                                   ,mtry = mtry
+                                   )
+                    result[[length(result) + 1]] <- element
+                }
             }
         }
     }
@@ -563,12 +565,18 @@ MakeMakefiles <- function(control) {
           )
         M( target.variable.name = 'e-cv-chart-chart13'
           ,dependency.file.names = Chart.13.FileDependencies(control)
-          ,num.folds = 10
           )
         M( target.variable.name = 'e-cv-chart-chart14'
           ,dependency.file.names = Chart.14.FileDependencies(control)
-          ,num.folds = 10
           )
+#        M( target.variable.name = 'e-cv-chart-chart13'
+#          ,dependency.file.names = Chart.13.FileDependencies(control)
+#          ,num.folds = 10
+#          )
+#        M( target.variable.name = 'e-cv-chart-chart14'
+#          ,dependency.file.names = Chart.14.FileDependencies(control)
+#          ,num.folds = 10
+#          )
     }
 
     GenerateMakefile <- function(all.path.command.nfold, all.targets) {

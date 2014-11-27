@@ -71,8 +71,8 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                            ,response = 'logprice'
                            ,predictorsName = 'best20'
                            ,predictorsForm = 'level'
-                           ,ndays = '60'
-                           ,query = '100'
+                           ,ndays = '30'
+                           ,query = '1'
                            ,ntree = '0'
                            ,mtry = '0'
                            )
@@ -93,7 +93,6 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                            ,timePeriod = '2003on'
                            ,response = 'logprice'
                            ,predictorsForm = 'level'
-                           ,ndays = '60'
                            ,query = '100'
                            ,lambda = '0'
                            )

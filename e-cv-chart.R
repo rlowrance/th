@@ -109,9 +109,9 @@ Control <- function(default.args) {
              ,path.out.chart.9.gg1.100 = paste0(working, out.base, '_chart9_1_100.pdf')
              ,path.out.chart.9.gg2.100 = paste0(working, out.base, '_chart9_2_100.pdf')
 
-             ,path.out.chart.10.txt = paste0(working, out.base, '_chart10.txt')
-             ,path.out.chart.10.gg1 = paste0(working, out.base, '_chart10_1.pdf')
-             ,path.out.chart.10.gg2 = paste0(working, out.base, '_chart10_2.pdf')
+             ,path.out.chart.10.100.txt = paste0(working, out.base, '_chart10_100.txt')
+             ,path.out.chart.10.gg1.100 = paste0(working, out.base, '_chart10_1_100.pdf')
+             ,path.out.chart.10.gg2.100 = paste0(working, out.base, '_chart10_2_100.pdf')
 
              ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
              ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
@@ -134,8 +134,10 @@ Control <- function(default.args) {
              ,path.out.chart.13.submarkets.examples.zip5.txt =
              paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
 
-             ,path.out.chart.14.txt   = paste0(working, out.base, '_chart14.txt')
-             ,path.out.chart.14.b.txt = paste0(working, out.base, '_chart14b.txt')
+             ,path.out.chart.14.horizontal.60.txt   = paste0(working, out.base, '_chart14.txt')
+             ,path.out.chart.14.vertical.30.txt = paste0(working, out.base, '_chart14_vertical_30.txt')
+             ,path.out.chart.14.vertical.60.txt = paste0(working, out.base, '_chart14_vertical_60.txt')
+
 
              ,path.cells = cells
              ,chart.width = 14  # inches
@@ -230,7 +232,6 @@ MakeCharts <- function(control) {
                           )
            }
            ,'09' = {
-               browser()
                # only produce charts for the 100% sample
                chart.9 <- Chart9(control)
                writeLines( text = chart.9$txt.100
@@ -253,22 +254,23 @@ MakeCharts <- function(control) {
            }
            ,'10' = {
                chart.10 <- Chart10(control)
-               writeLines( text = chart.10$txt
-                          ,con = control$path.out.chart.10.txt
+               browser
+               writeLines( text = chart.10$txt.100
+                          ,con = control$path.out.chart.10.100.txt
                           )
 
-               pdf( file = control$path.out.chart.10.gg1
+               pdf( file = control$path.out.chart.10.gg1.100
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.10$gg1)
+               print(chart.10$gg1.100)
                dev.off()
 
-               pdf( file = control$path.out.chart.10.gg2
+               pdf( file = control$path.out.chart.10.gg2.100
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.10$gg2)
+               print(chart.10$gg2.100)
                dev.off()
            }
            ,'11' = {
@@ -341,11 +343,14 @@ MakeCharts <- function(control) {
            }
            ,'14' = {
                chart.14 <- Chart14(control)
-               writeLines( text = chart.14$a
-                          ,con = control$path.out.chart.14.txt
+               writeLines( text = chart.14$horizontal.60
+                          ,con = control$path.out.chart.14.horizontal.60.txt
                           )
-               writeLines( text = chart.14$b
-                          ,con = control$path.out.chart.14.b.txt
+               writeLines( text = chart.14$vertical.30
+                          ,con = control$path.out.chart.14.vertical.30.txt
+                          )
+               writeLines( text = chart.14$vertical.60  
+                          ,con = control$path.out.chart.14.vertical.60.txt
                           )
            }
            ,stop(paste0('bad control$opt$chart value: ', as.character(control$opt$chart)))
@@ -363,7 +368,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='09')
+default.args <- list(chart='14')
 
 control <- Control(default.args)
 

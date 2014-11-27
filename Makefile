@@ -666,6 +666,14 @@ $(working)/e-cv-chart_chart9%txt \
 : Chart9.R Chart9And10.R
 	Rscript e-cv-chart.R --chart 09
 
+chart10.100 += $(cvcells)/global_linear_2003on_avm_logprice_pca01_level_30_1_0_0_0.RData
+chart10.100 += $(cvcells)/global_linear_2003on_avm_logprice_pca02_level_30_1_0_0_0.RData
+chart10.100 += $(cvcells)/global_linear_2003on_avm_logprice_pca03_level_30_1_0_0_0.RData
+chart10.100 += $(cvcells)/global_linear_2003on_avm_logprice_pca04_level_30_1_0_0_0.RData
+
+PHONY: chart10.100percent
+chart10.100percent: $(chart10.100)
+
 $(working)/e-cv-chart_chart10_1%pdf \
 $(working)/e-cv-chart_chart10_2%pdf \
 $(working)/e-cv-chart_chart10%txt \
@@ -677,6 +685,25 @@ $(working)/e-cv-chart_chart11_2%pdf \
 : Chart11.R
 	Rscript e-cv-chart.R --chart 11
 
+# Chart 12 100% sample file dependencies
+# NOTE: best20 may not be the choice for features! CHECK THIS
+
+chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_0_0_0.RData
+chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_100_0_0.RData
+chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_200_0_0.RData
+chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_300_0_0.RData
+chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_400_0_0.RData
+chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_500_0_0.RData
+chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_600_0_0.RData
+chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_700_0_0.RData
+chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_800_0_0.RData
+chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_900_0_0.RData
+chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_1000_0_0.RData
+chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_3000_0_0.RData
+
+.PHONY: chart12.100.A
+chart12.100percent: $(chart12.100.A) $(chart12.100.B) $(chart12.100.C)
+
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
 $(working)/e-cv-chart_chart12_3%txt \
@@ -687,6 +714,29 @@ $(working)/e-cv-chart_chart13_indicators%txt \
 $(working)/e-cv-chart_chart13_submarkets_summary%txt \
 : Chart13.R
 	Rscript e-cv-chart.R --chart 13
+
+# RF 30 days alwaysNoAssessment, 1% sample
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_1.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_2.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_3.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_4.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_1.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_2.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_3.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_4.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_1.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_2.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_3.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_4.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_1.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_2.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_3.RData
+chart14.30 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_4.RData
+
+.PHONY: chart14.target30
+chart14.target30: $(chart14.30)
+
+
 
 $(working)/e-cv-chart_chart14.txt: Chart14.R
 	Rscript e-cv-chart.R --chart 14
@@ -1188,10 +1238,10 @@ thesis-data-data-munging += $(working)/deeds-al-g.RData
 thesis-data-data-munging += $(working)/parcels-sfr.RData
 
 thesis-data-data-selection += $(working)/e-cv-chart_chart5_vertical.txt
-thesis-data-data-selection += $(working)/e-cv-chart_chart6.txt
-thesis-data-data-selection += $(working)/e-price-chart_chart1.pdf
+thesis-data-data-selection += $(working)/e-cv-chart_chart6_vertical100.txt
 thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
 thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
+
 thesis-data-best-linear += $(working)/e-cv-chart_chart7_vertical.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart8_vertical_query20.txt

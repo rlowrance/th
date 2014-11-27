@@ -14,7 +14,7 @@ Chart14 <- function(my.control) {
         report$Append(' ')
         HeadersFixed(fixed, report)
     }
-    MyPath <- function(predictorsName, ntree, mtry) {
+    MyPath <- function(predictorsName, ntree, mtry, ndays) {
         path <- Path( scope          = fixed$scope
                      ,model          = fixed$model
                      ,timePeriod     = fixed$timePeriod
@@ -22,7 +22,7 @@ Chart14 <- function(my.control) {
                      ,response       = fixed$response
                      ,predictorsName = predictorsName
                      ,predictorsForm = fixed$predictorsForm
-                     ,ndays          = fixed$ndays
+                     ,ndays          = ndays
                      ,query          = fixed$query
                      ,lambda         = fixed$lambda
                      ,ntree          = ntree
@@ -30,7 +30,7 @@ Chart14 <- function(my.control) {
                      )
         path
     }
-    ReportA <- function() {
+    ReportHorizontal <- function(ndays) {
         # return Lines() object
 
         Table <- function(lines) {
@@ -72,6 +72,7 @@ Chart14 <- function(my.control) {
             path <- MyPath( predictorsName = predictorsName
                            ,ntree = ntree
                            ,mtry = mtry
+                           ,ndays = ndays
                            )
             if (!file.exists(path)) {
                 table$NotFound(predictorsName, ntree, mtry, 'file not found')
@@ -97,7 +98,7 @@ Chart14 <- function(my.control) {
         }
         report
     }
-    ReportB <- function() {
+    ReportVertical <- function(ndays, panels) {
         # return Lines() object with panels
 
         Value <- function(predictorsName, ntree, mtry) {
@@ -105,6 +106,7 @@ Chart14 <- function(my.control) {
             path <- MyPath( predictorsName = predictorsName
                            ,ntree = ntree
                            ,mtry = mtry
+                           ,ndays = ndays
                            )
             loaded <- load(path)
             stopifnot(length(cv.result) == 1)
@@ -157,7 +159,7 @@ Chart14 <- function(my.control) {
         report <- Lines()
         AppendHeader(report)
         Panel(report, 'A', 'using the best 20 predictors', 'best20')
-        Panel(report, 'B', 'using all the predictors', 'always')
+        Panel(report, 'B', 'using all the predictors except assessment', 'alwaysNoAssessment')
         report
     }
 
@@ -169,8 +171,9 @@ Chart14 <- function(my.control) {
         print(report.b)
     }
 
-    result <- list( a = report.a
-                   ,b = report.b
+    result <- list( horizontal.60 = ReportHorizontal('60')$Get()  # horizontal on 60 days of data
+                   ,vertical.30   = ReportVertical('30')$Get()    # vertical on 30 days of data
+                   ,vertical.60   = ReportVertical('60')$Get()    # vertical  on 60 days of data
                    )
     result
 }
