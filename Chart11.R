@@ -7,12 +7,8 @@ Chart11 <- function(my.control) {
 
     Chart.11.PredictorsNames <- function() {
         # return vector of predictor names used in chart 10
-        result <- c( 'best08'
-                    ,'best19'
-                    ,'best20'
-                    ,'best24'
-                    ,'pca01'
-                    ,'pca02'
+        result <- c( 'best06'
+                    ,'best15'
                     ,'pca03'
                     ,'pca04'
                     )

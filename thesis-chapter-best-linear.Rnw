@@ -629,10 +629,10 @@ For Feature Sets Selected by the LCV and PCA Analyses
 \centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
 \end{figure}
 
-<<Reduce, include=FALSE>>=
-error.best20 <- 57880
-error.pca.4 <- 71832
-1 - (error.best20 / error.pca.4)
+<<Reduce, include=TRUE>>=
+error.lcv.15 <- 58571
+error.pca.3 <- 70369
+p <- 1 - (error.lcv.15 / error.pca.3)
 @
 
 To find the best reduced-feature model, we test all the feature sets
@@ -640,10 +640,11 @@ suggested by the LCV and PCA analyses. These results are in Figure
 \ref{figure:MedianGraph111}, which brings together results previously
 shown. The PCA-derived feature sets all underperform the LCV-derived
 feature sets: extremely small feature sets are challenged in this
-setting. The best feature set is the one with the first 20 features from
-the LCV heuristic. This feature set has an estimated error of \$57,880,
-which is 19 percent lower than the estimated error of \$71,832 that was
-found by PCA.
+setting. The best feature set is the one with the first 15 features from
+the LCV heuristic. This feature set has an estimated error of
+\$\Sexpr{Commas(error.lcv.15)}, which is \Sexpr{Percent(p)} lower that
+the estimated error of \$\Sexpr{Commas(error.pca.3)} that was found by
+PCA.
 
 \subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
