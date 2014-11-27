@@ -110,9 +110,11 @@ Control <- function(default.args) {
 
              ,path.out.chart.11.gg1 = paste0(working, out.base, '_chart11_1.pdf')
              ,path.out.chart.11.gg2 = paste0(working, out.base, '_chart11_2.pdf')
+             
              ,path.out.chart.12.gg1 = paste0(working, out.base, '_chart12_1.pdf')
              ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
              ,path.out.chart.12.txt = paste0(working, out.base, '_chart12_3.txt')
+            
              ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
              ,path.out.chart.13.submarkets.summary.txt = 
              paste0(working, out.base, '_chart13_submarkets_summary.txt')

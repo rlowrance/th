@@ -679,21 +679,21 @@ $(working)/e-cv-chart_chart11_2%pdf \
 # Chart 12 100% sample file dependencies
 # NOTE: best20 may not be the choice for features! CHECK THIS
 
-chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_0_0_0.RData
-chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_100_0_0.RData
-chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_200_0_0.RData
-chart12.100.A += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_300_0_0.RData
-chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_400_0_0.RData
-chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_500_0_0.RData
-chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_600_0_0.RData
-chart12.100.B += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_700_0_0.RData
-chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_800_0_0.RData
-chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_900_0_0.RData
-chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_1000_0_0.RData
-chart12.100.C += $(cvcells)/global_linL2_2003on_avm_logprice_best20_level_30_1_3000_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_0_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_100_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_200_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_300_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_400_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_500_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_600_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_700_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_800_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_900_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_1000_0_0.RData
+chart12.100 += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_3000_0_0.RData
 
-.PHONY: chart12.100.A
-chart12.100percent: $(chart12.100.A) $(chart12.100.B) $(chart12.100.C)
+.PHONY: chart12.100.target
+chart12.100.target: $(chart12.100)
 
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
