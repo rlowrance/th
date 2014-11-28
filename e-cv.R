@@ -952,7 +952,7 @@ clock <- Clock()
 # 90808 13834
 # 91767 13882
 default.args <-
-    list( scope          = 'global'
+    list(#scope          = 'global'
          #scope          = '535000'  # census tract 60 observations
          #scope          = '464100'  # census tract 60 observations
          #scope          = 'LOSANGELES' # property.city 135985 observations
@@ -961,15 +961,16 @@ default.args <-
          #scope          = '91767'      # zip5 13882 observations
          #scope          = '910706'
          #scope          = '91750'
-         ,model          = 'linear'
+          scope          = 93591
+         ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
-         ,predictorsForm = 'log'
-         ,predictorsName = 'alwaysNoAssessment'
-         ,ndays          = '360'
-         ,query          = '20'
-         ,lambda         = '0'
+         ,predictorsForm = 'level'
+         ,predictorsName = 'best15zip'
+         ,ndays          = '30'
+         ,query          = '1'
+         ,lambda         = '5500'
          ,ntree          = '0'
          ,mtry           = '0'
          ,fold           = 'all'   # must be 'all' for general use from the command line

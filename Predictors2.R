@@ -152,17 +152,35 @@ Predictors2 <- function(predictors.name, predictors.form) {
               ,always.house.not.assessment.not.size
               ,always.location.zip
               )
+        } else if (predictors.name == 'best15census' && predictors.form == 'level') {
+            result <- c( best.features[1:15]
+                        ,'census.tract'
+                        )
+            result
+        } else if (predictors.name == 'best15city' && predictors.form == 'level') {
+            result <- c( best.features[1:15]
+                        ,'property.city'
+                        )
+            result
+        } else if (predictors.name == 'best15zip' && predictors.form == 'level') {
+            result <- c( best.features[1:15]
+                        ,'zip5'
+                        )
+            result
         } else if (predictors.name == 'best20census' && predictors.form == 'level') {
+            stop(paste0('should not be using ', predictors.name))
             result <- c( best.features[1:20]
                         ,'census.tract'
                         )
             result
         } else if (predictors.name == 'best20city' && predictors.form == 'level') {
+            stop(paste0('should not be using ', predictors.name))
             result <- c( best.features[1:20]
                         ,'property.city'
                         )
             result
         } else if (predictors.name == 'best20zip' && predictors.form == 'level') {
+            stop(paste0('should not be using ', predictors.name))
             result <- c( best.features[1:20]
                         ,'zip5'
                         )
@@ -191,7 +209,7 @@ Predictors2 <- function(predictors.name, predictors.form) {
 Predictors2Test <- function() {
     # unit test
     # for now, simply test that everything runs to completion
-    verbose <- FALSE
+    verbose <- TRUE
     Test <- function(predictors.name, predictors.form = NULL) {
         value <- Predictors2(predictors.name, predictors.form)
         if (verbose) {
@@ -207,6 +225,7 @@ Predictors2Test <- function() {
             browser()
         }
     }
+    Test('best15zip', 'level')
     Test('price')
     Test('identification')
     Test('always', 'level')
