@@ -111,13 +111,15 @@ Chart14 <- function(my.control) {
                                  ,msg.2 = 'using all predictors except assessment'
                                  ,predictorsName.2 = 'alwaysNoAssessment'
                                  )
-    report.1.60 <- Report1Panel( ndays = '60'
-                                ,msg = 'using all predictors except assessment'
-                                ,predictorsName = 'alwaysNoAssessment'
-                                )
+    report.2.60 <- Report2Panels( ndays = '60'
+                                 ,msg.1 = 'using the best 15 predictors'
+                                 ,predictorsName.1 = 'best15'
+                                 ,msg.2 = 'using all predictors except assessment'
+                                 ,predictorsName.2 = 'alwaysNoAssessment'
+                                 )
 
     result <- list( panels.2.30 = report.2.30$Get()
-                   ,panels.1.60 = report.1.60$Get()
+                   ,panels.1.60 = report.2.60$Get()
                    )
     result
 }
