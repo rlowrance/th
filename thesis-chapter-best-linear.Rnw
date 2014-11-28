@@ -21,7 +21,7 @@ path.11.gg1 <- paste0(working, 'e-cv-chart_chart11_1.pdf')
 path.11.gg2 <- paste0(working, 'e-cv-chart_chart11_2.pdf')
 path.12.gg1 <- paste0(working, 'e-cv-chart_chart12_1.pdf')
 path.12.gg2 <- paste0(working, 'e-cv-chart_chart12_2.pdf')
-path.12.txt <- paste0(working, 'e-cv-chart_chart12_3.txt')
+path.12.txt <- paste0(working, 'e-cv-chart_chart12.txt')
 path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators.txt')
 path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary.txt')
 path.13.examples   <- paste0(working
@@ -652,7 +652,7 @@ Regularizing models is one way to avoid overfitting and thereby improve
 prediction accuracy. So far the models are not regularized.
 
 To assess the extent to which regularization leads to more accuracy, we
-take the model using the 20 best features and run multiple versions using
+take the model using the 15 best features and run multiple versions using
 several choices for the weight of the L2 regularizer. A simple line
 search was used. 
 
@@ -666,31 +666,40 @@ search was used.
 Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Selected L2 Regularizers\\
 }
-\label{figure:Regularize3}
+\label{figure:RegularizeTxt}
 \end{figure}
 
-% including a pdf \begin{figure}[h]
-%\begin{figure}[ht]
-%\caption{Estimated Generalization Error from L2 Regularization }
-%\label{figure:Regularization1}
-%\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg1}}
-%\end{figure}
+\begin{figure}[ht]
+\caption{Estimated Generalization Error from L2 Regularization }
+\label{figure:RegularizationGG2}
+\centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
+\end{figure}
 
-Figure \ref{figure:Regularize3} contains the result in a table. We see
+Figure \ref{figure:RegularizeTxt} contains the result in a table. We see
 the typical pattern: increasing the regularizer weight first decreases
 errors and as the weight continues to increase, errors are increased.
-Setting the weight to $\lambda = 4$ seems like a good choice: it has the
-lowest median across the cross-validation folds and the 95 percent
+Setting the weight to $\lambda = 55$ seems like a good choice: it has the
+lowest median across the cross-validation folds and from Figure
+\ref{figure:RegularizationGG2}, one can see the 95 percent
 confidence intervals are not signaling warnings.
 
+<<RegularizationImpact,include=FALSE>>=
+l2.0 <- 58622
+l2.55 <- 58453
+diff <- l2.0 - l2.55
+p <- 1 - (l2.55 / l2.0)
+p
+stopifnot(p < 0.003)
+@
+
 The impact of the regularizer on the estimated generalization error is
-very small: the median is reduced about \$100 from an unregularized
-error of \$57,880, a reduction of less than two-tenths of a percent. The
-small impact of the regularizer suggests that there is not much
-overfitting in the unregularized model. The reason for that is possibly
-that the training sets are not very large. In our approach, we build a
-local model for each query and that model had only 60 days of training
-data.
+very small: the median is reduced about \$\Sexpr{diff} from an
+unregularized error of \$\Sexpr{Commas(l2.0)} , a reduction of less than
+three-tenths of a percent. The small impact of the regularizer suggests
+that there is not much overfitting in the unregularized model. The
+reason for that is possibly that the training sets are not very large.
+In our approach, we build a local model for each query and that model
+had only 30 days of training data.
 
 \section{Submarket Models}
 
