@@ -779,6 +779,24 @@ chart14.b15.30 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0
 chart14.b15.30 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_3.RData
 chart14.b15.30 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_4.RData
 
+# RF 60 days best15, 1% sample
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_1.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_2.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_3.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_4.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_1.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_2.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_3.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_4.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_1.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_2.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_3.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_4.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_1.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_2.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_3.RData
+chart14.b15.60 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_4.RData
+
 .PHONY: chart14.aNA.target30
 chart14.aNA.target30: $(chart14.aNA.30)
 
@@ -787,6 +805,9 @@ chart14.b15.target30: $(chart14.b15.30)
 
 .PHONY: chart14.aNA.target60
 chart14.aNA.target60: $(chart14.aNA.60)
+
+.PHONY: chart14.b15.60.target
+chart14.b15.60.target: $(chart14.b15.60)
 
 $(working)/e-cv-chart14_1%txt \
 $(working)/e-cv-chart14_2%txt \

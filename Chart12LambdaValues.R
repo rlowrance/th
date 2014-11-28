@@ -6,6 +6,6 @@ Chart12LambdaValues <- function() {
                               ,41, 55, 74    # beween 30 and 100, exponentially
                               ,132, 173, 228 # between 100 and 300, exponentially
                               )
-    lambda.on.command.line <- sprintf('%d', 100 * lambda.in.regression)
+    lambda.on.command.line <- sprintf('%d', 100 * sort(lambda.in.regression))
     lambda.on.command.line
 }
