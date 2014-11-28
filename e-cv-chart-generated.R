@@ -11,6 +11,7 @@
 source('Directory.R')
 source('Libraries.R')
 
+source('Chart12LambdaValues.R')
 source('CvCell.R')
 source('Lines.R')
 
@@ -255,20 +256,10 @@ Chart.11.FileDependencies <- function(my.control) {
 Chart.12.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
 
-    Chart.12.Lambda.Values <- function() {
-        # return vector of lambda values that are used for regularization
-        # lambda on command lines is 100 * lambda in regression
-        lambda.in.regression <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30
-                                  ,100, 300, 1000, 3000, 10000
-                                  )
-        lambda.on.command.line <- sprintf('%d', 100 * lambda.in.regression)
-        lambda.on.command.line
-    }
-
     fixed <- CvCell()$FixedCellValues('Chart12')
 
     result <- NULL
-    for (lambda in Chart.12.Lambda.Values()) {
+    for (lambda in Chart12LambdaValues()) {
         element <- list( scope = fixed$scope
                         ,model = fixed$model
                         ,scenario = fixed$scenario

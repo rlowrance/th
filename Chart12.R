@@ -35,6 +35,7 @@ Chart12 <- function(my.control) {
     Summarize <- function() {
         # return list $predictors.name $median.value $ci.lowest $ci.highest
         possible.lambda.values <- Chart12LambdaValues()
+        browser()
         n <- length(possible.lambda.values)
         median.value <- double(n)
         ci.lowest <- double(n)

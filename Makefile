@@ -690,18 +690,29 @@ chart12.A += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_800_0
 chart12.A += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_900_0_0.RData
 chart12.A += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_1000_0_0.RData
 chart12.A += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_3000_0_0.RData
-
+# regularizer 100, 300, 1000, 3000, 10000
 chart12.B += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_10000_0_0.RData
 chart12.B += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_30000_0_0.RData
 chart12.B += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_100000_0_0.RData
 chart12.B += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_300000_0_0.RData
 chart12.B += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_1000000_0_0.RData
+# regularizers 41, 55, 74 (between 30 and 100 exponentially)
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_4100_0_0.RData
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_5500_0_0.RData
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_7400_0_0.RData
+# regularizers 132, 173, 228 (between 100 and 300 exponentially)
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_13200_0_0.RData
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_17300_0_0.RData
+chart12.C += $(cvcells)/global_linL2_2003on_avm_logprice_best15_level_30_1_22800_0_0.RData
 
 .PHONY: chart12.A.target
 chart12.A.target: $(chart12.A)
 
 .PHONY: chart12.B.target
 chart12.B.target: $(chart12.B)
+
+.PHONY: chart12.C.target
+chart12.C.target: $(chart12.C)
 
 $(working)/e-cv-chart_chart12_1%pdf \
 $(working)/e-cv-chart_chart12_2%pdf \
@@ -790,6 +801,7 @@ e-cv-chart-generated-data += $(working)/submarkets.RData
 
 e-cv-chart-generated-source += Directory.R
 e-cv-chart-generated-source += Libraries.R
+e-cv-chart-generated-source += Chart12LambdaValues.R
 e-cv-chart-generated-source += CvCell.R
 e-cv-chart-generated-source += Lines.R
 
