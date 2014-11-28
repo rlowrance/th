@@ -83,7 +83,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                            ,predictorsForm = 'level'
                            ,query = '100'
                            ,ndays = '30'
-                           ,lambda = '400'
+                           ,lambda = '5500'
                            ,ntree = '0'
                            ,mtry = '0'
                            )
@@ -167,7 +167,8 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                           ,'best13', 'best14', 'best15', 'best16', 'best17', 'best18'
                           ,'best19', 'best20', 'best21', 'best22', 'best23', 'best24'
                           ,'pca01',  'pca02',  'pca03',  'pca04'
-                          ,'best20census', 'best20city', 'best20zip'
+                          #,'best20census', 'best20city', 'best20zip'
+                          ,'best15census', 'best15city', 'best15zip'
                           )
     predictors.names
   }

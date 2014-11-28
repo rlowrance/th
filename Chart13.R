@@ -19,9 +19,9 @@ Chart13 <- function(my.control) {
         DetermineIndicators <- function() {
             created <- Lines()
             togo <- Lines()
-            for (predictorsName in c( 'best20zip'
-                                     ,'best20census'
-                                     ,'best20city'
+            for (predictorsName in c( 'best15zip'
+                                     ,'best15census'
+                                     ,'best15city'
                                      )) {
                 path <-Path( scope = 'global'
                             ,model = fixed$model
@@ -58,7 +58,7 @@ Chart13 <- function(my.control) {
                             ,timePeriod = fixed$timePeriod
                             ,scenario = fixed$scenario
                             ,response = fixed$response
-                            ,predictorsName = 'best20'
+                            ,predictorsName = 'best15'
                             ,predictorsForm = fixed$predictorsForm
                             ,ndays = fixed$ndays
                             ,query = '1'  # 100 percent sample (each scope tends to be small)
@@ -146,20 +146,20 @@ Chart13 <- function(my.control) {
                             )
             report$Append(line)
         }
-        IndicatorDetail( IndicatorsPath('best20')
+        IndicatorDetail( IndicatorsPath('best15')
                         ,report
                         ,'no indicators'
                         )
-        for (predictorsName in c( 'best20zip'
-                                 ,'best20census'
-                                 ,'best20city'
+        for (predictorsName in c( 'best15zip'
+                                 ,'best15census'
+                                 ,'best15city'
                                  )) {
             path <- IndicatorsPath(predictorsName)
             if (file.exists(path)) {
                 indicators.for <- switch(predictorsName
-                                         ,best20zip = 'zip 5 code'
-                                         ,best20census = 'census tract'
-                                         ,best20city = 'city'
+                                         ,best15zip = 'zip 5 code'
+                                         ,best15census = 'census tract'
+                                         ,best15city = 'city'
                                          )
                 IndicatorDetail(path, report, indicators.for)
             } else {
@@ -369,7 +369,7 @@ Chart13 <- function(my.control) {
                         ,timePeriod = fixed$timePeriod
                         ,scenario = fixed$scenario
                         ,response = fixed$response
-                        ,predictorsName = 'best20'
+                        ,predictorsName = 'best15'
                         ,predictorsForm = fixed$predictorsForm
                         ,ndays = fixed$ndays
                         ,query = '1'  # 100 percent sample (each scope tends to be small)

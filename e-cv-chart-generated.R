@@ -284,9 +284,9 @@ Chart.13.FileDependencies <- function(control) {
 
     result <- NULL
     GenerateIndicatorElements <- function() {
-        for (predictorsName in c( 'best20zip'
-                                 ,'best20census'
-                                 ,'best20city'
+        for (predictorsName in c( 'best15zip'
+                                 ,'best15census'
+                                 ,'best15city'
                                  )) {
             element <-list( scope = 'global'
                            ,model = fixed$model
@@ -314,7 +314,7 @@ Chart.13.FileDependencies <- function(control) {
                            ,timePeriod = fixed$timePeriod
                            ,scenario = fixed$scenario
                            ,response = fixed$response
-                           ,predictorsName = 'best20'
+                           ,predictorsName = 'best15'
                            ,predictorsForm = fixed$predictorsForm
                            ,ndays = fixed$ndays
                            ,query = '1'  # 100 percent sample (each scope tends to be small)
