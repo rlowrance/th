@@ -720,6 +720,78 @@ $(working)/e-cv-chart_chart12%txt \
 : Chart12.R
 	Rscript e-cv-chart.R --chart 12
 
+# FINAL MAKEFILE PIECE, CREATE IN FOLDS
+chart13.final.1 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_1
+$(chart13.final.1): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 1
+
+chart13.final.2 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_2
+$(chart13.final.2): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 2
+
+chart13.final.3 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_3
+$(chart13.final.3): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 3
+
+chart13.final.4 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_4
+$(chart13.final.4): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 4
+
+chart13.final.5 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_5
+$(chart13.final.5): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 5
+
+chart13.final.6 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_6
+$(chart13.final.6): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 6
+
+chart13.final.7 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_7
+$(chart13.final.7): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 7
+
+chart13.final.8 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_8
+$(chart13.final.8): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 8
+
+chart13.final.9 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_9
+$(chart13.final.9): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 9
+
+chart13.final.10 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_10
+$(chart13.final.10): 
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold 10
+
+chart13.final.all = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.RData
+$(chart13.final.all): $(chart13.final.1) $(chart13.final.2) $(chart13.final.3) \
+	$(chart13.final.4) $(chart13.final.5) $(chart13.final.6) $(chart13.final.7) \
+	$(chart13.final.8) $(chart13.final.9) $(chart13.final.10)
+	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+		--predictorsName best15census --predictorsForm level \
+		--ndays 30 --query 100 --lambda 5500 --ntree 0 --mtry 00 --fold combine
+	
+
+chart13.final.target: $(chart13.final.all)
+
 $(working)/e-cv-chart_chart13_indicators%txt \
 $(working)/e-cv-chart_chart13_submarkets_summary%txt \
 : Chart13.R
@@ -830,7 +902,7 @@ e-cv-chart-generated.makefile: \
 	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
 	Rscript e-cv-chart-generated.R
 
-include e-cv-chart-generated.makefile
+#include e-cv-chart-generated.makefile
 
 e-cv-chart-generated.makefile:   # don't scan this file for targets
 
