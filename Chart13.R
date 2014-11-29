@@ -31,7 +31,7 @@ Chart13 <- function(my.control) {
                             ,predictorsName = predictorsName
                             ,predictorsForm = fixed$predictorsForm
                             ,ndays = fixed$ndays
-                            ,query = fixed$query
+                            ,query = '1'  # 100% sample
                             ,lambda = fixed$lambda
                             ,ntree = fixed$ntree
                             ,mtry = fixed$mtry
@@ -135,15 +135,25 @@ Chart13 <- function(my.control) {
         IndicatorDetail <- function(path, report, indicators.for) {
             # add detail line to report
             # produce analysis for a.cv.result in path file
-            a.cv.result <- ACvResult(path)
-            rmse.values <- RootMedianSquaredErrors(a.cv.result)
-            ci <- CIMedian(rmse.values)
-            line <- sprintf( report.format.detail 
-                            ,indicators.for
-                            ,median(rmse.values)
-                            ,ci$lowest
-                            ,ci$highest
-                            )
+            if (file.exists(path)) {
+                a.cv.result <- ACvResult(path)
+                rmse.values <- RootMedianSquaredErrors(a.cv.result)
+                ci <- CIMedian(rmse.values)
+                line <- sprintf( report.format.detail 
+                                ,indicators.for
+                                ,median(rmse.values)
+                                ,ci$lowest
+                                ,ci$highest
+                                )
+            } else {
+                cat('missing file: ', path, '\n')
+                line <- sprintf( report.format.detail
+                                ,indicators.for
+                                ,NA
+                                ,NA
+                                ,NA
+                                )
+            }
             report$Append(line)
         }
         IndicatorDetail( IndicatorsPath('best15')
@@ -155,17 +165,12 @@ Chart13 <- function(my.control) {
                                  ,'best15city'
                                  )) {
             path <- IndicatorsPath(predictorsName)
-            if (file.exists(path)) {
-                indicators.for <- switch(predictorsName
-                                         ,best15zip = 'zip 5 code'
-                                         ,best15census = 'census tract'
-                                         ,best15city = 'city'
-                                         )
-                IndicatorDetail(path, report, indicators.for)
-            } else {
-                cat('MISSING FILE CHART 11', path, '\n')
-                #stop('all files should exist')
-            }
+            indicators.for <- switch(predictorsName
+                                     ,best15zip = 'zip 5 code'
+                                     ,best15census = 'census tract'
+                                     ,best15city = 'city'
+                                     )
+            IndicatorDetail(path, report, indicators.for)
         }
         result <- report
         result
