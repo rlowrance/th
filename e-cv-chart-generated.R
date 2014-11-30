@@ -340,20 +340,22 @@ Chart.14.FileDependencies <- function(control) {
         for (ntree in c('1000', '300', '100', '1')) {
             for (mtry in c('4', '3', '2', '1')) {
                 for (ndays in c('30', '60', '90')) {
-                    element <-list( scope = fixed$scope
-                                   ,model = fixed$model
-                                   ,scenario = fixed$scenario
-                                   ,timePeriod = fixed$timePeriod
-                                   ,response = fixed$response
-                                   ,predictorsName = predictorsName
-                                   ,predictorsForm = fixed$predictorsForm
-                                   ,ndays = ndays
-                                   ,query = fixed$query
-                                   ,lambda = fixed$lambda
-                                   ,ntree = ntree
-                                   ,mtry = mtry
-                                   )
-                    result[[length(result) + 1]] <- element
+                    for (query in c('20', '100')) { # 5% and 1%
+                        element <-list( scope = fixed$scope
+                                       ,model = fixed$model
+                                       ,scenario = fixed$scenario
+                                       ,timePeriod = fixed$timePeriod
+                                       ,response = fixed$response
+                                       ,predictorsName = predictorsName
+                                       ,predictorsForm = fixed$predictorsForm
+                                       ,ndays = ndays
+                                       ,query = query
+                                       ,lambda = fixed$lambda
+                                       ,ntree = ntree
+                                       ,mtry = mtry
+                                       )
+                        result[[length(result) + 1]] <- element
+                    }
                 }
             }
         }
@@ -642,6 +644,7 @@ MakeMakefiles <- function(control) {
 
 }
 Main <- function(control) {
+    browser()
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 

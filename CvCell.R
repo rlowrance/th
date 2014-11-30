@@ -81,6 +81,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                            ,scenario = 'avm'
                            ,response = 'logprice'
                            ,predictorsForm = 'level'
+                           ,predictorsName = 'best15'
                            ,query = '1'
                            ,ndays = '30'
                            ,lambda = '5500'

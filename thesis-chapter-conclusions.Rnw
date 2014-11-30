@@ -20,6 +20,13 @@ These ideas seem potentially fruitful:
 
 \begin{itemize}
 
+\item Compare errors for submarket models with those for entire market
+models, conditioned on specific submarket choices. We have seen that the
+average errors from city-based submarket models are high for expensive
+properties such as those in Malibu. We don't know if the entire-market
+models also have high errors for these properties. There is a similar
+issue for cities with low prices.
+
 \item Compare random forests to neural networks. Both kinds of models
 require fitting expertise that may need to be tailored to the specific
 data set at hand. 

@@ -36,6 +36,7 @@ HeadersFixed <- function(fixed, lines) {
                        ,always = 'always in every transaction'
                        ,alwaysNoAssessment = 'always in every transaction and not in the tax assessment'
                        ,alwaysNoCensus = 'always in every transaction and not in the tax assessment or census'
+                       ,best15 = 'best 15 features for linear models'
                        ,stop('bad predictorsName')
                        )
                )

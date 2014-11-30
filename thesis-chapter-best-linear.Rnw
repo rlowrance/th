@@ -748,18 +748,19 @@ For Submarket Indicators
 \label{figure:Indicator}
 \end{figure}
 
-<<Indicators, include=FALSE>>=
-no.indicators <- 57781
-zip5.indicators <- 39557
-1 - (zip5.indicators / no.indicators)
+<<Indicators, include=TRUE>>=
+no.indicators <- 58453
+zip5.indicators <- 41013
+p <- 1 - (zip5.indicators / no.indicators)
+p
 @
 
 Figure \ref{figure:Indicator} shows the estimated generalization errors
 from adding indicators variables to the regularized linear model. We see
 that adding indicators for zip codes, census tract, and cities all help
 and that the best result is obtained with the five-digit zip code
-indicators, which has an error rate 32 percent lower than the
-entire-market model.
+indicators, which has an error rate \Sexpr{Percent(p)} percent lower
+than the entire-market model (the model with no indicators).
 
 \subsection{Separate Models for Each Submarket}
 
@@ -796,19 +797,23 @@ For Submarket Models
 
 <<Submarkets, include=TRUE>>=
 no.indicators <- 58453
+best.indicators <- 41013
 property.city <- 46405
 p <- 1 - (property.city / no.indicators)
 p
+p2 <- 1 - (best.indicators / property.city)
+p2
 @
 
 
 Figure \ref{figure:Submarkets13} shows the results of this experiment.
 The submarket models that used city names had the lowest estimated
 generalization error, which was \Sexpr{Percent(p)} percent lower than the whole-market
-error. The fitting process, however, succeeded in all folds in
-only 66 percent of the city names. (We say the coverage was 66 percent.)
-In terms of the estimated error, the worst model was for zip codes, but
-it had the highest coverage. The lowest coverage is for census tracts.
+error (the model from the previous figure with no indicators). The
+fitting process, however, succeeded in all folds in only 66 percent of
+the city names. (We say the coverage was 66 percent.) In terms of the
+estimated error, the worst model was for zip codes, but it had the
+highest coverage. The lowest coverage is for census tracts.
 
 Perhaps the city names have the lowest errors because cities may acquire
 brand positioning: they stand for something. Whatever that something
@@ -816,12 +821,19 @@ is, it attracts buyers who have affinity for that something, reinforcing
 the positioning. The reinforcement leads to homogeneity within a city
 and that makes it easier to fit the linear models.
 
-DO SUBMARKET MODELS OUTPERFORM INDICATOR-BASED MODELS?
-
 Coverage numbers could be increased most likely by either retraining the
-models on more than 60 days of data or forming submarkets groups by
+models on more than 30 days of data or forming submarket groups by
 splicing together some of the submarkets. The latter approach has been
 tried in the literature. The former appears to have not been tried.
+
+Comparing Figures \ref{figure:Indicator} and \ref{figure:Submarkets13} we
+see that the best indicator model has an error of
+\$\Sexpr{Commas(best.indicators)}, which is lower than the error for the
+city model (\$\Sexpr{Commas(property.city)}). I was surprised by this,
+because the indicator-based models are simply adjusting the average
+price level for each area and the submarket models have the freedom to
+adjust the value of each feature in each submarket.
+
 
 \begin{figure}[ht]
 \tiny
@@ -835,7 +847,7 @@ For Selected Property City Submarket Models
 \label{figure:Examples13}
 \end{figure}
 
-The low estimated errors in Figure \ref{figure:Submarkets13} are perhaps
+The estimated errors in Figure \ref{figure:Submarkets13} are perhaps
 deceptive: they are the median values across all the submarkets. Individual
 models for specific submarkets may have much lower or higher errors than
 the median for all markets.
@@ -883,27 +895,31 @@ The large estimated errors for the more expensive cities may be
 generated in part from the higher prices, so that a 10 percent error in
 an estimate is a larger amount than for lower-priced cities.  Another
 source of the large errors might be that the more expensive properties
-sell based on features that are not in our data.
+sell based on features that are not in our data. 
+
+
 
 
 \section{The best linear model is \dots}
 
-REWORK ME AFTER INDICATOR MODELS COMPLETE.
-
 Based on the time period from 2003 through the first part of 2009, the
 best linear model would predict $\log(price)$ from the features in
-natural units, use the 20 features we identified, and incorporate an L2
-regularizer.  It would be fitted on 60 days of data and created for each
-submarket as defined by the city name. These design choices are in
-effect hyperparameters for the linear models.
+natural units, use the 15 features we identified, and incorporate an L2
+regularizer.  It would be fitted on 30 days of data. 
+
+If one wanted an entire-market model, one would then add indicator
+variables for the zip codes. However, a submarket model might be
+preferred, because it would have errors that reflect specific
+submarkets. We found that defining submarkets around cities is best. The
+model design process that selected the 15 features, 30 days, and the L2
+regularizer could be repeated for each submarket.
 
 Commercial model builders should consider a different focus in selecting
 the hyperparameters than we have used here.  Rather than select them
-once for the entire time period and for all submarkets, they should
-select hyperparameters for each submarket based on recent
-transactions instead of the longer time period studied here: we are
-interested in models that work on average, most commercial price
-estimators are interested in models that work on tomorrow's
+once for the entire time period, they should select hyperparameters
+based on recent transactions instead of the longer time period used
+here: we are interested in models that work on average, most commercial
+price estimators are interested in models that work on tomorrow's
 transactions.
 
 \section{Coda: A Non-Linear Model, Random Forests}

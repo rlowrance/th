@@ -147,6 +147,7 @@ Chart13 <- function(my.control) {
                                 )
             } else {
                 cat('missing file: ', path, '\n')
+                browser()
                 line <- sprintf( report.format.detail
                                 ,indicators.for
                                 ,NA
