@@ -26,8 +26,10 @@ path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators.txt')
 path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary.txt')
 path.13.examples   <- paste0(working
                              ,'e-cv-chart_chart13_submarkets_examples_property_city.txt')
-path.14.rf.1 <- paste0(working, 'e-cv-chart_chart14_1.txt')
-path.14.rf.2 <- paste0(working, 'e-cv-chart_chart14_2.txt')
+path.14.rf.1.30 <- paste0(working, 'e-cv-chart_chart14_1_30.txt')
+path.14.rf.1.60 <- paste0(working, 'e-cv-chart_chart14_1_60.txt')
+path.14.rf.5.30 <- paste0(working, 'e-cv-chart_chart14_5_30.txt')
+path.14.rf.5.60 <- paste0(working, 'e-cv-chart_chart14_5_60.txt')
 @ 
 
 Linear models predict the price as a linear function of features:
@@ -952,7 +954,7 @@ one giving the best greedy performance. We test 1, 2, 3, and 4 features.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.14.rf.1}}
+\verbatiminput{\Sexpr{path.14.rf.1.30}}
 \caption{
 Estimated Generalization Errors\\
 For Random Forests\\
@@ -961,11 +963,11 @@ For All Features Except Assessment Features and the Best 15 Features from the Li
 Trained for 30 Days\\
 Using a One Percent Sample of Queries in Folds
 }
-\label{figure:RF30}
+\label{figure:RF130}
 \end{figure}
 
 
-Figure \ref{figure:RF30} shows the results of this experiment. Note that
+Figure \ref{figure:RF130} shows the results of this experiment. Note that
 rather than build a model for every query transaction in a test fold, we
 have built a model for a random 1 percent sample in the test folds. This
 is to reduce the computation time.
@@ -1000,7 +1002,7 @@ TODO: REWRITE FROM HERE ON.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.14.rf.2}}
+\verbatiminput{\Sexpr{path.14.rf.1.60}}
 \caption{
 Estimated Generalization Errors\\
 For Random Forests\\
@@ -1008,10 +1010,10 @@ For Selected Hyperparameters \code{ntree} and \code{mtry}\\
 For All Features Except Assessment Features\\
 Trained for 60 Days
 }
-\label{figure:RF60}
+\label{figure:RF160}
 \end{figure}
 
-Figure \ref{figure:RF60} shows the results of sweeping the random
+Figure \ref{figure:RF160} shows the results of sweeping the random
 forests design choices, this time setting the number of training days to
 60. We see WRITE ME.
 
@@ -1080,4 +1082,36 @@ necessarily the log-level form tested.
 
 
 Figure \ref{figure:RF2} SHOWS.
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.14.rf.5.30}}
+\caption{
+Estimated Generalization Errors\\
+For Random Forests\\
+For Selected Hyperparameters \code{ntree} and \code{mtry}\\
+For All Features Except Assessment Features\\
+Trained for 30 Days\\
+On Five Percent Sample
+}
+\label{figure:RF530}
+\end{figure}
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.14.rf.5.60}}
+\caption{
+Estimated Generalization Errors\\
+For Random Forests\\
+For Selected Hyperparameters \code{ntree} and \code{mtry}\\
+For All Features Except Assessment Features\\
+Trained for 60 Days\\
+On Five Percent Sample
+}
+\label{figure:RF560}
+\end{figure}
 

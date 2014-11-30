@@ -8,11 +8,19 @@ Chart14 <- function(my.control) {
     fixed <- cv.cell$FixedCellValues('Chart14')
     Path <- cv.cell$Path
 
-    AppendHeader <- function(lines, ndays) {
+    AppendHeader <- function(lines, ndays, query) {
         lines$Append('Comparison of Estimated Generalization Errors')
         lines$Append('From Random Forests')
         HeadersFixed(fixed, lines)
         lines$Append(paste0('Number of training days: ', ndays))
+        lines$Append(paste0('Percent of queries in each fold that were estimated: '
+                            ,switch( query
+                                    ,'100' = '1'
+                                    ,'20' = '5'
+                                    ,'1' = '100'
+                                    )
+                            )
+        )
     }
     Table <- function(lines) {
         # return named list 
@@ -37,7 +45,7 @@ Chart14 <- function(my.control) {
              ,Detail = Detail
              )
     }
-    MyPath <- function(predictorsName, ntree, mtry, ndays) {
+    MyPath <- function(predictorsName, ntree, mtry, ndays, query) {
         path <- Path( scope          = fixed$scope
                      ,model          = fixed$model
                      ,timePeriod     = fixed$timePeriod
@@ -46,19 +54,20 @@ Chart14 <- function(my.control) {
                      ,predictorsName = predictorsName
                      ,predictorsForm = fixed$predictorsForm
                      ,ndays          = ndays
-                     ,query          = fixed$query
+                     ,query          = query
                      ,lambda         = fixed$lambda
                      ,ntree          = ntree
                      ,mtry           = mtry
                      )
         path
     }
-    Value <- function(predictorsName, ntree, mtry, ndays) {
+    Value <- function(predictorsName, ntree, mtry, ndays, query) {
         # return median error across folds
         path <- MyPath( predictorsName = predictorsName
                        ,ntree = ntree
                        ,mtry = mtry
                        ,ndays = ndays
+                       ,query = query
                        )
         if (file.exists(path)) {
             loaded <- load(path)
@@ -74,7 +83,7 @@ Chart14 <- function(my.control) {
             result
         }
     }
-    AppendPanel <- function(lines, tag, description, predictorsName, ndays) {
+    AppendPanel <- function(lines, tag, description, predictorsName, ndays, query) {
         # append table lines to lines, return nothing
         lines$Append(' ')
         lines$Append(sprintf('Panel %s: %s', tag, description))
@@ -83,43 +92,61 @@ Chart14 <- function(my.control) {
         table$Header()
         for (ntree in c('1', '100', '300', '1000')) {
             table$Detail( ntree = ntree
-                         ,mtry1 = Value(predictorsName, ntree, '1', ndays)
-                         ,mtry2 = Value(predictorsName, ntree, '2', ndays)
-                         ,mtry3 = Value(predictorsName, ntree, '3', ndays)
-                         ,mtry4 = Value(predictorsName, ntree, '4', ndays)
+                         ,mtry1 = Value(predictorsName, ntree, '1', ndays, query)
+                         ,mtry2 = Value(predictorsName, ntree, '2', ndays, query)
+                         ,mtry3 = Value(predictorsName, ntree, '3', ndays, query)
+                         ,mtry4 = Value(predictorsName, ntree, '4', ndays, query)
                          )
         }
     }
 
-    Report1Panel <- function(ndays, msg, predictorsName) {
+    Report1Panel <- function(ndays, msg, predictorsName, query) {
         lines <- Lines()
-        AppendHeader(lines, ndays)
-        AppendPanel(lines, 'A', msg, predictorsName, ndays)
+        AppendHeader(lines, ndays, query)
+        AppendPanel(lines, 'A', msg, predictorsName, ndays, query)
         lines
     }
-    Report2Panels <- function(ndays, msg.1, predictorsName.1, msg.2, predictorsName.2) {
+    Report2Panels <- function(ndays, msg.1, predictorsName.1, msg.2, predictorsName.2, query) {
         lines <- Lines()
-        AppendHeader(lines, ndays)
-        AppendPanel(lines, 'A', msg.1, predictorsName.1, ndays)
-        AppendPanel(lines, 'B', msg.2, predictorsName.2, ndays)
+        AppendHeader(lines, ndays, query)
+        AppendPanel(lines, 'A', msg.1, predictorsName.1, ndays, query)
+        AppendPanel(lines, 'B', msg.2, predictorsName.2, ndays, query)
         lines
     }
 
-    report.2.30 <- Report2Panels( ndays = '30'
+    report.1.30 <- Report2Panels( ndays = '30'
                                  ,msg.1 = 'using the best 15 predictors'
                                  ,predictorsName.1 = 'best15'
                                  ,msg.2 = 'using all predictors except assessment'
                                  ,predictorsName.2 = 'alwaysNoAssessment'
+                                 ,query = '100'
                                  )
-    report.2.60 <- Report2Panels( ndays = '60'
+    report.1.60 <- Report2Panels( ndays = '60'
                                  ,msg.1 = 'using the best 15 predictors'
                                  ,predictorsName.1 = 'best15'
                                  ,msg.2 = 'using all predictors except assessment'
                                  ,predictorsName.2 = 'alwaysNoAssessment'
+                                 ,query = '100'
+                                 )
+    report.5.30 <- Report2Panels( ndays = '30'
+                                 ,msg.1 = 'using the best 15 predictors'
+                                 ,predictorsName.1 = 'best15'
+                                 ,msg.2 = 'using all predictors except assessment'
+                                 ,predictorsName.2 = 'alwaysNoAssessment'
+                                 ,query = '20'
+                                 )
+    report.5.60 <- Report2Panels( ndays = '60'
+                                 ,msg.1 = 'using the best 15 predictors'
+                                 ,predictorsName.1 = 'best15'
+                                 ,msg.2 = 'using all predictors except assessment'
+                                 ,predictorsName.2 = 'alwaysNoAssessment'
+                                 ,query = '20'
                                  )
 
-    result <- list( panels.2.30 = report.2.30$Get()
-                   ,panels.1.60 = report.2.60$Get()
+    result <- list( txt.1.30 = report.1.30$Get()  # 1% sample for 30 days
+                   ,txt.1.60 = report.1.60$Get()  # 1% sample for 60 days
+                   ,txt.5.30 = report.5.30$Get()  # 5% sample for 30 days
+                   ,txt.5.60 = report.5.60$Get()  # 5% sample for 60 days
                    )
     result
 }

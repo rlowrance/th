@@ -131,8 +131,10 @@ Control <- function(default.args) {
              ,path.out.chart.13.submarkets.examples.zip5.txt =
              paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
 
-             ,path.out.chart.14.1.txt = paste0(working, out.base, '_chart14_1.txt')
-             ,path.out.chart.14.2.txt = paste0(working, out.base, '_chart14_2.txt')
+             ,path.out.chart.14.1.30.txt = paste0(working, out.base, '_chart14_1_30.txt')
+             ,path.out.chart.14.1.60.txt = paste0(working, out.base, '_chart14_1_60.txt')
+             ,path.out.chart.14.5.30.txt = paste0(working, out.base, '_chart14_5_30.txt')
+             ,path.out.chart.14.5.60.txt = paste0(working, out.base, '_chart14_5_60.txt')
 
 
              ,path.cells = cells
@@ -326,11 +328,17 @@ MakeCharts <- function(control) {
 #               writeLines( text = chart.14$horizontal.60
 #                          ,con = control$path.out.chart.14.horizontal.60.txt
 #                          )
-               writeLines( text = chart.14$panels.2.30
-                          ,con = control$path.out.chart.14.1.txt
+               writeLines( text = chart.14$txt.1.30
+                          ,con = control$path.out.chart.14.1.30.txt
                           )
-               writeLines( text = chart.14$panels.1.60 
-                          ,con = control$path.out.chart.14.2.txt
+               writeLines( text = chart.14$txt.1.60
+                          ,con = control$path.out.chart.14.1.60.txt
+                          )
+               writeLines( text = chart.14$txt.5.30
+                          ,con = control$path.out.chart.14.5.30.txt
+                          )
+               writeLines( text = chart.14$txt.5.60
+                          ,con = control$path.out.chart.14.5.60.txt
                           )
            }
            ,stop(paste0('bad control$opt$chart value: ', as.character(control$opt$chart)))
@@ -348,7 +356,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='13')
+default.args <- list(chart='14')
 
 control <- Control(default.args)
 

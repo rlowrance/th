@@ -94,7 +94,6 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                            ,timePeriod = '2003on'
                            ,response = 'logprice'
                            ,predictorsForm = 'level'
-                           ,query = '100'
                            ,lambda = '0'
                            )
            ,stop(paste0('not implemented', chart.name))

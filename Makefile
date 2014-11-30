@@ -932,8 +932,10 @@ chart14.aNA.target60.20: $(chart14.aNA.60.20)
 chart14.b15.target60.20: $(chart14.b15.60.20)
 
 
-$(working)/e-cv-chart14_1%txt \
-$(working)/e-cv-chart14_2%txt \
+$(working)/e-cv-chart_chart14_1_30%txt \
+$(working)/e-cv-chart_chart14_1_60%txt \
+$(working)/e-cv-chart_chart14_5_30%txt \
+$(working)/e-cv-chart_chart14_5_60%txt \
 : Chart14.R
 	Rscript e-cv-chart.R --chart 14
 
@@ -1455,8 +1457,10 @@ thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
 thesis-data-best-linear += $(working)/e-cv-chart_chart12.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart13_indicators.txt
 thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_summary.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_1.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_2.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_30.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_60.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_30.txt
+thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_60.txt
 thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
 thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
