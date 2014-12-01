@@ -121,7 +121,7 @@ Control <- function(default.args) {
              ,path.out.chart.13.submarkets.census.txt = 
              paste0(working, out.base, '_chart13_submarkets_census.txt')
              ,path.out.chart.13.submarkets.property.city.txt = 
-             paste0(working, out.base, '_chart13_submarkets_property_city.stxt')
+             paste0(working, out.base, '_chart13_submarkets_property_city.txt')
              ,path.out.chart.13.submarkets.zip5.txt = 
              paste0(working, out.base, '_chart13_submarkets_zip5.txt')
              ,path.out.chart.13.submarkets.examples.census.txt=
