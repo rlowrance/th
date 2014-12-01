@@ -93,20 +93,20 @@ transaction. A model is then trained on the remaining data in the
 training set. The trained model is then used to predict the query
 transaction's price and the results are recorded.
 
-There are two optimizations both motivated by potentially long
-computational times in the fitting process for numerous query
-transactions. The first optimization caches trained models for a
-particular fold that have the same query date. All models with the same
+There are many local models to be fit. Just before the models are
+fitted, the feature set is analyzed to detect and eliminate any feature
+that will not meet the requirements of the underlying model. For
+example, usually the model requires that no feature has the same value
+for every transaction.  This is an effectiveness tradeoff: we keep the
+transaction in the fold's test set using a fewer features than are
+specified in the model rather than discarding the test transaction. In a
+fold, usually very test transactions have discarded features.
+
+One optimization speeds up the fitting process. All models with the same
 query date are fitted to the same training data because the training
 process does not use the query transaction or any data on or after the
 data of the query transaction. This optimization is always used, because
 it doesn't change the results.
-
-The second optimization samples the potential query transactions in the
-testing set from a fold. We do this because of the potentially large
-size of the testing sets: Los Angeles County is very large and we are
-testing potentially over many years of transactions. This optimization
-is used often when multiple years of data are studied.
 
 \section{Understanding the Real Estate Tax Assessment}
 
