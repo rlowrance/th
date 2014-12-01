@@ -570,11 +570,8 @@ Evaluate_9 <- function( model, scenario, response
                                             ,linL2  = ModelLinL2.Predict
                                             ,rf = ModelRandomForest.Predict
                                             )
-                     ,model.name.fold = paste0( control$model.name
-                                               ,sprintf(' fold %d'
-                                                        ,control$fold.counter$Get()
-                                                        )
-                                               )
+                     ,model.name = control$model.name
+                     ,fold.number = control$fold.counter$Get()
                      )
 
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw

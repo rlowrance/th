@@ -4,7 +4,9 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                          ,TrainingData, MakeFormula
                          ,FitModel, fit.model.data
                          ,PredictModel
-                         ,model.name.fold) {
+                         ,model.name
+                         ,fold.number
+                         ) {
     # Return evaluation of the specified model on the given training and test data
     # Return vector of predictions for the query.transactions using a local model
 
@@ -109,12 +111,13 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                                ,saleDate = saleDate
                                                )
       training.data.factors <- RemoveZeroOccurrenceLevels(training.data.age)
-      Printf('saleDate %s %d of %d %d samples cell %s\n'
+      Printf('saleDate %s %d of %d %d samples %s %d\n'
              ,saleDate
              ,unique.saleDate.index
              ,length(unique.saleDates)
              ,nrow(training.data.factors)
-             ,model.name.fold
+             ,model.name
+             ,fold.number
              )
 
       # attempt to fit using revised training data
