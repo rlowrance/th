@@ -592,7 +592,7 @@ is possibly about the size of the house.
 \verbatiminput{\Sexpr{path.10.txt}}
 \caption{
 Table of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
-For Feature Sets Selected by the PCA Analsysis
+For Feature Sets Selected by the PCA Analysis
 }
 \label{figure:MedianTable10}
 \end{figure}
@@ -601,7 +601,7 @@ For Feature Sets Selected by the PCA Analsysis
 \begin{figure}[h]
 \caption{
 Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
-For Feature Sets Selected by the PCA Analsysis
+For Feature Sets Selected by the PCA Analysis
 }
 \label{figure:MedianGraph102}
 \centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
