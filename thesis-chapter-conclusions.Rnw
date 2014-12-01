@@ -3,9 +3,9 @@
 
 We have systematically designed a linear model with the goal of finding
 a model that has the lowest expected error on unseen data. The best
-model we found was tailored to a submarket, trained on 60 days of data
+model we found was tailored to a submarket, trained on 30 days of data
 prior to the query transaction, predicted the log of the price,
-was regularized, and used 20 features in their natural units. 
+was regularized, and used 15 features in their natural units. 
 
 We also found that random forests models have lower error rates.  We did
 not investigate many design decisions around random forests, so that we
