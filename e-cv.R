@@ -570,7 +570,11 @@ Evaluate_9 <- function( model, scenario, response
                                             ,linL2  = ModelLinL2.Predict
                                             ,rf = ModelRandomForest.Predict
                                             )
-                     ,model.name = control$model.name
+                     ,model.name.fold = paste0( control$model.name
+                                               ,sprintf(' fold %d'
+                                                        ,control$fold.counter$Get()
+                                                        )
+                                               )
                      )
 
     predictions <- if (response == 'logprice') exp(predictions.raw) else predictions.raw
@@ -975,21 +979,21 @@ default.args <-
          ,mtry           = '0'
          ,fold           = 'all'   # must be 'all' for general use from the command line
          )
-default.args <-
-    list( scope          = ''
-         ,model          = ''
-         ,timePeriod     = ''
-         ,scenario       = ''
-         ,response       = ''
-         ,predictorsForm = ''
-         ,predictorsName = ''
-         ,ndays          = ''
-         ,query          = ''
-         ,lambda         = ''
-         ,ntree          = ''
-         ,mtry           = ''
-         ,fold           = 'all'  # must be 'all' for general use from the command line
-         )
+#default.args <-
+#    list( scope          = ''
+#         ,model          = ''
+#         ,timePeriod     = ''
+#         ,scenario       = ''
+#         ,response       = ''
+#         ,predictorsForm = ''
+#         ,predictorsName = ''
+#         ,ndays          = ''
+#         ,query          = ''
+#         ,lambda         = ''
+#         ,ntree          = ''
+#         ,mtry           = ''
+#         ,fold           = 'all'  # must be 'all' for general use from the command line
+#         )
 control <- Control(default.args)
 
 # cache transaction.data
