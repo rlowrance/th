@@ -109,7 +109,7 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                                ,saleDate = saleDate
                                                )
       training.data.factors <- RemoveZeroOccurrenceLevels(training.data.age)
-      Printf('saleDate %s %d of %d fitting on %d samples cell %s\n'
+      Printf('saleDate %s %d of %d %d samples cell %s\n'
              ,saleDate
              ,unique.saleDate.index
              ,length(unique.saleDates)
