@@ -44,7 +44,7 @@ Control <- function(parsed.command.args) {
                     ,splits.to.read = c('price', 'sale.year', 'sale.month')
                     ,show.chart = FALSE
                     ,chart.width = 14  # inches
-                    ,chart.heigh = 10  # inches
+                    ,chart.height = 10  # inches
                     ,write.pdf = TRUE
                     ,testing = FALSE
                     )
@@ -82,23 +82,27 @@ MedianPricesByMonth <- function(from.year, to.year, data) {
      # $ chart   : Cleveland Dot Plot
 
     MakeDataFrame <- function() {
-        MedianPrice <- function(year, month) {
+        CountMedian <- function(year, month) {
             # return median price in data fro year and month
             selected <- data$sale.year == year & data$sale.month == month
             price <- data[selected, 'price']
             median.price <- median(price, na.rm = TRUE)
-            median.price
+            result <- list( count = sum(selected)
+                           ,median.price = median.price
+                           )
+            result
         }
         analysis <- NULL
         for (sale.year in from.year:to.year) {
             # we have data only through March 2009
             last.sale.month <- if (sale.year == 2009) 3 else 12
             for (sale.month in 1:last.sale.month) {
-                median.price <- MedianPrice(sale.year, sale.month)
+                count.median <- CountMedian(sale.year, sale.month)
                 next.row <- data.frame( stringsAsFactors = FALSE
                                        ,sale.year = sale.year
                                        ,sale.month = sale.month
-                                       ,median.price = median.price
+                                       ,median.price = count.median$median.price
+                                       ,count = count.median$count
                                        )
                 analysis <- rbind(analysis, next.row)
             }
@@ -193,7 +197,15 @@ Main <- function(control, data) {
         dev.off()
     }
 
-    save(median.prices, chart, file = control$path.out.rdata)
+    browser()
+    median.across.time <- median(median.prices$median.price)
+    cat('median across time', median.across.time, '\n')
+
+    count.across.time <- sum(median.prices$count)
+    cat('count across time', count.across.time, '\n')
+                                 
+
+    save(median.across.time, median.prices, chart, file = control$path.out.rdata)
 
     str(control)
 }
@@ -210,6 +222,7 @@ Main <- function(control, data) {
 default.args <- NULL
 #default.args <- list('--by', 'year', '--from', '1984', '--to', '2009')
 #default.args <- list('--by', 'month', '--from', '2006', '--to', '2009')
+default.args <- list('--by', 'month', '--from', '2003', '--to', '2009')
 
 command.args <- if (is.null(default.args)) CommandArgs() else default.args
 parsed.command.args <- ParseCommandLine( cl = command.args
