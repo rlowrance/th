@@ -136,8 +136,11 @@ Acknowledgements go here. Thanks to \dots.
 navigating CoreLogic.
 \item Davi Geiger for the suggestion to through in all features in the
 random forests model.
+\item Leslie Greengard for continued support and encouragement.
 \item John Leahy for a conversation years ago in which he conjuctured
 on the efficacy of a reduced feature model. 
+\item Yann LeCun for making the original offer to work on a real estate
+project.
 \item Dennis Shasha for continued interests and support over more than a
 few years.
 \item Marco Scoffier for explaining his trick of organization this
@@ -149,14 +152,16 @@ time.
 \chapter*{Abstract}
 
 This work develops the best linear model of residential real estate
-prices for 2003 through 2009 in Los Angeles County. This work differs
-from typical academic research on prediction of home prices by covering
-a larger geographic area than most, more houses than most, and a longer
-time period than most, and the time period both before and after the
-real estate price boom in the United States. We test design decisions
-for linear models to determine which choices lead to the lowest errors.
-We show that non-linear models outperform the best of our linear models
-and point to directions for further research.
+prices for 2003 through 2009 in Los Angeles County. It differs
+from other studies comparing models for predicting house prices by
+covering a larger geographic area than most, more houses than most, a
+longer time period than most,  and the time period both before and after
+the real estate price boom in the United States. In addition, it open
+sources all of the software. We test designs for linear models to
+determine the best form for the model as well as the training period,
+features, and regularizer that produce the lowest errors.  We compare
+the best of our linear models to random forests and point to directions
+for further research.
 
 \chapter*{Table of Contents}
 \tableofcontents
