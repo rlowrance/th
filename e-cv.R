@@ -962,19 +962,19 @@ default.args <-
          #scope          = '91767'      # zip5 13882 observations
          #scope          = '910706'
          #scope          = '91750'
-          scope          = 93591
+          scope          = 'global'
          ,model          = 'linL2'
          ,timePeriod     = '2003on'
          ,scenario       = 'avm'
          ,response       = 'logprice'
+         ,predictorsName = 'best15census'
          ,predictorsForm = 'level'
-         ,predictorsName = 'best15zip'
          ,ndays          = '30'
          ,query          = '1'
          ,lambda         = '5500'
          ,ntree          = '0'
          ,mtry           = '0'
-         ,fold           = 'all'   # must be 'all' for general use from the command line
+         ,fold           = 'combine'   # must be 'all' for general use from the command line
          )
 #default.args <-
 #    list( scope          = ''
@@ -982,8 +982,8 @@ default.args <-
 #         ,timePeriod     = ''
 #         ,scenario       = ''
 #         ,response       = ''
-#         ,predictorsForm = ''
 #         ,predictorsName = ''
+#         ,predictorsForm = ''
 #         ,ndays          = ''
 #         ,query          = ''
 #         ,lambda         = ''
