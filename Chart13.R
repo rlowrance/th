@@ -154,6 +154,7 @@ Chart13 <- function(my.control) {
                                 ,NA
                                 ,NA
                                 )
+                stop()
             }
             report$Append(line)
         }
