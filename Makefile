@@ -941,6 +941,13 @@ chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20
 chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_3.RData
 chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_4.RData
 
+# missing and not running elsewhere
+missing += $(chart14.b15.30.20)
+missing += $(chart14.aNA.30.20)
+
+.PHONY: missing.target
+missing.target: $(missing)
+
 # 1% targets
 .PHONY: chart14.aNA.target30.100
 chart14.aNA.target30.100: $(chart14.aNA.30.100)

@@ -976,21 +976,21 @@ default.args <-
          ,mtry           = '0'
          ,fold           = 'combine'   # must be 'all' for general use from the command line
          )
-#default.args <-
-#    list( scope          = ''
-#         ,model          = ''
-#         ,timePeriod     = ''
-#         ,scenario       = ''
-#         ,response       = ''
-#         ,predictorsName = ''
-#         ,predictorsForm = ''
-#         ,ndays          = ''
-#         ,query          = ''
-#         ,lambda         = ''
-#         ,ntree          = ''
-#         ,mtry           = ''
-#         ,fold           = 'all'  # must be 'all' for general use from the command line
-#         )
+default.args <-
+    list( scope          = ''
+         ,model          = ''
+         ,timePeriod     = ''
+         ,scenario       = ''
+         ,response       = ''
+         ,predictorsName = ''
+         ,predictorsForm = ''
+         ,ndays          = ''
+         ,query          = ''
+         ,lambda         = ''
+         ,ntree          = ''
+         ,mtry           = ''
+         ,fold           = 'all'  # must be 'all' for general use from the command line
+         )
 control <- Control(default.args)
 
 # cache transaction.data
