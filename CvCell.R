@@ -198,6 +198,8 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
        ,Command                  = Command
        ,Path                     = Path
        ,Possible.Ndays           = Possible.Ndays
+       ,PossibleNdays            = Possible.Ndays
        ,Possible.PredictorsNames = Possible.PredictorsNames
+       ,PossiblePredictorsNames  = Possible.PredictorsNames
        )
 }

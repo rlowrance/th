@@ -182,42 +182,42 @@ MakeCharts <- function(control) {
 
     switch( control$opt$chart
            ,'05' = { 
-               chart.5 <- Chart5(control)
-               writeLines( text = chart.5$horizontal
+               chart <- Chart5()$Chart(control)
+               writeLines( text = chart$horizontal
                           ,con = control$path.out.chart.5.horizontal.txt
                           )
-               writeLines( text = chart.5$vertical
+               writeLines( text = chart$vertical
                           ,con = control$path.out.chart.5.vertical.txt
                           )
            }
            ,'06' = {
-               chart.6 <- Chart6(control)
-               writeLines( text = chart.6$horizontal
+               chart <- Chart6()$Chart(control)
+               writeLines( text = chart$horizontal
                           ,con = control$path.out.chart.6.horizontal.txt
                           )
-               writeLines( text = chart.6$vertical.1
+               writeLines( text = chart$vertical.1
                           ,con = control$path.out.chart.6.vertical.1.txt
                           )
-               writeLines( text = chart.6$vertical.100
+               writeLines( text = chart$vertical.100
                           ,con = control$path.out.chart.6.vertical.100.txt
                           )
            }
            ,'07' = {
-               chart.7 <- Chart7(control)
-               writeLines( text = chart.7$txt
+               chart <- Chart7()$Chart(control)
+               writeLines( text = chart$txt
                           ,con = control$path.out.chart.7.txt
                           )
            }
            ,'08' = {
-               chart.8 <- Chart8(control)
-               writeLines( text = chart.8$txt
+               chart <- Chart8()$Chart(control)
+               writeLines( text = chart$txt
                           ,con = control$path.out.chart.8.txt
                           )
            }
            ,'09' = {
                # only produce charts for the 100% sample
-               chart.9 <- Chart9(control)
-               writeLines( text = chart.9$txt
+               chart <- Chart9()$Chart(control)
+               writeLines( text = chart$txt
                           ,con = control$path.out.chart.9.txt
                           )
 
@@ -225,19 +225,19 @@ MakeCharts <- function(control) {
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.9$gg1)
+               print(chart$gg1)
                dev.off()
 
                pdf( file = control$path.out.chart.9.gg2
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.9$gg2)
+               print(chart$gg2)
                dev.off()
            }
            ,'10' = {
-               chart.10 <- Chart10(control)
-               writeLines( text = chart.10$txt
+               hart <- Chart10()$Chart(control)
+               writeLines( text = chart$txt
                           ,con = control$path.out.chart.10.txt
                           )
 
@@ -245,18 +245,18 @@ MakeCharts <- function(control) {
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.10$gg1)
+               print(chart$gg1)
                dev.off()
 
                pdf( file = control$path.out.chart.10.gg2
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.10$gg2)
+               print(chart$gg2)
                dev.off()
            }
            ,'11' = {
-               chart.11 <- Chart11(control)
+               chart <- Chart11()$Chart(control)
                #    writeLines( text = chart.11$txt
                #               ,con = control$path.out.chart.11.txt
                #               )
@@ -265,19 +265,19 @@ MakeCharts <- function(control) {
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.11$gg1)
+               print(chart$gg1)
                dev.off()
 
                pdf( file = control$path.out.chart.11.gg2
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.11$gg2)
+               print(chart$gg2)
                dev.off()
            }
            ,'12' = {
-               chart.12 <- Chart12(control)
-               writeLines( text = chart.12$txt
+               chart <- Chart12()$Chart(control)
+               writeLines( text = chart$txt
                           ,con = control$path.out.chart.12.txt
                           )
 
@@ -285,59 +285,58 @@ MakeCharts <- function(control) {
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.12$gg1)
+               print(chart$gg1)
                dev.off()
 
                pdf( file = control$path.out.chart.12.gg2
                    ,width = control$chart.width
                    ,height = control$chart.height
                    )
-               print(chart.12$gg2)
+               print(chart$gg2)
                dev.off()
            }
            ,'13' = {
-               chart.13 <- Chart13(control)
-               str(chart.13)
-               writeLines( text = chart.13$indicators
+               chart <- Chart13()$Chart(control)
+               writeLines( text = chart$indicators
                           ,con = control$path.out.chart.13.indicators.txt
                           )
-               writeLines( text = chart.13$submarkets.summary
+               writeLines( text = chart$submarkets.summary
                           ,con = control$path.out.chart.13.submarkets.summary.txt
                           )
-               writeLines( text = chart.13$submarkets.census
+               writeLines( text = chart$submarkets.census
                           ,con = control$path.out.chart.13.submarkets.census.txt
                           )
-               writeLines( text = chart.13$submarkets.property.city
+               writeLines( text = chart$submarkets.property.city
                           ,con = control$path.out.chart.13.submarkets.property.city.txt
                           )
-               writeLines( text = chart.13$submarkets.zip5
+               writeLines( text = chart$submarkets.zip5
                           ,con = control$path.out.chart.13.submarkets.zip5.txt
                           )
-               writeLines( text = chart.13$submarkets.examples.census
+               writeLines( text = chart$submarkets.examples.census
                           ,con = control$path.out.chart.13.submarkets.examples.census.txt
                           )
-               writeLines( text = chart.13$submarkets.examples.property.city
+               writeLines( text = chart$submarkets.examples.property.city
                           ,con = control$path.out.chart.13.submarkets.examples.property.city.txt
                           )
-               writeLines( text = chart.13$submarkets.examples.zip5
+               writeLines( text = chart$submarkets.examples.zip5
                           ,con = control$path.out.chart.13.submarkets.examples.zip5.txt
                           )
            }
            ,'14' = {
-               chart.14 <- Chart14(control)
+               chart <- Chart14()$Chart(control)
 #               writeLines( text = chart.14$horizontal.60
 #                          ,con = control$path.out.chart.14.horizontal.60.txt
 #                          )
-               writeLines( text = chart.14$txt.1.30
+               writeLines( text = chart$txt.1.30
                           ,con = control$path.out.chart.14.1.30.txt
                           )
-               writeLines( text = chart.14$txt.1.60
+               writeLines( text = chart$txt.1.60
                           ,con = control$path.out.chart.14.1.60.txt
                           )
-               writeLines( text = chart.14$txt.5.30
+               writeLines( text = chart$txt.5.30
                           ,con = control$path.out.chart.14.5.30.txt
                           )
-               writeLines( text = chart.14$txt.5.60
+               writeLines( text = chart$txt.5.60
                           ,con = control$path.out.chart.14.5.60.txt
                           )
            }
@@ -356,7 +355,8 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='13')
+default.args <- list(chart='14')
+
 
 control <- Control(default.args)
 
