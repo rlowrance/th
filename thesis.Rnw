@@ -151,6 +151,13 @@ time.
 
 \chapter*{Abstract}
 
+% these lines are just for the NYU submission process
+%Predicting the Market Value of Single-Family Residential Real Estate
+
+%Advisors: Yann LeCun, Dennis Shasha
+
+%Author: Roy E. Lowrance
+
 This work develops the best linear model of residential real estate
 prices for 2003 through 2009 in Los Angeles County. It differs
 from other studies comparing models for predicting house prices by
