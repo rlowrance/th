@@ -38,15 +38,16 @@ Chart7 <- function() {
         Path <- CvCell()$Path
         result <- list()
         for (ndays in CvCell()$PossibleNdays()) {
-            for (response in c('level', 'log')) {
+            for (response in c('price', 'logprice')) {
                 for (predictorsForm in c('level', 'log')) {
                     for (query in c('1', '100')) {
-                    path <- MyPath( ndays = ndays
-                                   ,respone = response
-                                   ,predictorsForm = predictorsForm
-                                   ,query = query
-                                   )
-                    result[[length(result) + 1]] <- path
+                        cell <- c( fixed
+                                  ,ndays = ndays
+                                  ,response = response
+                                  ,predictorsForm = predictorsForm
+                                  ,query = query
+                                  )
+                        result[[length(result) + 1]] <- cell
                     }
                 }
             }

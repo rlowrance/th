@@ -33,17 +33,20 @@ Chart5 <- function() {
         my.path
     }
     CellsUsed <- function() {
-        # return list of paths to cells used
+        # return list of cells used
         result <- list()
-        for (ndays in CvCell()$PossibleNDays()){
+        for (ndays in CvCell()$PossibleNdays()){
             for (response in c('logprice', 'price')) {
                 for (predictorsForm in c('level', 'log')) {
-                    path <- MyPath( response = response
-                                   ,predictorsName = predictorsName 
-                                   ,predictorsForm = predictorsForm
-                                   ,ndays = ndays
-                                   )
-                    result[[length(all) + 1]] <- path
+                    for (predictorsName in c('always', 'alwaysNoAssessment')) {
+                        cell <- c( fixed
+                                  ,ndays = ndays
+                                  ,response = response
+                                  ,predictorsForm = predictorsForm
+                                  ,predictorsName = predictorsName
+                                  )
+                        result[[length(result) + 1]] <- cell
+                    }
                 }
             }
         }

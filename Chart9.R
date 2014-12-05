@@ -10,10 +10,13 @@ Chart9 <- function(my.control) {
     }
     CellsUsed <- function() {
         # return list of paths to cells used
+        fixed <- chart.9.and.10$Fixed()
         result <- list()
         for (predictorsName in PredictorsNames()) {
-            path <- MyPath(predictorsName = predictorsName)
-            result[[length(result) + 1]] <- path
+            cell <- c( fixed
+                      ,predictorsName = predictorsName
+                      )
+            result[[length(result) + 1]] <- cell
         }
         result
     }
@@ -29,7 +32,7 @@ Chart9 <- function(my.control) {
                                              )
         result
     }
-    result <- list( CellsUsed = chart.9.and.10$CellsUsed
+    result <- list( CellsUsed = CellsUsed
                    ,Chart = Chart
                    ,Fixed = chart.9.and.10$Fixed
                    )

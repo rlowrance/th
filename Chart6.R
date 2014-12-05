@@ -34,18 +34,20 @@ Chart6 <- function() {
     CellsUsed <- function() {
         # return list of paths to all cells used
         result <- list()
+        cv.cell <- CvCell()
         for (response in c('price', 'logprice')) {
             for (predictorsForm in c('level', 'log')) {
                 for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
-                    for (ndays in CvCell$PossibleNdays()) {
+                    for (ndays in cv.cell$PossibleNdays()) {
                         for (query in c('1', '100')) {
-                            path <- MyPath( response = response
-                                           ,predictorsForm = predictorsForm
-                                           ,predictorsName = predictorsName
-                                           ,ndays = ndays
-                                           ,query = query
-                                           )
-                            result[[length(result) + 1]] <- path
+                            cell <- c( fixed
+                                      ,response = response
+                                      ,predictorsForm = predictorsForm
+                                      ,predictorsName = predictorsName
+                                      ,ndays = ndays
+                                      ,query = query
+                                      )
+                            result[[length(result) + 1]] <- cell
                         }
                     }
                 }

@@ -36,17 +36,17 @@ Chart8 <- function(my.control) {
     CellsUsed <- function() {
         # return list of paths to cells used
         fixed <- Fixed()
-        Path <- CvCells$Path
+        Path <- CvCell()$Path
         result <- list()
-        for (ndays in CvCell()$PossibleNDays()) {
-            for (response in c('level', 'log')) {
+        for (ndays in CvCell()$PossibleNdays()) {
+            for (response in c('price', 'logprice')) {
                 for (predictorsForm in c('level', 'log')) {
-                    path <- MyPath( response = response
-                                   ,predictorsForm = predictorsForm
-                                   ,ndays = ndays
-                                   ,query = query
-                                   )
-                    result[[length(result) + 1]] <- path
+                    cell <- c( fixed
+                              ,ndays = ndays
+                              ,response = response
+                              ,predictorsForm = predictorsForm
+                              )
+                    result[[length(result) + 1]] <- cell
                 }
             }
         }
@@ -64,19 +64,11 @@ Chart8 <- function(my.control) {
 
         ACvResult <- function(ndays, response, predictorsForm, query) {
             # return the single cv.result in the e-cv-cell for ndays
-            path.in <- Path( scope = 'global'
-                            ,model = 'linear'
-                            ,timePeriod = '2003on'
-                            ,scenario = 'avm'
-                            ,response = response
-                            ,predictorsName = 'alwaysNoAssessment'
-                            ,predictorsForm = predictorsForm
-                            ,ndays = ndays
-                            ,query = query
-                            ,lambda = '0'
-                            ,ntree = '0'
-                            ,mtry = '0'
-                            )
+            path.in <- MyPath( response = response
+                              ,predictorsForm = predictorsForm
+                              ,ndays = ndays
+                              ,query = query
+                              )
             load(path.in)
             stopifnot(!is.null(cv.result))
             stopifnot(length(cv.result) == 1)

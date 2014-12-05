@@ -47,8 +47,10 @@ Chart11 <- function(my.control) {
         # return list of cell paths
         result <- list()
         for (predictorsName in Chart11PredictorsNames()) {
-            path <- MyPath(predictorsName = predictorsName)
-            result[[length(result) + 1]] <- path
+            cell <- c( fixed
+                      ,predictorsName = predictorsName
+                      )
+            result[[length(result) + 1]] <- cell
         }
         result
     }

@@ -15,10 +15,18 @@ source('Chart12LambdaValues.R')
 source('CvCell.R')
 source('Lines.R')
 
-#library(boot)
-#library(ggplot2)
-#library(optparse)
-#library(memoise)
+source('Chart5.R')
+source('Chart6.R')
+source('Chart7.R')
+source('Chart8.R')
+source('Chart9.R')
+source('Chart9And10.R')
+source('Chart10.R')
+source('Chart11.R')
+source('Chart12.R')
+source('Chart13.R')
+source('Chart14.R')
+
 
 Control <- function(default.args) {
     # parse command line arguments in command.args
@@ -45,7 +53,7 @@ Chart.5.FileDependencies <- function(my.control) {
     # predictorsName in {always, alwaysNoAssesment}
     # timePeriod 2008
 
-    fixed <- CvCell()$FixedCellValues('Chart5')
+    fixed <- Chart14()$Fixed()
     result <- NULL
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('always', 'alwaysNoAssessment')) {
@@ -76,7 +84,7 @@ Chart.6.FileDependencies <- function(my.control) {
     # predictorsName in {alwaysNoAssesment, alwaysNoCensus}
     # timePeriod 2003on
 
-    fixed <- CvCell()$FixedCellValues('Chart6')
+    fixed <- Chart6()$Fixed()
 
     result <- NULL
     for (response in c('price', 'logprice')) {
@@ -108,7 +116,7 @@ Chart.6.FileDependencies <- function(my.control) {
 Chart.7.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 7 
 
-    fixed <- CvCell()$FixedCellValues('Chart7')
+    fixed <- Chart7()$Fixed()
 
     result <- NULL
     for (response in c('price', 'logprice')) {
@@ -164,7 +172,7 @@ Chart.9.FileDependencies <- function(my.control) {
         predictorsNames
     }
 
-    fixed <- CvCell()$FixedCellValues('Chart9')
+    fixed <- Chart9()$Fixed()
 
     result <- NULL
     for (predictorsName in Chart.9.PredictorsNames(my.control)) {
@@ -194,7 +202,7 @@ Chart.10.FileDependencies <- function(my.control) {
         result
     }
 
-    fixed <- CvCell()$FixedCellValues('Chart10')
+    fixed <- Chart10()$Fixed()
 
     result <- NULL
     for (predictorsName in Chart.10.PredictorsNames()) {
@@ -232,7 +240,7 @@ Chart.11.FileDependencies <- function(my.control) {
         result
     }
 
-    fixed <- CvCell()$FixedCellValues('Chart11')
+    fixed <- Chart11()$Fixed()
 
     result <- NULL
     for (predictorsName in Chart.11.PredictorsNames()) {
@@ -256,7 +264,7 @@ Chart.11.FileDependencies <- function(my.control) {
 Chart.12.FileDependencies <- function(my.control) {
     # return list of file names used to construct chart 11
 
-    fixed <- CvCell()$FixedCellValues('Chart12')
+    fixed <- Chart12()$Fixed()
 
     result <- NULL
     for (lambda in Chart12LambdaValues()) {
@@ -280,7 +288,7 @@ Chart.12.FileDependencies <- function(my.control) {
 Chart.13.FileDependencies <- function(control) {
     # return list of all combinations
 
-    fixed <- CvCell()$FixedCellValues('Chart13')
+    fixed <- Chart13()$Fixed()
 
     result <- NULL
     GenerateIndicatorElements <- function() {
@@ -331,7 +339,7 @@ Chart.13.FileDependencies <- function(control) {
 Chart.14.FileDependencies <- function(control) {
     # return list of all combinations
 
-    fixed <- CvCell()$FixedCellValues('Chart14')
+    fixed <- Chart14()$Fixed()
 
     result <- NULL
     # generate in order so that the longest to run are specified first
@@ -427,10 +435,6 @@ MakeMakefiles <- function(control) {
         # $path.command: list() with name $path and value command
         # $targets: Lines () object
 
-        if (FALSE && num.folds > 0) {
-            cat('target.variable.name', target.variable.name, '\n'); browser()
-        }
-
         targets <- Lines()
         thread.number <- 0
         path.command.nfold <- NULL
@@ -471,14 +475,14 @@ MakeMakefiles <- function(control) {
                     1
                 else
                     thread.number + 1
-            #cat('thread.number', thread.number, '\n'); browser()
+
             if (thread.number <= 12) {
                 DefineCells(targets, target.variable.name, 'r', path, num.folds)
             } else {
                 DefineCells(targets, target.variable.name, 'j', path, num.folds)
             }
+
             DefineCells(targets, target.variable.name, 'all', path, num.folds)
-            #print(tail(rules$Get())); print(tail(targets$Get())); browser()
         }
         DefineTarget(targets, target.variable.name, 'r')
         DefineTarget(targets, target.variable.name, 'j')
@@ -492,87 +496,51 @@ MakeMakefiles <- function(control) {
 
     all.path.command.nfold <- NULL
     all.targets <- Lines()
+
     M <- function(target.variable.name, dependency.file.names, num.folds = 0) {
         one.target <- OneTarget(target.variable.name, dependency.file.names, num.folds)
-        if (FALSE && num.folds > 0) {
-            cat('in M examine one.target\n'); browser()
-        }
         all.path.command.nfold <<- c(all.path.command.nfold, one.target$path.command)
         lapply(one.target$targets$Get(), function(line) all.targets$Append(line))
     }
-    if (control$testing) {
-        browser()
-        fixed <- list( model = 'a'
-                      ,timePeriod = 'b'
-                      ,scenario = 'c'
-                      ,response = 'd'
-                      ,predictorsName = 'e'
-                      ,predictorsForm = 'f'
-                      ,ndays = 'g'
-                      ,query = 'h'
-                      ,lambda = 'i'
-                      ,ntree = 'j'
-                      ,mtry = 'k'
-                      )
-        TestNoFolds <- function(control) {
-            element <- fixed
-            element[['scope']] <- 'nofolds'
-            result <- list(element)
-            result
-        }
-        TestFolds <- function(control) {
-            element <- fixed
-            element[['scope']] <- 'folds'
-            result <- list(element)
-            result
-        }
-        M( target.variable.name = 'target-no-folds',
-          ,dependency.file.names = TestNoFolds(control)
-          )
-        M( target.variable.name = 'target-folds'
-          ,dependency.file.name = TestFolds(control)
-          ,num.folds = 2
-          )
-    } else {
-        M( target.variable.name = 'e-cv-chart-chart5'
-          ,dependency.file.names = Chart.5.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart6'
-          ,dependency.file.names = Chart.6.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart7'
-          ,dependency.file.names = Chart.7.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart8'
-          ,dependency.file.names = Chart.8.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart9'
-          ,dependency.file.names = Chart.9.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart10'
-          ,dependency.file.names = Chart.10.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart11'
-          ,dependency.file.names = Chart.11.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart12'
-          ,dependency.file.names = Chart.12.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart13'
-          ,dependency.file.names = Chart.13.FileDependencies(control)
-          )
-        M( target.variable.name = 'e-cv-chart-chart14'
-          ,dependency.file.names = Chart.14.FileDependencies(control)
-          )
-#        M( target.variable.name = 'e-cv-chart-chart13'
-#          ,dependency.file.names = Chart.13.FileDependencies(control)
-#          ,num.folds = 10
-#          )
-#        M( target.variable.name = 'e-cv-chart-chart14'
-#          ,dependency.file.names = Chart.14.FileDependencies(control)
-#          ,num.folds = 10
-#          )
-    }
+
+    M( target.variable.name = 'e-cv-chart-chart5'
+      ,dependency.file.names = Chart5()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart6'
+      ,dependency.file.names = Chart6()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart7'
+      ,dependency.file.names = Chart7()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart8'
+      ,dependency.file.names = Chart8()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart9'
+      ,dependency.file.names = Chart9()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart10'
+      ,dependency.file.names = Chart10()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart11'
+      ,dependency.file.names = Chart11()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart12'
+      ,dependency.file.names = Chart12()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart13'
+      ,dependency.file.names = Chart13()$CellsUsed()
+      )
+    M( target.variable.name = 'e-cv-chart-chart14'
+      ,dependency.file.names = Chart14()$CellsUsed()
+      )
+    #        M( target.variable.name = 'e-cv-chart-chart13'
+    #          ,dependency.file.names = Chart.13.FileDependencies(control)
+    #          ,num.folds = 10
+    #          )
+    #        M( target.variable.name = 'e-cv-chart-chart14'
+    #          ,dependency.file.names = Chart.14.FileDependencies(control)
+    #          ,num.folds = 10
+    #          )
 
     GenerateMakefile <- function(all.path.command.nfold, all.targets) {
         # return a Lines() object containing all lines in the makefile
@@ -644,7 +612,6 @@ MakeMakefiles <- function(control) {
 
 }
 Main <- function(control) {
-    browser()
     InitializeR(duplex.output.to = control$path.out.log)
     str(control)
 

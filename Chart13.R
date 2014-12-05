@@ -44,18 +44,19 @@ Chart13 <- function() {
         for (scope in c( 'global'
                         ,codes.census.tract
                         ,codes.property.city
-                        ,code.zip5)) {
+                        ,codes.zip5)) {
             for (predictorsName in c( 'best15zip'
                                      ,'best15census'
                                      ,'best15city'
                                      )) {
-                path <-MyPath( scope = scope,
-                              ,predictorsName = predictorsName
-                              )
-                result[[length(result) + 1]] <- path
+                cell <- c( fixed
+                          ,scope = scope
+                          ,predictorsName = predictorsName
+                          )
+                result[[length(result) + 1]] <- cell
             }
         }
-        results
+        result
     }
 
     Chart <- function(my.control) {

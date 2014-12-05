@@ -37,11 +37,13 @@ Chart14 <- function(my.control) {
             for (ntree in c('1', '100', '300', '1000')) {
                 for (mtry in c('1', '2', '3', '4')) {
                     for (ndays in c('30', '60')) {
-                        path <- MyPath( query = query
-                                       ,ntree = ntree
-                                       ,mtry = mtry
-                                       ,ndays = ndays)
-                        result[[length(result) + 1]] <- path
+                        cell <- c( fixed
+                                  ,query = query
+                                  ,ntree = ntree
+                                  ,mtry = mtry
+                                  ,ndays = ndays
+                                  )
+                        result[[length(result) + 1]] <- cell
                     }
                 }
             }

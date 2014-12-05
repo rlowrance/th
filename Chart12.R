@@ -39,9 +39,11 @@ Chart12 <- function() {
         # return list of paths to cells used
         possible.lambda.values <- Chart12LambdaValues()
         result <- list()
-        for (lambda in possible.lambda.value) {
-            path <- MyPath(lambda)
-            result[[length(result) + 1]] <- path
+        for (lambda in possible.lambda.values) {
+            cell <- c( fixed
+                      ,lambda = lambda
+                      )
+            result[[length(result) + 1]] <- cell
         }
         result
     }
