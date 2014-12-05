@@ -1,5 +1,5 @@
-Table7Vertical <- function(lines) {
-    # return function object $Header()  $Detail() $Get()
+Table7Metrics3 <- function(lines) {
+    # return function object $Header() $Panel() $Detail() $Get(), for 3 metrics
     header.format <- '%15s %8s %8s %8s %8s %8s %8s'
     data.format   <- '%15s %8.0f %8.0f %8.3f %8.0f %8.0f %8.3f'
     data.format.large.value1   <- '%15s %8.0g %8.0f %8.3f %8.0f %8.0f %8.3f'

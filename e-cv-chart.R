@@ -29,6 +29,7 @@ source('Chart13.R')
 source('Chart14.R')
 
 # functions called by at least one of Chart5 .. Chart14
+source('AbsoluteRelativeErrors.R')
 source('Chart9And10.R')
 source('Chart12LambdaValues.R')
 source('CIChart.R')
@@ -37,8 +38,10 @@ source('CITable.R')
 source('CvCell.R')
 source('HeadersFixed.R')
 source('Lines.R')
+source('MeanMARE.R')
 source('MeanWithin10.R')
 source('MeanRMSE.R')
+source('MedianMARE.R')
 source('MedianRMSE.R')
 source('Predictors2.R')
 source('RootMeanSquaredErrors.R')
@@ -47,7 +50,8 @@ source('Table5And6Horizontal.R')
 source('Table5And6Vertical.R')
 #source('Table7AHorizontal.R')
 #source('Table7BHorizontal.R')
-source('Table7Vertical.R')
+source('Table7Metrics3.R')
+source('Table7Metrics5.R')
 #source('Table8Horizontal.R')
 source('Table8Vertical.R')
 
@@ -96,7 +100,8 @@ Control <- function(default.args) {
              ,path.out.chart.6.vertical.1.txt = paste0(working, out.base, '_chart6_vertical.txt')
              ,path.out.chart.6.vertical.100.txt = paste0(working, out.base, '_chart6_vertical100.txt')
 
-             ,path.out.chart.7.txt = paste0(working, out.base, '_chart7.txt')
+             ,path.out.chart.7.txt3 = paste0(working, out.base, '_chart7_3.txt')
+             ,path.out.chart.7.txt5 = paste0(working, out.base, '_chart7_5.txt')
 
              ,path.out.chart.8.txt = paste0(working, out.base, '_chart8.txt')
              
@@ -204,8 +209,11 @@ MakeCharts <- function(control) {
            }
            ,'07' = {
                chart <- Chart7()$Chart(control)
-               writeLines( text = chart$txt
-                          ,con = control$path.out.chart.7.txt
+               writeLines( text = chart$txt3
+                          ,con = control$path.out.chart.7.txt3
+                          )
+               writeLines( text = chart$txt5
+                          ,con = control$path.out.chart.7.txt5
                           )
            }
            ,'08' = {
@@ -355,7 +363,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='11')
+default.args <- list(chart='07')
 
 
 control <- Control(default.args)

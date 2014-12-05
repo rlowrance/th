@@ -31,7 +31,7 @@ HeadersFixed <- function(fixed, lines) {
                )
     }
     HeaderPredictorsName <- function(s) {
-        paste0( 'Predictors name: '
+        paste0( 'Predictors: '
                ,switch(s
                        ,always = 'always in every transaction'
                        ,alwaysNoAssessment = 'always in every transaction and not in the tax assessment'

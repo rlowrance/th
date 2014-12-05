@@ -5,7 +5,6 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   # $PossibleNdays() --> chr vector, all possible values for ndays, namely '30' .. '360'
   # $PossiblePredictorsNamess() --> chr vector, all possible values for predictorsName, 'always', ...
   # $FixedCellValues(chart.name) --> list of any 12 cell attributes that are common
-  source('Directory.R')
 
   Is.Valid.Scope <- function(s)          is.character(s)
   Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2', 'rf')
@@ -114,8 +113,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                           
 
   
-  list( FixedCellValues          = FixedCellValues
-       ,Command                  = Command
+  list( Command                  = Command
        ,Path                     = Path
        ,PossibleNdays            = PossibleNdays
        ,PossiblePredictorsNamess = PossiblePredictorsNamess

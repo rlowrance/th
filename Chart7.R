@@ -7,6 +7,7 @@ Chart7 <- function() {
                        ,scenario = 'avm'
                        ,timePeriod = '2003on'
                        ,predictorsName = 'alwaysNoAssessment'
+                       ,query = '1'  # 100%
                        ,lambda = '0'
                        ,ntree = '0'
                        ,mtry = '0'
@@ -16,7 +17,7 @@ Chart7 <- function() {
 
     fixed <- Fixed()
     Path <- CvCell()$Path
-    MyPath <- function(response, predictorsForm, ndays, query) {
+    MyPath <- function(response, predictorsForm, ndays) {
         my.path <- Path( scope = fixed$scope
                         ,model = fixed$model
                         ,timePeriod = fixed$timePeriod
@@ -25,7 +26,7 @@ Chart7 <- function() {
                         ,predictorsName = fixed$predictorsName
                         ,predictorsForm = predictorsForm
                         ,ndays = ndays
-                        ,query = query
+                        ,query = fixed$query
                         ,lambda = fixed$lambda
                         ,ntree = fixed$ntree
                         ,mtry = fixed$mtry
@@ -40,15 +41,12 @@ Chart7 <- function() {
         for (ndays in CvCell()$PossibleNdays()) {
             for (response in c('price', 'logprice')) {
                 for (predictorsForm in c('level', 'log')) {
-                    for (query in c('1', '100')) {
-                        cell <- c( fixed
-                                  ,ndays = ndays
-                                  ,response = response
-                                  ,predictorsForm = predictorsForm
-                                  ,query = query
-                                  )
-                        result[[length(result) + 1]] <- cell
-                    }
+                    cell <- c( fixed
+                              ,ndays = ndays
+                              ,response = response
+                              ,predictorsForm = predictorsForm
+                              )
+                    result[[length(result) + 1]] <- cell
                 }
             }
         }
@@ -58,16 +56,11 @@ Chart7 <- function() {
         # return txt lines for chart 7
 
 
-        cv.cell <- CvCell()
-        fixed <- cv.cell$FixedCellValues('Chart7')
-        Path <- cv.cell$Path
-
-        ACvResult <- function(ndays, response, predictorsForm, query) {
+        ACvResult <- function(ndays, response, predictorsForm) {
             # return the single cv.result in the e-cv-cell for ndays
             path.in <- MyPath( response = response
                               ,predictorsForm = predictorsForm
                               ,ndays = ndays
-                              ,query = query
                               )
             if (file.exists(path.in)) {
                 load(path.in)
@@ -81,43 +74,41 @@ Chart7 <- function() {
                 a.cv.result
             }
         }
-        Header <- function(lines, include.asterisk, query) {
+        MetricExplanation <- function(metric.name) {
+            switch( metric.name
+                   ,meanRMSE = 'Mean of Root Mean Squared Errors Across Folds'
+                   ,medRMSE  = 'Median of Root Median Squared Errors Across Folds'
+                   ,fctWI10  = 'Mean of Fraction of Predictions Within 10 Percent of Actual Across Folds'
+                   ,meanMARE  = 'Mean of Mean Absolute Relative Error Across Folds'
+                   ,medMARE   = 'Median of Median Absolute Relative Error Across Folds'
+                   ,stop(paste0('bad metric.name ', metric.name))
+                   )
+        }
+        Header <- function(lines, metric.names) {
             # mutate lines by appending the header
             lines$Append('Comparison of Metrics From from 10 Fold Cross Validation')
-            lines$Append('Mean of Root Mean Squared Errors (meanRMSE) vs.')
-            lines$Append('Median of Root Median Squared Errors (medRMSE) vs.')
-            lines$Append('Mean of Fraction of Predictions Within 10 Percent of Actual Values (fctWI10)')
-            if (include.asterisk)
-                lines$Append('An asterisk (*) before a number indicates that it minimizes the row')
+            for (metric.name in metric.names) {
+                lines$Append(sprintf('%s (%s)', MetricExplanation(metric.name), metric.name))
+            }
 
             stopifnot(fixed$scope == 'global')
             stopifnot(fixed$model == 'linear')
             stopifnot(fixed$timePeriod == '2003on')
             stopifnot(fixed$predictorsName == 'alwaysNoAssessment')
-            stopifnot(fixed$query == '100')
 
             HeadersFixed(fixed, lines)
-            lines$Append(sprintf('Percent of queries in each fold that were estimated: %d'
-                                 ,switch( query
-                                         ,'100' = 1
-                                         ,'20'  = 5
-                                         ,'1'   = 100
-                                         ,stop(paste0('bad query:', as.character(query)))
-                                         )
-                                 )
-            )
         }
-        AppendTableVertical <- function(lines, query) {
+        AppendTableMetrics3 <- function(lines, metric.names, metric.functions) {
             # append to Lines() object
-            table <- Table7Vertical(lines)
+            table <- Table7Metrics3(lines)
             AppendTableHeader <- function(table) {
                 table$Header( 'predictorsForm:'
                              ,'level', 'level', 'level'
                              , 'log', 'log', 'log'
                              )
                 table$Header( 'metric:'
-                             ,'meanRMSE', 'medRMSE', 'fctWI10'
-                             ,'meanRMSE', 'medRMSE', 'fctWI10'
+                             ,metric.names[[1]], metric.names[[2]], metric.names[[3]]
+                             ,metric.names[[1]], metric.names[[2]], metric.names[[3]]
                              )
                 table$Header('ndays'
                              ,' ', ' ', ' '
@@ -125,71 +116,155 @@ Chart7 <- function() {
                              )
             }
 
-            DetailLine <- function(response, ndays) {
-                Value <- function(ndays, predictorsForm, metricName) {
+            AppendDetailLine <- function(table, response, ndays) {
+                Value <- function(ndays, predictorsForm, metric.index) {
                     a.cv.result <- ACvResult( ndays = ndays
                                              ,response = response
                                              ,predictorsForm = predictorsForm
-                                             ,query = query
                                              )
                     result <-
                         if (length(a.cv.result) == 1) {
                             NA
                         } else {
-                            switch( metricName
-                                   ,medRMSE = MedianRMSE(a.cv.result)
-                                   ,fctWI10 = MeanWithin10(a.cv.result)
-                                   ,meanRMSE = MeanRMSE(a.cv.result)
-                                   ,stop('bad metricName')
-                                   )
+                            MetricFunction <- metric.functions[[metric.index]]
+                            MetricFunction(a.cv.result)
                         }
 
                     result
                 }
                 table$Detail( ndays
 
-                             ,Value(ndays, 'level', 'meanRMSE')
-                             ,Value(ndays, 'level', 'medRMSE')
-                             ,Value(ndays, 'level', 'fctWI10')
+                             ,Value(ndays, 'level', 1)
+                             ,Value(ndays, 'level', 2)
+                             ,Value(ndays, 'level', 3)
 
-                             ,Value(ndays, 'log', 'meanRMSE')
-                             ,Value(ndays, 'log', 'medRMSE')
-                             ,Value(ndays, 'log', 'fctWI10')
+                             ,Value(ndays, 'log', 1)
+                             ,Value(ndays, 'log', 2)
+                             ,Value(ndays, 'log', 3)
                              )
             }
             for (response in c('price', 'logprice')) {
                 table$Panel(response)
                 AppendTableHeader(table)
-                for (ndays in c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')) {
-                    DetailLine(response, ndays)
+                for (ndays in CvCell()$PossibleNdays()) {
+                    AppendDetailLine(table, response, ndays)
                 }
                 lines$Append(' ')
             }
             lines
         }
+        AppendTableMetrics5 <- function(lines, metric.names, metric.functions) {
+            # mutate lines
+            table <-Table7Metrics5(lines)
+            AppendTableHeader <- function(table) {
+                table$Header( 'metric:'
+                             ,metric.names[[1]]
+                             ,metric.names[[2]]
+                             ,metric.names[[3]]
+                             ,metric.names[[4]]
+                             ,metric.names[[5]]
+                             )
+                table$Header( 'ndays'
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             ,' '
+                             )
+            }
+            AppendDetailLine <- function(table, ndays, response, predictorsForm) {
+                Value <- function(ndays, MetricFunction) {
+                    a.cv.result <- ACvResult( ndays = ndays
+                                             ,response = response
+                                             ,predictorsForm = predictorsForm
+                                             )
+                    result <-
+                        if (length(a.cv.result) == 1) {
+                            NA
+                        } else {
+                            MetricFunction(a.cv.result)
+                        }
+                    result
+                }
 
-        Report <- function(AppendTable, include.asterisk, query) {
+                table$Detail( ndays
+                             ,Value(ndays, metric.functions[[1]])
+                             ,Value(ndays, metric.functions[[2]])
+                             ,Value(ndays, metric.functions[[3]])
+                             ,Value(ndays, metric.functions[[4]])
+                             ,Value(ndays, metric.functions[[5]])
+                             )
+            }
+            panel.index <- 0
+            panel.names <- c('A', 'B', 'C', 'D')
+            for (response in c('price', 'logprice')) {
+                for (predictorsForm in c('level', 'log')) {
+                    panel.index <- panel.index + 1
+                    lines$Append(' ')
+                    lines$Append(sprintf('Panel %s: predicting %s using predictors in %s form'
+                                         ,panel.names[[panel.index]]
+                                         ,response
+                                         ,predictorsForm
+                                         )
+                    )
+                    lines$Append(' ')
+                    AppendTableHeader(table)
+                    for (ndays in CvCell()$PossibleNdays()) {
+                        AppendDetailLine( table
+                                         ,ndays = ndays
+                                         ,response = response
+                                         ,predictorsForm = predictorsForm)
+                    }
+
+
+
+                }
+            }
+
+
+        }
+        AppendTable <- function(lines, metric.names, metric.functions) {
+            # append to Lines() object
+            stopifnot(length(metric.names) == length(metric.functions))
+            if (length(metric.names) == 3)
+                AppendTableMetrics3(lines, metric.names, metric.functions)
+            else 
+                AppendTableMetrics5(lines, metric.names, metric.functions)
+        }
+        Report <- function(metric.names, metric.functions) {
             # produce Lines() object with specified table
             lines <- Lines()
             Header( lines = lines
-                   ,query = query
-                   ,include.asterisk = include.asterisk
+                   ,metric.names = metric.names
                    )
 
             lines$Append(' ')
-            AppendTable(lines, query)
+            AppendTable( lines = lines
+                        ,metric.names = metric.names
+                        ,metric.functions = metric.functions
+                        )
             lines
         }
-        ReportVertical <- function(query) {
-            result <- Report( AppendTable = AppendTableVertical
-                             ,query = query
-                             ,include.asterisk = FALSE
-                             )
-            result
+        ReportMetrics3 <- function() {
+            if (FALSE) {
+                cat('STUB ReportMetric3\n');
+                lines <- Lines()
+                lines$Append('STUB ReportMetrics3\n')
+                return(lines)
+            }
+            Report( metric.names = c('meanRMSE', 'medRMSE', 'fctWI10')
+                   ,metric.functions = c(MeanRMSE, MedianRMSE, MeanWithin10)
+                   )
+        }
+        ReportMetrics5 <- function() {
+            Report( metric.names = c('meanRMSE', 'medRMSE', 'fctWI10', 'meanMARE', 'medMARE')
+                   ,metric.functions = c(MeanRMSE, MedianRMSE, MeanWithin10, MeanMARE, MedianMARE)
+                   )
         }
 
 
-        result <- list(txt = ReportVertical('1')$Get()    # 100% sample
+        result <- list( txt3 = ReportMetrics3()$Get()  # 3 Metrics: meanRMSE medRMSE fctWI10
+                       ,txt5 = ReportMetrics5()$Get()  # + 2 metrics: meanARE medARE
                        )
         result
     }
