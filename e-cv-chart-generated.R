@@ -58,7 +58,7 @@ Chart.5.FileDependencies <- function(my.control) {
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('always', 'alwaysNoAssessment')) {
             for (predictorsForm in c('level', 'log')) {
-                for (ndays in CvCell()$Possible.Ndays()) {
+                for (ndays in CvCell()$PossibleNdays()) {
                     element <- list( scope = fixed$scope
                                     ,model = fixed$model
                                     ,timePeriod = fixed$timePeriod
@@ -90,7 +90,7 @@ Chart.6.FileDependencies <- function(my.control) {
     for (response in c('price', 'logprice')) {
         for (predictorsName in c('alwaysNoAssessment', 'alwaysNoCensus')) {
             for (predictorsForm in c('level', 'log')) {
-                for (ndays in CvCell()$Possible.Ndays()) {
+                for (ndays in CvCell()$PossibleNdays()) {
                     for (query in c('1', '100')) {
                         element <- list( scope = fixed$scope
                                         ,model = fixed$model
@@ -122,7 +122,7 @@ Chart.7.FileDependencies <- function(my.control) {
     for (response in c('price', 'logprice')) {
         for (predictorsName in 'alwaysNoAssessment') {
             for (predictorsForm in c('level', 'log')) {
-                for (ndays in CvCell()$Possible.Ndays()) {
+                for (ndays in CvCell()$PossibleNdays()) {
                     for (query in c('1', '20', '100')) { # 1% and 5% samples
                         element <- list( scope = fixed$scope
                                         ,model = fixed$model
@@ -159,7 +159,7 @@ Chart.9.FileDependencies <- function(my.control) {
         # return list of predictor names for chart 9
         # these have the form best01, best02, ..., best24
         ordered.features <- readLines(con = control$path.in.chart9.features)
-        cvcell.predictors.names <- CvCell()$Possible.PredictorsNames()
+        cvcell.predictors.names <- CvCell()$PossiblePredictorsNames()
         stopifnot(length(ordered.features) != length(cvcell.predictors.names))
         predictorsNames <- sapply( 1:length(ordered.features)
                                   ,function(n) 

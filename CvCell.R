@@ -2,8 +2,8 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   # list of functions for working with e-cv-cells
   # $Command(scope, model, ..., mtry) --> chr, Rscript -e-cv.R --scope SCOPE ... --mtry MTRY
   # $Path(scope, model, ..., mtry) --> chr, path to WORKING/e-cv-cells/FILE.Rdata
-  # $Possible.Ndays() --> chr vector, all possible values for ndays, namely '30' .. '360'
-  # $Possible.PredictorsNames() --> chr vector, all possible values for predictorsName, 'always', ...
+  # $PossibleNdays() --> chr vector, all possible values for ndays, namely '30' .. '360'
+  # $PossiblePredictorsNamess() --> chr vector, all possible values for predictorsName, 'always', ...
   # $FixedCellValues(chart.name) --> list of any 12 cell attributes that are common
   source('Directory.R')
 
@@ -12,94 +12,14 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   Is.Valid.TimePeriod <- function(s)     s %in% c('2003on', '2008')
   Is.Valid.Scenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
   Is.Valid.Response <- function(s)       s %in% c('logprice', 'price')
-  Is.Valid.PredictorsName <- function(s) s %in% Possible.PredictorsNames()
+  Is.Valid.PredictorsName <- function(s) s %in% PossiblePredictorsNamess()
   Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
-  Is.Valid.Ndays <- function(s)          s %in% Possible.Ndays()
+  Is.Valid.Ndays <- function(s)          s %in% PossibleNdays()
   Is.Valid.Query <- function(s)          s %in% c('1', '20', '100')
   Is.Valid.Lambda <- function(s)         is.character(s) && as.integer(s) >= 0
   Is.Valid.Ntree <- function(s)          is.character(s) && as.integer(s) >= 0
   Is.Valid.Mtry <- function(s)           is.character(s) && as.integer(s) >= 0
 
-  FixedCellValues <- function(chart.name) {
-    switch(chart.name
-           ,Chart5 = list( scope = 'global'
-                          ,model = 'linear'
-                          ,timePeriod = '2008'
-                          ,scenario = 'avm'
-                          ,query = '1'
-                          ,lambda = '0'
-                          ,ntree = '0'
-                          ,mtry = '0'
-                          )
-           ,Chart6 = list( scope = 'global'
-                          ,model = 'linear'
-                          ,timePeriod = '2003on'
-                          ,scenario = 'avm'
-                          #,query = '100'  # now also '1'
-                          ,lambda = '0'
-                          ,ntree = '0'
-                          ,mtry = '0'
-                          )
-           ,Chart7 =
-           ,Chart8 = list( scope = 'global'
-                          ,model = 'linear'
-                          ,scenario = 'avm'
-                          ,timePeriod = '2003on'
-                          ,predictorsName = 'alwaysNoAssessment'
-                          ,lambda = '0'
-                          ,ntree = '0'
-                          ,mtry = '0'
-                          )
-           ,Chart9 =
-           ,Chart10 =
-           ,Chart11 = list( scope = 'global'
-                          ,model = 'linear'
-                          ,timePeriod = '2003on'
-                          ,scenario = 'avm'
-                          ,response = 'logprice'
-                          ,predictorsForm = 'level'
-                          ,ndays = '30'
-                          ,query = '1'
-                          ,lambda = '0'
-                          ,ntree = '0'
-                          ,mtry = '0'
-                          )
-           ,Chart12 = list( scope = 'global'
-                           ,model = 'linL2'
-                           ,timePeriod = '2003on'
-                           ,scenario = 'avm'
-                           ,response = 'logprice'
-                           ,predictorsName = 'best15'
-                           ,predictorsForm = 'level'
-                           ,ndays = '30'
-                           ,query = '1'
-                           ,ntree = '0'
-                           ,mtry = '0'
-                           )
-           ,Chart13 = list( model = 'linL2'
-                           ,timePeriod = '2003on'
-                           ,scenario = 'avm'
-                           ,response = 'logprice'
-                           ,predictorsForm = 'level'
-                           ,predictorsName = 'best15'
-                           ,query = '1'
-                           ,ndays = '30'
-                           ,lambda = '5500'
-                           ,ntree = '0'
-                           ,mtry = '0'
-                           )
-           ,Chart14 = list( scope = 'global'
-                           ,model = 'rf'
-                           ,scenario = 'avm'
-                           ,timePeriod = '2003on'
-                           ,response = 'logprice'
-                           ,predictorsForm = 'level'
-                           ,lambda = '0'
-                           )
-           ,stop(paste0('not implemented', chart.name))
-           )
-  }
-  
   Command <- function( scope, model, timePeriod, scenario
                       ,response, predictorsName, predictorsForm, ndays
                       ,query, lambda, ntree, mtry) {
@@ -153,13 +73,13 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
     path
   }
 
-  Possible.Ndays <- function() {
+  PossibleNdays <- function() {
     # return vector of all possible values for ndays ('30', '60', ..., '360')
     ndays = c('30', '60', '90', '120', '150', '180', '210', '240', '270', '300', '330', '360')
     ndays
   }
 
-  Possible.PredictorsNames <- function() {
+  PossiblePredictorsNamess <- function() {
     # return vector of all possible values for predictorsName
     predictors.names <- c( 'always', 'alwaysNoAssessment', 'alwaysNoCensus'
                           ,'best01', 'best02', 'best03', 'best04', 'best05', 'best06'
@@ -197,9 +117,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   list( FixedCellValues          = FixedCellValues
        ,Command                  = Command
        ,Path                     = Path
-       ,Possible.Ndays           = Possible.Ndays
-       ,PossibleNdays            = Possible.Ndays
-       ,Possible.PredictorsNames = Possible.PredictorsNames
-       ,PossiblePredictorsNames  = Possible.PredictorsNames
+       ,PossibleNdays            = PossibleNdays
+       ,PossiblePredictorsNamess = PossiblePredictorsNamess
        )
 }
