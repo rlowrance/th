@@ -162,10 +162,11 @@ For Model Selection Metrics\\
 By Response Variable, Predictors, and Training Periods\\
 For Sales in 2003 and Later
 }
-\label{figure:merit1Vertical}
+%\label{figure:merit1Vertical}
+\label{figure:path.7.txt}
 \end{figure}
 
-The results are depicted in Figure \ref{figure:merit1Vertical}.
+The results are depicted in Figure \ref{figure:path.7.txt}.
 
 The table has two panels. In panel A, the response variable is price. In
 panel B the response variable is $\log(price)$. Each panel has a row for
@@ -203,7 +204,7 @@ than the actual transaction price.
 Preferred Number of Training Days\\
 By Model Selection Metric\\
 For Model Forms\\
-Summarizing Figure \ref{figure:merit1Vertical}
+Summarizing Figure \ref{figure:path.7.txt}
 }
 \label{figure:Analysis}
 \end{figure}
@@ -330,7 +331,7 @@ By Response Variable, Predictors, and Training Period\\
 Using Census Features and Not Tax Assessor Features\\
 For Sales in 2003 and Later
 }
-\label{figure:EGEFormNdays01}
+\label{figure:path.8.txt}
 \end{figure}
 
 
@@ -344,7 +345,7 @@ sprintf('%2.0f', p * 100)
 }
 @
 
-Figure \ref{figure:EGEFormNdays01} shows the estimated generalization
+Figure \ref{figure:path.8.txt} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
 30$ and is in the fourth column, which holds errors for the log-level
 model. Thus the lowest error occurs when training for 30 days and
@@ -405,11 +406,11 @@ For Model Form log-level\\
 For 30 Day Training Period\\
 For Sales in 2003 and Later
 }
-\label{figure:MedianTable}
+\label{figure:path.9.txt}
 \end{figure}
 
 The result of the rank ordering from the Elastic Net procedure is in
-Figure \ref{figure:MedianTable}. It shows that the most important
+Figure \ref{figure:path.9.txt}. It shows that the most important
 feature is the living area of the house. Real estate agents often claim
 the most important feature of the house is its location, but that isn't
 true in these data. Instead, features of the location (median household
@@ -425,10 +426,10 @@ For Model Form log-level\\
 For 30 Day Training Period\\
 For Sales in 2003 and Later
 }
-\label{figure:MedianGraph1}
+\label{figure:path.9.gg2}
 \end{figure}
 
-The same data are shown graphically in Figure \ref{figure:MedianGraph1},
+The same data are shown graphically in Figure \ref{figure:path.9.gg2},
 which displays the estimated generalization error from including the
 first $n$ features, together with a 95 percent confidence interval. One
 sees that the lowest estimated error is when using the first 15
@@ -452,10 +453,10 @@ minimum at 15 features.
 By Importance Rank\\
 Classified as House Features or Location Features
 }
-\label{figure:LCV}
+\label{figure:path.lcv2}
 \end{figure}
 
-Figure \ref{figure:LCV} shows the 24 rank ordered features split into
+Figure \ref{figure:path.lcv2} shows the 24 rank ordered features split into
 house features and location features. Some observations on the house
 features:
 
@@ -528,11 +529,11 @@ city, not a walking-around city.
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.1}}
 \caption{Cumulative Variance of the 24 Principal Components}
-\label{figure:PCA1}
+\label{figure:path.pca.1}
 \end{figure}
 
 The second approach we used to determining the importance of features is 
-Principal Components Analysis. Figure \ref{figure:PCA1} shows the
+Principal Components Analysis. Figure \ref{figure:path.pca.1} shows the
 principal components associated with the training set predictors. We see
 that the first three principal components account for almost 100 percent
 of the variance.
@@ -544,10 +545,10 @@ of the variance.
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.01}}
 \caption{Feature Weights for the First Principal Component}
-\label{figure:PCA201}
+\label{figure:path.pca.2.01}
 \end{figure}
 
-In Figure \ref{figure:PCA201} we see the weights of the 24 features in
+In Figure \ref{figure:path.pca.2.01} we see the weights of the 24 features in
 the first principal component. The median household income has the
 highest absolute weight. Other weights are much lower in absolute value.
 The only ones of much importance are the land square footage and the
@@ -561,10 +562,10 @@ the wealth of the neighborhood.
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.02}}
 \caption{Feature Weights for the Second Principal Component}
-\label{figure:PCA202}
+\label{figure:path.pca.2.02}
 \end{figure}
 
-In Figure \ref{figure:PCA202} we see the weights of the 24 features in
+In Figure \ref{figure:path.pca.2.02} we see the weights of the 24 features in
 the second principal component. The land square footage has the highest
 absolute weight. Other weights are much lower in value with household
 income and living area being the largest in absolute size. This
@@ -577,10 +578,10 @@ principal component is possibly about the size of the land.
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.03}}
 \caption{Feature Weights for the Third Principal Component}
-\label{figure:PCA203}
+\label{figure:path.pca.2.03}
 \end{figure}
 
-In Figure \ref{figure:PCA203} we see the weights of the 24 features
+In Figure \ref{figure:path.pca.2.03} we see the weights of the 24 features
 for third principal component. It is mostly composed of the basement
 square feet, perhaps a proxy for other size features in the house:
 bigger basement probably implies bigger house. This principal component
@@ -596,24 +597,24 @@ is possibly about the size of the house.
 Table of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Feature Sets Selected by the PCA Analysis
 }
-\label{figure:MedianTable10}
+\label{figure:path.10.txt}
 \end{figure}
 
 % including a pdf
 \begin{figure}[h]
+\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
 \caption{
 Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Feature Sets Selected by the PCA Analysis
 }
-\label{figure:MedianGraph102}
-\centering\includegraphics[scale=.4]{\Sexpr{path.10.gg2}}
+\label{figure:path.10.gg2}
 \end{figure}
 
 
-In Figure \ref{figure:MedianTable10} we see the estimated generalization
+In Figure \ref{figure:path.10.txt} we see the estimated generalization
 error from using the median household income, land square footage, and
 so on up to the 4 features identified as important in the PCA work. The
-same data are in Figure \ref{figure:MedianGraph102} which shows the 95
+same data are in Figure \ref{figure:path.10.gg2} which shows the 95
 percent confidence intervals graphically. The lowest estimated error is
 from using the first 3 features. Adding basement-square-feet slightly
 increases the estimated error but yields a smaller 95 percent confidence
@@ -623,12 +624,12 @@ interval, so some may prefer keeping the fourth PCA feature.
 
 % including a pdf
 \begin{figure}[h]
+\centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
 \caption{
 Graph of Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Feature Sets Selected by the LCV and PCA Analyses
 }
-\label{figure:MedianGraph111}
-\centering\includegraphics[scale=.4]{\Sexpr{path.11.gg1}}
+\label{figure:path.11.gg1}
 \end{figure}
 
 <<Reduce, include=TRUE>>=
@@ -639,7 +640,7 @@ p <- 1 - (error.lcv.15 / error.pca.3)
 
 To find the best reduced-feature model, we test all the feature sets
 suggested by the LCV and PCA analyses. These results are in Figure
-\ref{figure:MedianGraph111}, which brings together results previously
+\ref{figure:path.11.gg1}, which brings together results previously
 shown. The PCA-derived feature sets all underperform the LCV-derived
 feature sets: extremely small feature sets are challenged in this
 setting. The best feature set is the one with the first 15 features from
@@ -668,21 +669,21 @@ search was used.
 Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Selected L2 Regularizers\\
 }
-\label{figure:RegularizeTxt}
+\label{figure:path.12.txt}
 \end{figure}
 
 \begin{figure}[ht]
-\caption{Estimated Generalization Error from L2 Regularization }
-\label{figure:RegularizationGG2}
 \centering\includegraphics[scale=.4]{\Sexpr{path.12.gg2}}
+\caption{Estimated Generalization Error from L2 Regularization }
+\label{figure:path.12.gg2}
 \end{figure}
 
-Figure \ref{figure:RegularizeTxt} contains the result in a table. We see
+Figure \ref{figure:path.12.txt} contains the result in a table. We see
 the typical pattern: increasing the regularizer weight first decreases
 errors and as the weight continues to increase, errors are increased.
 Setting the weight to $\lambda = 55$ seems like a good choice: it has the
 lowest median across the cross-validation folds and from Figure
-\ref{figure:RegularizationGG2}, one can see the 95 percent
+\ref{figure:path.12.gg2}, one can see the 95 percent
 confidence intervals are not signaling warnings.
 
 <<RegularizationImpact,include=FALSE>>=
@@ -749,7 +750,7 @@ submarkets.
 Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Submarket Indicators
 }
-\label{figure:Indicator}
+\label{figure:path.13.indicator}
 \end{figure}
 
 <<Indicators, include=TRUE>>=
@@ -759,7 +760,7 @@ p <- 1 - (zip5.indicators / no.indicators)
 p
 @
 
-Figure \ref{figure:Indicator} shows the estimated generalization errors
+Figure \ref{figure:path.13.indicator} shows the estimated generalization errors
 from adding indicators variables to the regularized linear model. We see
 that adding indicators for zip codes, census tract, and cities all help
 and that the best result is obtained with the five-digit zip code
@@ -796,7 +797,7 @@ often because there are too few transactions in the training set.
 Estimated Generalization Errors and 95 Percent Confidence Intervals\\
 For Submarket Models
 }
-\label{figure:Submarkets13}
+\label{figure:path.13.submarkets}
 \end{figure}
 
 <<Submarkets, include=TRUE>>=
@@ -810,7 +811,7 @@ p2
 @
 
 
-Figure \ref{figure:Submarkets13} shows the results of this experiment.
+Figure \ref{figure:path.13.submarkets} shows the results of this experiment.
 The submarket models that used city names had the lowest estimated
 generalization error, which was \Sexpr{Percent(p)} percent lower than the whole-market
 error (the model from the previous figure with no indicators). The
@@ -830,13 +831,13 @@ models on more than 30 days of data or forming submarket groups by
 splicing together some of the submarkets. The latter approach has been
 tried in the literature. The former appears to have not been tried.
 
-Comparing Figures \ref{figure:Indicator} and \ref{figure:Submarkets13} we
-see that the best indicator model has an error of
-\$\Sexpr{Commas(best.indicators)}, which is lower than the error for the
-city model (\$\Sexpr{Commas(property.city)}). I was surprised by this,
-because the indicator-based models are simply adjusting the average
-price level for each area and the submarket models have the freedom to
-adjust the value of each feature in each submarket.
+Comparing Figures \ref{figure:path.13.indicator} and
+\ref{figure:path.13.submarkets} we see that the best indicator model has
+an error of \$\Sexpr{Commas(best.indicators)}, which is lower than the
+error for the city model (\$\Sexpr{Commas(property.city)}). I was
+surprised by this, because the indicator-based models are simply
+adjusting the average price level for each area and the submarket models
+have the freedom to adjust the value of each feature in each submarket.
 
 
 \begin{figure}[ht]
@@ -846,12 +847,13 @@ adjust the value of each feature in each submarket.
 \verbatiminput{\Sexpr{path.13.examples.RMSE}}
 \caption{
 Estimated Generalization Errors\\
-For Selected Property City Submarket Models
+For Selected Property City Submarket Models\\
+Using Metric Median of Root Median Squared Errors
 }
-\label{figure:Examples13RMSE}
+\label{figure:path.13.examples.RMSE}
 \end{figure}
 
-The estimated errors in Figure \ref{figure:Submarkets13} are perhaps
+The estimated errors in Figure \ref{figure:path.13.submarkets} are perhaps
 deceptive: they are the median values across all the submarkets. Individual
 models for specific submarkets may have much lower or higher errors than
 the median for all markets.
@@ -883,7 +885,7 @@ the median for all markets.
 
 Let's focus on the city-defined submarkets, which have the lowest median
 errors. There are 191 separate cities. The median errors for each city
-vary widely. Figure \ref{figure:Examples13RMSE} shows the medians for
+vary widely. Figure \ref{figure:path.13.examples.RMSE} shows the medians for
 various cities. We see that the most accurately-estimated houses are
 those in Lancaster, where the estimated generalization error is about
 \$15,000. A common attribute of the cities with the ten lowest errors is
@@ -912,10 +914,10 @@ Estimated Generalization Errors\\
 For Selected Property City Submarket Models\\
 Using Metric Median Across Folds of Median Absolute Relative Error
 }
-\label{figure:Examples13RMSE}
+\label{figure:path.13.examples.MARE}
 \end{figure}
 
-Figure \ref{figure:Examples13MARE} WRITE ME
+Figure \ref{figure:path.13.examples.MARE} WRITE ME
 
 
 
@@ -980,11 +982,11 @@ For All Features Except Assessment Features and the Best 15 Features from the Li
 Trained for 30 Days\\
 Using a One Percent Sample of Queries in Folds
 }
-\label{figure:RF130}
+\label{figure:path.14.rf.1.30}
 \end{figure}
 
 
-Figure \ref{figure:RF130} shows the results of this experiment. Note that
+Figure \ref{figure:path.14.rf.1.30} shows the results of this experiment. Note that
 rather than build a model for every query transaction in a test fold, we
 have built a model for a random 1 percent sample in the test folds. This
 is to reduce the computation time.
@@ -1027,10 +1029,10 @@ For Selected Hyperparameters \code{ntree} and \code{mtry}\\
 For All Features Except Assessment Features\\
 Trained for 60 Days
 }
-\label{figure:RF160}
+\label{figure:path.14.rf.1.60}
 \end{figure}
 
-Figure \ref{figure:RF160} shows the results of sweeping the random
+Figure \ref{figure:path.14.rf.1.60} shows the results of sweeping the random
 forests design choices, this time setting the number of training days to
 60. We see WRITE ME.
 
@@ -1113,7 +1115,7 @@ For All Features Except Assessment Features\\
 Trained for 30 Days\\
 On Five Percent Sample
 }
-\label{figure:RF530}
+\label{figure:path.14.rf.5.30}
 \end{figure}
 
 \begin{figure}[ht]
@@ -1129,6 +1131,6 @@ For All Features Except Assessment Features\\
 Trained for 60 Days\\
 On Five Percent Sample
 }
-\label{figure:RF560}
+\label{figure:path.14.rf.5.60}
 \end{figure}
 
