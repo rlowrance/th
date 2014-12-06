@@ -4,7 +4,7 @@
 
 <<BestLinearModel>>=
 working <- control$working
-path.7.txt <- paste0(working, 'e-cv-chart_chart7.txt')
+path.7.txt <- paste0(working, 'e-cv-chart_chart7_3.txt')
 path.8.txt <- paste0(working, 'e-cv-chart_chart8.txt')
 path.lcv2 <- paste0(working, 'e-features-lcv2-chart_1.txt')
 path.9.txt <- paste0(working, 'e-cv-chart_chart9.txt')
@@ -22,10 +22,12 @@ path.11.gg2 <- paste0(working, 'e-cv-chart_chart11_2.pdf')
 path.12.gg1 <- paste0(working, 'e-cv-chart_chart12_1.pdf')
 path.12.gg2 <- paste0(working, 'e-cv-chart_chart12_2.pdf')
 path.12.txt <- paste0(working, 'e-cv-chart_chart12.txt')
-path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators.txt')
-path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary.txt')
-path.13.examples   <- paste0(working
-                             ,'e-cv-chart_chart13_submarkets_examples_property_city.txt')
+path.13.indicator  <- paste0(working, 'e-cv-chart_chart13_indicators_medRMSE.txt')
+path.13.submarkets <- paste0(working, 'e-cv-chart_chart13_submarkets_summary_medRMSE.txt')
+path.13.examples.RMSE   <- paste0(working
+                             ,'e-cv-chart_chart13_submarkets_examples_property_city_medRMSE.txt')
+path.13.examples.MARE   <- paste0(working
+                             ,'e-cv-chart_chart13_submarkets_examples_property_city_medMARE.txt')
 path.14.rf.1.30 <- paste0(working, 'e-cv-chart_chart14_1_30.txt')
 path.14.rf.1.60 <- paste0(working, 'e-cv-chart_chart14_1_60.txt')
 path.14.rf.5.30 <- paste0(working, 'e-cv-chart_chart14_5_30.txt')
@@ -841,12 +843,12 @@ adjust the value of each feature in each submarket.
 \tiny
 %\small
 %\normalsize
-\verbatiminput{\Sexpr{path.13.examples}}
+\verbatiminput{\Sexpr{path.13.examples.RMSE}}
 \caption{
 Estimated Generalization Errors\\
 For Selected Property City Submarket Models
 }
-\label{figure:Examples13}
+\label{figure:Examples13RMSE}
 \end{figure}
 
 The estimated errors in Figure \ref{figure:Submarkets13} are perhaps
@@ -881,7 +883,7 @@ the median for all markets.
 
 Let's focus on the city-defined submarkets, which have the lowest median
 errors. There are 191 separate cities. The median errors for each city
-vary widely. Figure \ref{figure:Examples13} shows the medians for
+vary widely. Figure \ref{figure:Examples13RMSE} shows the medians for
 various cities. We see that the most accurately-estimated houses are
 those in Lancaster, where the estimated generalization error is about
 \$15,000. A common attribute of the cities with the ten lowest errors is
@@ -899,6 +901,21 @@ an estimate is a larger amount than for lower-priced cities.  Another
 source of the large errors might be that the more expensive properties
 sell based on features that are not in our data. 
 
+
+\begin{figure}[ht]
+\tiny
+%\small
+%\normalsize
+\verbatiminput{\Sexpr{path.13.examples.MARE}}
+\caption{
+Estimated Generalization Errors\\
+For Selected Property City Submarket Models\\
+Using Metric Median Across Folds of Median Absolute Relative Error
+}
+\label{figure:Examples13RMSE}
+\end{figure}
+
+Figure \ref{figure:Examples13MARE} WRITE ME
 
 
 

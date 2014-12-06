@@ -70,64 +70,8 @@ Chart13 <- function() {
         if (debug) cat('DEBUG CHART13\n')
 
         cv.cell <- CvCell()
-        fixed <- cv.cell$FixedCellValues('Chart13')
-        Path <- cv.cell$Path
         C.To.Lambda <- cv.cell$C.To.Lambda
 
-
-        # for now, figure out what files have been created
-        CountFilesCreated <- function() {
-            DetermineIndicators <- function() {
-                created <- Lines()
-                togo <- Lines()
-                for (predictorsName in c( 'best15zip'
-                                         ,'best15census'
-                                         ,'best15city'
-                                         )) {
-                    path <- MyPath(scope = 'global', predictorsName = predictorsName)
-                    if (file.exists(path)) 
-                        created$Append(path)
-                    else {
-                        cat('missing indicator cell: ', path, '\n')
-                        togo$Append(path)
-                    }
-                }
-                result <- list( created = created$Get()
-                               ,togo = togo$Get()
-                               )
-                result
-            }
-            DetermineSubmarkets <- function() {
-                created <- Lines()
-                togo <- Lines()
-                loaded <- load(file = control$path.in.submarkets)
-                for (scope in c(codes.census.tract, codes.property.city, codes.zip5)) {
-                    path <- MyPath( scope = scope
-                                   ,predictorsName = 'best15'
-                                   )
-                    if (file.exists(path)) 
-                        created$Append(path)
-                    else
-                        togo$Append(path)
-                }
-                result <- list( created = created$Get()
-                               ,togo = togo$Get()
-                               )
-                result
-            }
-
-            indicators <- DetermineIndicators()
-            Printf( 'created %d indicators; still have %d to go\n'
-                   ,length(indicators$created)
-                   ,length(indicators$togo)
-                   )
-            submarkets <- DetermineSubmarkets()
-            Printf( 'created %d submarkets; still have %d to go\n'
-                   ,length(submarkets$created)
-                   ,length(submarkets$togo)
-                   )
-        }
-        if (FALSE) CountFilesCreated()
 
         ACvResult <- function(path) {
             loaded <- load(path)
@@ -136,7 +80,7 @@ Chart13 <- function() {
             a.cv.result
         }
 
-        Indicators <- function() {
+        Indicators <- function(metric.name, FoldMetric, FoldSummary) {
             # return Lines() object
             IndicatorsPath <- function(predictorsName) {
                 path <- MyPath( scope = 'global',
@@ -145,16 +89,28 @@ Chart13 <- function() {
             }
             report <- Lines()
             report.format.header <- '%15s %12s %12s %12s'
-            report.format.detail <- '%15s %12.0f %12.0f %12.0f'
+            report.format.detail <- switch( metric.name
+                                           ,medRMSE = '%15s %12.0f %12.0f %12.0f'
+                                           ,medMARE = '%15s %12.3f %12.3f %12.3f'
+                                           ,stop()
+                                           )
+
             report$Append('Estimated Generalization Errors from 10-fold Cross Validation')
-            report$Append('Using Root Median Squared Errors from Folds')
+            report$Append(sprintf('Using %s from Folds'
+                                  ,switch( metric.name
+                                          ,medRMSE = 'Median of Root Median Squared Errors'
+                                          ,medMARE = 'Median of Median Absolute Relative Errors'
+                                          ,stop(paste('bad matric.name', metric.name))
+                                          )
+                                  )
+            )
             report$Append('Across Indicator Models')
             report$Append(' ')
             HeadersFixed(fixed,report)
 
             line <- sprintf( report.format.header
                             ,'indicators for'
-                            ,'median'
+                            ,metric.name
                             ,'ci95%.lo'
                             ,'ci95%.hi'
                             )
@@ -166,11 +122,12 @@ Chart13 <- function() {
                 # produce analysis for a.cv.result in path file
                 if (file.exists(path)) {
                     a.cv.result <- ACvResult(path)
-                    rmse.values <- RootMedianSquaredErrors(a.cv.result)
-                    ci <- CIMedian(rmse.values)
+                    
+                    fold.values <- FoldMetric(a.cv.result)
+                    ci <- CIMedian(fold.values)
                     line <- sprintf( report.format.detail 
                                     ,indicators.for
-                                    ,median(rmse.values)
+                                    ,FoldSummary(fold.values)
                                     ,ci$lowest
                                     ,ci$highest
                                     )
@@ -206,7 +163,7 @@ Chart13 <- function() {
             result <- report
             result
         }
-        Submarkets <- function() {
+        Submarkets <- function(metric.name, FoldMetric, FoldSummary) {
             # return list of Lines() objects, those returned by Analyze()
             Analyze <- function() {
                 # return a list of 4 reports
@@ -227,22 +184,28 @@ Chart13 <- function() {
                 report <- Lines()
 
                 report$Append('Estimated Generalization Errors from 10-fold Cross Validation')
-                report$Append('Using Root Median Squared Errors from Folds')
+                report$Append(sprintf('Using $s from Folds'
+                                      ,switch( metric.name
+                                              ,medRMSE = 'Median of Root Median Squared Errors'
+                                              ,medMARE = 'Median of Median Absolute Relative Errors'
+                                              ,stop()
+                                              )
+                                      )
+                )
                 report$Append('Across Submarket Models')
-                report$Append(' ')
 
                 # fix query, which should be 1 (not 100)
-                fixed$query <- '1'
                 HeadersFixed(fixed, report)
-
-
 
                 report$Append(' ')
                 report.format.header <- '%20s %8s %12s %12s %8s %8s %8s'
-                report.format.detail <- '%20s %8.0f %12.0f %12.0f %8.0f %8.0f %8.2f'
+                report.format.detail <- switch( metric.name
+                                               ,medRMSE = '%20s %8.0f %12.0f %12.0f %8.0f %8.0f %8.2f'
+                                               ,medMARE = '%20s %8.3f %12.3f %12.3f %8.0f %8.0f %8.2f'
+                                               ,stop())
                 line <- sprintf( report.format.header
                                 ,'scope name'
-                                ,'median'
+                                ,metric.name
                                 ,'95%ci.low'
                                 ,'95%ci.hi'
                                 ,'nScope'
@@ -290,14 +253,27 @@ Chart13 <- function() {
             Examples <- function(scope.medians, scope.name) {
                 lines <- Lines()
                 lines$Append('Example of Estimated Generalization Errors from 10-fold Cross Validation')
-                lines$Append('Using Root Median Squared Errors from Folds')
-                lines$Append(paste0('Example of Models for Scope ', scope.name))
+                lines$Append(sprintf('Using %s from Folds'
+                                     ,switch( metric.name
+                                             ,medRMSE = 'Median of Root Median Squared Errors'
+                                             ,medMARE = 'Median of Median Absolute Relative Errors'
+                                             ,stop()
+                                             )
+                                     )
+                )
+                lines$Append(paste0('Examples of Models for Scope ', scope.name))
                 lines$Append(' ')
 
                 format.header <- '%30s %6s'
-                format.detail <- '%30s %6.0f'
+                format.detail <- switch( metric.name
+                                        ,medRMSE = '%30s %6.0f'
+                                        ,medMARE = '%30s %6.3f'
+                                        )
                 Header <- function() {
-                    line <- sprintf(format.header, 'scope name', 'median')
+                    line <- sprintf( format.header
+                                    ,'scope name'
+                                    ,metric.name
+                                    )
                     lines$Append(line)
                 }
                 Detail <- function(scope.name, median.value) {
@@ -317,8 +293,8 @@ Chart13 <- function() {
                 n.scope.medians <- length(scope.medians)
                 mid <- round(n.scope.medians / 2)
                 Details('lowest 10 medians', sorted[1:10])
-                Details('middle 10 medians', sorted[(mid - 5) : (mid + 5)])
-                Details('highest 10 medians', sorted[(length(sorted) - 10): length(sorted)])
+                Details('middle 10 medians', sorted[(mid - 5) : (mid + 4)])
+                Details('highest 10 medians', sorted[(length(sorted) - 9): length(sorted)])
                 lines
             }
             AnalyzeScopes <- function(scopes) {
@@ -332,8 +308,8 @@ Chart13 <- function() {
                 # $scope.medians
                 verbose <- TRUE
                 report <- Lines()
-                report.format.header                       <- '%20s %6s %6s %6s %6s'
-                report.format.detail.file.exists           <- '%20s %6.0f %6d %6.0f %6.0f'
+                report.format.header                       <- '%20s %9s %6s %6s %6s'
+                report.format.detail.file.exists           <- '%20s %9.3f %6d %6.0f %6.0f'
                 report.format.detail.file.exists.no.median <- '%20s no median'
                 report.format.detail.file.not.exist        <- '%20s scope file not found'
                 median.list <- NULL
@@ -438,8 +414,9 @@ Chart13 <- function() {
                          ,median.highest.ci = NA
                          )
                 else  {
+                    fold.values <- FoldMetric(a.cv.result)
                     ci <- CIMedian(rmse.values, removeNAs = TRUE, debug = FALSE)
-                    list( median.of.medians = median(rmse.values, na.rm = TRUE)
+                    list( median.of.medians = FoldSummary(fold.values)
                          ,num.rmse.values = num.folds.with.medians
                          ,median.lowest.ci = ci$lowest
                          ,median.highest.ci = ci$highest
@@ -452,23 +429,45 @@ Chart13 <- function() {
             result
         }
 
-        indicators <- Indicators()
-        submarkets <- Submarkets()
-        print(indicators$Get())
-        print(submarkets$summary$Get())
 
-        result <- list( indicators         = indicators$Get()
-                       ,submarkets.summary = submarkets$summary$Get()
+        Median <- function(v) median(v, na.rm = TRUE)
 
-                       ,submarkets.census                 = submarkets$details.census.tract$Get()
-                       ,submarkets.property.city          = submarkets$details.property.city$Get()
-                       ,submarkets.zip5                   = submarkets$details.zip5$Get()
+        AREErrors <- function(a.cv.result) {
+            are.folds <- AbsoluteRelativeErrors(a.cv.result)
+            median.are.folds <- sapply(are.folds, function(are) median(are, na.rm = TRUE))
+            median.are.folds
+        }
 
-                       ,submarkets.examples.census        = submarkets$examples.census.tract$Get()
-                       ,submarkets.examples.property.city = submarkets$examples.property.city$Get()
-                       ,submarkets.examples.zip5          = submarkets$examples.zip5$Get()
-                       )
-        return(result)
+
+        submarkets.medRMSE <- Submarkets('medRMSE', RootMedianSquaredErrors, Median)
+        submarkets.medMARE <- Submarkets('medMARE', AREErrors, Median)
+
+        result <-
+            list( indicators.medRMSE = Indicators('medRMSE', RootMedianSquaredErrors, Median)$Get()
+                 ,indicators.medMARE = Indicators('medMARE', AREErrors, Median)$Get()
+
+                 ,submarkets.summary.medRMSE = submarkets.medRMSE$summary$Get()
+                 ,submarkets.summary.medMARE = submarkets.medMARE$summary$Get()
+
+                 ,submarkets.census.medRMSE         = submarkets.medRMSE$details.census.tract$Get()
+                 ,submarkets.census.medMARE         = submarkets.medMARE$details.census.tract$Get()
+
+                 ,submarkets.property.city.medRMSE  = submarkets.medRMSE$details.property.city$Get()
+                 ,submarkets.property.city.medMARE  = submarkets.medMARE$details.property.city$Get()
+
+                 ,submarkets.zip5.medRMSE           = submarkets.medRMSE$details.zip5$Get()
+                 ,submarkets.zip5.medMARE           = submarkets.medMARE$details.zip5$Get()
+
+                 ,submarkets.examples.census.medRMSE = submarkets.medRMSE$examples.census.tract$Get()
+                 ,submarkets.examples.census.medMARE = submarkets.medMARE$examples.census.tract$Get()
+
+                 ,submarkets.examples.property.city.medRMSE = submarkets.medRMSE$examples.property.city$Get()
+                 ,submarkets.examples.property.city.medMARE = submarkets.medMARE$examples.property.city$Get()
+
+                 ,submarkets.examples.zip5.medRMSE          = submarkets.medRMSE$examples.zip5$Get()
+                 ,submarkets.examples.zip5.medMARE          = submarkets.medMARE$examples.zip5$Get()
+                 )
+        result
     }
 
 

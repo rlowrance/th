@@ -58,9 +58,6 @@ Chart8 <- function(my.control) {
         # $vertical  : txt lines for vertical version of chart 8
         # return txt lines for chart 8
 
-        cv.cell <- CvCell()
-        fixed <- cv.cell$FixedCellValues('Chart8')
-        Path <- cv.cell$Path
 
         ACvResult <- function(ndays, response, predictorsForm, query) {
             # return the single cv.result in the e-cv-cell for ndays

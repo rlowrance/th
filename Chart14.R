@@ -56,10 +56,6 @@ Chart14 <- function(my.control) {
         # $b:  2 panels, each with a matrix
         verbose <- TRUE
 
-        cv.cell <- CvCell()
-        fixed <- cv.cell$FixedCellValues('Chart14')
-        Path <- cv.cell$Path
-
         AppendHeader <- function(lines, ndays, query) {
             lines$Append('Comparison of Estimated Generalization Errors')
             lines$Append('From Random Forests')

@@ -120,21 +120,45 @@ Control <- function(default.args) {
              ,path.out.chart.12.gg2 = paste0(working, out.base, '_chart12_2.pdf')
              ,path.out.chart.12.txt = paste0(working, out.base, '_chart12.txt')
             
-             ,path.out.chart.13.indicators.txt = paste0(working, out.base, '_chart13_indicators.txt')
-             ,path.out.chart.13.submarkets.summary.txt = 
-             paste0(working, out.base, '_chart13_submarkets_summary.txt')
-             ,path.out.chart.13.submarkets.census.txt = 
-             paste0(working, out.base, '_chart13_submarkets_census.txt')
-             ,path.out.chart.13.submarkets.property.city.txt = 
-             paste0(working, out.base, '_chart13_submarkets_property_city.txt')
-             ,path.out.chart.13.submarkets.zip5.txt = 
-             paste0(working, out.base, '_chart13_submarkets_zip5.txt')
-             ,path.out.chart.13.submarkets.examples.census.txt=
-             paste0(working, out.base, '_chart13_submarkets_examples_census.txt')
-             ,path.out.chart.13.submarkets.examples.property.city.txt =
-             paste0(working, out.base, '_chart13_submarkets_examples_property_city.txt')
-             ,path.out.chart.13.submarkets.examples.zip5.txt =
-             paste0(working, out.base, '_chart13_submarkets_examples_zip5.txt')
+             ,path.out.chart.13.indicators.medRMSE.txt = 
+                paste0(working, out.base, '_chart13_indicators_medRMSE.txt')
+             ,path.out.chart.13.indicators.medMARE.txt = 
+                paste0(working, out.base, '_chart13_indicators_medMARE.txt')
+             
+             ,path.out.chart.13.submarkets.summary.medRMSE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_summary_medRMSE.txt')
+             ,path.out.chart.13.submarkets.summary.medMARE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_summary_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.census.medRMSE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_census_medRMSE.txt')
+             ,path.out.chart.13.submarkets.census.medMARE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_census_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.property.city.medRMSE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_property_city_medRMSE.txt')
+             ,path.out.chart.13.submarkets.property.city.medMARE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_property_city_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.zip5.medRMSE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_zip5_medRMSE.txt')
+             ,path.out.chart.13.submarkets.zip5.medMARE.txt = 
+                paste0(working, out.base, '_chart13_submarkets_zip5_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.examples.census.medRMSE.txt=
+                paste0(working, out.base, '_chart13_submarkets_examples_census_medRMSE.txt')
+             ,path.out.chart.13.submarkets.examples.census.medMARE.txt=
+                paste0(working, out.base, '_chart13_submarkets_examples_census_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.examples.property.city.medRMSE.txt =
+                paste0(working, out.base, '_chart13_submarkets_examples_property_city_medRMSE.txt')
+             ,path.out.chart.13.submarkets.examples.property.city.medMARE.txt =
+                paste0(working, out.base, '_chart13_submarkets_examples_property_city_medMARE.txt')
+
+             ,path.out.chart.13.submarkets.examples.zip5.medRMSE.txt =
+                paste0(working, out.base, '_chart13_submarkets_examples_zip5_medRMSE.txt')
+             ,path.out.chart.13.submarkets.examples.zip5.medMARE.txt =
+                paste0(working, out.base, '_chart13_submarkets_examples_zip5_medMARE.txt')
 
              ,path.out.chart.14.1.30.txt = paste0(working, out.base, '_chart14_1_30.txt')
              ,path.out.chart.14.1.60.txt = paste0(working, out.base, '_chart14_1_60.txt')
@@ -305,29 +329,61 @@ MakeCharts <- function(control) {
            }
            ,'13' = {
                chart <- Chart13()$Chart(control)
-               writeLines( text = chart$indicators
-                          ,con = control$path.out.chart.13.indicators.txt
+
+               writeLines( text = chart$indicators.medRMSE
+                          ,con = control$path.out.chart.13.indicators.medRMSE.txt
                           )
-               writeLines( text = chart$submarkets.summary
-                          ,con = control$path.out.chart.13.submarkets.summary.txt
+               writeLines( text = chart$indicators.medMARE
+                          ,con = control$path.out.chart.13.indicators.medMARE.txt
                           )
-               writeLines( text = chart$submarkets.census
-                          ,con = control$path.out.chart.13.submarkets.census.txt
+
+               writeLines( text = chart$submarkets.summary.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.summary.medRMSE.txt
                           )
-               writeLines( text = chart$submarkets.property.city
-                          ,con = control$path.out.chart.13.submarkets.property.city.txt
+               writeLines( text = chart$submarkets.summary.medMARE
+                          ,con = control$path.out.chart.13.submarkets.summary.medMARE.txt
                           )
-               writeLines( text = chart$submarkets.zip5
-                          ,con = control$path.out.chart.13.submarkets.zip5.txt
+
+               writeLines( text = chart$submarkets.census.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.census.medRMSE.txt
                           )
-               writeLines( text = chart$submarkets.examples.census
-                          ,con = control$path.out.chart.13.submarkets.examples.census.txt
+               writeLines( text = chart$submarkets.census.medMARE
+                          ,con = control$path.out.chart.13.submarkets.census.medMARE.txt
                           )
-               writeLines( text = chart$submarkets.examples.property.city
-                          ,con = control$path.out.chart.13.submarkets.examples.property.city.txt
+
+               writeLines( text = chart$submarkets.property.city.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.property.city.medRMSE.txt
                           )
-               writeLines( text = chart$submarkets.examples.zip5
-                          ,con = control$path.out.chart.13.submarkets.examples.zip5.txt
+               writeLines( text = chart$submarkets.property.city.medMARE
+                          ,con = control$path.out.chart.13.submarkets.property.city.medMARE.txt
+                          )
+
+               writeLines( text = chart$submarkets.zip5.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.zip5.medRMSE.txt
+                          )
+               writeLines( text = chart$submarkets.zip5.medMARE
+                          ,con = control$path.out.chart.13.submarkets.zip5.medMARE.txt
+                          )
+
+               writeLines( text = chart$submarkets.examples.census.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.examples.census.medRMSE.txt
+                          )
+               writeLines( text = chart$submarkets.examples.census.medMARE
+                          ,con = control$path.out.chart.13.submarkets.examples.census.medMARE.txt
+                          )
+
+               writeLines( text = chart$submarkets.examples.property.city.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.examples.property.city.medRMSE.txt
+                          )
+               writeLines( text = chart$submarkets.examples.property.city.medMARE
+                          ,con = control$path.out.chart.13.submarkets.examples.property.city.medMARE.txt
+                          )
+
+               writeLines( text = chart$submarkets.examples.zip5.medRMSE
+                          ,con = control$path.out.chart.13.submarkets.examples.zip5.medRMSE.txt
+                          )
+               writeLines( text = chart$submarkets.examples.zip5.medMARE
+                          ,con = control$path.out.chart.13.submarkets.examples.zip5.medMARE.txt
                           )
            }
            ,'14' = {
@@ -363,7 +419,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='07')
+default.args <- list(chart='14')
 
 
 control <- Control(default.args)
