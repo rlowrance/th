@@ -445,6 +445,10 @@ The resulting subset file (``subset1'') contained
 \Sexpr{CommasAbout(subset.nrow)} 
 records.
 
+At this point, subset1 was split into training and testing data. The
+testing sample was drawn randomly as a two percent sample of the subset1
+transactions in each month.
+
 \section{Split the subset into individual features}
 
 The project used R as the programming language. The output of each of

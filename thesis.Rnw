@@ -1,7 +1,9 @@
 %%%%%%%%%%%%%%%%%%% PREAMBLE
 % vim: textwidth=72
 
-\documentclass[12pt]{amsbook}  
+\documentclass[12pt,openany]{amsbook}  
+%\documentclass[12pt,openany]{memoir}  
+%\documentclass[12pt,openany,letterpaper]{book}
 %\documentclass[12pt,onesided]{amsbook}  
 %\documentclass[12pt,draft]{amsbook}  
 % draft ==> print slug in margin if line too wide and boxes for figures
@@ -14,7 +16,7 @@
 \usepackage{verbatim}
 %\usepackage{etoolbox}
 
-\usepackage{hyperref}
+%\usepackage{hyperref}
 %\usepackage{url}
 
 % double space text
@@ -23,8 +25,8 @@
 \doublespacing
 
 % ref: tex.stackexchange.com/questions/44427/rotate-picture-with-caption
-\usepackage{rotating}
-\usepackage{rotfloat}
+%\usepackage{rotating}
+%\usepackage{rotfloat}
 
 %\usepackage[all]{xy}   %xy-pic
 
@@ -33,9 +35,7 @@
 % Tell \includegraphics where to search for files
 % see Gratzer p 317
 % The trailing / is required
-\graphicspath{%
-{/home/roy/Dropbox/nyu-real-estate/repp-repo.git/src/local-weighted-regression-2/src/}
-}
+%\graphicspath{ {/home/roy/Dropbox/nyu-real-estate/repp-repo.git/src/local-weighted-regression-2/src/} }
 \usepackage{epstopdf}   % allow eps files as graphics input
 \usepackage{caption}    % allow line breaks \\ in captions
 
@@ -70,6 +70,11 @@
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
+
+% Do not put a chapter in the table of contents:
+%  \SkipTocEntry\chapter*{Hidden Chapter Name}
+\DeclareRobustCommand{\gobblefour}[4]{}
+\newcommand*{\SkipTocEntry}{\addtocontents{toc}{\gobblefour}}
 
 %%%%%%%%%%%%%%%%%%% TOP MATTER
 
@@ -170,7 +175,10 @@ features, and regularizer that produce the lowest errors.  We compare
 the best of our linear models to random forests and point to directions
 for further research.
 
-\chapter*{Table of Contents}
+%\renewcommand{\contentsname}{Table of Contents}
+% Hide this chapter heading from TOC
+\SkipTocEntry \chapter*{Table of Contents}
+%\renewcommand{\contentsname}{Table of Contents}
 \tableofcontents
 
 \chapter*{List of Figures}
@@ -229,6 +237,12 @@ Commas(About(4022865))
 <<CommasAbout>>=
 CommasAbout <- function(x) {
   Commas(About(x))
+}
+@
+
+<<Percent>>=
+Percent <- function(p) {
+sprintf('%2.0f', p * 100)
 }
 @
 

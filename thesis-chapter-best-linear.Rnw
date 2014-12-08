@@ -51,6 +51,11 @@ tax roll contains property descriptions as of December 31, 2007. We
 need to exclude from our data any houses built or modified after that
 date. An analysis shows that there are no such houses.
 
+All of the linear models in this chapter are local linear models, by
+which we mean that a separate model was fitted for each query
+transaction. The overall effect is to convert the linear models into an
+aggregate non-linear model.
+
 The plan of attack is reflected in the sections that follow.
 
 \begin{itemize}
@@ -59,7 +64,7 @@ The plan of attack is reflected in the sections that follow.
 show that using different metrics leads to judging that different
 models are better. We decide to focus on median errors.
 
-\item Section 2 studies design choices for linear models that cover the
+\item Section 2 studies design choices for local linear models that cover the
 entire market.  We start by considering model forms and the number of
 training days that lead to the most accurate models. (The term ``model
 form'' captures whether transformations into the log domain are used in
@@ -78,12 +83,12 @@ separate model is build for each submarket. We consider multiple
 definitions for submarkets. We find that submarket models outperform
 entire-market models.
 
-\item Section 4 summarizes our results for linear models and provides
+\item Section 4 summarizes our results for local linear models and provides
 some guidelines for extending the work into a commercial setting.
 
-\item Section 5 contrasts the results from the linear models with a
-non-linear model: the random forests model. We show that a
-random forests model outperforms our best linear model.
+\item Section 5 contrasts the results from the local linear models with a
+random forests model. We show that the local linear model outperforms
+the random forests model.
 
 \end{itemize}
 
@@ -195,7 +200,7 @@ than the actual transaction price.
  form        & \code{meanRMSE} & \code{medRMSE} & \code{fctWI10}\\
  \hline
  level-level & 180 & 90 &  90 \\
- level-log   & 120 & 90 & 120 \\
+ level-log   &  90 & 90 & 120 \\
  log-level   & 195 & 30 &  30 \\
  log-log     & 120 & 30 &  30 \\
  \hline
@@ -216,27 +221,27 @@ There are several observations to make:
 
 \begin{itemize}
 
-\item In no cases, do all three metrics pick the same number of training
+\item In no cases, did all three metrics pick the same number of training
 days.
 
-\item The metrics \code{medRMSE} and \code{fctWI10} closely agree on the
-best number of training days. They agree on all model forms except for
-the log-log form, and there they are only 30 days apart.
+\item The metrics \code{medRMSE} and \code{fctWI10} closely agreed on the
+best number of training days. They agreed on all model forms except for
+the level-log form, and there they are only 30 days apart.
 
-\item The metric \code{meanRMSE} usually picks more training days as
-optimal than do the other metrics.
+\item The metric \code{meanRMSE} usually picked more training days as
+optimal than did the other metrics.
 
-\item It's always true that the expected loss for the metric
-\code{meanRMSE} greatly exceeds that for \code{medRMSE}. This is because
+\item It was always true that the expected loss for the metric
+\code{meanRMSE} greatly exceeded that for \code{medRMSE}. This is because
 there is right-skew in the prices: the mean exceeds the median, so that
 the mean error can exceed the median error.
 
 \end{itemize}
 
-We conclude that the choice of metric does influence the choice of the
+We concluded that the choice of metric does influence the choice of the
 best training period to use.
 
-Going forward, we focus on the \code{medRMSE} metric, judging that it
+Going forward, we focused on the \code{medRMSE} metric, judging that it
 more intuitively sizes average errors than does \code{meanRMSE} (because
 of the right-skew in the prices) and reflecting our predisposition to
 minimize average errors rather than the tightness of close estimates.
@@ -313,12 +318,25 @@ moving slowly, then training on a longer period of time might be
 beneficial.  If prices are moving rapidly, then training only on recent
 data might be necessary.
 
+<<NumLocalModels, include=FALSE>>=
+num.years <- 6
+num.months <- 30
+days.per.year <- 365
+days.per.month <- 30
+days <- num.years * days.per.year + num.months * days.per.month
+days
+@
+
 Our experiment fixed the time period (2003 on) and the feature set
 (all features always in transactions excluding the features derived from
-the tax assessment). We vary the model form and number of training days.
-Because a local model is built for every query point, we take a one
-percent random sample of the possible query points in each fold in order
-to reduce the computational burden.
+the tax assessment). We varied the model form and number of training days
+and built a local model for every query transaction in every training
+fold. The local model was built using the query date to discard data that
+was not visible until or after the training date. The same model was
+re-used for all query transactions on the date of the query transaction.
+As a result, we built one model for almost every day in the transaction
+set. The transaction set contains data for 6 years and 3 months, hence
+we built about $6 \times 365 + 3 \times 30 \approx \Sexpr{days}$ models.
 
 \begin{figure}[ht]
 \tiny
@@ -340,17 +358,15 @@ lowest <- 58862
 highest <- 77560
 p <- 1 - (lowest / highest)
 p
-Percent <- function(p) {
-sprintf('%2.0f', p * 100)
-}
 @
 
 Figure \ref{figure:path.8.txt} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
 30$ and is in the fourth column, which holds errors for the log-level
-model. Thus the lowest error occurs when training for 30 days and
+model. Thus the lowest error occured when training for 30 days and
 predicting $\log(price)$ using the features in their natural units. The
-log-level model (in column four) always has the lowest error. One way to
+log-level model (in column four) always has the lowest error for every
+choice for the number of training days. One way to
 think about the results is to consider a very naive model builder who
 would build a level-level model and use a year of training data. The
 model builder would find an error that is the last entry in the second
@@ -358,14 +374,14 @@ column: \$\Sexpr{Commas(highest)}.  The best error is
 \$\Sexpr{Commas(lowest)}, which is \Sexpr{Percent(p)} percent lower.
 
 
-In our search for the best linear model, going forward we fix the number
-of training days to 30 and use the log-level form for the model.
+In our search for the best linear model, we fixed the number of training
+days to 30 and used the log-level form for the model.
 
 
 \subsection{Feature selection}
 
-The models in the previous sections all use the 24 features that always
-appear in our transactions and were not derived from the tax assessment.
+The models in the previous sections all used the 24 features that always
+appeared in our transactions and were not derived from the tax assessment.
 Which of these are the best features to use? Here we consider two
 approaches. In the first, we use a simple heuristic to determine the
 best features to use. In the second, we use Principal Components
@@ -376,16 +392,17 @@ Analysis (PCA) for the same purpose.  We then compare results.
 We have 24 features that are candidates for inclusion in the model. A
 straight-forward way to determine the best feature set is to consider
 all possible subsets and estimate the generalization error for each.
-Doing so would be way too time consuming.
+Doing so would be way too time consuming, because there are $2 ^ {24}$
+possible feature sets to evaluate.
 
-Our idea is to instead use L1 regularization to determine the
+Our idea was to instead use L1 regularization to determine the
 rank ordering of the 24 features in terms of their importance. We then
-use cross validation to estimate the generalization error from a model
+used cross validation to estimate the generalization error from a model
 with the first, the first two, \dots, all 24 rank ordered features. We
 call the procedure LCV, for L1 regularization followed by cross
 validation.
 
-The implementation is by using the Elastic Net from Zoe and Hastie
+The implementation was by using the Elastic Net from Zoe and Hastie
 \cite{zou-05}. It fits a linear model while concurrently using an L1
 and L2 regularizer. As a by-product, an R implementation, the
 \code{elasticnet} R package \cite{zou-12}, produces a rank ordering of
@@ -431,11 +448,14 @@ For Sales in 2003 and Later
 
 The same data are shown graphically in Figure \ref{figure:path.9.gg2},
 which displays the estimated generalization error from including the
-first $n$ features, together with a 95 percent confidence interval. One
-sees that the lowest estimated error is when using the first 15
-features, from living-area to zip5-has-school. The estimated errors then
-tend to increase and the placement of the confidence intervals does not
-compel one to consider going beyond the first 15 features. 
+first $n$ features, together with a 95 percent confidence interval. The
+large dots are the median of the root median squared errors from the
+folds. The small dots to either side of the large dots are the lower and
+upper bounds of the confidence intervals. One sees that the lowest
+estimated error is when using the first 15 features, from living-area to
+zip5-has-school. The estimated errors then tend to increase and the
+placement of the confidence intervals does not compel one to consider
+going beyond the first 15 features. 
 
 If one seeks parsimony, one could consider using the first six
 features (through fraction-owner-occupied), after which there is an increase
@@ -456,7 +476,7 @@ Classified as House Features or Location Features
 \label{figure:path.lcv2}
 \end{figure}
 
-Figure \ref{figure:path.lcv2} shows the 24 rank ordered features split into
+Figure \ref{figure:path.lcv2} shows the 24 rank-ordered features split into
 house features and location features. Some observations on the house
 features:
 
@@ -464,7 +484,7 @@ features:
 
 \item living-area: this is the interior living space. Construction is
 required to change it, so it is not surprising to see it highly-ranked.
-That it is more highly ranked than the land square footage is a surprise
+That it is more highly ranked than the land square footage was a surprise
 to me, because land square footage seems harder to change than interior
 living space.
 
@@ -476,8 +496,8 @@ overall amenities in the house.
 concluded that the age and the squared age of the house are important
 features. Our models are local, so that we need a house's age for every
 query transaction.  Instead of pre-building a training set for each
-possible query, we transform year built into age and age squared just
-before fitting the model. We perform a similar transformation for the
+possible query, we transformed year built into age and age squared just
+before fitting the model. We performed a similar transformation for the
 effective year built, which is the last year of significant updates to
 the house.
 
@@ -500,7 +520,7 @@ features indicate the wealth of the neighborhood.
 associated with lower prices.
 
 \item zip5-has-industry and census-tract-has-industry: being near
-industry is not good for house prices.
+industry was not good for house prices.
 
 \item census-tract-has-park and zip5-has-park: Los Angeles residents are
 not there for the parks. Perhaps this is because it is a driving-around
@@ -532,7 +552,7 @@ city, not a walking-around city.
 \label{figure:path.pca.1}
 \end{figure}
 
-The second approach we used to determining the importance of features is 
+The second approach we used to determine the importance of features was
 Principal Components Analysis. Figure \ref{figure:path.pca.1} shows the
 principal components associated with the training set predictors. We see
 that the first three principal components account for almost 100 percent
@@ -549,9 +569,9 @@ of the variance.
 \end{figure}
 
 In Figure \ref{figure:path.pca.2.01} we see the weights of the 24 features in
-the first principal component. The median household income has the
-highest absolute weight. Other weights are much lower in absolute value.
-The only ones of much importance are the land square footage and the
+the first principal component. The median household income had the
+highest absolute weight. Other weights were much lower in absolute value.
+The only ones of much importance were the land square footage and the
 living area. It seems that the first principal component may be about
 the wealth of the neighborhood.
 
@@ -566,8 +586,8 @@ the wealth of the neighborhood.
 \end{figure}
 
 In Figure \ref{figure:path.pca.2.02} we see the weights of the 24 features in
-the second principal component. The land square footage has the highest
-absolute weight. Other weights are much lower in value with household
+the second principal component. The land square footage had the highest
+absolute weight. Other weights were much lower in value with household
 income and living area being the largest in absolute size. This
 principal component is possibly about the size of the land.
 
@@ -615,9 +635,9 @@ In Figure \ref{figure:path.10.txt} we see the estimated generalization
 error from using the median household income, land square footage, and
 so on up to the 4 features identified as important in the PCA work. The
 same data are in Figure \ref{figure:path.10.gg2} which shows the 95
-percent confidence intervals graphically. The lowest estimated error is
+percent confidence intervals graphically. The lowest estimated error was
 from using the first 3 features. Adding basement-square-feet slightly
-increases the estimated error but yields a smaller 95 percent confidence
+increased the estimated error but yielded a smaller 95 percent confidence
 interval, so some may prefer keeping the fourth PCA feature.
 
 \subsubsection{Reduced Feature Models} %%%%%%%%%%%%%%%%%%%%%%%%
@@ -638,15 +658,15 @@ error.pca.3 <- 70369
 p <- 1 - (error.lcv.15 / error.pca.3)
 @
 
-To find the best reduced-feature model, we test all the feature sets
+To find the best reduced-feature model, we tested all the feature sets
 suggested by the LCV and PCA analyses. These results are in Figure
 \ref{figure:path.11.gg1}, which brings together results previously
-shown. The PCA-derived feature sets all underperform the LCV-derived
-feature sets: extremely small feature sets are challenged in this
-setting. The best feature set is the one with the first 15 features from
-the LCV heuristic. This feature set has an estimated error of
-\$\Sexpr{Commas(error.lcv.15)}, which is \Sexpr{Percent(p)} percent
-lower that the estimated error of \$\Sexpr{Commas(error.pca.3)} that was
+shown. The PCA-derived feature sets all underperformed the LCV-derived
+feature sets: extremely small feature sets were challenged in this
+setting. The best feature set was the one with the first 15 features from
+the LCV heuristic. This feature set had an estimated error of
+\$\Sexpr{Commas(error.lcv.15)}, which was \Sexpr{Percent(p)} percent
+lower that the estimated error of \$\Sexpr{Commas(error.pca.3)} which was
 found by PCA.
 
 \subsection{Regularization}    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -655,7 +675,7 @@ Regularizing models is one way to avoid overfitting and thereby improve
 prediction accuracy. So far the models are not regularized.
 
 To assess the extent to which regularization leads to more accuracy, we
-take the model using the 15 best features and run multiple versions using
+took the model using the 15 best features and ran multiple versions using
 several choices for the weight of the L2 regularizer. A simple line
 search was used. 
 
@@ -681,10 +701,10 @@ For Selected L2 Regularizers\\
 Figure \ref{figure:path.12.txt} contains the result in a table. We see
 the typical pattern: increasing the regularizer weight first decreases
 errors and as the weight continues to increase, errors are increased.
-Setting the weight to $\lambda = 55$ seems like a good choice: it has the
+Setting the weight to $\lambda = 55$ seems like a good choice: it had the
 lowest median across the cross-validation folds and from Figure
 \ref{figure:path.12.gg2}, one can see the 95 percent
-confidence intervals are not signaling warnings.
+confidence intervals were not signaling warnings.
 
 <<RegularizationImpact,include=FALSE>>=
 l2.0 <- 58622
@@ -699,27 +719,26 @@ The impact of the regularizer on the estimated generalization error is
 very small: the median is reduced by \$\Sexpr{diff} from an
 unregularized error of \$\Sexpr{Commas(l2.0)}, a reduction of less than
 three-tenths of a percent. The small impact of the regularizer suggests
-that there is not much overfitting in the unregularized model.
+that there is not much overfitting in the unregularized model. Perhaps
+this is because the models are all local models.
 
 \section{Submarket Models}
 
 We considered three very simple definitions of submarkets. In the first,
-the submarkets are defined by the census tract. Each census tract is its
-own submarket. In the second, submarkets are defined by the city names.
-Each city is its own submarket. In the third, submarkets are defined by
-zip code. Each five-digit zip code is its own submarket.
+the submarkets were defined by the census tracts. Each census tract was its
+own submarket. In the second, submarkets were defined by the city names.
+Each city was its own submarket. In the third, submarkets were defined by
+zip code. Each five-digit zip code was its own submarket.
 
 We considered two approaches to incorporating submarkets into the model.
-The first uses indicator variables, the second builds a separate model
+The first used indicator variables, the second built a separate model
 for each submarket.
 
 \subsection{Using Indicator Variables}
 
-REWORK THIS SECTION AFTER COMPUTATION STOPS.
-
-The indicator models all have indicators for whether the observation is
+The indicator models all had indicators for whether the observation was
 in a specific submarket. For example, for zip-code based submarkets, the
-model is
+model was
 
 % ref: gratzer p.220
 \begin{align}
@@ -737,8 +756,8 @@ model is
 %.
 %\end{multline}
 
-The indicators are capturing the possibly different average prices in
-each submarket. The average price per feature is the same across
+The indicators were capturing the possibly different average prices in
+each submarket. The average price per feature were the same across
 submarkets.
 
 \begin{figure}[ht]
@@ -760,17 +779,17 @@ p <- 1 - (zip5.indicators / no.indicators)
 p
 @
 
-Figure \ref{figure:path.13.indicator} shows the estimated generalization errors
-from adding indicators variables to the regularized linear model. We see
-that adding indicators for zip codes, census tract, and cities all help
-and that the best result is obtained with the five-digit zip code
-indicators, which has an error rate \Sexpr{Percent(p)} percent lower
-than the entire-market model (the model with no indicators).
+Figure \ref{figure:path.13.indicator} shows the estimated generalization
+errors from adding indicators variables to the regularized linear model.
+We see that adding indicators for zip codes, census tract, and cities
+all helped and that the best result was obtained with the five-digit zip
+code indicators, which had an error rate \Sexpr{Percent(p)} percent
+lower than the entire-market model (the model with no indicators).
 
 \subsection{Separate Models for Each Submarket}
 
-The separate-models approach builds a separate model for each submarket.
-Each model has the same form:
+The separate-models approach built a separate model for each submarket.
+Each model had the same form:
 
 \[
 \log(price) =
@@ -779,13 +798,13 @@ Each model has the same form:
 .
 \]
 
-A query transaction is presented, its submarket is determined, for
-example, it is in zip code 11111, and then a model is trained using only
-transactions in the prior 60 days in the zip code. This fitted model is
+A query transaction was presented, its submarket was determined, for
+example, it was in zip code 11111, and then a model was trained using only
+transactions in the prior 30 days in the zip code. This fitted model was
 used to estimate the value for the query transaction. 
 
-This fitting process results in many models that cannot be fit, most
-often because there are too few transactions in the training set. 
+This fitting process resulted in many models that cannot be fit, most
+often because there were too few transactions in the training set. 
 
 
 \begin{figure}[ht]
@@ -801,7 +820,7 @@ For Submarket Models
 \end{figure}
 
 <<Submarkets, include=TRUE>>=
-no.indicators <- 58453
+no.indicators <- 58453  # from prior chart
 best.indicators <- 41013
 property.city <- 46405
 p <- 1 - (property.city / no.indicators)
@@ -816,9 +835,12 @@ The submarket models that used city names had the lowest estimated
 generalization error, which was \Sexpr{Percent(p)} percent lower than the whole-market
 error (the model from the previous figure with no indicators). The
 fitting process, however, succeeded in all folds in only 66 percent of
-the city names. (We say the coverage was 66 percent.) In terms of the
+the city names. (We defined ``covered'' to mean that at least one model
+for the submarket could be fit in every fold. We defined ``coverage'' to
+be the fraction of possible submarkets that were covered.)
+In terms of the
 estimated error, the worst model was for zip codes, but it had the
-highest coverage. The lowest coverage is for census tracts.
+highest coverage. The lowest coverage was for census tracts.
 
 Perhaps the city names have the lowest errors because cities may acquire
 brand positioning: they stand for something. Whatever that something
@@ -886,15 +908,15 @@ the median for all markets.
 Let's focus on the city-defined submarkets, which have the lowest median
 errors. There are 191 separate cities. The median errors for each city
 vary widely. Figure \ref{figure:path.13.examples.RMSE} shows the medians for
-various cities. We see that the most accurately-estimated houses are
-those in Lancaster, where the estimated generalization error is about
-\$15,000. A common attribute of the cities with the ten lowest errors is
-that they all have relatively low-priced houses. Median house prices for
-them from 2003 through 2009 range from \$220,000 to \$405,000.
+various cities. We see that the most accurately-estimated houses were
+those in Lancaster, where the estimated generalization error was about
+\$15,000. A common attribute of the cities with the ten lowest errors
+was that they all had relatively low-priced houses. Median house prices
+for them from 2003 through 2009 ranged from \$220,000 to \$405,000.
 
 Turning to the cities with the ten highest estimated errors, we see
-cities that are expensive: Santa Monica, Beverly Hills, Malibu. The
-median prices in this group of cities ranges from \$1.0 million to \$2.1
+cities that were expensive: Santa Monica, Beverly Hills, Malibu. The
+median prices in this group of cities ranged from \$1.0 million to \$2.1
 million (for Hidden Hills).
 
 The large estimated errors for the more expensive cities may be
@@ -902,6 +924,15 @@ generated in part from the higher prices, so that a 10 percent error in
 an estimate is a larger amount than for lower-priced cities.  Another
 source of the large errors might be that the more expensive properties
 sell based on features that are not in our data. 
+
+To assess the possible sources of error, we re-ran the analysis
+underlying the previous figure but changed the metric. Rather than
+report the median error, we examined the median of the absolute relative
+errors across the folds. Thus, we switched from measuring error rates to
+measuring accuracy. The idea was that if the higher errors were
+generated solely by higher prices, then switching to a measuring
+relative errors should show more uniform errors when comparing the
+low-error submarkets to the high-error submarkets.
 
 
 \begin{figure}[ht]
@@ -917,7 +948,16 @@ Using Metric Median Across Folds of Median Absolute Relative Error
 \label{figure:path.13.examples.MARE}
 \end{figure}
 
-Figure \ref{figure:path.13.examples.MARE} WRITE ME
+The results of this analysis are in Figure
+\ref{figure:path.13.examples.MARE}. We see that the the houses with the
+lowest error (those in the first group) had much lower relative errors
+than the houses with the highest errors (those in the last group). The
+group in the middle had relative errors in the middle. Thus we concluded
+that the higher absolute errors for the expensive cities in the
+submarkets model was probably not caused by the simply higher prices of
+these houses. Something else seemed to be going on.
+
+
 
 
 
@@ -943,164 +983,34 @@ here: we are interested in models that work on average, most commercial
 price estimators are interested in models that work on tomorrow's
 transactions.
 
-\section{Coda: A Non-Linear Model, Random Forests}
+\section{Coda: Random Forests}
 
 Every study that we reviewed that compares linear to non-linear models
 claims that non-linear models generally outperform linear models when
-predicting house prices. We verify that claim in our setting by
-developing a number of random forest models by sweeping these design
-choices:
+predicting house prices. We have designed a local linear model. It is
+also a non-linear model. How well does it perform compared to the random
+forests model, a popular non-linear model?
+
+To design a random forests model, we swept these design choices.
 
 \begin{itemize}
 
-\item The feature set used: we testing both all 24 features and the 15
+\item The number of training days. We tested both the 30 days found best
+for the local linear models and 60 days.
+
+\item The feature set used: we tested both all 24 features and the 15
 features that were best for the linear model. 
 
 \item The number of trees in the random forest (\code{ntree}): more
-trees should lead to better results, probably with a tailing off in
-performance at some point. We tested 1, 100, 300, and 1000 trees in each
-random forest.
+trees may fit better but may also overfit.
 
-\item The number of features to try when adding a new leaf
-to the tree (\code{mtry}). The implementation of random forests first
-tests that number of random-selected features to add and then adds the
-one giving the best greedy performance. We test 1, 2, 3, and 4 features.
+\item The number of features to try when adding a new leaf to the tree
+(\code{mtry}). The implementation of random forests first tests that
+number of random-selected features to add and then adds the one giving
+the best greedy performance. We tested 1, 2, 3, and 4 features.
 
 \end{itemize}
 
-
-\begin{figure}[ht]
-\tiny
-%\small
-%\normalsize
-\verbatiminput{\Sexpr{path.14.rf.1.30}}
-\caption{
-Estimated Generalization Errors\\
-For Random Forests\\
-For Selected Hyperparameters \code{ntree} and \code{mtry}\\
-For All Features Except Assessment Features and the Best 15 Features from the Linear Models\\
-Trained for 30 Days\\
-Using a One Percent Sample of Queries in Folds
-}
-\label{figure:path.14.rf.1.30}
-\end{figure}
-
-
-Figure \ref{figure:path.14.rf.1.30} shows the results of this experiment. Note that
-rather than build a model for every query transaction in a test fold, we
-have built a model for a random 1 percent sample in the test folds. This
-is to reduce the computation time.
-
-The training period was the best training period found for the linear
-models, 30 days before the date of the query transaction.  In Panel A
-and B, increasing \code{mtry} usually decreases the error, and
-increasing \code{ntree} often decreases the error.  We conclude that
-there is some tuning to be done for the hyperparameters.
-
-<<Rf2, include=FALSE>>=
-error.15 <- 55457
-error.all <- 50636
-p <- 1 - (error.all / error.15)
-p
-@
-
-Comparing Panel A and Panel B, we see that using all the predictors is
-usually worse than using the best 15 predictors. Only in the last column
-of Panel B and for $ntree = 1000$ does using all features win out over
-using 15 features. Random forests was able to use the features found to
-be of negative value for the linear models, but only if it can build
-lots of trees. However, when these features can be used productively, we
-see a large decrease in the expected error rate, from
-\$\Sexpr{Commas(error.15)} to \$\Sexpr{Commas(error.all)}, a decrease of
-\Sexpr{Percent(p)} percent.
-
-
-TODO: REWRITE FROM HERE ON.
-
-\begin{figure}[ht]
-\tiny
-%\small
-%\normalsize
-\verbatiminput{\Sexpr{path.14.rf.1.60}}
-\caption{
-Estimated Generalization Errors\\
-For Random Forests\\
-For Selected Hyperparameters \code{ntree} and \code{mtry}\\
-For All Features Except Assessment Features\\
-Trained for 60 Days
-}
-\label{figure:path.14.rf.1.60}
-\end{figure}
-
-Figure \ref{figure:path.14.rf.1.60} shows the results of sweeping the random
-forests design choices, this time setting the number of training days to
-60. We see WRITE ME.
-
-<<Improvements, include=TRUE>>=
-# USE BEST15 NOT BEST20
-linear.best15 <- 57781 ## update me
-rf.best15     <- 48335
-linear.zip.indicators <- 39557
-rf.all <- 35782
-1 - (rf.best15 / linear.best15)
-1 - (linear.zip.indicators / rf.best15)
-1 - (rf.all / linear.zip.indicators)
-1 - (rf.all / linear.best15)
-1 - (rf.all / rf.best15)
-@
-\begin{figure}[ht]
-\begin{tabular}{| l | l | l | r | r | }
-\hline
-&Model              & features                          & error &
-decrease \\
-\hline
-1 & Linear regularized & best 15, no zip-code indicators   & 57781 & NA \\
-2 & Random forests     & best 15, no zip-code indicators   & 48335 & 16\%\\
-3 & Linear regularized & best 15, with zip-code indicators & 39557 & 18\%\\
-4 & Random forests     & all, no zip-code indicators       & 35782 & 10\% \\
-\hline
-\end{tabular}
-\caption{
-Estimated Generalization Error\\
-For Selected Entire-Market Models\\
-For Selected Feature Sets
-}
-\label{figure:CompareModels}
-\end{figure}
-
-We find that the random forests model with all features is the best
-performing. Figure \ref{figure:CompareModels} contains the results of a
-change-by-change analysis. It starts in row 1 with the best linear
-whole-market model. This model used the 20 features found to be best, was
-regularized, and was trained on 60 days of data.  Line 2 contains the
-results from an equivalent random forests model. It uses the same 20
-features and was also trained on 60 days of data. It has a 16 percent
-lower error. The random forests model is making better use of the data. 
-
-Continuing to line 3, we find the same linear model as in
-line 1, but this time the features include the five-digit zip code
-indicators. This model has an 18 percent lower error than the random
-forests model in line 2. Line 4 contains the results from a whole-market
-random forests model that uses all 24 features and was trained on 60
-days of data. It improves on the linear submarket model by 10 percent.
-
-Finally, the addition of the four features that increased the error rate
-in the linear model improved the error rate in the random forests model
-from \$48,335 to \$35,782, a reduction of 26 percent. That's a large
-gain for very little work from the model builder.
-
-Possibly both the linear and random forests models can be improved.
-Either may be able to use productively additional relevant feature,
-including the GPS coordinates, perhaps directly and perhaps as a trend
-surface. More hyperparameters choices for the random forests model could
-be explored.  A submarket model using random forests could be built.
-Additionally, rather than using the 60-day training period found best
-for the linear models, the best training period for random forests could
-be determined. Finally, the best model form for random forests is not
-necessarily the log-level form tested.
-
-
-Figure \ref{figure:RF2} SHOWS.
 
 \begin{figure}[ht]
 \tiny
@@ -1111,12 +1021,22 @@ Figure \ref{figure:RF2} SHOWS.
 Estimated Generalization Errors\\
 For Random Forests\\
 For Selected Hyperparameters \code{ntree} and \code{mtry}\\
-For All Features Except Assessment Features\\
+For All Features Except Assessment Features and the Best 15 Features from the Linear Models\\
 Trained for 30 Days\\
-On Five Percent Sample
+Using a Five Percent Sample of Queries in Folds
 }
 \label{figure:path.14.rf.5.30}
 \end{figure}
+
+
+Figure \ref{figure:path.14.rf.5.30} shows the results of this
+experiment when training on 30 days of data. Note that rather than build
+a model for every query transaction in a test fold, we have built a
+model for a random 5 percent sample in the test folds. This was to
+reduce the computation time.
+
+The best choice of hyperparameters was using the best 15 predictors,
+$ntree = 300$, and $mtry = 4$.
 
 \begin{figure}[ht]
 \tiny
@@ -1127,10 +1047,35 @@ On Five Percent Sample
 Estimated Generalization Errors\\
 For Random Forests\\
 For Selected Hyperparameters \code{ntree} and \code{mtry}\\
-For All Features Except Assessment Features\\
+For All Features Except Assessment Features and the Best 15 Features from the Linear Models\\
 Trained for 60 Days\\
-On Five Percent Sample
+Using a Five Percent Sample of Queries in Folds
 }
 \label{figure:path.14.rf.5.60}
 \end{figure}
+
+<<RandomForests, include=TRUE>>=
+error.rf <- 47035
+error.zip.indicators <- 41013
+p <- 1 - (error.rf / error.zip.indicators)
+p
+@  
+
+Figure \ref{figure:path.14.rf.5.60} contains the resuls when training on
+60 days of data. The best result was again using the best 15 predictors,
+$ntree = 300$, and $mtry = 4$. The median error is
+\$\Sexpr{Commas(error.rf)}, which is is
+\Sexpr{Percent(-p)} percent higher than the best local linear model, the
+one with the zip code indicators, which had an error of
+\$\Sexpr{Commas(error.zip.indicators)}. 
+
+From this analysis, one should not conclude that local linear models
+beat random forests models in this setting. There is still more design
+work to be done around the random forests models. For example, one could
+explore where 90 days of training is better than 60, and repeat the LCV
+feature analysis task. Also, the sample size for random forests was
+fairly small (five percent), so increasing it would be indicated.
+However, the computation burden for the random forests model is much
+higher than for the local linear models.
+
 

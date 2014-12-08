@@ -102,10 +102,10 @@ transaction in the fold's test set using a fewer features than are
 specified in the model rather than discarding the test transaction. In a
 fold, usually very test transactions have discarded features.
 
-One optimization speeds up the fitting process. All models with the same
-query date are fitted to the same training data because the training
+One optimization speed up the fitting process. All models with the same
+query date were fitted to the same training data because the training
 process does not use the query transaction or any data on or after the
-data of the query transaction. This optimization is always used, because
+data of the query transaction. This optimization was always used, because
 it doesn't change the results.
 
 \section{Understanding the Real Estate Tax Assessment}
@@ -509,7 +509,9 @@ set and allows us to use transactions before and after 2008.
 
 Because the census data were valuable for the time period in which they
 were relevant, namely beginning in 2003, we decided to keep these
-features and restrict the analysis to year 2003 and later.
+features and restrict the analysis to year 2003 and later. The resulting
+dataset had about 250,000 transactions. The median price over the time
+period was \$475,000.
 
 
 

@@ -1,46 +1,30 @@
 \chapter{Conclusions and Future Work}
 % vim: textwidth=72
 
-We have systematically designed a linear model with the goal of finding
-a model that has the lowest expected error on unseen data. The best
-model we found was tailored to a submarket, trained on 30 days of data
-prior to the query transaction, predicted the log of the price,
-was regularized, and used 15 features in their natural units. 
+We have systematically designed a local linear model with the goal of
+finding a model that has the lowest expected error on unseen data. The
+best model we found was tailored to zip codes using indicator variables,
+trained on 30 days of data prior to the query transaction, predicted the
+log of the price, was regularized, and used 15 features in their natural
+units. 
 
-We also found that random forests models have lower error rates.  We did
-not investigate many design decisions around random forests, so that we
-don't know the best training period for them, nor whether submarket
-models outperform whole-market models. A systematic study of random
-forests would provide those insights.
-
-Most of the literature around real estate pricing uses linear models. A
-shift toward non-linear models is indicated.
+We found that the few random forests models were compared the local
+linear model to all underperformed, but that more design work could be
+applied to the random forests models.
 
 These ideas seem potentially fruitful:
 
 \begin{itemize}
 
-\item Compare errors for submarket models with those for entire market
-models, conditioned on specific submarket choices. We have seen that the
-average errors from city-based submarket models are high for expensive
-properties such as those in Malibu. We don't know if the entire-market
-models also have high errors for these properties. There is a similar
-issue for cities with low prices.
+\item Understand better why submarket models have higher errors for more
+expensive properties. Is it because they trade based on features we
+don't see? If so, can one obtain data on these features? If not, can the
+latent features be none-the-less learned?
 
-\item Compare random forests to neural networks. Both kinds of models
-require fitting expertise that may need to be tailored to the specific
-data set at hand. 
-
-%Random forests
-%require almost no fitting decisions, whereas fitting neural networks is
-%still somewhat of an art (though well understood in certain parts of New
-%York University). The issue to resolve is: Do well-designed neural
-%networks outperform random forests? If they do, they are
-%worth pursuing.
-
-\item Understand the Additive Regression approach from
-\cite{zurada-11-comparison}; it usually outperformed other models in the
-study, but was not tested against random forests.
+\item Compare local linear models to other non-linear models found in the
+literature to outperform linear models. Two to consider are neural
+networks and the ``Additive Regression'' from
+\cite{zurada-11-comparison}.
 
 \item Consider enhanced feature sets. Include the GPS coordinates as
 features. Compare direct usage of GPS coordinates to the trend surface

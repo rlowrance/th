@@ -44,7 +44,7 @@ house values are changing, the hedonic nature of the linear model must
 mean that feature values are also changing. While training a model on a
 longer time period will smooth noise, it will also use older
 feature prices that are not necessarily relevant to feature prices at
-the time of the query. We find an optimal time period is roughly 60 days,
+the time of the query. We find an optimal time period is roughly 30 days,
 considering both time periods before and after the real estate crash.
 
 \item One might suppose that a very valuable feature would be the value
@@ -65,18 +65,50 @@ census tract holding the house.
 %toward knocking down houses and building bigger houses: value is
 %increased.
 
-% Data from figure 3 in chapter 5
-% n features   median RMSE
-%          5   69467      120
-%         20   57880      100
+<<IntroFeatures, include=TRUE>>=
+# error for given number of features
+error.24 <- 58862
+error.15 <- 58571
+error.6  <- 59198
+error.1  <- 79332
+count.parsimony.features <- 6
+count.min.features <- 15
+count.num.features <- 24
+p.6.to.15 <- 1 - (error.15 / error.6)
+p.6.to.15
+p.15.to.6 <- 1 - (error.6 / error.15)
+p.15.to.6
+@
 
 \item One would hope that a few features of houses would contain most of
 the information that is driving prices. If so, models could be simpler.
-We find, however, that the most accurate linear model contains 20
-features. An otherwise identical model that uses only the 5 most
-important features has an estimated error that is 20 percent higher.
-Using more features means more opportunities for overfitting, and we
-find that regularization improved predictive accuracy.
+We found that the minimum prediction error was
+\$\Sexpr{Commas(error.15)}, when \Sexpr{count.min.features} features
+were used.  The best parsimonious model has
+\Sexpr{count.parsimony.features} features and an error of
+\$\Sexpr{Commas(error.6)}, a \Sexpr{Percent(-p.15.to.6)} percent
+increase from the minumum.
+
+%\item One would hope that a few features of houses would contain most of
+%the information that is driving prices. If so, models could be simpler.
+%We found that selecting the \Sexpr{count.parsimony.features} most
+%important features would reduce the median error significantly, from
+%\$\Sexpr{Commas(error.1)} using only the most important feature to
+%\$\Sexpr{Commas(error.6)}, a reduction of \Sexpr{Percent(p.1.to.6)}
+%percent. The minimum error of \$\Sexpr{Commas(error.15)} occurs when
+%using the \Sexpr{count.min.features} most important features, a slight
+%reduction of \Sexpr{Percent(p.6.to.15)} percent from using only the
+%\Sexpr{count.parsimony.features} most important features.
+%
+%
+%OLD
+%
+%
+%We find, however, that the most accurate linear model contains 20
+%features. An otherwise identical model that uses only the 5 most
+%important features has an estimated error that is 20 percent higher.
+%Using more features means more opportunities for overfitting, and we
+%find that regularization improved predictive accuracy.
 
 %\item Linear models price houses by estimating the value of features.
 %It's not surprising that some features are worth more in some
@@ -86,8 +118,10 @@ find that regularization improved predictive accuracy.
 
 \item Linear models are popular in part because they are relatively easy
 to understand and quick to fit. However, they tend to underperform
-non-linear models. We demonstrate that random forests greatly outperform
-the linear models we designed.
+non-linear models. In this work, we examine local linear models. In a
+local linear model, a separate model is fit to every query transaction,
+resulting in a non-linear model. We demonstrate the local linear models
+are likely to outperform random forests when predicting house prices.
 
 \end{itemize}
 
