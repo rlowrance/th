@@ -87,7 +87,7 @@ submarket, and then the only training data for a house is the history of
 prices for that house.  It's hard to see how this model could be
 accurate.
 
-So the problem is to find a definition of submarket that improves
+So the problem is to find a definition of submarkets that improves
 accuracy. The text considered two definitions. For the first, submarkets
 were defined as the ``sales groups'' used by the Auckland government real
 estate tax appraisers.  ``The sales groups are geographic areas
@@ -129,10 +129,10 @@ without changing the conclusions of interest to us).
 A resampling technique was used to compare models. The comparison metric
 was a measure of accuracy: fraction of estimated prices that are within
 10 and 20 percent of their true values. Root mean squared errors (RMSE)
-values were not reported.
+were not reported.
 
 Based on the fraction of estimates within 10 percent of true values, the
-models using the sales group outperformed the models using the clusters
+models using the sales groups outperformed the models using the clusters
 found through PCA. Thus, reliance on experts trumped reliance on the
 specific clustering algorithms used. Other automated means to find
 clusters may outperform the human experts. Models with clusters always
@@ -236,7 +236,7 @@ validation procedure that would use the data more thoroughly.
 In \cite{case-04} authors Bradford Case, John Clapp, Robin Dubin, and
 Mauricio Rodriguez reported on a competition to build house price
 prediction models for single-family residences in Fairfax County,
-Virginia over 1967 through 1991.  The time period was long but covers
+Virginia from 1967 through 1991.  The time period was long but covers
 only 60,000 transactions.
 
 The model-building efforts were organized as a competition. The data
@@ -547,7 +547,7 @@ each leaf.
 \item Additive Regression (aka, gradient boosting): an ensemble method
 that repeatedly adds models that best maximize predictive performance.
 
-\item SVM-SMO regression: support vector machines optimized not with a
+\item SVM-SMO regression: support vector machines optimized not with 
 quadratic programming but with sequential minimal optimization, which is
 claimed to be faster.
 
@@ -598,7 +598,7 @@ model was built for each cluster.
 \end{itemize}
 
 Each of the seven model forms was compared on each of the five
-scenarios-cluster combinations.  Comparisons were based on 10-fold cross
+scenario-cluster combinations.  Comparisons were based on 10-fold cross
 validation. Cross validation was repeated: if each fold had more than
 5000 observations, the cross validation was repeated 3 times with new
 random draws; otherwise it was repeated 10 times.  It is claimed (but

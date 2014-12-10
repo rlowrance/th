@@ -8,16 +8,15 @@ trained on 30 days of data prior to the query transaction, predicted the
 log of the price, was regularized, and used 15 features in their natural
 units. 
 
-We found that the few random forests models were compared the local
-linear model to all underperformed, but that more design work could be
-applied to the random forests models.
+The random forests models we tested did not perform better than the
+local linear model we designed.
 
-These ideas seem potentially fruitful:
+These ideas for future work seem potentially fruitful:
 
 \begin{itemize}
 
-\item Understand better why submarket models have higher errors for more
-expensive properties. Is it because they trade based on features we
+\item Understand better why submarket models had higher errors for more
+expensive properties. Was it because they trade based on features we
 don't see? If so, can one obtain data on these features? If not, can the
 latent features be none-the-less learned?
 
@@ -28,7 +27,7 @@ networks and the ``Additive Regression'' from
 
 \item Consider enhanced feature sets. Include the GPS coordinates as
 features. Compare direct usage of GPS coordinates to the trend surface
-$x,y$ feature sets. 
+$x,y$ feature sets (as studied in \cite{fik-03-spatial}).
 
 \item Evaluate using deep learning techniques to generate feature sets.
 Most of the deep learning research is in domains where the best feature

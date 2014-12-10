@@ -59,13 +59,7 @@ house is its interior living space. The second most important feature
 of the house is a feature related to location: the median income of the
 census tract holding the house.
 
-%\item The most valuable single feature in determining price is not the
-%size of the lot, as one might suspect. Instead, the most valuable single
-%feature is the interior living space. This explains in part a trend
-%toward knocking down houses and building bigger houses: value is
-%increased.
-
-<<IntroFeatures, include=TRUE>>=
+<<IntroFeatures, include=FALSE>>=
 # error for given number of features
 error.24 <- 58862
 error.15 <- 58571
@@ -89,54 +83,27 @@ were used.  The best parsimonious model has
 \$\Sexpr{Commas(error.6)}, a \Sexpr{Percent(-p.15.to.6)} percent
 increase from the minumum.
 
-%\item One would hope that a few features of houses would contain most of
-%the information that is driving prices. If so, models could be simpler.
-%We found that selecting the \Sexpr{count.parsimony.features} most
-%important features would reduce the median error significantly, from
-%\$\Sexpr{Commas(error.1)} using only the most important feature to
-%\$\Sexpr{Commas(error.6)}, a reduction of \Sexpr{Percent(p.1.to.6)}
-%percent. The minimum error of \$\Sexpr{Commas(error.15)} occurs when
-%using the \Sexpr{count.min.features} most important features, a slight
-%reduction of \Sexpr{Percent(p.6.to.15)} percent from using only the
-%\Sexpr{count.parsimony.features} most important features.
-%
-%
-%OLD
-%
-%
-%We find, however, that the most accurate linear model contains 20
-%features. An otherwise identical model that uses only the 5 most
-%important features has an estimated error that is 20 percent higher.
-%Using more features means more opportunities for overfitting, and we
-%find that regularization improved predictive accuracy.
-
-%\item Linear models price houses by estimating the value of features.
-%It's not surprising that some features are worth more in some
-%neighborhoods than in others. By partitioning all the houses into
-%suitably-defined neighborhoods (called submarkets in the literature),
-%prediction accuracy can be improved.
-
 \item Linear models are popular in part because they are relatively easy
 to understand and quick to fit. However, they tend to underperform
 non-linear models. In this work, we examine local linear models. In a
-local linear model, a separate model is fit to every query transaction,
-resulting in a non-linear model. We demonstrate the local linear models
-are likely to outperform random forests when predicting house prices.
+local linear model, a separate linear model is fit to every query transaction,
+resulting in a non-linear model. In our experiments, carefully designed
+local linear models outperformed off-the-shelf random forests.
 
 \end{itemize}
 
 The remaining chapters are these. Chapter 2 contains a review of the
 literature, focusing on other studies of real estate price prediction
 models. Chapter 3 describes how the Los Angeles data were ingested,
-cleaned up, and converted into transactions. We end up with about 1.2
+cleaned up, and converted into transactions. We ended up with about 1.2
 million transactions mostly dated from 1984 through the early part of
 2009.  Chapter 4 describes our work to find a subset of the Los Angeles
 data that is both informative for prediction purposes and does not
-contain any future information.  Chapter 5 identifies the best linear
+contain any future information.  Chapter 5 identifies the best local linear
 models, at least according to our experiments on these data. It also
-describes a random forests model with superior performance to the best
-of the linear models. Chapter 6 presents overall conclusions that lead
-to future work I'd like to do.
+describes a random forests model that performs worse than the best of
+the local linear models.  Chapter 6 presents overall conclusions that
+lead to future work I'd like to do.
 
 %\layout    % see Gratzer p 268
 

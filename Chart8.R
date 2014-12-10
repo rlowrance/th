@@ -74,7 +74,8 @@ Chart8 <- function(my.control) {
         }
         Header <- function(lines, query) {
             # mutate lines by appending the header
-            lines$Append('Comparison of Estimated Generalization Errors From from 10 Fold Cross Validation')
+            lines$Append('Comparison of Estimated Generalization Errors')
+            lines$Append('From 10 Fold Cross Validation')
             lines$Append('Using Root Median Squared Errors from Folds')
             lines$Append('Across Model Form and Length of Training Period')
 

@@ -1,7 +1,8 @@
 %%%%%%%%%%%%%%%%%%% PREAMBLE
 % vim: textwidth=72
 
-\documentclass[12pt,openany]{amsbook}  
+\documentclass[12pt,openany,oneside]{book}  
+%\documentclass[12pt,openany]{amsbook}  
 %\documentclass[12pt,openany]{memoir}  
 %\documentclass[12pt,openany,letterpaper]{book}
 %\documentclass[12pt,onesided]{amsbook}  
@@ -15,6 +16,16 @@
 \usepackage{listings}
 \usepackage{verbatim}
 %\usepackage{etoolbox}
+
+% all page numbers in the center of the footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[LE]{}
+\fancyhead[RO]{}
+\fancyhead[RE]{}
+\fancyhead[LO]{}
+\cfoot{\thepage}
+
 
 %\usepackage{hyperref}
 %\usepackage{url}
@@ -76,6 +87,9 @@
 \DeclareRobustCommand{\gobblefour}[4]{}
 \newcommand*{\SkipTocEntry}{\addtocontents{toc}{\gobblefour}}
 
+
+\raggedbottom
+
 %%%%%%%%%%%%%%%%%%% TOP MATTER
 
 \begin{document}
@@ -129,28 +143,40 @@ Dennis Shasha
 All Rights Reserved, 2015
 
 \chapter*{Dedication}
-Dedication goes here.
-
+Thanks Judith for your continued support during this adventure.
 
 \chapter*{Acknowledgements}
-Acknowledgements go here. Thanks to \dots.
+
 
 \begin{itemize}
+
+\item Andrew Caplin, for on-the-job teaching and real partnership and
+much help in navigating the system.
+
+\item Judith Carlin, for many many proofreading sesions.
+
 \item CoreLogic for providing the data.
-\item Damien Weldon if CoreLogic for help outside this project in
-navigating CoreLogic.
+
 \item Davi Geiger for the suggestion to through in all features in the
 random forests model.
+
 \item Leslie Greengard for continued support and encouragement.
+
 \item John Leahy for a conversation years ago in which he conjuctured
 on the efficacy of a reduced feature model. 
+
 \item Yann LeCun for making the original offer to work on a real estate
-project.
+project and for support and guidance over the years.
+
 \item Dennis Shasha for continued interests and support over more than a
 few years.
+
 \item Marco Scoffier for explaining his trick of organization this
 training data in files that each contain one column; this saved a lot of
 time.
+
+\item Damien Weldon for help in navigating through CoreLogic.
+
 \end{itemize}
 
 
@@ -177,11 +203,11 @@ for further research.
 
 %\renewcommand{\contentsname}{Table of Contents}
 % Hide this chapter heading from TOC
-\SkipTocEntry \chapter*{Table of Contents}
+%\SkipTocEntry \chapter*{Table of Contents}
 %\renewcommand{\contentsname}{Table of Contents}
 \tableofcontents
 
-\chapter*{List of Figures}
+%chapter*{List of Figures}
 \listoffigures
 
 %%%%%%%%%%%%%%%%%%%%%% MAIN MATTER
@@ -267,6 +293,8 @@ sprintf('%2.0f', p * 100)
 %\appendix
 %\chapter{First Appendix Title}
 
+
+%\bibliographystyle{apacite}  % missing address in bourassa-03-submarkets
 \bibliographystyle{amsalpha}
 \bibliography{../../roy-bib/roy-bib}
 
