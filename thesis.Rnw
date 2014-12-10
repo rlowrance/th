@@ -157,7 +157,7 @@ much help in navigating the system.
 
 \item CoreLogic for providing the data.
 
-\item Davi Geiger for the suggestion to through in all features in the
+\item Davi Geiger for the suggestion to test all features in the
 random forests model.
 
 \item Leslie Greengard for continued support and encouragement.
@@ -171,7 +171,7 @@ project and for support and guidance over the years.
 \item Dennis Shasha for continued interests and support over more than a
 few years.
 
-\item Marco Scoffier for explaining his trick of organization this
+\item Marco Scoffier for explaining his trick of organization the
 training data in files that each contain one column; this saved a lot of
 time.
 

@@ -728,11 +728,11 @@ in a specific submarket. For example, for zip-code based submarkets, the
 model was
 
 % ref: gratzer p.220
-\begin{align}
+\begin{align*}
 \log(price) & =  \beta_0
             + \beta_1 ZipIs11111 + \beta_2 ZipIs22222 + \ldots \\
             & + \beta_k LotSize + \beta_{k+1} LivingArea + \ldots . 
-\end{align}
+\end{align*}
 
 
 The indicators were capturing the possibly different average prices in
@@ -1022,7 +1022,7 @@ Using a Five Percent Sample of Queries in Folds
 \label{figure:path.14.rf.5.60}
 \end{figure}
 
-<<RandomForests, include=TRUE>>=
+<<RandomForests, include=FALSE>>=
 error.rf <- 47035
 error.zip.indicators <- 41013
 p <- 1 - (error.rf / error.zip.indicators)
