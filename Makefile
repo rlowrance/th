@@ -721,73 +721,73 @@ $(working)/e-cv-chart_chart12%txt \
 	Rscript e-cv-chart.R --chart 12
 
 # FINAL MAKEFILE PIECE, CREATE IN FOLDS
-chart13.final.1 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_1
-$(chart13.final.1): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 1
-
-chart13.final.2 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_2
-$(chart13.final.2): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 2
-
-chart13.final.3 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_3
-$(chart13.final.3): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 3
-
-chart13.final.4 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_4
-$(chart13.final.4): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 4
-
-chart13.final.5 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_5
-$(chart13.final.5): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 5
-
-chart13.final.6 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_6
-$(chart13.final.6): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 6
-
-chart13.final.7 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_7
-$(chart13.final.7): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 7
-
-chart13.final.8 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_8
-$(chart13.final.8): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 8
-
-chart13.final.9 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_9
-$(chart13.final.9): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 9
-
-chart13.final.10 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_10
-$(chart13.final.10): 
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 10
-
-chart13.final.all = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.RData
-$(chart13.final.all): $(chart13.final.1) $(chart13.final.2) $(chart13.final.3) \
-	$(chart13.final.4) $(chart13.final.5) $(chart13.final.6) $(chart13.final.7) \
-	$(chart13.final.8) $(chart13.final.9) $(chart13.final.10)
-	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
-		--predictorsName best15census --predictorsForm level \
-		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold combine
+#chart13.final.1 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_1
+#$(chart13.final.1): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 1
+#
+#chart13.final.2 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_2
+#$(chart13.final.2): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 2
+#
+#chart13.final.3 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_3
+#$(chart13.final.3): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 3
+#
+#chart13.final.4 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_4
+#$(chart13.final.4): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 4
+#
+#chart13.final.5 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_5
+#$(chart13.final.5): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 5
+#
+#chart13.final.6 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_6
+#$(chart13.final.6): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 6
+#
+#chart13.final.7 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_7
+#$(chart13.final.7): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 7
+#
+#chart13.final.8 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_8
+#$(chart13.final.8): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 8
+#
+#chart13.final.9 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_9
+#$(chart13.final.9): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 9
+#
+#chart13.final.10 = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.fold_10
+#$(chart13.final.10): 
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold 10
+#
+#chart13.final.all = $(cvcells)/global_linL2_2003on_avm_logprice_best15census_level_30_1_5500_0_0.RData
+#$(chart13.final.all): $(chart13.final.1) $(chart13.final.2) $(chart13.final.3) \
+#	$(chart13.final.4) $(chart13.final.5) $(chart13.final.6) $(chart13.final.7) \
+#	$(chart13.final.8) $(chart13.final.9) $(chart13.final.10)
+#	Rscript e-cv.R --scope global --model linL2 --timePeriod 2003on --scenario avm --response logprice \
+#		--predictorsName best15census --predictorsForm level \
+#		--ndays 30 --query 1 --lambda 5500 --ntree 0 --mtry 00 --fold combine
 	
 
 chart13.final.target: $(chart13.final.all)
@@ -797,149 +797,163 @@ $(working)/e-cv-chart_chart13_submarkets_summary%txt \
 : Chart13.R
 	Rscript e-cv-chart.R --chart 13
 
-# RF 30 days alwaysNoAssessment, 1% sample
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_1.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_2.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_3.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_4.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_1.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_2.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_3.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_4.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_1.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_2.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_3.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_4.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_1.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_2.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_3.RData
-chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_4.RData
+## RF 30 days alwaysNoAssessment, 1% sample
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_1.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_2.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_3.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1_4.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_1.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_2.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_3.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_100_4.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_1.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_2.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_3.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_300_4.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_1.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_2.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_3.RData
+#chart14.aNA.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_100_0_1000_4.RData
+#
+## RF 30 days alwaysNoAssessment, 5% sample
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_1.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_2.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_3.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_4.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_1.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_2.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_3.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_4.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_1.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_2.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_3.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_4.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_1.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_2.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_3.RData
+#chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_4.RData
+#
+## RF 60 days alwaysNoAssessment, 1% sample
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_1.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_2.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_3.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_4.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_1.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_2.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_3.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_4.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_1.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_2.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_3.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_4.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_1.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_2.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_3.RData
+#chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_4.RData
+#
+## RF 60 days alwaysNoAssessment, 5% sample
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_1.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_2.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_3.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_4.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_1.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_2.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_3.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_4.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_1.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_2.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_3.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_4.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_1.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_2.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_3.RData
+#chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_4.RData
+#
+## RF 30 days best15, 1% sample
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_1.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_2.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_3.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_4.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_1.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_2.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_3.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_4.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_1.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_2.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_3.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_4.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_1.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_2.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_3.RData
+#chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_4.RData
+#
+## RF 30 days best15, 5% sample
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_1.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_2.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_3.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_4.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_1.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_2.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_3.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_4.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_1.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_2.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_3.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_4.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_1.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_2.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_3.RData
+#chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_4.RData
+#
+## RF 60 days best15, 1% sample
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_1.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_2.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_3.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_4.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_1.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_2.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_3.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_4.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_1.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_2.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_3.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_4.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_1.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_2.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_3.RData
+#chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_4.RData
+#
+## RF 60 days best15, 5% sample
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_1.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_2.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_3.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_4.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_1.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_2.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_3.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_4.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_1.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_2.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_3.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_4.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_1.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_2.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_3.RData
+#chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_4.RData
 
-# RF 30 days alwaysNoAssessment, 5% sample
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_1.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_2.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_3.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1_4.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_1.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_2.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_3.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_100_4.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_1.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_2.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_3.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_300_4.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_1.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_2.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_3.RData
-chart14.aNA.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_30_20_0_1000_4.RData
+# Test new scheme with pattern rule
+$(cvcells)/%.RData :
+	Rscript e-cv.R --cvcell $*
 
-# RF 60 days alwaysNoAssessment, 1% sample
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_1.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_2.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_3.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1_4.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_1.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_2.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_3.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_100_4.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_1.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_2.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_3.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_300_4.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_1.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_2.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_3.RData
-chart14.aNA.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_100_0_1000_4.RData
+chart14-targets.R : Directory.R Libraries.R Chart14.R CvCell.R Lines.R
 
-# RF 60 days alwaysNoAssessment, 5% sample
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_1.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_2.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_3.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1_4.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_1.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_2.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_3.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_100_4.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_1.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_2.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_3.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_300_4.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_1.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_2.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_3.RData
-chart14.aNA.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_alwaysNoAssessment_level_60_20_0_1000_4.RData
+chart14-targets.makefile: chart14-targets.R
+	Rscript chart14-targets.R
 
-# RF 30 days best15, 1% sample
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_1.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_2.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_3.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1_4.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_1.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_2.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_3.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_100_4.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_1.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_2.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_3.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_300_4.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_1.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_2.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_3.RData
-chart14.b15.30.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_100_0_1000_4.RData
+include chart14-targets.makefile  # define chart14-targets-R, chart14-targets-J
 
-# RF 30 days best15, 5% sample
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_1.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_2.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_3.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1_4.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_1.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_2.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_3.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_100_4.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_1.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_2.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_3.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_300_4.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_1.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_2.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_3.RData
-chart14.b15.30.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_30_20_0_1000_4.RData
 
-# RF 60 days best15, 1% sample
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_1.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_2.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_3.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1_4.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_1.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_2.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_3.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_100_4.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_1.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_2.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_3.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_300_4.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_1.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_2.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_3.RData
-chart14.b15.60.100 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_100_0_1000_4.RData
 
-# RF 60 days best15, 5% sample
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_1.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_2.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_3.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1_4.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_1.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_2.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_3.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_100_4.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_1.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_2.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_3.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_300_4.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_1.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_2.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_3.RData
-chart14.b15.60.20 += $(cvcells)/global_rf_2003on_avm_logprice_best15_level_60_20_0_1000_4.RData
 
 # missing and not running elsewhere
 missing += $(chart14.b15.30.20)
@@ -994,11 +1008,24 @@ e-cv-chart-generated-source += Chart12LambdaValues.R
 e-cv-chart-generated-source += CvCell.R
 e-cv-chart-generated-source += Lines.R
 
+e-cv-chart-generated-source += Chart5.R
+e-cv-chart-generated-source += Chart6.R
+e-cv-chart-generated-source += Chart7.R
+e-cv-chart-generated-source += Chart8.R
+e-cv-chart-generated-source += Chart9.R
+e-cv-chart-generated-source += Chart9And10.R
+e-cv-chart-generated-source += Chart10.R
+e-cv-chart-generated-source += Chart11.R
+e-cv-chart-generated-source += Chart12.R
+e-cv-chart-generated-source += Chart13.R
+e-cv-chart-generated-source += Chart14.R
+
+
 e-cv-chart-generated.makefile: \
 	e-cv-chart-generated.R $(e-cv-chart-generated-source) $(e-cv-chart-generated-data)
 	Rscript e-cv-chart-generated.R
 
-include e-cv-chart-generated.makefile
+#include e-cv-chart-generated.makefile
 
 e-cv-chart-generated.makefile:   # don't scan this file for targets
 

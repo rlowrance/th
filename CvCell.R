@@ -6,18 +6,30 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
   # $PossiblePredictorsNamess() --> chr vector, all possible values for predictorsName, 'always', ...
   # $FixedCellValues(chart.name) --> list of any 12 cell attributes that are common
 
-  Is.Valid.Scope <- function(s)          is.character(s)
-  Is.Valid.Model <- function(s)          s %in% c('linear', 'linL2', 'rf')
-  Is.Valid.TimePeriod <- function(s)     s %in% c('2003on', '2008')
-  Is.Valid.Scenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
-  Is.Valid.Response <- function(s)       s %in% c('logprice', 'price')
-  Is.Valid.PredictorsName <- function(s) s %in% PossiblePredictorsNamess()
-  Is.Valid.PredictorsForm <- function(s) s %in% c('level', 'log')
-  Is.Valid.Ndays <- function(s)          s %in% PossibleNdays()
-  Is.Valid.Query <- function(s)          s %in% c('1', '20', '100')
-  Is.Valid.Lambda <- function(s)         is.character(s) && as.integer(s) >= 0
-  Is.Valid.Ntree <- function(s)          is.character(s) && as.integer(s) >= 0
-  Is.Valid.Mtry <- function(s)           is.character(s) && as.integer(s) >= 0
+  InRange <- function(s, low, high) {
+    num <- as.numeric(s)
+
+    if (num >= low && num <= high) {
+      #cat('in range', s, '\n')
+      TRUE
+    } else {
+      cat('not in range', s, '\n')
+      FALSE
+    }
+  }
+
+  IsValidScope <- function(s)          is.character(s)
+  IsValidModel <- function(s)          s %in% c('linear', 'linL2', 'rf')
+  IsValidTimePeriod <- function(s)     s %in% c('2003on', '2008')
+  IsValidScenario <- function(s)       s %in% c('assessor', 'avm', 'mortgage')
+  IsValidResponse <- function(s)       s %in% c('logprice', 'price')
+  IsValidPredictorsName <- function(s) s %in% PossiblePredictorsNamess()
+  IsValidPredictorsForm <- function(s) s %in% c('level', 'log')
+  IsValidNdays <- function(s)          InRange(s, 1, 360)
+  IsValidQuery <- function(s)          s %in% c('1', '20', '100')
+  IsValidLambda <- function(s)         is.character(s) && as.integer(s) >= 0
+  IsValidNtree <- function(s)          is.character(s) && as.integer(s) >= 0
+  IsValidMtry <- function(s)           is.character(s) && as.integer(s) >= 0
 
   Command <- function( scope, model, timePeriod, scenario
                       ,response, predictorsName, predictorsForm, ndays
@@ -97,18 +109,18 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
                                        ,query, lambda, ntree, mtry) {
     # stop if any cell specifier is invalide
 
-    stopifnot(Is.Valid.Scope(scope))
-    stopifnot(Is.Valid.Model(model))
-    stopifnot(Is.Valid.TimePeriod(timePeriod))
-    stopifnot(Is.Valid.Scenario(scenario))
-    stopifnot(Is.Valid.Response(response))
-    stopifnot(Is.Valid.PredictorsName(predictorsName))
-    stopifnot(Is.Valid.PredictorsForm(predictorsForm))
-    stopifnot(Is.Valid.Ndays(ndays))
-    stopifnot(Is.Valid.Query(query))
-    stopifnot(Is.Valid.Lambda(lambda))
-    stopifnot(Is.Valid.Ntree(ntree))
-    stopifnot(Is.Valid.Mtry(mtry))
+    stopifnot(IsValidScope(scope))
+    stopifnot(IsValidModel(model))
+    stopifnot(IsValidTimePeriod(timePeriod))
+    stopifnot(IsValidScenario(scenario))
+    stopifnot(IsValidResponse(response))
+    stopifnot(IsValidPredictorsName(predictorsName))
+    stopifnot(IsValidPredictorsForm(predictorsForm))
+    stopifnot(IsValidNdays(ndays))
+    stopifnot(IsValidQuery(query))
+    stopifnot(IsValidLambda(lambda))
+    stopifnot(IsValidNtree(ntree))
+    stopifnot(IsValidMtry(mtry))
   }
                           
 

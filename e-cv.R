@@ -33,6 +33,7 @@
 # --ntree INT
 # --mtry  INT
 # --fold  {all, combine, N} where N is 1, 2, .. 10
+# --cvcell  PATH_TO_CELL, the file name has all the parameters
 
 source('Directory.R')
 source('Libraries.R')
@@ -52,11 +53,45 @@ library(optparse)
 library(pryr)
 library(randomForest)
 
+PullOptionsFromCvCell <- function(path) {
+    # return list of options
+    split.1 <- strsplit( x = path
+                        ,split = '/'
+                        ,fixed = TRUE
+                        )
+    split.1.1 <- split.1[[1]]
+    split.2 <- strsplit( x = split.1.1
+                        ,split = '_'
+                        ,fixed = TRUE
+                        )
+    piece <- split.2[[1]]
+    result <- list( scope = piece[[1]]
+                   ,model = piece[[2]]
+                   ,timePeriod = piece[[3]]
+                   ,scenario = piece[[4]]
+                   ,response = piece[[5]]
+                   ,predictorsName = piece[[6]]
+                   ,predictorsForm = piece[[7]]
+                   ,ndays = as.numeric(piece[[8]])
+                   ,query = as.numeric(piece[[9]])
+                   ,lambda = as.numeric(piece[[10]])
+                   ,ntree = as.numeric(piece[[11]])
+                   ,mtry = as.numeric(piece[[12]])
+                   ,fold = 'all'
+                   )
+    result
+}
 Control <- function(default.args) {
     # parse command line arguments in command.args
-    opt <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
-                            ,default.args = default.args
-                            )
+    opt.raw <- ParseCommandArgs( command.args = commandArgs(trailingOnly = TRUE)
+                                ,default.args = default.args
+                                )
+    
+    opt <- 
+        if (nchar(opt.raw$cvcell)  > 0)
+            opt <- PullOptionsFromCvCell(opt.raw$cvcell)
+        else
+            opt.raw
 
     me <- 'e-cv' 
 
@@ -195,6 +230,7 @@ ParseCommandArgs <- function(command.args, default.args) {
              ,OptionInt('ntree',          'number of trees (for randomForest)')
              ,OptionInt('mtry',           'number of features samples when growing tree (for randomForest)')
              ,OptionChr('fold',           'one of {all, combine, N in 1..10}')
+             ,OptionChr('cvcell',         'path to a cell, with other parameters in file name')
              )
 
     opt <- parse_args( object = OptionParser(option_list = option.list)
@@ -991,6 +1027,10 @@ default.args <-
          ,mtry           = ''
          ,fold           = 'all'  # must be 'all' for general use from the command line
          )
+#default.args <-
+#    list( cvcell = 
+#          'global_rf_2003on_avm_logprice_best08_level_58_100_0_495_6'
+#         )
 control <- Control(default.args)
 
 # cache transaction.data

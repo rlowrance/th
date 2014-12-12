@@ -31,8 +31,33 @@ Chart14 <- function(my.control) {
         path
     }
     CellsUsed <- function() {
-        # return list of paths
+        # return list of paths to cells used
+        verbose <- FALSE
         result <- list()
+        
+        # for the paper, which used randomly-generated cells
+        path.in <- paste0(Directory('working'), 'randomforests-hyperparameters.csv')
+        random <- read.csv(path.in)
+        if (verbose)
+            print(summary(random))
+        for (row.index in 1:nrow(random)) {
+            cell <- list( scope = fixed$scope
+                         ,model = fixed$model
+                         ,timePeriod = fixed$timePeriod
+                         ,scenario = fixed$scenario
+                         ,response = fixed$response
+                         ,predictorsName = sprintf('best%02d', random$bestN[[row.index]])
+                         ,predictorsForm = fixed$predictorsForm
+                         ,ndays = sprintf('%2d', random$ndays[[row.index]])
+                         ,query = '100'  # 1% sample
+                         ,lambda = fixed$lambda
+                         ,ntree = sprintf('%d', random$ntree[[row.index]])
+                         ,mtry = sprintf('%d', random$mtry[[row.index]])
+                         )
+            result[[length(result) + 1]] <- cell
+        }
+
+        # for the dissertation, used fixed cells
         for (query in c('20', '100')) {
             for (ntree in c('1', '100', '300', '1000')) {
                 for (mtry in c('1', '2', '3', '4')) {
@@ -48,6 +73,7 @@ Chart14 <- function(my.control) {
                 }
             }
         }
+
         result
     }
     Chart <- function(my.control) {
