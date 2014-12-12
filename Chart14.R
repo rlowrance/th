@@ -76,6 +76,89 @@ Chart14 <- function(my.control) {
 
         result
     }
+    Parse <- CvCell()$Parse
+    ReadSurveyData <- function(query) {
+        # return data.frame containing results for specified query level
+        file.name.regex <-
+            sprintf( '^global_rf_2003on_avm_logprice_(alwaysNoAssessment|best..)_level_[0-9]*_%s_.*RData$'
+                    ,query
+                    )
+        path.to.cvcells <- paste0(Directory('working'), 'e-cv-cells')
+        Next <- DirectoryScan( path.to.directory = path.to.cvcells
+                              ,file.name.regex = file.name.regex
+                              )
+        all.rows <- NULL
+        while (!is.null(file.name <- Next())) {
+            # determine median error for the cell
+            path.to.file <- paste0(path.to.cvcells, '/', file.name)
+            loaded <- load(path.to.file)
+            a.cv.result <- cv.result[[1]]
+            rmse.values <- RootMedianSquaredErrors(a.cv.result)
+            median.value <- median(rmse.values)
+
+            file.name.parsed <- Parse(file.name) 
+            next.row <- data.frame( stringsAsFactors = FALSE
+                                   ,predictors = file.name.parsed$predictorsName
+                                   ,ndays = file.name.parsed$ndays
+                                   ,ntree = file.name.parsed$ntree
+                                   ,mtry = file.name.parsed$mtry
+                                   ,error = median.value
+                                   )
+            all.rows <- rbind(all.rows, next.row)
+        }
+        result <- all.rows
+        result
+    }
+    SurveyTable <- function(lines) {
+        # return list $Header() $Detail()
+        format.header <- '%19s %5s %5s %5s %8s'
+        format.detail <- '%19s %5d %5d %5d %8.0f'
+
+        Header <- function(c1, c2, c3, c4, c5) {
+            lines$Append(sprintf(format.header, c1, c2, c3, c4, c5))
+        }
+
+        Detail <- function(c1, c2, c3, c4, c5) {
+            lines$Append(sprintf(format.detail, c1, c2, c3, c4, c5))
+        }
+        
+        list( Header = Header
+             ,Detail = Detail
+             )
+    }
+    Survey <- function(query) {
+        # return vector of chr
+        lines <- Lines()
+        lines$Append('Survey of Estimated Generalization Errors')
+        lines$Append('From Random Forests')
+        HeadersFixed(fixed, lines)
+        lines$Append(paste0('Percent of queries in each fold that were estimated: '
+                            ,switch( query
+                                    ,'100' = '1'
+                                    ,'20' = '5'
+                                    ,'1' = '100'
+                                    )
+                            )
+        )
+        data <- ReadSurveyData(query)
+        data.sorted <- data[order(data$error, decreasing = FALSE), ]
+
+        lines$Append(' ')
+        table <- SurveyTable(lines)
+        table$Header('predictors', 'ndays', 'ntree', 'mtry', 'medError')
+
+        for (row.index in 1:nrow(data.sorted)) {
+            row <- data.sorted[row.index, ]
+            table$Detail( row$predictors
+                         ,as.numeric(row$ndays)
+                         ,as.numeric(row$ntree)
+                         ,as.numeric(row$mtry)
+                         ,row$error
+                         )
+        }
+        result <- lines$Get()
+        result
+    }
     Chart <- function(my.control) {
         # return named list
         # $a : txt lines in vertical form
@@ -200,11 +283,15 @@ Chart14 <- function(my.control) {
                                      ,predictorsName.2 = 'alwaysNoAssessment'
                                      ,query = '20'
                                      )
+        survey.1 <- Survey('100')  # survey of results for 1% sample
+        survey.5 <- Survey('20')   # survey of results for 5% sample
 
         result <- list( txt.1.30 = report.1.30$Get()  # 1% sample for 30 days
                        ,txt.1.60 = report.1.60$Get()  # 1% sample for 60 days
                        ,txt.5.30 = report.5.30$Get()  # 5% sample for 30 days
                        ,txt.5.60 = report.5.60$Get()  # 5% sample for 60 days
+                       ,txt.1.survey = survey.1       # 1% sample
+                       ,txt.5.survey = survey.5       # 5% sample
                        )
         result
     }

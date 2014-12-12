@@ -56,6 +56,35 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
     command
   }
 
+  Parse <- function(file.name) {
+    # return list of components
+    str.split <- strsplit( x = file.name
+                          ,split = '.'
+                          ,fixed = TRUE
+                          )
+    base.name <- str.split[[1]][[1]]
+    components <- strsplit( x = base.name
+                           ,split = '_'
+                           ,fixed = TRUE
+                           )
+    component <- components[[1]]
+    result <-
+      list( scope = component[[1]]
+           ,model = component[[2]]
+           ,timePeriod = component[[3]]
+           ,scenario = component[[4]]
+           ,response = component[[5]]
+           ,predictorsName = component[[6]]
+           ,predictorsForm = component[[7]]
+           ,ndays = component[[8]]
+           ,query = component[[9]]
+           ,lambda = component[[10]]
+           ,ntree = component[[11]]
+           ,mtry = component[[12]]
+           )
+    result
+  }
+
   Path <- function( scope, model, timePeriod, scenario
                    ,response, predictorsName, predictorsForm, ndays
                    ,query, lambda, ntree, mtry) {
@@ -126,6 +155,7 @@ CvCell <- function(validate.cell.specifiers = TRUE) {
 
   
   list( Command                  = Command
+       ,Parse                    = Parse
        ,Path                     = Path
        ,PossibleNdays            = PossibleNdays
        ,PossiblePredictorsNamess = PossiblePredictorsNamess
