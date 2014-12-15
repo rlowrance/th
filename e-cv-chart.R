@@ -390,6 +390,9 @@ MakeCharts <- function(control) {
            }
            ,'14' = {
                chart <- Chart14()$Chart(control)
+#               writeLines( text = chart.14$horizontal.60
+#                          ,con = control$path.out.chart.14.horizontal.60.txt
+#                          )
                writeLines( text = chart$txt.1.30
                           ,con = control$path.out.chart.14.1.30.txt
                           )
@@ -402,6 +405,7 @@ MakeCharts <- function(control) {
                writeLines( text = chart$txt.5.60
                           ,con = control$path.out.chart.14.5.60.txt
                           )
+               browser()
                writeLines( text = chart$txt.1.survey
                           ,con = control$path.out.chart.14.survey.1.txt
                           )

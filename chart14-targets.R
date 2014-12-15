@@ -1,8 +1,9 @@
 # main program to generate file chart14-target.makefile
-# containing two targets:
-#  chart14-targets-R, designed to run on system R
-#  chart14-targets-J, designed to run on system J
-# for now, just generated random targets
+# containing two set of targets:
+#  chart14-targets-Rn, designed to run on system R
+#  chart14-targets-Jn, designed to run on system J
+# where n in {'', '2', '3'}
+# for now, generated random targets
 
 source('Directory.R')
 source('Libraries.R')
@@ -61,6 +62,7 @@ RandomTarget <- function(control) {
         )
         )
 
+        # maybe sample uniformly in low, high; not exponentially
         ndays <- round(Exp10(runif( n = 1
                                    ,min = log10(control$ndays$low)
                                    ,max = log10(control$ndays$high)
@@ -131,6 +133,10 @@ Main <- function(control) {
     # second set of jobs
     AppendNDependencies(lines, 'chart14-targets-R2', 7)
     AppendNDependencies(lines, 'chart14-targets-J2', 7)
+    
+    # third set of jobs
+    AppendNDependencies(lines, 'chart14-targets-R3', 7)  # 5 CPUs of 12 in use, when generated
+    AppendNDependencies(lines, 'chart14-targets-J3', 7)  # 1 CPU of 8 in use, when generated
     
     # write the makefile
     txt <- lines$Get()
