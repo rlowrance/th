@@ -153,7 +153,7 @@ Thanks Judith for your continued support during this adventure.
 \item Andrew Caplin, for on-the-job teaching and real partnership and
 much help in navigating the system.
 
-\item Judith Carlin, for many many proofreading sesions.
+\item Judith Carlin, for many, many proofreading sessions.
 
 \item CoreLogic for providing the data.
 
@@ -162,7 +162,7 @@ random forests model.
 
 \item Leslie Greengard for continued support and encouragement.
 
-\item John Leahy for a conversation years ago in which he conjuctured
+\item John Leahy for a conversation years ago in which he conjectured
 on the efficacy of a reduced feature model. 
 
 \item Yann LeCun for making the original offer to work on a real estate
