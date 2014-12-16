@@ -152,42 +152,42 @@ Predictors2 <- function(predictors.name, predictors.form) {
               ,always.house.not.assessment.not.size
               ,always.location.zip
               )
-        } else if (predictors.name == 'best15census' && predictors.form == 'level') {
-            result <- c( best.features[1:15]
+        } else if (substr(predictors.name, 1, 4) == 'best' && 
+                   IsPositiveInteger(substr(predictors.name, 5, 6)) &&
+                   substr(predictors.name, 7, 9) == 'census' &&
+                   predictors.form == 'level') {
+            # bestNNcensus, level
+            n <- as.integer(substr(predictors.name, 5, 6))
+            stopifnot(n >= 1)
+            stopifnot(n <= 24)
+            result <- c( best.features[1:n]
                         ,'census.tract'
                         )
             result
-        } else if (predictors.name == 'best15city' && predictors.form == 'level') {
-            result <- c( best.features[1:15]
+        } else if (substr(predictors.name, 1, 4) == 'best' && 
+                   IsPositiveInteger(substr(predictors.name, 5, 6)) &&
+                   substr(predictors.name, 7, 9) == 'city' &&
+                   predictors.form == 'level') {
+            # bestNNcity, level
+            n <- as.integer(substr(predictors.name, 5, 6))
+            result <- c( best.features[1:n]
                         ,'property.city'
                         )
             result
-        } else if (predictors.name == 'best15zip' && predictors.form == 'level') {
-            result <- c( best.features[1:15]
-                        ,'zip5'
-                        )
-            result
-        } else if (predictors.name == 'best20census' && predictors.form == 'level') {
-            stop(paste0('should not be using ', predictors.name))
-            result <- c( best.features[1:20]
-                        ,'census.tract'
-                        )
-            result
-        } else if (predictors.name == 'best20city' && predictors.form == 'level') {
-            stop(paste0('should not be using ', predictors.name))
-            result <- c( best.features[1:20]
-                        ,'property.city'
-                        )
-            result
-        } else if (predictors.name == 'best20zip' && predictors.form == 'level') {
-            stop(paste0('should not be using ', predictors.name))
-            result <- c( best.features[1:20]
+        } else if (substr(predictors.name, 1, 4) == 'best' && 
+                   IsPositiveInteger(substr(predictors.name, 5, 6)) &&
+                   substr(predictors.name, 7, 9) == 'zip' &&
+                   predictors.form == 'level') {
+            # bestNNzip, level
+            n <- as.integer(substr(predictors.name, 5, 6))
+            result <- c( best.features[1:n]
                         ,'zip5'
                         )
             result
         } else if (substr(predictors.name, 1, 4) == 'best' && 
                    IsPositiveInteger(substr(predictors.name, 5, 6)) &&
                    predictors.form == 'level') {
+            # bestNN, level
             n <- as.integer(substr(predictors.name, 5, 6))
             result <- best.features[1:n]
             result
@@ -211,6 +211,7 @@ Predictors2Test <- function() {
     # for now, simply test that everything runs to completion
     verbose <- TRUE
     Test <- function(predictors.name, predictors.form = NULL) {
+        browser()
         value <- Predictors2(predictors.name, predictors.form)
         if (verbose) {
             cat(predictors.name, predictors.form, '\n')
@@ -225,6 +226,7 @@ Predictors2Test <- function() {
             browser()
         }
     }
+    Test('best01zip', 'level')
     Test('best15zip', 'level')
     Test('price')
     Test('identification')
