@@ -81,14 +81,15 @@ We found that the minimum prediction error was
 were used.  The best parsimonious model has
 \Sexpr{count.parsimony.features} features and an error of
 \$\Sexpr{Commas(error.6)}, a \Sexpr{Percent(-p.15.to.6)} percent
-increase from the minumum.
+increase from the minimum.
 
 \item Linear models are popular in part because they are relatively easy
 to understand and quick to fit. However, they tend to underperform
 non-linear models. In this work, we examine local linear models. In a
 local linear model, a separate linear model is fit to every query transaction,
-resulting in a non-linear model. In our experiments, carefully designed
-local linear models outperformed off-the-shelf random forests.
+resulting in a non-linear model. In our experiments,  a carefully designed
+local linear model was outperformed by an off-the-shelf random forests
+model.
 
 \end{itemize}
 
@@ -101,9 +102,9 @@ million transactions mostly dated from 1984 through the early part of
 data that is both informative for prediction purposes and does not
 contain any future information.  Chapter 5 identifies the best local linear
 models, at least according to our experiments on these data. It also
-describes a random forests model that performs worse than the best of
-the local linear models.  Chapter 6 presents overall conclusions that
-lead to future work I'd like to do.
+describes a random forests model that performs better than the best of
+the local linear models, when trained on the same data.  Chapter 6
+presents overall conclusions that lead to future work I'd like to do.
 
 %\layout    % see Gratzer p 268
 

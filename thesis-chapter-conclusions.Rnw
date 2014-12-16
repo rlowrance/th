@@ -8,7 +8,7 @@ trained on 30 days of data prior to the query transaction, predicted the
 log of the price, was regularized, and used 15 features in their natural
 units. 
 
-The random forests models we tested did not perform better than the
+The random forests models we tested performed better than the
 local linear model we designed.
 
 These ideas for future work seem potentially fruitful:

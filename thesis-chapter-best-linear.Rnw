@@ -49,7 +49,7 @@ transactions. For this, we used 10-fold cross validation.
 Property descriptions came from the tax roll for the year 2008. The
 tax roll contained property descriptions as of October 31, 2007. We
 needed to exclude from our data any houses built or modified after that
-date. An analysis showed that there are no such houses.
+date. An analysis showed that there were no such houses.
 
 All of the linear models in this chapter are local linear models, by
 which we mean that a separate model was fitted for each query
@@ -174,7 +174,7 @@ For Sales in 2003 and Later
 
 The results are depicted in Figure \ref{figure:path.7.txt}.
 
-The table has two panels. In panel A, the response variable is price. In
+The table has two panels. In panel A, the response variable is $price$. In
 panel B the response variable is $\log(price)$. Each panel has a row for
 each training period considered. The length of the training period is in
 column \code{ndays}. Adjacent to the training period are two groups of
@@ -302,13 +302,13 @@ to expensive and less expensive houses. By prediction $\log(price)$
 instead of $price$, the idea  is to fit the model to minimize errors on
 the more typical, less expensive houses, not to minimize the
 price-weighted error, which could be regarded as overly influenced by a
-few very large houses.
+few, very large houses.
 
 We focused on a fourth rationale and simply asked: Which model form
 yielded the lowest estimated generalization errors as measured by the
 median of the root median squared error across folds? 
 
-Another issue is to determine the best training period. The linear
+Another issue was to determine the best training period. Linear
 models are setting the marginal price of each feature. If prices are
 moving slowly, then training on a longer period of time might be
 beneficial.  If prices are moving rapidly, then training only on recent
@@ -360,7 +360,7 @@ p
 Figure \ref{figure:path.8.txt} shows the estimated generalization
 errors from 10-fold cross validation. The lowest error is for $ndays =
 30$ and is in the fourth column, which holds errors for the log-level
-model. Thus the lowest error occured when training for 30 days and
+model. Thus the lowest error occurred when training for 30 days and
 predicting $\log(price)$ using the features in their natural units. The
 log-level model (in column four) always has the lowest error for every
 choice for the number of training days. One way to think about the
@@ -482,7 +482,7 @@ features:
 \begin{itemize}
 
 \item living-area: this is the interior living space. Construction is
-required to change it, so I was not surprised to see it highly-ranked.
+required to change it, so I was not surprised to see it highly ranked.
 That it is more highly ranked than the land square footage was a surprise
 to me, because land square footage seems harder to change than interior
 living space.
@@ -552,7 +552,7 @@ variance.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.01}}
-\caption{Feature Weights for the First Principal Component}
+\caption{Feature Weights For the First Principal Component}
 \label{figure:path.pca.2.01}
 \end{figure}
 
@@ -570,7 +570,7 @@ the wealth of the neighborhood.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.02}}
-\caption{Feature Weights for the Second Principal Component}
+\caption{Feature Weights For the Second Principal Component}
 \label{figure:path.pca.2.02}
 \end{figure}
 
@@ -587,7 +587,7 @@ principal component was possibly about the size of the land.
 %\small
 %\normalsize
 \verbatiminput{\Sexpr{path.pca.2.03}}
-\caption{Feature Weights for the Third Principal Component}
+\caption{Feature Weights For the Third Principal Component}
 \label{figure:path.pca.2.03}
 \end{figure}
 
@@ -662,7 +662,7 @@ found by PCA.
 Regularizing models is one way to avoid overfitting and thereby improve
 prediction accuracy. So far the models were not regularized.
 
-To assess the extent to which regularization leads to more accuracy, we
+To assess the extent to which regularization led to more accuracy, we
 took the model using the 15 best features and ran multiple versions using
 several choices for the weight of the L2 regularizer. A simple line
 search was used. 
@@ -736,7 +736,7 @@ model was
 
 
 The indicators were capturing the possibly different average prices in
-each submarket. The average price per feature were the same across
+each submarket. The average price per feature was the same across
 submarkets.
 
 \begin{figure}[ht!]
@@ -829,7 +829,7 @@ and that makes it easier to fit the linear models.
 Coverage numbers could be increased most likely by either retraining the
 models on more than 30 days of data or forming submarket groups by
 splicing together some of the submarkets. The latter approach has been
-tried in the literature. The former appears to have not been tried.
+tried in the literature. The former appears not to have been tried.
 
 Comparing Figures \ref{figure:path.13.indicator} and
 \ref{figure:path.13.submarkets} we see that the best indicator model had
@@ -888,7 +888,7 @@ errors. Error estimates were produced for 126 cities. The median errors
 for each city vary widely. Figure \ref{figure:path.13.examples.RMSE}
 shows the medians for various cities. We see that the most
 accurately-estimated houses were those in Lancaster, where the estimated
-generalization error was about \$24,000. A common attribute of the
+generalization error was about \$15,000. A common attribute of the
 cities with the ten lowest errors was that they all had relatively
 low-priced houses. Median house prices for them from 2003 through 2009
 ranged from \$220,000 to \$405,000.
@@ -1016,7 +1016,7 @@ Estimated Generalization Errors\\
 For Random Forests\\
 For Selected Hyperparameters \code{ntree} and \code{mtry}\\
 For All Features Except Assessment Features and the Best 15 Features from the Linear Models\\
-Trained for 60 Days\\
+Trained For 60 Days\\
 Using a Five Percent Sample of Queries in Folds
 }
 \label{figure:path.14.rf.5.60}
@@ -1024,8 +1024,8 @@ Using a Five Percent Sample of Queries in Folds
 
 <<RandomForests, include=FALSE>>=
 error.rf <- 47035
-error.zip.indicators <- 41013
-p <- 1 - (error.rf / error.zip.indicators)
+error.L2 <- 58453
+p <- 1 - (error.rf / error.L2)
 p
 @  
 Figure \ref{figure:path.14.rf.5.30} shows the results of this experiment
@@ -1039,18 +1039,14 @@ in all of the training folds.
 The lowest error for the random forests models was when training on 60
 days of data, using the 15 best predictors from the linear models,
 setting $ntree = 300$, and setting $mtry = 4$. This error was
-\$\Sexpr{Commas(error.rf)}, which was \Sexpr{Percent(-p)} percent higher
-than the best entire-market linear model, the one with the zip code
-indicators, which had an error of \$\Sexpr{Commas(error.zip.indicators)}.
+\$\Sexpr{Commas(error.rf)}, which was \Sexpr{Percent(p)} percent lower
+than the best entire-market linear model, the one with the L2
+regularizer and without the zip code indicators, which had an error of
+\$\Sexpr{Commas(error.L2)}.
 
-From this analysis, one should not conclude that local linear models
-beat random forests models in this setting. There is still more design
-work to be done around the random forests models. For example, one could
-explore whether 90 days of training is better than 60, and repeat the LCV
-feature analysis task. Also, the sample size for random forests was
-fairly small (five percent), so increasing it would be indicated.
-However, the computation burden for the random forests model was much
-higher than for the local linear models.
+Thus the random forests model, with minimal design work, outperformed
+the carefully designed local linear model. We traded computation time
+for human time.
 
 \clearpage
 

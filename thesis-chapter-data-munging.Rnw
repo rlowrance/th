@@ -192,7 +192,7 @@ Details of each of these steps are in the subsections and sections that follow.
 
 \subsection{Select arms-length sale deeds}
 
-The deeds file classified every record as to whether it was an
+The deeds files classified every record as to whether it was an
 arms-length sale or not. Deeds not at arms length may be between related
 parties, and the price paid may not be at market. For example, a parent
 might sell a house to a child for \$10.  How a deed was classified as
@@ -274,7 +274,7 @@ The transactions file was created by joining each of the input files.
   \Sexpr{CommasAbout(transactions$info$nrow.deeds.parcels)} records. The
   unique key of each record was the APN and the recording date for the
   deed. Other fields in the joined records were information from the
-  deeds file including, when available, the date of the sale and the
+  deeds files including, when available, the date of the sale and the
   price, and information from the tax roll file including, when
   available, a description of the property (lot size, interior space,
   number of rooms, and so forth).
@@ -381,10 +381,10 @@ the subset of transactions actually used in the analysis.
   \Sexpr{Remaining(subset$info$sale.code$sale.price.full)} such.
 
   \item Sale date. None of the deeds were missing recording dates. Some
-  were missing sale dates. When a sales date was missing, it was imputed
+  were missing sale dates. When a sale date was missing, it was imputed
   from the recording date. This imputation used the average delay
-  between sales and recording (\Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
-  days) as the best estimate for the missing sales date.
+  between sale and recording (\Sexpr{round(subset$info$mean.days.between.sale.and.recording.date)}
+  days) as the best estimate for the missing sale date.
 
   \item Total rooms. We rejected transactions for houses reported to
   have less than \Sexpr{Commas(subset$control$min.total.rooms)} room.
@@ -466,7 +466,7 @@ only a handful of features, and reading just the features needed and
 assembling them into a data frame for analysis was often quicker than
 reading all the features and discarding most of them.
 
-Since models would need transformed versions of the features, I
+Since models could need transformed versions of the features, I
 pre-computed those as well. For the continuous features with all
 positive values, I created centered versions and centered versions of
 the log of the values. For continuous features that can be zero, instead

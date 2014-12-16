@@ -605,7 +605,7 @@ random draws; otherwise it was repeated 10 times.  It is claimed (but
 not substantiated) that this procedure is ``sufficient to achieve
 stabilization of cumulative average error'' (page 368).
 
-Models are compared on a five metrics including RMSE and excluding
+Models are compared on five metrics including RMSE and excluding
 fraction within $x$ percent.
 
 

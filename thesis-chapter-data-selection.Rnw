@@ -16,7 +16,7 @@ estate prices cover just one year of transactions. Unfortunately, the
 overlap in time periods for our data sets is small.
 \begin{itemize}
 
-\item The deeds file contained deeds for 1984 through the first part of
+\item The deeds files contained deeds for 1984 through the first part of
 2009. A few deeds from years before 1984 were thrown in.
 
 \item The tax roll file was for 2008. It was created in late 2007. It
@@ -33,12 +33,12 @@ Thus, the common time period was starting in 2008 and extended into a
 few months in 2009.
 
 This time period could have been extended to earlier time periods if we
-could have conclude that the tax assessment did not carry much
-predictive value.  If that were so, we could have simply not use features
-derived from the tax assessment, and extended the analysis back to 2003,
+could have concluded that the tax assessment did not carry much
+predictive value.  If that were so, we could have simply not used features
+derived from the tax assessment and extended the analysis back to 2003,
 when the year 2000 census data became available.
 
-Furthermore, we could have extend the time period back before 2003, if the
+Furthermore, we could have extended the time period back before 2003, if the
 census data were also not valuable for predictive purposes.
 
 To determine whether feature sets were valuable for predictive purposes,
@@ -48,7 +48,7 @@ The remainder of this chapter is sectionalized.
 
 \begin{itemize}
 
-\item Section 1 describes the cross validation process and how models
+\item Section 1 describes the cross-validation process and how models
 were fitted and used for prediction.
 
 \item Section 2 provides an overview of real estate taxes in
@@ -88,19 +88,19 @@ fold containing 10 percent of the data.
 For each of the samples in the testing fold, we built a local model
 just for that sample, which we called the query transaction. To avoid
 using the future in the training process, we first discarded all data in
-the training folds that occurs on or after the date of the query
+the training folds that occured on or after the date of the query
 transaction. A model was then trained on the remaining data in the
 training folds. The trained model was then used to predict the query
 transaction's price and the results were recorded.
 
 There were many local models to be fit. Just before the models were
-fitted, the feature set was analyzed to detect and eliminate any feature
-that would not meet the requirements of the underlying model. For
-example, usually the model required that no feature had the same value
-for every transaction.  We made this tradeoff: we kept the transaction
-in the fold's test set using fewer features than are specified in the
-model rather than discarding the test transactions. In a fold,
-usually very test transactions have discarded features.
+fitted, the feature set was analyzed to detect and eliminate any
+feature that would not meet the requirements of the underlying model.
+For example, usually the model required that no feature had the same
+value for every transaction.  We made this tradeoff: we kept the
+transaction in the fold's test set using fewer features than are
+specified in the model rather than discarding the test transactions. In
+a fold, usually very test transactions have discarded features.
 
 One optimization speed up the fitting process. All models with the same
 query date were fitted to the same training data because the training
@@ -113,7 +113,7 @@ for every query transaction on a given date.
 % including a pdf
 \begin{figure}[h]
 \caption{
-Fraction of Property Sales for Exactly Their 2008 Assessments \\
+Fraction of Property Sales For Exactly Their 2008 Assessments \\
 By Recording Year and Month\\
 For 2006 Through 2009
 }
@@ -156,7 +156,7 @@ values. Assessments were reset to their 1976 levels.  Increases from the
 sold (with a few exceptions). Properties that sold were assessed at
 their selling prices.
 
-%Our focus is on the assessed value. In
+%Our foscus is on the assessed value. In
 %this section, we further focus on the total assessed value, the sum of
 %the assessed values for the land and any improvements (buildings and
 %structures) on the land. California law defines the assessed value using
@@ -210,7 +210,7 @@ useful in predicting real estate prices when using linear models?
 
 To answer this question, we compared two linear models that are otherwise
 identical except for the feature sets used. One model used the tax data,
-one does not. In order to determine which of the two models was better, we
+one did not. In order to determine which of the two models was better, we
 estimated the generalization error from each model using 10-fold cross
 validation.
 
@@ -240,7 +240,7 @@ These two axis resulted in six feature sets.
   tract had a park, retail stores, a school, and industry.
   \end{itemize}
 
-\item From the deeds file from the years 1984 through 2009.
+\item From the deeds files for the years 1984 through 2009.
   \begin{itemize}
   \item Size features: land square footage, living area,
   basement square feet, number of bathrooms, number of bedrooms, number
@@ -310,7 +310,7 @@ use the tax assessment.
 Comparing columns two and three, we see that in every case the estimated
 errors are lower if we do not use the tax assessment-derived features.
 This is true for every column pair. Using the tax assessment always
-leads to higher estimated errors.
+led to higher estimated errors.
 
 
 \begin{figure}[h]
@@ -378,7 +378,7 @@ Unfortunately, the census tract numbers we used for properties were
 contained in the tax roll, which we had only for 2008. Thus we could not
 easily determine census tract numbers for parcels for the 1980 nor 1990
 censuses. The implication was that the earliest date we could use the
-census data we had is for the date when it first became available.
+census data we had was for the date when it first became available.
 According to the help line for the Census Bureau, the year 2000 census
 data became public sometime in 2002.  Rather than determine that date
 exactly, we assumed that transactions on or after January 1, 2003
