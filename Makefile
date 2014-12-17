@@ -1492,87 +1492,87 @@ $(working)/submarkets.RData: submarkets.R $(submarkets-source)
 	
 # THESIS
 
-.PHONY: thesis
-thesis: $(working)/thesis.pdf
-
-thesis-chapters += thesis-chapter-introduction.Rnw
-thesis-chapters += thesis-chapter-literature-review.Rnw
-thesis-chapters += thesis-chapter-data-munging.Rnw
-thesis-chapters += thesis-chapter-data-selection.Rnw
-thesis-chapters += thesis-chapter-best-linear.Rnw
-thesis-chapters += thesis-chapter-conclusions.Rnw
-
-thesis-data-data-munging += $(working)/transactions.RData
-thesis-data-data-munging += $(working)/transactions-subset1.RData
-thesis-data-data-munging += $(working)/deeds-al-g.RData
-thesis-data-data-munging += $(working)/parcels-sfr.RData
-
-thesis-data-data-selection += $(working)/e-cv-chart_chart5_vertical.txt
-thesis-data-data-selection += $(working)/e-cv-chart_chart6_vertical100.txt
-thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
-thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
-
-thesis-data-best-linear += $(working)/e-cv-chart_chart7_3.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart8.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart10_1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart10_1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart10_2.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart11_1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart11_2.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart12_1.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
-thesis-data-best-linear += $(working)/e-cv-chart_chart12.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart13_indicators_medRMSE.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_summary_medRMSE.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_examples_property_city_medRMSE.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_examples_property_city_medMARE.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_30.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_60.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_30.txt
-thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_60.txt
-thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
-thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
-thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
-thesis-data-best-linear += $(working)/e-features-pca-chart_2_02.txt
-thesis-data-best-linear += $(working)/e-features-pca-chart_2_03.txt
-
-thesis-data += $(thesis-data-data-munging)
-thesis-data += $(thesis-data-data-selection)
-thesis-data += $(thesis-data-best-linear)
-
-$(working)/thesis.pdf : thesis.Rnw $(thesis-chapters) $(thesis-data)
-	Rscript -e "library('knitr'); knit('thesis.Rnw')"
-	pdflatex thesis.tex
-	mv thesis.pdf $(working)/
-	cp thesis.tex $(tex)/
-	
-.PHONY: thesis-only
-thesis-only:
-	Rscript -e "library('knitr'); knit('thesis.Rnw')"
-	pdflatex thesis.tex
-	mv thesis.pdf $(working)/
-	cp thesis.tex $(tex)/
-	
-.PHONY : thesis-final
-thesis-final:   # incorporate all bibliography changes
-	Rscript -e "library('knitr'); knit('thesis.Rnw')"
-	pdflatex thesis.tex
-	mv thesis.pdf $(working)/
-	cp thesis.tex $(tex)/
-	bibtex thesis
-	pdflatex thesis.tex
-	pdflatex thesis.tex
-	mv thesis.pdf $(working)/
-	cp thesis.tex $(tex)
-
-.PHONY : bibtex
-bibtex:
-	bibtex thesis
-
-
+#.PHONY: thesis
+#thesis: $(working)/thesis.pdf
+#
+#thesis-chapters += thesis-chapter-introduction.Rnw
+#thesis-chapters += thesis-chapter-literature-review.Rnw
+#thesis-chapters += thesis-chapter-data-munging.Rnw
+#thesis-chapters += thesis-chapter-data-selection.Rnw
+#thesis-chapters += thesis-chapter-best-linear.Rnw
+#thesis-chapters += thesis-chapter-conclusions.Rnw
+#
+#thesis-data-data-munging += $(working)/transactions.RData
+#thesis-data-data-munging += $(working)/transactions-subset1.RData
+#thesis-data-data-munging += $(working)/deeds-al-g.RData
+#thesis-data-data-munging += $(working)/parcels-sfr.RData
+#
+#thesis-data-data-selection += $(working)/e-cv-chart_chart5_vertical.txt
+#thesis-data-data-selection += $(working)/e-cv-chart_chart6_vertical100.txt
+#thesis-data-data-selection += $(working)/e-price-chart_chart2.pdf
+#thesis-data-data-selection += $(working)/e-verify-assessment-chart_chart1.pdf
+#
+#thesis-data-best-linear += $(working)/e-cv-chart_chart7_3.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart8.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart9_1.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart9_2.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart9.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart10_1.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart10_1.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart10_2.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart11_1.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart11_2.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart12_1.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart12_2.pdf
+#thesis-data-best-linear += $(working)/e-cv-chart_chart12.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart13_indicators_medRMSE.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_summary_medRMSE.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_examples_property_city_medRMSE.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart13_submarkets_examples_property_city_medMARE.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_30.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart14_1_60.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_30.txt
+#thesis-data-best-linear += $(working)/e-cv-chart_chart14_5_60.txt
+#thesis-data-best-linear += $(working)/e-features-lcv2-chart_1.txt
+#thesis-data-best-linear += $(working)/e-features-pca-chart_1.txt
+#thesis-data-best-linear += $(working)/e-features-pca-chart_2_01.txt
+#thesis-data-best-linear += $(working)/e-features-pca-chart_2_02.txt
+#thesis-data-best-linear += $(working)/e-features-pca-chart_2_03.txt
+#
+#thesis-data += $(thesis-data-data-munging)
+#thesis-data += $(thesis-data-data-selection)
+#thesis-data += $(thesis-data-best-linear)
+#
+#$(working)/thesis.pdf : thesis.Rnw $(thesis-chapters) $(thesis-data)
+#	Rscript -e "library('knitr'); knit('thesis.Rnw')"
+#	pdflatex thesis.tex
+#	mv thesis.pdf $(working)/
+#	cp thesis.tex $(tex)/
+#	
+#.PHONY: thesis-only
+#thesis-only:
+#	Rscript -e "library('knitr'); knit('thesis.Rnw')"
+#	pdflatex thesis.tex
+#	mv thesis.pdf $(working)/
+#	cp thesis.tex $(tex)/
+#	
+#.PHONY : thesis-final
+#thesis-final:   # incorporate all bibliography changes
+#	Rscript -e "library('knitr'); knit('thesis.Rnw')"
+#	pdflatex thesis.tex
+#	mv thesis.pdf $(working)/
+#	cp thesis.tex $(tex)/
+#	bibtex thesis
+#	pdflatex thesis.tex
+#	pdflatex thesis.tex
+#	mv thesis.pdf $(working)/
+#	cp thesis.tex $(tex)
+#
+#.PHONY : bibtex
+#bibtex:
+#	bibtex thesis
+#
+#
 
 # EXPERIMENTS (ONE DOCUMENT HAS THEM ALL; USE FOR INTERNAL REVIEWS)
 
