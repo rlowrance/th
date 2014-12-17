@@ -80,12 +80,8 @@ RandomTarget <- function(control) {
 
     Next
 }
-
-Main <- function(control) {
-    InitializeR( duplex.output.to = control$path.out.log
-                ,random.seed      = control$random.seed
-                )
-    str(control)
+RandomHyperparameters <- function(control) {
+    # return Lines() object created by generating random hyperparameters
 
     Path <- CvCell()$Path
     fixed <- Chart14()$Fixed()
@@ -106,7 +102,7 @@ Main <- function(control) {
                      )
         path
     }
-
+    
     Next <- RandomTarget(control)
     AppendNDependencies <- function(lines, target, n) {
         # append N dependencies
@@ -137,6 +133,77 @@ Main <- function(control) {
     # third set of jobs
     AppendNDependencies(lines, 'chart14-targets-R3', 7)  # 5 CPUs of 12 in use, when generated
     AppendNDependencies(lines, 'chart14-targets-J3', 7)  # 1 CPU of 8 in use, when generated
+}
+ZipcodeHyperparameters <- function(control) {
+    # return Lines() object containing targets for best15zip random forests
+    browser()
+
+    Path <- CvCell()$Path
+    fixed <- Chart14()$Fixed()
+    ThePath <- function(ntree, mtry) {
+        the.path <- Path( scope = fixed$scope
+                         ,model = fixed$model
+                         ,timePeriod = fixed$timePeriod
+                         ,scenario = fixed$scenario
+                         ,response = fixed$response
+                         ,predictorsName = 'best15zip'
+                         ,predictorsForm = fixed$predictorsForm
+                         ,ndays = '60'
+                         ,query = '100'
+                         ,lambda = fixed$lambda
+                         ,ntree = ntree
+                         ,mtry = mtry
+                         )
+        the.path
+    }
+    AppendDependencies <- function(lines, target, range.ntree, range.mtry) {
+        # mutate lines by append makefile control lines
+        lines$Append(paste0('.PHONY: ', target))
+        lines$Append(paste0( target
+                            ,': \\'
+                            )
+        )
+        for (ntree in range.ntree) {
+            for (mtry in range.mtry) {
+                the.path <- ThePath( ntree = ntree
+                                    ,mtry = mtry
+                                    )
+                lines$Append(paste0( '  '
+                                    ,the.path
+                                    ,' \\'  # continue each generated line
+                                    )
+                )
+            }
+        }
+        lines$Append(' ')  # non-continued line
+    }
+
+    lines <- Lines()
+    AppendDependencies( lines
+                       ,'chart14-targets-R'
+                       ,range.ntree = c('300', '1000')
+                       ,range.mtry = c('1', '2', '3', '4')
+                       )
+    AppendDependencies( lines
+                       ,'chart14-targets-J'
+                       ,range.ntree = c('1', '100')
+                       ,range.mtry = c('1', '2', '3', '4')
+                       )
+    lines
+}
+
+Main <- function(control) {
+    InitializeR( duplex.output.to = control$path.out.log
+                ,random.seed      = control$random.seed
+                )
+    str(control)
+
+    lines <-
+        if (FALSE)
+            RandomHyperparameters(control)
+        else
+            ZipcodeHyperparameters(control)
+
     
     # write the makefile
     txt <- lines$Get()

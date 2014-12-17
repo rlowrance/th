@@ -40,11 +40,13 @@ source('Libraries.R')
 
 source('Counter.R')
 source('CvCell.R')        # machinery to manipule the e-cv-cells directory
+source('IsRandomForests.R')
 source('Lines.R')
 source('PredictLocal.R')  # all local models
-
+source('PredictLocalRandomForests.R')
 source('Predictors2.R') 
 source('ReadTransactionSplits.R')
+source('TryCatchWE.R')
 
 library(lubridate)
 library(MASS)
@@ -369,7 +371,6 @@ MakeFormula <- function(data, response, predictorsForm, predictorsName, control)
     # --predictorsName {always|alwaysNoAssessment}
     # NOTE: if non-informative features are not dropped, lm() works and predict() fails
 
-
     # an informative predictor has more than one value
     all.predictors.with.year<- Predictors2( predictors.name = predictorsName
                                            ,predictors.form = predictorsForm
@@ -555,7 +556,7 @@ Evaluate_9 <- function( model, scenario, response
     ModelRandomForest.Fit <- function(formula, data, fit.model.data) {
         # the lambda value is from the command line
         # it is 100x too big
-        #cat('in ModelRandomForest.Fit\n'); browser()
+        cat('in ModelRandomForest.Fit\n'); browser()
 
         ntree <- fit.model.data$ntree
         mtry <- fit.model.data$mtry
@@ -569,7 +570,7 @@ Evaluate_9 <- function( model, scenario, response
     }
 
     ModelRandomForest.Predict <- function(object, newdata) {
-        #cat('in ModelRandomForest.Predict\n'); browser()
+        cat('in ModelRandomForest.Predict\n'); browser()
         result <- predict( object = object
                           ,newdata = newdata
                           )
@@ -578,6 +579,11 @@ Evaluate_9 <- function( model, scenario, response
 
     # EXECUTION STARTS HERE
 
+    DEBUG <- FALSE
+    if (DEBUG) {
+        print('DEBUG')
+        query.transactions <- query.transactions[1:3, ]
+    }
     predictions.raw <- 
         PredictLocal( scenario = scenario
                      ,ndays = ndays
@@ -1029,7 +1035,7 @@ default.args <-
          )
 #default.args <-
 #    list( cvcell = 
-#          'global_rf_2003on_avm_logprice_best08_level_58_100_0_495_6'
+#          'global_rf_2003on_avm_logprice_best15zip_level_60_100_0_100_4'
 #         )
 control <- Control(default.args)
 

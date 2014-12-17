@@ -1,4 +1,3 @@
-source('TryCatchWE.R')
 PredictLocal <- function( scenario, ndays, data.training, query.transactions
                          ,response, predictorsForm, predictorsName, control
                          ,TrainingData, MakeFormula
@@ -9,6 +8,21 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                          ) {
     # Return evaluation of the specified model on the given training and test data
     # Return vector of predictions for the query.transactions using a local model
+    if (IsRandomForests(model.name)) {
+      result <- PredictLocalRandomForests( scenario = scenario
+                                                 ,ndays = ndays
+                                                 ,data.training = data.training
+                                                 ,query.transactions = query.transactions
+                                                 ,response = response
+                                                 ,predictorsForm = predictorsForm
+                                                 ,predictorsName = predictorsName
+                                                 ,control = control
+                                                 ,fit.model.data = fit.model.data
+                                                 ,TrainingData = TrainingData
+                                                 ,model.name
+                                                 ,fold.number)
+      return(result)
+    }
 
     verbose.prediction <- FALSE
     verbose.memory <- FALSE
@@ -36,6 +50,12 @@ PredictLocal <- function( scenario, ndays, data.training, query.transactions
                                      )
         if (!maybe.formula$ok)
             return(list(ok = FALSE, problem = maybe.formula$problem))
+        browser()
+        fit.model <- FitModel( formula = maybe.formula$value
+                              ,data = training.data
+                              ,fit.model.data = fit.model.data
+                              )
+        print(fit.model)
         maybe.fitted <-
             TryCatchWE(FitModel( formula = maybe.formula$value
                                 ,data = training.data
