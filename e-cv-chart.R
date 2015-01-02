@@ -165,6 +165,8 @@ Control <- function(default.args) {
              ,path.out.chart.14.1.60.txt = paste0(working, out.base, '_chart14_1_60.txt')
              ,path.out.chart.14.5.30.txt = paste0(working, out.base, '_chart14_5_30.txt')
              ,path.out.chart.14.5.60.txt = paste0(working, out.base, '_chart14_5_60.txt')
+             ,path.out.chart.14.1.60.zip.txt = paste0(working, out.base, '_chart14_1_60_zip.txt')
+             ,path.out.chart.14.5.60.zip.txt = paste0(working, out.base, '_chart14_5_60_zip.txt')
              ,path.out.chart.14.survey.1.txt = paste0(working, out.base, '_chart14_survey_1.txt')
              ,path.out.chart.14.survey.5.txt = paste0(working, out.base, '_chart14_survey_5.txt')
 
@@ -390,9 +392,6 @@ MakeCharts <- function(control) {
            }
            ,'14' = {
                chart <- Chart14()$Chart(control)
-#               writeLines( text = chart.14$horizontal.60
-#                          ,con = control$path.out.chart.14.horizontal.60.txt
-#                          )
                writeLines( text = chart$txt.1.30
                           ,con = control$path.out.chart.14.1.30.txt
                           )
@@ -405,7 +404,12 @@ MakeCharts <- function(control) {
                writeLines( text = chart$txt.5.60
                           ,con = control$path.out.chart.14.5.60.txt
                           )
-               browser()
+               writeLines( text = chart$txt.1.60.zip
+                          ,con = control$path.out.chart.14.1.60.zip.txt
+                          )
+               writeLines( text = chart$txt.5.60.zip
+                          ,con = control$path.out.chart.14.5.60.zip.txt
+                          )
                writeLines( text = chart$txt.1.survey
                           ,con = control$path.out.chart.14.survey.1.txt
                           )
@@ -428,7 +432,7 @@ Main <- function(control) {
 
 ### Execution starts here
 
-default.args <- list(chart='14')
+default.args <- list(chart='13')
 
 
 control <- Control(default.args)

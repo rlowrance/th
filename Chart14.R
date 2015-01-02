@@ -283,6 +283,21 @@ Chart14 <- function(my.control) {
                                      ,predictorsName.2 = 'alwaysNoAssessment'
                                      ,query = '20'
                                      )
+        browser()
+        report.1.60.zip <- Report2Panels( ndays = '60'
+                                         ,msg.1 = 'using the best 15 + zip codes'
+                                         ,predictorsName.1 = 'best15zip'
+                                         ,msg.2 = 'using all predictors except assessment'
+                                         ,predictorsName.2 = 'alwaysNoAssessment'
+                                         ,query = '100'
+                                         )
+        report.5.60.zip <- Report2Panels( ndays = '60'
+                                         ,msg.1 = 'using the best 15 + zip codes'
+                                         ,predictorsName.1 = 'best15zip'
+                                         ,msg.2 = 'using all predictors except assessment'
+                                         ,predictorsName.2 = 'alwaysNoAssessment'
+                                         ,query = '20'
+                                         )
         survey.1 <- Survey('100')  # survey of results for 1% sample
         survey.5 <- Survey('20')   # survey of results for 5% sample
 
@@ -290,6 +305,8 @@ Chart14 <- function(my.control) {
                        ,txt.1.60 = report.1.60$Get()  # 1% sample for 60 days
                        ,txt.5.30 = report.5.30$Get()  # 5% sample for 30 days
                        ,txt.5.60 = report.5.60$Get()  # 5% sample for 60 days
+                       ,txt.1.60.zip = report.1.60.zip$Get()  # 1% sample for 60 days, with zipcodes
+                       ,txt.5.60.zip = report.5.60.zip$Get()  # 5% sample for 60 days, with zipcodes
                        ,txt.1.survey = survey.1       # 1% sample
                        ,txt.5.survey = survey.5       # 5% sample
                        )

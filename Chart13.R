@@ -184,7 +184,7 @@ Chart13 <- function() {
                 report <- Lines()
 
                 report$Append('Estimated Generalization Errors from 10-fold Cross Validation')
-                report$Append(sprintf('Using $s from Folds'
+                report$Append(sprintf('Using %s from Folds'
                                       ,switch( metric.name
                                               ,medRMSE = 'Median of Root Median Squared Errors'
                                               ,medMARE = 'Median of Median Absolute Relative Errors'

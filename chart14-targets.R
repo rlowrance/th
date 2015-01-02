@@ -149,7 +149,7 @@ ZipcodeHyperparameters <- function(control) {
                          ,predictorsName = 'best15zip'
                          ,predictorsForm = fixed$predictorsForm
                          ,ndays = '60'
-                         ,query = '100'
+                         ,query = '20'
                          ,lambda = fixed$lambda
                          ,ntree = ntree
                          ,mtry = mtry
